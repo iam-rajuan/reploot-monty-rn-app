@@ -33,7 +33,7 @@ import {
 } from "../data/workoutPathDetailData";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setSelectedWorkoutCategory } from "@/store/slices/workoutSlice";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { GenericWorkoutDetailScreen } from "./GenericWorkoutDetailScreen";
 import { WorkoutLibraryScreen } from "./WorkoutLibraryScreen";
 
@@ -71,6 +71,7 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const params = useLocalSearchParams<{ pathId?: string; split?: string }>();
   const reduxSelectedCategory = useAppSelector(
@@ -84,15 +85,34 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
     null;
 
   const [activePath, setActivePath] = useState<WorkoutPathId | null>(initialPath);
+  const lastParamRef = React.useRef<WorkoutPathId | null>(initialPath);
 
   React.useEffect(() => {
     const target =
-      (params.pathId as WorkoutPathId) || (params.split as WorkoutPathId);
-    if (target && target !== activePath) {
+      (params.pathId as WorkoutPathId) || (params.split as WorkoutPathId) || null;
+    if (target && target !== lastParamRef.current) {
+      lastParamRef.current = target;
       setActivePath(target);
       dispatch(setSelectedWorkoutCategory(target));
     }
-  }, [params.pathId, params.split, activePath, dispatch]);
+  }, [params.pathId, params.split, dispatch]);
+
+  const handleDetailBack = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    }
+    // If opened via route params (e.g. from Calendar, Today's Missions, or Search), navigate back
+    if (params.pathId || params.split) {
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace("/(tabs)/home");
+      }
+    } else {
+      // If opened in-place from the gym path cards, return to the cards list
+      setActivePath(null);
+    }
+  };
 
   React.useEffect(() => {
     try {
@@ -129,7 +149,7 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
     return (
       <GenericWorkoutDetailScreen
         pathId={activePath}
-        onBack={() => setActivePath(null)}
+        onBack={handleDetailBack}
       />
     );
   }

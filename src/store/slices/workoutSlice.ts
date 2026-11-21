@@ -6,6 +6,204 @@ import {
   WORKOUT_VARIATIONS_MAP,
 } from '@/features/workouts/data/workoutPathDetailData';
 
+export interface ScheduledWorkoutEntry {
+  dateKey: string; // e.g. "2024-9-18"
+  splitId: string; // "push" | "pull" | "chest" | "upper" | "lower" | "fullbody"
+  splitName: string;
+  missionTitle: string;
+  missionSubtitle: string;
+  type?: 'completed' | 'scheduled' | 'today';
+  color: string;
+  bgColor: string;
+  borderColor: string;
+  route: string;
+}
+
+export const SPLIT_MISSION_METADATA: Record<
+  string,
+  {
+    name: string;
+    missionTitle: string;
+    missionSubtitle: string;
+    color: string;
+    bgColor: string;
+    borderColor: string;
+    route: string;
+  }
+> = {
+  pull: {
+    name: "Pull Day",
+    missionTitle: "Pull Day Hyper-Row",
+    missionSubtitle: "Lat Pulldown & Cable Rows",
+    color: "#2DD4BF",
+    bgColor: "rgba(45, 212, 191, 0.22)",
+    borderColor: "#2DD4BF",
+    route: "/workouts/pull",
+  },
+  push: {
+    name: "Push Day",
+    missionTitle: "Push Day Iron-Forge",
+    missionSubtitle: "Overhead Press & Dips",
+    color: "#38BDF8",
+    bgColor: "rgba(56, 189, 248, 0.22)",
+    borderColor: "#38BDF8",
+    route: "/workouts/push",
+  },
+  chest: {
+    name: "Chest Day",
+    missionTitle: "Chest Day Hypertrophy",
+    missionSubtitle: "Flat Bench & Incline DB Press",
+    color: "#38EDD8",
+    bgColor: "rgba(56, 237, 216, 0.22)",
+    borderColor: "#38EDD8",
+    route: "/workouts/chest",
+  },
+  upper: {
+    name: "Upper Body",
+    missionTitle: "Upper Body Power-Circuit",
+    missionSubtitle: "Chest, Back, Arms & Delts",
+    color: "#C084FC",
+    bgColor: "rgba(192, 132, 252, 0.22)",
+    borderColor: "#C084FC",
+    route: "/workouts/upper",
+  },
+  lower: {
+    name: "Lower Body",
+    missionTitle: "Lower Body Quad Matrix",
+    missionSubtitle: "Squats, Leg Press & Calves",
+    color: "#FFB68C",
+    bgColor: "rgba(255, 182, 140, 0.22)",
+    borderColor: "#FFB68C",
+    route: "/workouts?pathId=lower",
+  },
+  fullbody: {
+    name: "Full Body",
+    missionTitle: "Full Body Metabolic Surge",
+    missionSubtitle: "Compound Lifts & Conditioning",
+    color: "#F43F5E",
+    bgColor: "rgba(244, 63, 94, 0.22)",
+    borderColor: "#F43F5E",
+    route: "/workouts?pathId=fullbody",
+  },
+};
+
+// Helper to resolve today's date key according to user's device/region
+export const getTodayDateKey = (): string => {
+  const now = new Date();
+  return `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+};
+
+// Initial calendar schedules dynamically anchored around the current real date
+const createInitialCalendarSchedules = (): Record<string, ScheduledWorkoutEntry> => {
+  const result: Record<string, ScheduledWorkoutEntry> = {};
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  const currentDay = now.getDate();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+  // 1. TODAY'S WORKOUT: Pull Day
+  const todayKey = `${currentYear}-${currentMonth}-${currentDay}`;
+  const todayMeta = SPLIT_MISSION_METADATA.pull;
+  result[todayKey] = {
+    dateKey: todayKey,
+    splitId: "pull",
+    splitName: todayMeta.name,
+    missionTitle: todayMeta.missionTitle,
+    missionSubtitle: todayMeta.missionSubtitle,
+    type: "today",
+    color: todayMeta.color,
+    bgColor: todayMeta.bgColor,
+    borderColor: todayMeta.borderColor,
+    route: todayMeta.route,
+  };
+
+  // 2. PAST WORKOUTS IN CURRENT MONTH: Realistic completed workout telemetry
+  const pastSplits = ["push", "chest", "pull", "upper", "push", "chest", "pull"];
+  let splitIdx = 0;
+  for (let day = currentDay - 2; day >= 1; day -= 2) {
+    const splitId = pastSplits[splitIdx % pastSplits.length];
+    splitIdx++;
+    const meta = SPLIT_MISSION_METADATA[splitId] || SPLIT_MISSION_METADATA.push;
+    const dateKey = `${currentYear}-${currentMonth}-${day}`;
+    result[dateKey] = {
+      dateKey,
+      splitId,
+      splitName: meta.name,
+      missionTitle: meta.missionTitle,
+      missionSubtitle: meta.missionSubtitle,
+      type: "completed",
+      color: meta.color,
+      bgColor: meta.bgColor,
+      borderColor: meta.borderColor,
+      route: meta.route,
+    };
+  }
+
+  // 3. UPCOMING SCHEDULED WORKOUTS IN CURRENT MONTH
+  const upcomingSplits = ["push", "chest", "upper", "lower", "pull", "chest"];
+  let upcomingIdx = 0;
+  for (let day = currentDay + 2; day <= daysInMonth; day += 2) {
+    const splitId = upcomingSplits[upcomingIdx % upcomingSplits.length];
+    upcomingIdx++;
+    const meta = SPLIT_MISSION_METADATA[splitId] || SPLIT_MISSION_METADATA.push;
+    const dateKey = `${currentYear}-${currentMonth}-${day}`;
+    result[dateKey] = {
+      dateKey,
+      splitId,
+      splitName: meta.name,
+      missionTitle: meta.missionTitle,
+      missionSubtitle: meta.missionSubtitle,
+      type: "scheduled",
+      color: meta.color,
+      bgColor: meta.bgColor,
+      borderColor: meta.borderColor,
+      route: meta.route,
+    };
+  }
+
+  // Also include October 2024 entries for backward compatibility
+  const legacyScheduleDef: Array<{
+    day: number;
+    splitId: string;
+    type: 'completed' | 'scheduled' | 'today';
+  }> = [
+    { day: 2, splitId: "push", type: "completed" },
+    { day: 4, splitId: "pull", type: "completed" },
+    { day: 6, splitId: "push", type: "completed" },
+    { day: 9, splitId: "chest", type: "completed" },
+    { day: 11, splitId: "pull", type: "completed" },
+    { day: 13, splitId: "push", type: "completed" },
+    { day: 16, splitId: "chest", type: "completed" },
+    { day: 18, splitId: "pull", type: "today" },
+    { day: 20, splitId: "push", type: "scheduled" },
+    { day: 23, splitId: "pull", type: "scheduled" },
+    { day: 25, splitId: "pull", type: "scheduled" },
+    { day: 27, splitId: "pull", type: "scheduled" },
+    { day: 30, splitId: "chest", type: "scheduled" },
+  ];
+  legacyScheduleDef.forEach(({ day, splitId, type }) => {
+    const meta = SPLIT_MISSION_METADATA[splitId] || SPLIT_MISSION_METADATA.pull;
+    const dateKey = `2024-9-${day}`;
+    if (!result[dateKey]) {
+      result[dateKey] = {
+        dateKey,
+        splitId,
+        splitName: meta.name,
+        missionTitle: meta.missionTitle,
+        missionSubtitle: meta.missionSubtitle,
+        type,
+        color: meta.color,
+        bgColor: meta.bgColor,
+        borderColor: meta.borderColor,
+        route: meta.route,
+      };
+    }
+  });
+
+  return result;
+};
+
 export interface WorkoutState {
   completedExerciseIds: string[];
   activeWorkoutPathId: string | null;
@@ -13,6 +211,8 @@ export interface WorkoutState {
   selectedWorkoutCategory: string; // e.g. "push" | "pull" | "chest" | "lower" | "upper" | "fullbody"
   workoutsByPath: Record<string, DynamicWorkoutPathDetail>;
   regenerationCounterByPath: Record<string, number>;
+  calendarSchedules: Record<string, ScheduledWorkoutEntry>;
+  activeScheduleDateKey: string;
 }
 
 // Deep clone initial workouts so mutations don't alter raw module definitions
@@ -35,7 +235,7 @@ const initialState: WorkoutState = {
   completedExerciseIds: [],
   activeWorkoutPathId: null,
   currentExerciseIndex: 0,
-  selectedWorkoutCategory: 'push',
+  selectedWorkoutCategory: 'pull',
   workoutsByPath: cloneInitialWorkouts(),
   regenerationCounterByPath: {
     push: 0,
@@ -45,6 +245,8 @@ const initialState: WorkoutState = {
     lower: 0,
     fullbody: 0,
   },
+  calendarSchedules: createInitialCalendarSchedules(),
+  activeScheduleDateKey: getTodayDateKey(),
 };
 
 export const workoutSlice = createSlice({
@@ -180,6 +382,57 @@ export const workoutSlice = createSlice({
         state.regenerationCounterByPath[key] = 0;
       }
     },
+
+    // 5. ASSIGN WORKOUT SCHEDULE TO DATE
+    assignWorkoutSchedule: (
+      state,
+      action: PayloadAction<{
+        dateKey: string;
+        splitId: string;
+        type?: 'completed' | 'scheduled' | 'today';
+      }>
+    ) => {
+      const { dateKey, splitId, type } = action.payload;
+      const normalizedSplit = (splitId === 'full' ? 'fullbody' : splitId).toLowerCase();
+      const meta = SPLIT_MISSION_METADATA[normalizedSplit] || SPLIT_MISSION_METADATA.pull;
+
+      state.calendarSchedules[dateKey] = {
+        dateKey,
+        splitId: normalizedSplit,
+        splitName: meta.name,
+        missionTitle: meta.missionTitle,
+        missionSubtitle: meta.missionSubtitle,
+        type: type || (dateKey === state.activeScheduleDateKey ? 'today' : 'scheduled'),
+        color: meta.color,
+        bgColor: meta.bgColor,
+        borderColor: meta.borderColor,
+        route: meta.route,
+      };
+
+      state.activeScheduleDateKey = dateKey;
+      state.selectedWorkoutCategory = normalizedSplit;
+    },
+
+    // 6. REMOVE WORKOUT SCHEDULE FROM DATE
+    removeWorkoutSchedule: (
+      state,
+      action: PayloadAction<{ dateKey: string }>
+    ) => {
+      const { dateKey } = action.payload;
+      delete state.calendarSchedules[dateKey];
+    },
+
+    // 7. SET ACTIVE FOCUSED SCHEDULE DATE
+    setActiveScheduleDate: (
+      state,
+      action: PayloadAction<string>
+    ) => {
+      const dateKey = action.payload;
+      state.activeScheduleDateKey = dateKey;
+      if (state.calendarSchedules[dateKey]) {
+        state.selectedWorkoutCategory = state.calendarSchedules[dateKey].splitId;
+      }
+    },
   },
 });
 
@@ -194,6 +447,9 @@ export const {
   replaceExerciseInWorkout,
   regenerateWorkout,
   resetWorkoutToDefault,
+  assignWorkoutSchedule,
+  removeWorkoutSchedule,
+  setActiveScheduleDate,
 } = workoutSlice.actions;
 
 export default workoutSlice.reducer;

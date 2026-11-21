@@ -11,6 +11,18 @@ import {
 } from "react-native";
 
 export const WeeklyProgressCard = () => {
+  const now = new Date();
+  const currentDayOfWeek = now.getDay(); // 0 is Sunday, 1 is Monday ...
+
+  const WEEK_DAYS = [
+    { label: "M", height: 32, dayNum: 1 },
+    { label: "T", height: 48, dayNum: 2 },
+    { label: "W", height: 68, dayNum: 3 },
+    { label: "T", height: 80, dayNum: 4 },
+    { label: "F", height: 24, dayNum: 5 },
+    { label: "S", height: 44, dayNum: 6 },
+    { label: "S", height: 16, dayNum: 0 },
+  ];
   return (
     <View style={styles.cardContainer}>
       <View style={styles.headerRow}>
@@ -56,46 +68,41 @@ export const WeeklyProgressCard = () => {
       {/* Weekly Bar Chart */}
       <View style={styles.chartContainer}>
         <View style={styles.chartBars}>
-          {/* M */}
-          <View style={styles.barWrap}>
-            <View style={[styles.bar, styles.barBlue, { height: 32 }]} />
-            <Text style={styles.dayLabel}>M</Text>
-          </View>
-          {/* T */}
-          <View style={styles.barWrap}>
-            <View style={[styles.bar, styles.barBlue, { height: 48 }]} />
-            <Text style={styles.dayLabel}>T</Text>
-          </View>
-          {/* W */}
-          <View style={styles.barWrap}>
-            <View style={[styles.bar, styles.barPurpleGray, { height: 68 }]} />
-            <Text style={styles.dayLabel}>W</Text>
-          </View>
-          {/* T (Current Day) */}
-          <View style={styles.barWrap}>
-            <View style={styles.barActiveGlow}>
-              <LinearGradient
-                colors={["#38EDD8", "#38EDD8"]}
-                style={[styles.bar, styles.barActive, { height: 80 }]}
-              />
-            </View>
-            <Text style={[styles.dayLabel, styles.dayLabelActive]}>T</Text>
-          </View>
-          {/* F */}
-          <View style={styles.barWrap}>
-            <View style={[styles.bar, styles.barBlue, { height: 24 }]} />
-            <Text style={styles.dayLabel}>F</Text>
-          </View>
-          {/* S */}
-          <View style={styles.barWrap}>
-            <View style={[styles.bar, styles.barBlue, { height: 44 }]} />
-            <Text style={styles.dayLabel}>S</Text>
-          </View>
-          {/* S */}
-          <View style={styles.barWrap}>
-            <View style={[styles.bar, styles.barBlue, { height: 16 }]} />
-            <Text style={styles.dayLabel}>S</Text>
-          </View>
+          {WEEK_DAYS.map((dayItem, index) => {
+            const isToday = currentDayOfWeek === dayItem.dayNum;
+            return (
+              <View key={index} style={styles.barWrap}>
+                {isToday ? (
+                  <View style={styles.barActiveGlow}>
+                    <LinearGradient
+                      colors={["#38EDD8", "#38EDD8"]}
+                      style={[
+                        styles.bar,
+                        styles.barActive,
+                        { height: dayItem.height },
+                      ]}
+                    />
+                  </View>
+                ) : (
+                  <View
+                    style={[
+                      styles.bar,
+                      dayItem.height > 50 ? styles.barPurpleGray : styles.barBlue,
+                      { height: dayItem.height },
+                    ]}
+                  />
+                )}
+                <Text
+                  style={[
+                    styles.dayLabel,
+                    isToday && styles.dayLabelActive,
+                  ]}
+                >
+                  {dayItem.label}
+                </Text>
+              </View>
+            );
+          })}
         </View>
       </View>
 

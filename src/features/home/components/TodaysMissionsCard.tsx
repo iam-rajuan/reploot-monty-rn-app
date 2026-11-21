@@ -1,5 +1,9 @@
-import { useAppDispatch } from "@/store/hooks";
-import { setSelectedWorkoutCategory } from "@/store/slices/workoutSlice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  getTodayDateKey,
+  setSelectedWorkoutCategory,
+  SPLIT_MISSION_METADATA,
+} from "@/store/slices/workoutSlice";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -9,14 +13,54 @@ import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native
 
 export const TodaysMissionsCard = () => {
   const dispatch = useAppDispatch();
+  const todayKey = getTodayDateKey();
+
+  // Read schedules and active schedule date key from Redux store
+  const calendarSchedules = useAppSelector(
+    (state) => state.workout.calendarSchedules || {},
+  );
+  const activeScheduleDateKey = useAppSelector(
+    (state) => state.workout.activeScheduleDateKey || todayKey,
+  );
+  const selectedWorkoutCategory = useAppSelector(
+    (state) => state.workout.selectedWorkoutCategory || "pull",
+  );
+
+  // Check if a workout is scheduled for the active date
+  const scheduledToday = calendarSchedules[activeScheduleDateKey];
+  const splitId = scheduledToday
+    ? scheduledToday.splitId
+    : selectedWorkoutCategory || "pull";
+
+  const activeMetadata =
+    SPLIT_MISSION_METADATA[splitId] || SPLIT_MISSION_METADATA.pull;
+
+  const isRestDay = !scheduledToday && activeScheduleDateKey !== todayKey;
+
+  const missionTitle = isRestDay
+    ? "Active Recovery / Rest Day"
+    : scheduledToday?.missionTitle || activeMetadata.missionTitle;
+
+  const missionSubtitle = isRestDay
+    ? "Tap to assign a workout in calendar"
+    : scheduledToday?.missionSubtitle || activeMetadata.missionSubtitle;
 
   const handleWorkoutPress = () => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     }
-    // Update active category in shared Redux store and route straight to Pull Day
-    dispatch(setSelectedWorkoutCategory("pull"));
-    router.push("/workouts/pull");
+    if (isRestDay) {
+      router.push("/workout-calendar");
+      return;
+    }
+    // Update active category in shared Redux store and route straight to selected workout
+    dispatch(setSelectedWorkoutCategory(splitId));
+    const targetRoute =
+      activeMetadata.route ||
+      (splitId === "fullbody" || splitId === "full"
+        ? "/workouts?pathId=fullbody"
+        : `/workouts/${splitId}`);
+    router.push(targetRoute as any);
   };
 
   const handleCalendarPress = () => {
@@ -57,10 +101,8 @@ export const TodaysMissionsCard = () => {
         >
           <View style={styles.missionRow}>
             <View style={styles.missionInfo}>
-              <Text style={styles.missionTitle}>Pull Day Hyper-Row</Text>
-              <Text style={styles.missionSubtitle}>
-                Lat Pulldown & Cable Rows
-              </Text>
+              <Text style={styles.missionTitle}>{missionTitle}</Text>
+              <Text style={styles.missionSubtitle}>{missionSubtitle}</Text>
             </View>
             <View style={styles.arrowButton}>
               <Image

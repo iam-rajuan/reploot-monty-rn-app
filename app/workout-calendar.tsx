@@ -19,6 +19,7 @@ import {
 } from "lucide-react-native";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   Modal,
   Platform,
@@ -42,10 +43,50 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setSelectedWorkoutCategory } from "@/store/slices/workoutSlice";
+import {
+  assignWorkoutSchedule,
+  getTodayDateKey,
+  removeWorkoutSchedule,
+  setActiveScheduleDate,
+  setSelectedWorkoutCategory,
+} from "@/store/slices/workoutSlice";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
+
+// Helper to resolve regional week configuration (Sunday vs Monday start according to locale/region)
+export function getRegionWeekConfig(): {
+  daysOfWeek: string[];
+  firstDayOfWeek: number; // 0 for Sunday, 1 for Monday
+} {
+  try {
+    const locale =
+      Intl.DateTimeFormat().resolvedOptions().locale || "en-US";
+    const intlLocale = new (Intl as any).Locale(locale);
+    let firstDay = 1; // Default to Monday (ISO)
+    if (intlLocale.weekInfo && typeof intlLocale.weekInfo.firstDay === "number") {
+      firstDay = intlLocale.weekInfo.firstDay === 7 ? 0 : intlLocale.weekInfo.firstDay;
+    } else {
+      // Regions where week starts on Sunday: US, CA, MX, JP, SA, IL, PH, BR, AU, NZ, SG, HK, TW, KR, IN, BD, etc.
+      const sundayLocales = /-(US|CA|MX|JP|SA|IL|PH|BR|AU|NZ|SG|HK|TW|KR|IN|BD)$/i;
+      if (sundayLocales.test(locale) || locale.toLowerCase().startsWith("en-us")) {
+        firstDay = 0;
+      }
+    }
+
+    if (firstDay === 0) {
+      return {
+        firstDayOfWeek: 0,
+        daysOfWeek: ["SU", "MO", "TU", "WE", "TH", "FR", "SA"],
+      };
+    }
+  } catch {}
+
+  return {
+    firstDayOfWeek: 1,
+    daysOfWeek: ["MO", "TU", "WE", "TH", "FR", "SA", "SU"],
+  };
+}
 
 const DAYS_OF_WEEK = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 const MONTH_NAMES = [
@@ -169,9 +210,18 @@ function getCategoryColors(label?: string) {
   return null;
 }
 
-function generateInitialCalendar(year: number, month: number): CalendarCell[] {
+function generateInitialCalendar(
+  year: number,
+  month: number,
+  firstDayOfWeek: number = 1
+): CalendarCell[] {
   const firstDay = new Date(year, month, 1).getDay();
-  const startOffset = firstDay === 0 ? 6 : firstDay - 1;
+  const startOffset =
+    firstDayOfWeek === 0
+      ? firstDay
+      : firstDay === 0
+        ? 6
+        : firstDay - 1;
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const daysInPrevMonth = new Date(year, month, 0).getDate();
@@ -195,23 +245,9 @@ function generateInitialCalendar(year: number, month: number): CalendarCell[] {
     let type: CalendarCell["type"] = undefined;
     let label = "";
 
-    // Mockup data for October 2024
-    if (year === 2024 && month === 9) {
-      if ([2, 4, 6, 9, 11, 13, 16].includes(i)) {
-        type = "completed";
-        label = i % 2 === 0 ? "Push Day" : "Pull Day";
-      }
-      if (i === 9 || i === 16) label = "Chest Day";
-      if (isToday || i === 18) {
-        type = "today";
-        label = "Pull Day";
-      }
-      if ([20, 23, 25, 27, 30].includes(i)) {
-        type = "scheduled";
-        label = i === 30 ? "Chest Day" : i === 20 ? "Push Day" : "Pull Day";
-      }
-    } else {
-      if (isToday) type = "today";
+    if (isToday) {
+      type = "today";
+      label = "Pull Day";
     }
 
     const theme = getCategoryColors(label);
@@ -327,26 +363,25 @@ export default function WorkoutCalendarScreen() {
   const activeWorkoutCategory = useAppSelector(
     (state) => state.workout.selectedWorkoutCategory
   );
+  const calendarSchedules = useAppSelector(
+    (state) => state.workout.calendarSchedules || {},
+  );
+  const todayKey = getTodayDateKey();
+  const activeScheduleDateKey = useAppSelector(
+    (state) => state.workout.activeScheduleDateKey || todayKey,
+  );
   const calendarGridRef = useRef<View>(null);
 
-  // Month navigation
-  const [currentDate, setCurrentDate] = useState(() => new Date(2024, 9, 1));
+  // Regional week configuration (Sunday vs Monday start according to user's region/locale)
+  const { daysOfWeek, firstDayOfWeek } = useMemo(
+    () => getRegionWeekConfig(),
+    [],
+  );
+
+  // Month navigation - defaults to current day according to user's local timezone/region
+  const [currentDate, setCurrentDate] = useState(() => new Date());
   const currentYear = currentDate.getFullYear();
   const currentMonthIdx = currentDate.getMonth();
-
-  // Custom schedule store: map of "year-month-date" -> workout properties
-  const [schedules, setSchedules] = useState<
-    Record<
-      string,
-      {
-        label: string;
-        type: "scheduled" | "today";
-        color: string;
-        bgColor: string;
-        borderColor: string;
-      }
-    >
-  >({});
 
   // Active workout split selection (for tap-to-place)
   const [activeSelectedSplit, setActiveSelectedSplit] =
@@ -404,32 +439,58 @@ export default function WorkoutCalendarScreen() {
   };
 
   const [scheduleFeedback, setScheduleFeedback] = useState(false);
+  const [isUpdatingSchedule, setIsUpdatingSchedule] = useState(false);
+
+  const handleUpdateSchedule = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    }
+    setIsUpdatingSchedule(true);
+
+    setTimeout(() => {
+      if (Platform.OS !== "web") {
+        Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Success,
+        ).catch(() => {});
+      }
+      setIsUpdatingSchedule(false);
+      // Navigate straight to the Home page after updating properly
+      router.replace("/(tabs)/home");
+    }, 1100);
+  };
 
   const prevMonthIdx = currentMonthIdx === 0 ? 11 : currentMonthIdx - 1;
   const prevMonthName = MONTH_NAMES[prevMonthIdx];
   const nextMonthIdx = currentMonthIdx === 11 ? 0 : currentMonthIdx + 1;
   const nextMonthName = MONTH_NAMES[nextMonthIdx];
 
-  // Base calendar data merged with custom scheduled items
+  // Base calendar data merged with custom scheduled items from Redux
   const calendarData = useMemo(() => {
-    const base = generateInitialCalendar(currentYear, currentMonthIdx);
+    const base = generateInitialCalendar(
+      currentYear,
+      currentMonthIdx,
+      firstDayOfWeek
+    );
     return base.map((item) => {
       if (!item.currentMonth) return item;
       const key = `${currentYear}-${currentMonthIdx}-${item.date}`;
-      if (schedules[key]) {
+      const scheduled = calendarSchedules[key];
+      if (scheduled) {
         return {
           ...item,
-          type: schedules[key].type,
-          label: schedules[key].label,
-          color: schedules[key].color,
-          bgColor: schedules[key].bgColor,
-          borderColor: schedules[key].borderColor,
+          type:
+            scheduled.type ||
+            (item.type === "today" ? "today" : "scheduled"),
+          label: scheduled.splitName,
+          color: scheduled.color,
+          bgColor: scheduled.bgColor,
+          borderColor: scheduled.borderColor,
           isCustom: true,
         };
       }
       return item;
     });
-  }, [currentYear, currentMonthIdx, schedules]);
+  }, [currentYear, currentMonthIdx, calendarSchedules, firstDayOfWeek]);
 
   const applyWorkoutToDate = useCallback(
     (targetDate: number, split: WorkoutTemplate) => {
@@ -441,20 +502,14 @@ export default function WorkoutCalendarScreen() {
         today.getMonth() === currentMonthIdx &&
         today.getDate() === targetDate;
 
-      setSchedules((prev) => ({
-        ...prev,
-        [key]: {
-          label: split.name,
-          type: isToday ? "today" : "scheduled",
-          color: split.color,
-          bgColor: split.bgColor,
-          borderColor: split.borderColor,
-        },
-      }));
-
-      // Synchronize with Redux shared workout state
       const pathKey = split.id === "full" ? "fullbody" : split.id;
-      dispatch(setSelectedWorkoutCategory(pathKey));
+      dispatch(
+        assignWorkoutSchedule({
+          dateKey: key,
+          splitId: pathKey,
+          type: isToday ? "today" : "scheduled",
+        }),
+      );
     },
     [currentYear, currentMonthIdx, triggerHaptic, dispatch],
   );
@@ -463,13 +518,9 @@ export default function WorkoutCalendarScreen() {
     (targetDate: number) => {
       triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
       const key = `${currentYear}-${currentMonthIdx}-${targetDate}`;
-      setSchedules((prev) => {
-        const copy = { ...prev };
-        delete copy[key];
-        return copy;
-      });
+      dispatch(removeWorkoutSchedule({ dateKey: key }));
     },
-    [currentYear, currentMonthIdx, triggerHaptic],
+    [currentYear, currentMonthIdx, triggerHaptic, dispatch],
   );
 
   // Measure calendar grid on screen in window coordinates
@@ -578,6 +629,9 @@ export default function WorkoutCalendarScreen() {
 
   const handleCellPress = (item: CalendarCell) => {
     if (!item.currentMonth) return;
+
+    const key = `${currentYear}-${currentMonthIdx}-${item.date}`;
+    dispatch(setActiveScheduleDate(key));
 
     // If an active split is selected from tray, apply it right away
     if (activeSelectedSplit) {
@@ -780,7 +834,7 @@ export default function WorkoutCalendarScreen() {
           <View style={styles.calendarInner}>
             {/* Days of Week Header */}
             <View style={styles.daysHeader}>
-              {DAYS_OF_WEEK.map((day) => (
+              {daysOfWeek.map((day) => (
                 <Text key={day} style={styles.dayHeaderText}>
                   {day}
                 </Text>
@@ -965,13 +1019,8 @@ export default function WorkoutCalendarScreen() {
         <TouchableOpacity
           activeOpacity={0.8}
           style={styles.updateButtonContainer}
-          onPress={() => {
-            triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-            setScheduleFeedback(true);
-            setTimeout(() => {
-              setScheduleFeedback(false);
-            }, 3000);
-          }}
+          disabled={isUpdatingSchedule}
+          onPress={handleUpdateSchedule}
         >
           <LinearGradient
             colors={["#00f2fe", "#4facfe"]}
@@ -993,6 +1042,21 @@ export default function WorkoutCalendarScreen() {
           <Text style={styles.floatingToastText}>
             WORKOUT SCHEDULE SYNCHRONIZED
           </Text>
+        </View>
+      )}
+
+      {/* Aesthetic Centered Circular Loading Overlay */}
+      {isUpdatingSchedule && (
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingCard}>
+            <View style={styles.loadingCircleWrapper}>
+              <ActivityIndicator size="large" color="#00f2fe" />
+            </View>
+            <Text style={styles.loadingTitle}>SYNCHRONIZING SCHEDULE...</Text>
+            <Text style={styles.loadingSubtitle}>
+              Updating routine telemetry & calendar cycles
+            </Text>
+          </View>
         </View>
       )}
 
@@ -1515,6 +1579,58 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
     fontWeight: "900",
     letterSpacing: 0.6,
+  },
+
+  /* Centered Circular Loading Overlay */
+  loadingOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: "rgba(7, 10, 17, 0.82)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999999,
+    elevation: 30,
+  },
+  loadingCard: {
+    width: width * 0.78,
+    maxWidth: 320,
+    backgroundColor: "#11141C",
+    borderRadius: 22,
+    borderWidth: 1.5,
+    borderColor: "rgba(0, 242, 254, 0.35)",
+    paddingVertical: 28,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    shadowColor: "#00f2fe",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 18,
+    elevation: 20,
+  },
+  loadingCircleWrapper: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: "rgba(0, 242, 254, 0.08)",
+    borderWidth: 1.5,
+    borderColor: "rgba(0, 242, 254, 0.25)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  loadingTitle: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontFamily: "monospace",
+    fontWeight: "900",
+    letterSpacing: 1,
+    textAlign: "center",
+    marginBottom: 6,
+  },
+  loadingSubtitle: {
+    color: "#94A3B8",
+    fontSize: 11,
+    fontFamily: "monospace",
+    textAlign: "center",
   },
 
   /* Floating Drag Preview */

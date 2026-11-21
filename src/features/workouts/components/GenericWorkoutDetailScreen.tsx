@@ -340,16 +340,9 @@ export const GenericWorkoutDetailScreen: React.FC<
       <View
         style={[
           styles.bottomCtaContainer,
-          { paddingBottom: Math.max(insets.bottom, 16) },
+          { paddingBottom: Math.max(insets.bottom, 16) + 6 },
         ]}
       >
-        <LinearGradient
-          colors={["transparent", "rgba(7, 10, 17, 0.92)", "#070A11"]}
-          locations={[0, 0.35, 1]}
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-        />
-
         <View style={styles.ctaButtonsCol}>
           {/* 1. REGENERATE WORKOUT BUTTON (immediately before Start AI Workout) */}
           <Pressable
@@ -381,15 +374,15 @@ export const GenericWorkoutDetailScreen: React.FC<
             accessibilityLabel="Start AI Workout"
           >
             <LinearGradient
-              colors={["#00a8e8", "#007ea7"]}
+              colors={["#00f2fe", "#4facfe"]}
               start={{ x: 0, y: 0.5 }}
               end={{ x: 1, y: 0.5 }}
               style={styles.startWorkoutGradient}
             >
               <Sparkles
                 size={18}
-                color="#FFFFFF"
-                fill="#FFFFFF"
+                color="#050811"
+                fill="#050811"
                 style={{ marginRight: 8 }}
               />
               <Text style={styles.startWorkoutText}>START AI WORKOUT</Text>
@@ -575,37 +568,50 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: 20,
     paddingTop: 14,
-    zIndex: 50,
+    zIndex: 99,
+    backgroundColor: "#070A11",
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255, 255, 255, 0.08)",
   },
   ctaButtonsCol: {
-    gap: 10,
+    gap: 12,
   },
   regenerateBtn: {
     height: 48,
-    borderRadius: 16,
+    borderRadius: 24,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(56, 189, 248, 0.08)",
-    borderWidth: 1.2,
-    borderColor: "rgba(56, 189, 248, 0.35)",
+    backgroundColor: "#111622",
+    borderWidth: 1.5,
+    borderColor: "rgba(56, 189, 248, 0.55)",
+    shadowColor: "#38BDF8",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
   },
   regenerateBtnPressed: {
     opacity: 0.85,
     transform: [{ scale: 0.985 }],
-    backgroundColor: "rgba(56, 189, 248, 0.15)",
+    backgroundColor: "rgba(56, 189, 248, 0.2)",
   },
   regenerateBtnText: {
     color: "#38BDF8",
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "900",
     fontFamily: "monospace",
     letterSpacing: 1,
   },
   startWorkoutBtn: {
     height: 52,
-    borderRadius: 16,
+    borderRadius: 26,
     overflow: "hidden",
+    shadowColor: "#00f2fe",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
   },
   startWorkoutBtnPressed: {
     opacity: 0.88,
@@ -619,10 +625,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   startWorkoutText: {
-    color: "#FFFFFF",
+    color: "#050811",
     fontSize: 14,
     fontWeight: "900",
     fontFamily: "monospace",
-    letterSpacing: 1.5,
+    letterSpacing: 1.2,
   },
 });
