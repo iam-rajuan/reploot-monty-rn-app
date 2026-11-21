@@ -50,6 +50,12 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="coach/index" />
         <Stack.Screen name="workouts/index" />
+        <Stack.Screen name="workouts/pull" />
+        <Stack.Screen name="workouts/push" />
+        <Stack.Screen name="workouts/chest" />
+        <Stack.Screen name="workouts/upper" />
+        <Stack.Screen name="workouts/details" />
+        <Stack.Screen name="workouts/ai-session" />
         <Stack.Screen name="notifications/index" />
         <Stack.Screen name="search/index" />
         <Stack.Screen name="profile" options={{ headerShown: false }} />

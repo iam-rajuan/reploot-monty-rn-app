@@ -63,13 +63,12 @@ export const GenericWorkoutDetailScreen: React.FC<
   const params = useLocalSearchParams<{ pathId?: string; split?: string }>();
 
   // Local override when user taps category tabs
-  const [selectedCategoryOverride, setSelectedCategoryOverride] = useState<
-    string | null
-  >(null);
+  const [selectedCategoryOverride, setSelectedCategoryOverride] =
+    useState<string | null>(null);
 
   // Determine active category from local tab override, props, route params, or Redux state
   const reduxSelectedCategory = useAppSelector(
-    (state) => state.workout?.selectedWorkoutCategory || "push",
+    (state) => state.workout?.selectedWorkoutCategory || "push"
   );
   const activePathId = (
     selectedCategoryOverride ||
@@ -83,7 +82,7 @@ export const GenericWorkoutDetailScreen: React.FC<
 
   // Read current workout from shared Redux store (preserves user modifications)
   const workoutsByPath = useAppSelector(
-    (state) => state.workout?.workoutsByPath || {},
+    (state) => state.workout?.workoutsByPath || {}
   );
   const workout: DynamicWorkoutPathDetail =
     workoutsByPath[activePathId] ||
@@ -92,10 +91,10 @@ export const GenericWorkoutDetailScreen: React.FC<
     WORKOUT_PATH_DETAILS_MAP.push;
 
   const completedExerciseIds = useAppSelector(
-    (state) => state.workout?.completedExerciseIds || [],
+    (state) => state.workout?.completedExerciseIds || []
   );
   const completedCount = workout.exercises.filter((ex) =>
-    completedExerciseIds.includes(ex.id),
+    completedExerciseIds.includes(ex.id)
   ).length;
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -168,7 +167,7 @@ export const GenericWorkoutDetailScreen: React.FC<
       removeExerciseFromWorkout({
         pathId: activePathId,
         exerciseId,
-      }),
+      })
     );
     showToast("EXERCISE REMOVED FROM ROUTINE");
   };
@@ -179,7 +178,7 @@ export const GenericWorkoutDetailScreen: React.FC<
       replaceExerciseInWorkout({
         pathId: activePathId,
         exerciseId,
-      }),
+      })
     );
     showToast("EXERCISE REPLACED WITH ALTERNATIVE");
   };
@@ -282,8 +281,7 @@ export const GenericWorkoutDetailScreen: React.FC<
             </MaskedView>
           </View>
           <Text style={styles.subtitle}>
-            {workout.subtitle} • {workout.exercises.length} AI-recommended
-            exercises
+            {workout.subtitle} • {workout.exercises.length} AI-recommended exercises
           </Text>
         </View>
 

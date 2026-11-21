@@ -1,3 +1,5 @@
+import { useAppDispatch } from "@/store/hooks";
+import { setSelectedWorkoutCategory } from "@/store/slices/workoutSlice";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -6,11 +8,15 @@ import React from "react";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export const TodaysMissionsCard = () => {
+  const dispatch = useAppDispatch();
+
   const handleWorkoutPress = () => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     }
-    router.push("/workouts");
+    // Update active category in shared Redux store and route straight to Pull Day
+    dispatch(setSelectedWorkoutCategory("pull"));
+    router.push("/workouts/pull");
   };
 
   const handleCalendarPress = () => {
