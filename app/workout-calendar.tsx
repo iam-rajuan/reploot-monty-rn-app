@@ -6,6 +6,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
+  AlertTriangle,
   ArrowRight,
   Check,
   ChevronLeft,
@@ -17,7 +18,7 @@ import {
   Trash2,
   X,
 } from "lucide-react-native";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -210,6 +211,28 @@ function getCategoryColors(label?: string) {
   return null;
 }
 
+export function getSplitByLabel(label?: string): WorkoutTemplate {
+  if (!label) return WORKOUT_SPLITS[0];
+  const normalized = label.trim().toLowerCase();
+  const matchedSplit = WORKOUT_SPLITS.find(
+    (s) =>
+      s.name.toLowerCase() === normalized ||
+      s.tag.toLowerCase() === normalized ||
+      normalized.includes(s.name.toLowerCase()) ||
+      normalized.includes(s.tag.toLowerCase()),
+  );
+  if (matchedSplit) return matchedSplit;
+  return {
+    id: "custom",
+    name: label,
+    tag: label.slice(0, 4).toUpperCase(),
+    color: "#38BDF8",
+    bgColor: "rgba(56, 189, 248, 0.22)",
+    borderColor: "#38BDF8",
+    bgGrad: ["#0284C7", "#38BDF8"],
+  };
+}
+
 function generateInitialCalendar(
   year: number,
   month: number,
@@ -242,24 +265,11 @@ function generateInitialCalendar(
       today.getMonth() === month &&
       today.getDate() === i;
 
-    let type: CalendarCell["type"] = undefined;
-    let label = "";
-
-    if (isToday) {
-      type = "today";
-      label = "Pull Day";
-    }
-
-    const theme = getCategoryColors(label);
-
     data.push({
       date: i,
       currentMonth: true,
-      type,
-      label,
-      color: theme?.color,
-      bgColor: theme?.bgColor,
-      borderColor: theme?.borderColor,
+      type: isToday ? "today" : undefined,
+      label: "",
     });
   }
 
@@ -357,6 +367,156 @@ function DraggableSplitChip({
   );
 }
 
+// Draggable Calendar Grid Cell - Supports Tap to view/assign AND Pan to move scheduled days
+interface DraggableCalendarCellProps {
+  item: CalendarCell;
+  isToday: boolean;
+  isCompleted: boolean;
+  isScheduled: boolean;
+  isHovered: boolean;
+  isCellDragging: boolean;
+  cellBgColor: string;
+  cellBorderColor: string;
+  cellTextColor: string;
+  dumbbellColor: string;
+  onPress: (item: CalendarCell) => void;
+  onDragStart: (item: CalendarCell, startX: number, startY: number) => void;
+  onDragMove: (x: number, y: number) => void;
+  onDragEnd: (item: CalendarCell, endX: number, endY: number) => void;
+}
+
+const DraggableCalendarCell = React.memo(function DraggableCalendarCell({
+  item,
+  isToday,
+  isCompleted,
+  isScheduled,
+  isHovered,
+  isCellDragging,
+  cellBgColor,
+  cellBorderColor,
+  cellTextColor,
+  dumbbellColor,
+  onPress,
+  onDragStart,
+  onDragMove,
+  onDragEnd,
+}: DraggableCalendarCellProps) {
+  const hasWorkout = Boolean(
+    item.currentMonth && (item.label || isCompleted || isScheduled)
+  );
+
+  const panGesture = useMemo(() => {
+    return Gesture.Pan()
+      .enabled(hasWorkout)
+      .minDistance(6)
+      .onStart((e) => {
+        "worklet";
+        runOnJS(onDragStart)(item, e.absoluteX, e.absoluteY);
+      })
+      .onUpdate((e) => {
+        "worklet";
+        runOnJS(onDragMove)(e.absoluteX, e.absoluteY);
+      })
+      .onEnd((e) => {
+        "worklet";
+        runOnJS(onDragEnd)(item, e.absoluteX, e.absoluteY);
+      })
+      .onFinalize(() => {
+        "worklet";
+      });
+  }, [hasWorkout, item, onDragStart, onDragMove, onDragEnd]);
+
+  if (!item.currentMonth) {
+    return (
+      <View style={styles.cellContainer}>
+        <View style={[styles.dateBox, styles.dateBoxInactive]}>
+          <Text style={[styles.dateText, styles.dateTextInactive]}>
+            {item.date}
+          </Text>
+        </View>
+        <Text style={[styles.labelText, { opacity: 0 }]}>{" "}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.cellContainer}>
+      <GestureDetector gesture={panGesture}>
+        <TouchableOpacity
+          activeOpacity={0.75}
+          onPress={() => onPress(item)}
+          style={[
+            { alignItems: "center" },
+            isCellDragging && { opacity: 0.35 },
+          ]}
+        >
+          {isToday ? (
+            <LinearGradient
+              colors={["#00f2fe", "#4facfe"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={[
+                styles.dateBox,
+                styles.dateBoxToday,
+                isHovered && styles.dateBoxHovered,
+              ]}
+            >
+              <Text style={[styles.dateText, styles.dateTextToday]}>
+                {item.date}
+              </Text>
+              {Boolean(item.label || isCompleted || isScheduled) && (
+                <Image
+                  source={require("../assets/dumble.svg")}
+                  style={styles.todayDumbbellIcon}
+                  contentFit="contain"
+                />
+              )}
+            </LinearGradient>
+          ) : (
+            <View
+              style={[
+                styles.dateBox,
+                {
+                  backgroundColor: cellBgColor,
+                  borderColor: cellBorderColor,
+                  borderWidth: 1.5,
+                },
+                isHovered && styles.dateBoxHovered,
+              ]}
+            >
+              <Text style={[styles.dateText, { color: cellTextColor }]}>
+                {item.date}
+              </Text>
+              {Boolean(isCompleted || isScheduled || item.label) && (
+                <Image
+                  source={require("../assets/dumble.svg")}
+                  style={{
+                    width: 15,
+                    height: 15,
+                    marginTop: 4,
+                    tintColor: dumbbellColor,
+                  }}
+                  contentFit="contain"
+                />
+              )}
+            </View>
+          )}
+
+          <Text
+            style={[
+              styles.labelText,
+              { color: isToday ? "#00f2fe" : cellTextColor },
+            ]}
+            numberOfLines={1}
+          >
+            {item.label ? item.label : " "}
+          </Text>
+        </TouchableOpacity>
+      </GestureDetector>
+    </View>
+  );
+});
+
 export default function WorkoutCalendarScreen() {
   const insets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
@@ -395,6 +555,37 @@ export default function WorkoutCalendarScreen() {
     useState<WorkoutTemplate | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [hoveredDate, setHoveredDate] = useState<number | null>(null);
+  const [dragSourceDate, setDragSourceDate] = useState<number | null>(null);
+
+  // Custom Cyber Conflict Alert Modal State
+  const [conflictModalData, setConflictModalData] = useState<{
+    sourceDate: number | null;
+    targetDate: number;
+    sourceSplit: WorkoutTemplate;
+    targetSplitName: string;
+  } | null>(null);
+
+  // Dynamic in-button status feedback when moving or assigning splits
+  const [buttonFeedbackMessage, setButtonFeedbackMessage] = useState<string | null>(null);
+  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const triggerButtonFeedback = useCallback((msg: string) => {
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+    }
+    setButtonFeedbackMessage(msg.toUpperCase());
+    feedbackTimerRef.current = setTimeout(() => {
+      setButtonFeedbackMessage(null);
+    }, 2500);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current) {
+        clearTimeout(feedbackTimerRef.current);
+      }
+    };
+  }, []);
 
   // Shared values for high-frequency 60 FPS animation
   const dragX = useSharedValue(0);
@@ -438,7 +629,6 @@ export default function WorkoutCalendarScreen() {
     });
   };
 
-  const [scheduleFeedback, setScheduleFeedback] = useState(false);
   const [isUpdatingSchedule, setIsUpdatingSchedule] = useState(false);
 
   const handleUpdateSchedule = () => {
@@ -479,8 +669,9 @@ export default function WorkoutCalendarScreen() {
         return {
           ...item,
           type:
-            scheduled.type ||
-            (item.type === "today" ? "today" : "scheduled"),
+            item.type === "today"
+              ? "today"
+              : scheduled.type || "scheduled",
           label: scheduled.splitName,
           color: scheduled.color,
           bgColor: scheduled.bgColor,
@@ -569,11 +760,36 @@ export default function WorkoutCalendarScreen() {
     [gridBounds, calendarData],
   );
 
-  // Drag Gesture Callbacks
+  // Drag Gesture Callbacks - from top tray chips
   const handleDragStart = useCallback(
     (split: WorkoutTemplate, startX: number, startY: number) => {
       measureCalendarGrid();
       triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+      setDragSourceDate(null);
+      setActiveDragSplit(split);
+      setIsDragging(true);
+
+      dragX.value = startX;
+      dragY.value = startY;
+      isGlobalDragging.value = true;
+    },
+    [measureCalendarGrid, triggerHaptic, dragX, dragY, isGlobalDragging],
+  );
+
+  // Drag Gesture Callbacks - from existing calendar cells
+  const handleCellDragStart = useCallback(
+    (cell: CalendarCell, startX: number, startY: number) => {
+      if (
+        !cell.currentMonth ||
+        (!cell.label && cell.type !== "completed" && cell.type !== "scheduled")
+      ) {
+        return;
+      }
+      measureCalendarGrid();
+      triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+
+      const split = getSplitByLabel(cell.label);
+      setDragSourceDate(cell.date);
       setActiveDragSplit(split);
       setIsDragging(true);
 
@@ -600,20 +816,139 @@ export default function WorkoutCalendarScreen() {
     [dragX, dragY, getDateFromCoords, hoveredDate, triggerHaptic],
   );
 
-  const handleDragEnd = useCallback(
-    (split: WorkoutTemplate, endX: number, endY: number) => {
-      const target = getDateFromCoords(endX, endY);
-      if (target !== null) {
-        applyWorkoutToDate(target, split);
-      }
+  // Re-organize calendar cell drop handler
+  const handleCellDragEnd = useCallback(
+    (sourceCell: CalendarCell, endX: number, endY: number) => {
+      const targetDate = getDateFromCoords(endX, endY);
+      const sourceDate = sourceCell.date;
+      const split = getSplitByLabel(sourceCell.label);
 
       setIsDragging(false);
       setActiveDragSplit(null);
       setHoveredDate(null);
       isGlobalDragging.value = false;
+      setDragSourceDate(null);
+
+      if (targetDate === null || targetDate === sourceDate) {
+        return;
+      }
+
+      const targetKey = `${currentYear}-${currentMonthIdx}-${targetDate}`;
+      const targetScheduled = calendarSchedules[targetKey];
+      const targetCell = calendarData.find(
+        (c) => c.currentMonth && c.date === targetDate,
+      );
+      const targetLabel = targetScheduled?.splitName || targetCell?.label;
+      const targetHasWorkout = Boolean(targetLabel && targetLabel.trim().length > 0);
+
+      if (targetHasWorkout) {
+        // Trigger Cyber Confirmation Alert Popup
+        triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy);
+        setConflictModalData({
+          sourceDate,
+          targetDate,
+          sourceSplit: split,
+          targetSplitName: targetLabel || "Scheduled Routine",
+        });
+      } else {
+        // Move directly to empty / rest day
+        triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+        removeWorkoutFromDate(sourceDate);
+        applyWorkoutToDate(targetDate, split);
+        triggerButtonFeedback(`Moved ${split.name} to Day ${targetDate}`);
+      }
     },
-    [getDateFromCoords, applyWorkoutToDate, isGlobalDragging],
+    [
+      getDateFromCoords,
+      currentYear,
+      currentMonthIdx,
+      calendarSchedules,
+      calendarData,
+      triggerHaptic,
+      removeWorkoutFromDate,
+      applyWorkoutToDate,
+      triggerButtonFeedback,
+      isGlobalDragging,
+    ],
   );
+
+  // Tray chip drop handler
+  const handleDragEnd = useCallback(
+    (split: WorkoutTemplate, endX: number, endY: number) => {
+      const targetDate = getDateFromCoords(endX, endY);
+
+      setIsDragging(false);
+      setActiveDragSplit(null);
+      setHoveredDate(null);
+      isGlobalDragging.value = false;
+      setDragSourceDate(null);
+
+      if (targetDate === null) return;
+
+      const targetKey = `${currentYear}-${currentMonthIdx}-${targetDate}`;
+      const targetScheduled = calendarSchedules[targetKey];
+      const targetCell = calendarData.find(
+        (c) => c.currentMonth && c.date === targetDate,
+      );
+      const targetLabel = targetScheduled?.splitName || targetCell?.label;
+      const targetHasWorkout = Boolean(targetLabel && targetLabel.trim().length > 0);
+
+      if (targetHasWorkout && targetLabel !== split.name) {
+        triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy);
+        setConflictModalData({
+          sourceDate: null,
+          targetDate,
+          sourceSplit: split,
+          targetSplitName: targetLabel || "Scheduled Routine",
+        });
+      } else {
+        triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+        applyWorkoutToDate(targetDate, split);
+        triggerButtonFeedback(`Assigned ${split.name} to Day ${targetDate}`);
+      }
+    },
+    [
+      getDateFromCoords,
+      currentYear,
+      currentMonthIdx,
+      calendarSchedules,
+      calendarData,
+      triggerHaptic,
+      applyWorkoutToDate,
+      triggerButtonFeedback,
+      isGlobalDragging,
+    ],
+  );
+
+  const handleConfirmConflict = useCallback(() => {
+    if (!conflictModalData) return;
+    const { sourceDate, targetDate, sourceSplit } = conflictModalData;
+
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+
+    if (sourceDate !== null) {
+      removeWorkoutFromDate(sourceDate);
+    }
+    applyWorkoutToDate(targetDate, sourceSplit);
+
+    setConflictModalData(null);
+    triggerButtonFeedback(
+      sourceDate !== null
+        ? `Moved ${sourceSplit.name} to Day ${targetDate}`
+        : `Replaced Day ${targetDate} with ${sourceSplit.name}`,
+    );
+  }, [
+    conflictModalData,
+    triggerHaptic,
+    removeWorkoutFromDate,
+    applyWorkoutToDate,
+    triggerButtonFeedback,
+  ]);
+
+  const handleCancelConflict = useCallback(() => {
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+    setConflictModalData(null);
+  }, [triggerHaptic]);
 
   // Floating follower badge animated style (butter-smooth with Reanimated)
   const floatingBadgeStyle = useAnimatedStyle(() => {
@@ -853,6 +1188,7 @@ export default function WorkoutCalendarScreen() {
                 const isToday = item.type === "today";
                 const isHovered =
                   hoveredDate === item.date && item.currentMonth;
+                const isCellDragging = dragSourceDate === item.date;
 
                 // Dynamic colors for assigned or scheduled workout splits
                 const categoryTheme = getCategoryColors(item.label);
@@ -896,89 +1232,23 @@ export default function WorkoutCalendarScreen() {
                     : item.color || categoryTheme?.color || cellTextColor;
 
                 return (
-                  <View key={index} style={styles.cellContainer}>
-                    <TouchableOpacity
-                      activeOpacity={0.75}
-                      onPress={() => handleCellPress(item)}
-                      disabled={!item.currentMonth}
-                      style={{ alignItems: "center" }}
-                    >
-                      {isToday ? (
-                        <LinearGradient
-                          colors={["#6C5CFF", "#44EAC3"]}
-                          start={{ x: 0, y: 0.5 }}
-                          end={{ x: 1, y: 0.5 }}
-                          style={[
-                            styles.dateBox,
-                            styles.dateBoxToday,
-                            isHovered && styles.dateBoxHovered,
-                          ]}
-                        >
-                          <Text style={[styles.dateText, styles.dateTextToday]}>
-                            {item.date}
-                          </Text>
-                          <Image
-                            source={require("../assets/dumble.svg")}
-                            style={{
-                              width: 15,
-                              height: 15,
-                              marginTop: 4,
-                              tintColor: dumbbellColor,
-                            }}
-                            contentFit="contain"
-                          />
-                        </LinearGradient>
-                      ) : (
-                        <View
-                          style={[
-                            styles.dateBox,
-                            !item.currentMonth && styles.dateBoxInactive,
-                            item.currentMonth && {
-                              backgroundColor: cellBgColor,
-                              borderColor: cellBorderColor,
-                              borderWidth: 1.5,
-                            },
-                            isHovered && styles.dateBoxHovered,
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.dateText,
-                              !item.currentMonth && styles.dateTextInactive,
-                              item.currentMonth && { color: cellTextColor },
-                            ]}
-                          >
-                            {item.date}
-                          </Text>
-                          {Boolean(
-                            item.currentMonth &&
-                            (isCompleted || isScheduled || Boolean(item.label)),
-                          ) ? (
-                            <Image
-                              source={require("../assets/dumble.svg")}
-                              style={{
-                                width: 15,
-                                height: 15,
-                                marginTop: 4,
-                                tintColor: dumbbellColor,
-                              }}
-                              contentFit="contain"
-                            />
-                          ) : null}
-                        </View>
-                      )}
-                      <Text
-                        style={[
-                          styles.labelText,
-                          !item.currentMonth && { opacity: 0 },
-                          item.currentMonth && { color: cellTextColor },
-                        ]}
-                        numberOfLines={1}
-                      >
-                        {item.label ? item.label : " "}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                  <DraggableCalendarCell
+                    key={`${currentYear}-${currentMonthIdx}-${item.date}-${index}`}
+                    item={item}
+                    isToday={isToday}
+                    isCompleted={isCompleted}
+                    isScheduled={isScheduled}
+                    isHovered={isHovered}
+                    isCellDragging={isCellDragging}
+                    cellBgColor={cellBgColor}
+                    cellBorderColor={cellBorderColor}
+                    cellTextColor={cellTextColor}
+                    dumbbellColor={dumbbellColor}
+                    onPress={handleCellPress}
+                    onDragStart={handleCellDragStart}
+                    onDragMove={handleDragMove}
+                    onDragEnd={handleCellDragEnd}
+                  />
                 );
               })}
             </View>
@@ -1015,7 +1285,7 @@ export default function WorkoutCalendarScreen() {
           </View>
         </LinearGradient>
 
-        {/* Bottom Update Schedule Button */}
+        {/* Bottom Update Schedule Button with Dynamic In-Button Status Feedback */}
         <TouchableOpacity
           activeOpacity={0.8}
           style={styles.updateButtonContainer}
@@ -1028,22 +1298,113 @@ export default function WorkoutCalendarScreen() {
             end={{ x: 1, y: 0 }}
             style={styles.updateButton}
           >
-            <RefreshCw color="#050811" size={18} />
-            <Text style={styles.updateButtonText}>UPDATE WORKOUT SCHEDULE</Text>
-            <ArrowRight color="#050811" size={18} />
+            {buttonFeedbackMessage ? (
+              <>
+                <Check color="#050811" size={18} strokeWidth={2.5} />
+                <Text
+                  style={[styles.updateButtonText, styles.updateButtonFeedbackText]}
+                  numberOfLines={1}
+                >
+                  {buttonFeedbackMessage}
+                </Text>
+                <Check color="#050811" size={18} strokeWidth={2.5} />
+              </>
+            ) : (
+              <>
+                <RefreshCw color="#050811" size={18} />
+                <Text style={styles.updateButtonText}>UPDATE WORKOUT SCHEDULE</Text>
+                <ArrowRight color="#050811" size={18} />
+              </>
+            )}
           </LinearGradient>
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Floating HUD Sync Toast */}
-      {scheduleFeedback && (
-        <View style={styles.floatingToast}>
-          <Check size={16} color="#00f2fe" style={{ marginRight: 8 }} />
-          <Text style={styles.floatingToastText}>
-            WORKOUT SCHEDULE SYNCHRONIZED
-          </Text>
-        </View>
-      )}
+      {/* MINIMAL CYBER CONFIRMATION MODAL: SIMPLE, NEAT & CLEAN */}
+      <Modal
+        visible={!!conflictModalData}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={handleCancelConflict}
+      >
+        <Pressable
+          style={styles.alertBackdrop}
+          onPress={handleCancelConflict}
+        >
+          <Pressable
+            style={styles.alertCard}
+            onPress={(e) => e.stopPropagation()}
+          >
+            {/* Warning Icon */}
+            <View style={styles.alertIconWrapper}>
+              <AlertTriangle size={20} color="#F43F5E" />
+            </View>
+
+            {/* Clean Title */}
+            <Text style={styles.alertTitle}>REPLACE ROUTINE?</Text>
+
+            {/* Clear, Minimal Message */}
+            <Text style={styles.alertDescription}>
+              Replace{" "}
+              <Text style={styles.alertDescTarget}>
+                {conflictModalData?.targetSplitName}
+              </Text>{" "}
+              on Day {conflictModalData?.targetDate} with{" "}
+              <Text style={styles.alertDescSource}>
+                {conflictModalData?.sourceSplit.name}
+              </Text>
+              ?
+            </Text>
+
+            {/* Minimal Routine Swap Tag */}
+            <View style={styles.alertSwapRow}>
+              <Text style={styles.alertSwapTargetText} numberOfLines={1}>
+                {conflictModalData?.targetSplitName}
+              </Text>
+              <ArrowRight
+                size={12}
+                color="#64748B"
+                style={{ marginHorizontal: 8 }}
+              />
+              <Text
+                style={[
+                  styles.alertSwapSourceText,
+                  { color: conflictModalData?.sourceSplit.color || "#00f2fe" },
+                ]}
+                numberOfLines={1}
+              >
+                {conflictModalData?.sourceSplit.name}
+              </Text>
+            </View>
+
+            {/* Action Buttons */}
+            <View style={styles.alertActionsRow}>
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={handleCancelConflict}
+                style={styles.alertCancelBtn}
+              >
+                <Text style={styles.alertCancelBtnText}>CANCEL</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleConfirmConflict}
+                style={styles.alertConfirmBtn}
+              >
+                <LinearGradient
+                  colors={["#F43F5E", "#BE123C"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.alertConfirmGrad}
+                >
+                  <Text style={styles.alertConfirmBtnText}>REPLACE</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       {/* Aesthetic Centered Circular Loading Overlay */}
       {isUpdatingSchedule && (
@@ -1479,12 +1840,14 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   dateBoxToday: {
-    borderWidth: 0,
-    shadowColor: "#6C5CFF",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
-    elevation: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.4)",
+    shadowColor: "#00f2fe",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.45,
+    shadowRadius: 6,
+    elevation: 4,
   },
   dateBoxHovered: {
     borderWidth: 2,
@@ -1500,7 +1863,16 @@ const styles = StyleSheet.create({
     color: "#334155",
   },
   dateTextToday: {
-    color: "#FFFFFF",
+    color: "#050811",
+    fontWeight: "900",
+    fontSize: 14,
+    fontFamily: "monospace",
+  },
+  todayDumbbellIcon: {
+    width: 14,
+    height: 14,
+    marginTop: 4,
+    tintColor: "#050811",
   },
   labelText: {
     fontSize: 8,
@@ -1559,26 +1931,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     letterSpacing: 0.8,
   },
-  floatingToast: {
-    position: "absolute",
-    bottom: 92,
-    left: 20,
-    right: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(7, 10, 17, 0.95)",
-    borderWidth: 1.5,
-    borderRadius: 14,
-    zIndex: 9999,
-    elevation: 12,
-  },
-  floatingToastText: {
-    color: "#00f2fe",
+  updateButtonFeedbackText: {
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 0.6,
+    letterSpacing: 0.5,
   },
 
   /* Centered Circular Loading Overlay */
@@ -1791,5 +2146,128 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: "monospace",
     fontWeight: "800",
+  },
+
+  /* Simple, Neat & Clean Conflict Alert Modal */
+  alertBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(5, 8, 17, 0.82)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    zIndex: 999999,
+  },
+  alertCard: {
+    width: Math.min(width * 0.84, 320),
+    backgroundColor: "#11141C",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+    paddingVertical: 22,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    elevation: 20,
+  },
+  alertIconWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(244, 63, 94, 0.12)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  alertTitle: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontFamily: "monospace",
+    fontWeight: "900",
+    letterSpacing: 0.5,
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  alertDescription: {
+    color: "#94A3B8",
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: "monospace",
+    textAlign: "center",
+    marginBottom: 14,
+  },
+  alertDescTarget: {
+    color: "#F43F5E",
+    fontWeight: "800",
+  },
+  alertDescSource: {
+    color: "#00f2fe",
+    fontWeight: "800",
+  },
+  alertSwapRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.06)",
+  },
+  alertSwapTargetText: {
+    color: "#94A3B8",
+    fontSize: 11,
+    fontFamily: "monospace",
+    fontWeight: "700",
+  },
+  alertSwapSourceText: {
+    fontSize: 11,
+    fontFamily: "monospace",
+    fontWeight: "800",
+  },
+  alertActionsRow: {
+    flexDirection: "row",
+    gap: 10,
+    width: "100%",
+  },
+  alertCancelBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  alertCancelBtnText: {
+    color: "#94A3B8",
+    fontSize: 12,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.5,
+  },
+  alertConfirmBtn: {
+    flex: 1,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  alertConfirmGrad: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+  },
+  alertConfirmBtnText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontFamily: "monospace",
+    fontWeight: "900",
+    letterSpacing: 0.5,
   },
 });
