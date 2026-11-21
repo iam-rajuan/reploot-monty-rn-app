@@ -41,6 +41,8 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setSelectedWorkoutCategory } from "@/store/slices/workoutSlice";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
@@ -89,6 +91,15 @@ export const WORKOUT_SPLITS: WorkoutTemplate[] = [
     bgColor: "rgba(45, 212, 191, 0.22)",
     borderColor: "#2DD4BF",
     bgGrad: ["#0F766E", "#2DD4BF"],
+  },
+  {
+    id: "chest",
+    name: "Chest Day",
+    tag: "CHEST",
+    color: "#38EDD8",
+    bgColor: "rgba(56, 237, 216, 0.22)",
+    borderColor: "#38EDD8",
+    bgGrad: ["#0E7490", "#38EDD8"],
   },
   {
     id: "upper",
@@ -312,6 +323,10 @@ function DraggableSplitChip({
 
 export default function WorkoutCalendarScreen() {
   const insets = useSafeAreaInsets();
+  const dispatch = useAppDispatch();
+  const activeWorkoutCategory = useAppSelector(
+    (state) => state.workout.selectedWorkoutCategory
+  );
   const calendarGridRef = useRef<View>(null);
 
   // Month navigation
@@ -436,8 +451,12 @@ export default function WorkoutCalendarScreen() {
           borderColor: split.borderColor,
         },
       }));
+
+      // Synchronize with Redux shared workout state
+      const pathKey = split.id === "full" ? "fullbody" : split.id;
+      dispatch(setSelectedWorkoutCategory(pathKey));
     },
-    [currentYear, currentMonthIdx, triggerHaptic],
+    [currentYear, currentMonthIdx, triggerHaptic, dispatch],
   );
 
   const removeWorkoutFromDate = useCallback(
@@ -1079,6 +1098,36 @@ export default function WorkoutCalendarScreen() {
                 activeOpacity={0.75}
                 onPress={() => {
                   if (dateModalCell) {
+                    const matchedSplit = WORKOUT_SPLITS.find(
+                      (s) => s.name === dateModalCell.label,
+                    );
+                    const pathKey = matchedSplit
+                      ? matchedSplit.id === "full"
+                        ? "fullbody"
+                        : matchedSplit.id
+                      : "push";
+                    dispatch(setSelectedWorkoutCategory(pathKey));
+                    setDateModalCell(null);
+                    router.push({
+                      pathname: "/workouts",
+                      params: { pathId: pathKey },
+                    });
+                  }
+                }}
+                style={styles.modalOpenRoutineBtn}
+              >
+                <Dumbbell size={15} color="#050811" />
+                <Text style={styles.modalOpenRoutineText}>
+                  VIEW AI DAILY WORKOUT
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {dateModalCell?.label && (
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() => {
+                  if (dateModalCell) {
                     removeWorkoutFromDate(dateModalCell.date);
                     setDateModalCell(null);
                   }
@@ -1587,6 +1636,28 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: "monospace",
     fontWeight: "800",
+  },
+  modalOpenRoutineBtn: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 14,
+    backgroundColor: "#00f2fe",
+    marginBottom: 10,
+    shadowColor: "#00f2fe",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  modalOpenRoutineText: {
+    color: "#050811",
+    fontSize: 12,
+    fontFamily: "monospace",
+    fontWeight: "900",
+    letterSpacing: 0.5,
   },
   modalClearBtn: {
     flexDirection: "row",

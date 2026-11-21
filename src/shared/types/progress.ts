@@ -1,14 +1,27 @@
 /**
- * REPLOOTProgress, Gamification & Analytics Domain Models
+ * REPLOOT Progress, Gamification & Analytics Domain Models
  */
+
+export type TierLevel = "Bronze" | "Silver" | "Gold" | "Elite" | "Master";
+
+export interface TierConfig {
+  name: TierLevel;
+  minXP: number;
+  badgeColor: string;
+  glowColor: string;
+}
 
 export interface XPProgress {
   currentLevel: number;
   currentXP: number;
   nextLevelXP: number;
-  tier: "Bronze" | "Silver" | "Gold" | "Elite" | "Master";
+  tier: TierLevel;
   dayStreak: number;
   totalWorkoutsCompleted: number;
+  seasonXP: number;
+  globalRank: number;
+  xpToNextTier: number;
+  tierProgressPercent: number;
 }
 
 export interface WeightEntry {
@@ -18,16 +31,30 @@ export interface WeightEntry {
   notes?: string;
 }
 
+export type BadgeIconType =
+  | "medal"
+  | "lightning"
+  | "drop"
+  | "flame"
+  | "arm"
+  | "salad"
+  | "ribbon"
+  | "trophy";
+
 export interface Achievement {
   id: string;
   title: string;
   description: string;
-  category: "streak" | "workout" | "accuracy" | "nutrition" | "level";
+  category: "streak" | "workout" | "accuracy" | "nutrition" | "level" | "special";
   isUnlocked: boolean;
   unlockedAt?: string;
   iconName: string;
+  iconType?: BadgeIconType;
+  glowColor?: string;
   xpReward: number;
   progressPercent: number;
+  currentProgress?: number;
+  targetProgress?: number;
 }
 
 export interface LeaderboardEntry {
@@ -36,8 +63,21 @@ export interface LeaderboardEntry {
   fullName: string;
   avatarUrl?: string;
   tier: string;
+  statusLabel?: string;
   weeklyXP: number;
+  seasonXP?: number;
   isCurrentUser: boolean;
+}
+
+export interface PersonalRecord {
+  id: string;
+  exerciseName: string;
+  category: string;
+  metric: string;
+  value: string;
+  unit?: string;
+  date: string;
+  peakStatus?: "PEAK" | "OPTIMAL" | "RECORD";
 }
 
 export interface ProgressReport {

@@ -1,5 +1,6 @@
-import { WorkoutLibraryDetailScreen } from "@/features/workouts";
+import { GenericWorkoutDetailScreen } from "@/features/workouts";
+import React from "react";
 
 export default function ChestDetailsRoute() {
-  return <WorkoutLibraryDetailScreen />;
+  return <GenericWorkoutDetailScreen pathId="chest" />;
 }

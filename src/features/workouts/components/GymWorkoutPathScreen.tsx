@@ -31,7 +31,9 @@ import {
   DynamicWorkoutPathDetail,
   WORKOUT_PATH_DETAILS_MAP,
 } from "../data/workoutPathDetailData";
-import { useNavigation } from "expo-router";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setSelectedWorkoutCategory } from "@/store/slices/workoutSlice";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { GenericWorkoutDetailScreen } from "./GenericWorkoutDetailScreen";
 import { WorkoutLibraryScreen } from "./WorkoutLibraryScreen";
 
@@ -40,6 +42,7 @@ const { width } = Dimensions.get("window");
 export type WorkoutPathId =
   | "push"
   | "pull"
+  | "chest"
   | "upper"
   | "lower"
   | "fullbody"
@@ -68,7 +71,28 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const [activePath, setActivePath] = useState<WorkoutPathId | null>(null);
+  const dispatch = useAppDispatch();
+  const params = useLocalSearchParams<{ pathId?: string; split?: string }>();
+  const reduxSelectedCategory = useAppSelector(
+    (state) =>
+      (state.workout?.selectedWorkoutCategory as WorkoutPathId) || "push"
+  );
+
+  const initialPath =
+    (params.pathId as WorkoutPathId) ||
+    (params.split as WorkoutPathId) ||
+    null;
+
+  const [activePath, setActivePath] = useState<WorkoutPathId | null>(initialPath);
+
+  React.useEffect(() => {
+    const target =
+      (params.pathId as WorkoutPathId) || (params.split as WorkoutPathId);
+    if (target && target !== activePath) {
+      setActivePath(target);
+      dispatch(setSelectedWorkoutCategory(target));
+    }
+  }, [params.pathId, params.split, activePath, dispatch]);
 
   React.useEffect(() => {
     try {
@@ -85,6 +109,7 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     }
     setActivePath(pathId);
+    dispatch(setSelectedWorkoutCategory(pathId));
 
     if (onSelectPath) {
       onSelectPath(pathId);
@@ -96,11 +121,14 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
     return <WorkoutLibraryScreen onBack={() => setActivePath(null)} />;
   }
 
-  // Dynamic Workout Handler: Use single common screen for Push, Pull, Upper, Lower, Full Body
-  if (activePath && WORKOUT_PATH_DETAILS_MAP[activePath]) {
+  // Dynamic Workout Handler: Use single common screen for Push, Pull, Chest, Upper, Lower, Full Body
+  if (
+    activePath &&
+    (WORKOUT_PATH_DETAILS_MAP[activePath] || activePath === "chest")
+  ) {
     return (
       <GenericWorkoutDetailScreen
-        workout={WORKOUT_PATH_DETAILS_MAP[activePath]}
+        pathId={activePath}
         onBack={() => setActivePath(null)}
       />
     );
@@ -132,6 +160,19 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
       iconBorder: "rgba(56, 237, 216, 0.35)",
       glowAura: "rgba(56, 237, 216, 0.12)",
       icon: <User size={20} color="#38EDD8" />,
+    },
+    {
+      id: "chest",
+      title: "CHEST DAY",
+      subtitle: "Pectoral hypertrophy & density",
+      tag: "+55 XP",
+      tagColor: "#38EDD8",
+      tagBg: "rgba(56, 237, 216, 0.12)",
+      arrowColor: "#38EDD8",
+      iconBg: "rgba(56, 237, 216, 0.16)",
+      iconBorder: "rgba(56, 237, 216, 0.35)",
+      glowAura: "rgba(56, 237, 216, 0.12)",
+      icon: <Dumbbell size={20} color="#38EDD8" />,
     },
     {
       id: "upper",

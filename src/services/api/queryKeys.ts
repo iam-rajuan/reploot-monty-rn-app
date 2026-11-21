@@ -58,6 +58,14 @@ export const queryKeys = {
       [...queryKeys.leaderboard.all, "global", page] as const,
     friends: () => [...queryKeys.leaderboard.all, "friends"] as const,
   },
+  challenges: {
+    all: ["challenges"] as const,
+    list: (status?: string) =>
+      [...queryKeys.challenges.all, "list", status] as const,
+    detail: (challengeId: string) =>
+      [...queryKeys.challenges.all, "detail", challengeId] as const,
+    weekly: () => [...queryKeys.challenges.all, "weekly"] as const,
+  },
   aiCoach: {
     all: ["aiCoach"] as const,
     conversations: () => [...queryKeys.aiCoach.all, "conversations"] as const,

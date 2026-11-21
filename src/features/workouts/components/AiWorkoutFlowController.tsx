@@ -1,4 +1,4 @@
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   markExerciseComplete,
   setCurrentExerciseIndex as setReduxExerciseIndex,
@@ -42,8 +42,13 @@ export const AiWorkoutFlowController: React.FC<
   }>();
 
   const pathKey = (initialPathId || params.pathId || "push").toLowerCase();
+  const workoutsByPath = useAppSelector(
+    (state) => state.workout?.workoutsByPath || {}
+  );
   const workoutRoutine =
-    WORKOUT_PATH_DETAILS_MAP[pathKey] || WORKOUT_PATH_DETAILS_MAP.push;
+    workoutsByPath[pathKey] ||
+    WORKOUT_PATH_DETAILS_MAP[pathKey] ||
+    WORKOUT_PATH_DETAILS_MAP.push;
   const exercises = workoutRoutine.exercises || [];
 
   // Determine initial exercise index

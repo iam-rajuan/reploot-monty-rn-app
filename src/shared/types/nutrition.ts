@@ -1,5 +1,5 @@
 /**
- * REPLOOTNutrition & Macro Domain Models
+ * REPLOOT Nutrition & Macro Domain Models
  * Derived from Precision Nutrition and AI Food Scanner Figma designs.
  */
 
@@ -24,6 +24,25 @@ export interface NutritionSummary {
   date: string;
 }
 
+export interface DailyEnergyBudget {
+  targetCalories: number;
+  consumedCalories: number;
+  remainingCalories: number;
+  percentConsumed: number;
+  protein: {
+    consumed: number;
+    target: number;
+  };
+  carbs: {
+    consumed: number;
+    target: number;
+  };
+  fat: {
+    consumed: number;
+    target: number;
+  };
+}
+
 export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
 export interface MealItem {
@@ -45,6 +64,19 @@ export interface Meal {
   isAiScanned?: boolean;
 }
 
+export interface LoggedMeal {
+  id: number;
+  type: "BREAKFAST" | "LUNCH" | "DINNER" | "SNACK";
+  typeColor: string;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  time: string;
+  liked?: boolean;
+}
+
 export interface HydrationLog {
   currentLiters: number;
   targetLiters: number;
@@ -53,13 +85,23 @@ export interface HydrationLog {
   date: string;
 }
 
+export interface HydrationTelemetry {
+  currentLiters: number;
+  targetLiters: number;
+  percentOfGoal: number;
+  isHydrated: boolean;
+  recentAdditionsMl: number[];
+}
+
 export interface MealPlanMeal {
-  id: string;
+  id: string | number;
   title: string;
   mealType: MealType;
   suggestedCalories: number;
   description: string;
   ingredients: string[];
+  prepTime?: string;
+  liked?: boolean;
 }
 
 export interface MealPlan {

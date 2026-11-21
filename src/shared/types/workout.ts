@@ -1,5 +1,5 @@
 /**
- * REPLOOTWorkout Domain Models
+ * REPLOOT Workout Domain Models
  * Unified architecture for Gym, Home, and AI-Tracked Workouts.
  */
 
@@ -111,4 +111,22 @@ export interface WorkoutSummary {
   aiCoachFeedback: string;
   personalBestsAchieved: string[];
   completedAt: string;
+}
+
+export type WorkoutPathType =
+  | "push"
+  | "pull"
+  | "upper"
+  | "lower"
+  | "fullbody"
+  | "library";
+
+export interface WorkoutSplitTemplate {
+  id: WorkoutPathType | string;
+  name: string;
+  tag: string;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+  bgGrad: [string, string];
 }

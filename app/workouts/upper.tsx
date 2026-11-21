@@ -1,5 +1,6 @@
-import { UpperBodySessionScreen } from "@/features/workouts";
+import { GenericWorkoutDetailScreen } from "@/features/workouts";
+import React from "react";
 
 export default function UpperBodySessionRoute() {
-  return <UpperBodySessionScreen />;
+  return <GenericWorkoutDetailScreen pathId="upper" />;
 }

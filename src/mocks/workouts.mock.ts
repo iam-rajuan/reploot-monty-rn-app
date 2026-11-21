@@ -1,4 +1,8 @@
-import { Workout, Exercise } from "@/shared/types/workout";
+import {
+  Exercise,
+  Workout,
+  WorkoutSplitTemplate,
+} from "@/shared/types/workout";
 
 export const mockExercises: Exercise[] = [
   {
@@ -31,6 +35,51 @@ export const mockExercises: Exercise[] = [
     ],
     supportsAiTracking: true,
   },
+  {
+    id: "ex_incline_dumbbell_press",
+    name: "Incline Dumbbell Press",
+    category: "chest",
+    targetMuscles: ["Upper Chest", "Front Deltoids", "Triceps"],
+    equipmentRequired: ["Incline Bench", "Dumbbells"],
+    difficulty: "intermediate",
+    caloriesBurnedPerMin: 8,
+    instructions: [
+      "Set bench to 30-45 degree incline.",
+      "Hold dumbbells at chest height, elbows at 45 degrees.",
+      "Press weights upwards with controlled lockout.",
+    ],
+    supportsAiTracking: true,
+  },
+  {
+    id: "ex_cable_fly",
+    name: "Cable Fly",
+    category: "chest",
+    targetMuscles: ["Chest", "Anterior Deltoids"],
+    equipmentRequired: ["Cable Machine"],
+    difficulty: "beginner",
+    caloriesBurnedPerMin: 7,
+    instructions: [
+      "Set pulleys to shoulder height.",
+      "Step forward in a staggered stance.",
+      "Bring hands together in a wide hugging motion.",
+    ],
+    supportsAiTracking: true,
+  },
+  {
+    id: "ex_pullup",
+    name: "Pull-Ups",
+    category: "back",
+    targetMuscles: ["Latissimus Dorsi", "Biceps", "Upper Back"],
+    equipmentRequired: ["Pull-Up Bar"],
+    difficulty: "advanced",
+    caloriesBurnedPerMin: 10,
+    instructions: [
+      "Grip the bar slightly wider than shoulder-width with palms facing away.",
+      "Engage core and pull your body up until chin clears the bar.",
+      "Lower under control to a dead hang.",
+    ],
+    supportsAiTracking: true,
+  },
 ];
 
 export const mockTodayWorkout: Workout = {
@@ -50,10 +99,100 @@ export const mockTodayWorkout: Workout = {
       order: 1,
       exercise: mockExercises[0],
       sets: [
-        { setNumber: 1, targetReps: 12, completedReps: 12, weightKg: 70, isCompleted: true, accuracyScore: 94 },
-        { setNumber: 2, targetReps: 10, completedReps: 10, weightKg: 80, isCompleted: true, accuracyScore: 96 },
-        { setNumber: 3, targetReps: 8, completedReps: 8, weightKg: 85, isCompleted: false },
+        {
+          setNumber: 1,
+          targetReps: 12,
+          completedReps: 12,
+          weightKg: 70,
+          isCompleted: true,
+          accuracyScore: 94,
+        },
+        {
+          setNumber: 2,
+          targetReps: 10,
+          completedReps: 10,
+          weightKg: 80,
+          isCompleted: true,
+          accuracyScore: 96,
+        },
+        {
+          setNumber: 3,
+          targetReps: 8,
+          completedReps: 8,
+          weightKg: 85,
+          isCompleted: false,
+        },
+      ],
+    },
+    {
+      id: "we_2",
+      order: 2,
+      exercise: mockExercises[2],
+      sets: [
+        {
+          setNumber: 1,
+          targetReps: 12,
+          completedReps: 12,
+          weightKg: 28,
+          isCompleted: true,
+          accuracyScore: 92,
+        },
+        {
+          setNumber: 2,
+          targetReps: 10,
+          completedReps: 10,
+          weightKg: 32,
+          isCompleted: false,
+        },
       ],
     },
   ],
 };
+
+export const mockWorkoutSplits: WorkoutSplitTemplate[] = [
+  {
+    id: "push",
+    name: "Push Day",
+    tag: "PUSH",
+    color: "#38BDF8",
+    bgColor: "rgba(56, 189, 248, 0.22)",
+    borderColor: "#38BDF8",
+    bgGrad: ["#0284C7", "#38BDF8"],
+  },
+  {
+    id: "pull",
+    name: "Pull Day",
+    tag: "PULL",
+    color: "#2DD4BF",
+    bgColor: "rgba(45, 212, 191, 0.22)",
+    borderColor: "#2DD4BF",
+    bgGrad: ["#0F766E", "#2DD4BF"],
+  },
+  {
+    id: "upper",
+    name: "Upper Body",
+    tag: "UPPER",
+    color: "#C084FC",
+    bgColor: "rgba(192, 132, 252, 0.22)",
+    borderColor: "#C084FC",
+    bgGrad: ["#7E22CE", "#C084FC"],
+  },
+  {
+    id: "lower",
+    name: "Lower Body",
+    tag: "LOWER",
+    color: "#FFB68C",
+    bgColor: "rgba(255, 182, 140, 0.22)",
+    borderColor: "#FFB68C",
+    bgGrad: ["#C2410C", "#FFB68C"],
+  },
+  {
+    id: "fullbody",
+    name: "Full Body",
+    tag: "FULL",
+    color: "#F43F5E",
+    bgColor: "rgba(244, 63, 94, 0.22)",
+    borderColor: "#F43F5E",
+    bgGrad: ["#BE123C", "#F43F5E"],
+  },
+];
