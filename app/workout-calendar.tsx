@@ -8,6 +8,7 @@ import { StatusBar } from "expo-status-bar";
 import {
   AlertTriangle,
   ArrowRight,
+  Calendar,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -344,11 +345,12 @@ function DraggableSplitChip({
           style={styles.splitBadgeGrad}
         >
           <Dumbbell
-            size={12}
+            size={11}
             color={isActive ? "#FFFFFF" : split.color}
-            style={{ marginRight: 6 }}
+            style={{ marginRight: 5 }}
           />
           <Text
+            numberOfLines={1}
             style={[
               styles.splitBadgeText,
               { color: isActive ? "#FFFFFF" : split.color },
@@ -358,7 +360,7 @@ function DraggableSplitChip({
           </Text>
           {isActive && (
             <View style={styles.splitActiveCheck}>
-              <Check size={10} color="#FFFFFF" />
+              <Check size={9} color="#FFFFFF" />
             </View>
           )}
         </LinearGradient>
@@ -426,18 +428,26 @@ const DraggableCalendarCell = React.memo(function DraggableCalendarCell({
       });
   }, [hasWorkout, item, onDragStart, onDragMove, onDragEnd]);
 
+  const splitTag = useMemo(() => {
+    if (!item.label) return "";
+    const split = getSplitByLabel(item.label);
+    return split?.tag || item.label.slice(0, 5).toUpperCase();
+  }, [item.label]);
+
   if (!item.currentMonth) {
     return (
       <View style={styles.cellContainer}>
-        <View style={[styles.dateBox, styles.dateBoxInactive]}>
-          <Text style={[styles.dateText, styles.dateTextInactive]}>
+        <View style={styles.dateBoxInactive}>
+          <Text style={styles.dateTextInactive}>
             {item.date}
           </Text>
         </View>
-        <Text style={[styles.labelText, { opacity: 0 }]}>{" "}</Text>
+        <Text style={styles.labelTextPlaceholder}>{" "}</Text>
       </View>
     );
   }
+
+  const isRestDay = !hasWorkout && !isToday;
 
   return (
     <View style={styles.cellContainer}>
@@ -447,7 +457,7 @@ const DraggableCalendarCell = React.memo(function DraggableCalendarCell({
           onPress={() => onPress(item)}
           style={[
             { alignItems: "center" },
-            isCellDragging && { opacity: 0.35 },
+            isCellDragging && { opacity: 0.3 },
           ]}
         >
           {isToday ? (
@@ -472,6 +482,17 @@ const DraggableCalendarCell = React.memo(function DraggableCalendarCell({
                 />
               )}
             </LinearGradient>
+          ) : isRestDay ? (
+            <View
+              style={[
+                styles.dateBox,
+                styles.dateBoxRest,
+                isHovered && styles.dateBoxHovered,
+              ]}
+            >
+              <Text style={styles.dateTextRest}>{item.date}</Text>
+              <View style={styles.restDayDotMini} />
+            </View>
           ) : (
             <View
               style={[
@@ -487,18 +508,16 @@ const DraggableCalendarCell = React.memo(function DraggableCalendarCell({
               <Text style={[styles.dateText, { color: cellTextColor }]}>
                 {item.date}
               </Text>
-              {Boolean(isCompleted || isScheduled || item.label) && (
-                <Image
-                  source={require("../assets/dumble.svg")}
-                  style={{
-                    width: 15,
-                    height: 15,
-                    marginTop: 4,
-                    tintColor: dumbbellColor,
-                  }}
-                  contentFit="contain"
-                />
-              )}
+              <Image
+                source={require("../assets/dumble.svg")}
+                style={{
+                  width: 14,
+                  height: 14,
+                  marginTop: 3,
+                  tintColor: dumbbellColor,
+                }}
+                contentFit="contain"
+              />
             </View>
           )}
 
@@ -509,7 +528,7 @@ const DraggableCalendarCell = React.memo(function DraggableCalendarCell({
             ]}
             numberOfLines={1}
           >
-            {item.label ? item.label : " "}
+            {isToday ? "TODAY" : splitTag ? splitTag : " "}
           </Text>
         </TouchableOpacity>
       </GestureDetector>
@@ -565,19 +584,45 @@ export default function WorkoutCalendarScreen() {
     targetSplitName: string;
   } | null>(null);
 
+  const triggerHaptic = useCallback(
+    (
+      style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light,
+    ) => {
+      if (Platform.OS !== "web") {
+        Haptics.impactAsync(style).catch(() => {});
+      }
+    },
+    [],
+  );
+
   // Dynamic in-button status feedback when moving or assigning splits
   const [buttonFeedbackMessage, setButtonFeedbackMessage] = useState<string | null>(null);
+  const [lastUndoAction, setLastUndoAction] = useState<(() => void) | null>(null);
   const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const triggerButtonFeedback = useCallback((msg: string) => {
+  const triggerButtonFeedback = useCallback((msg: string, undoFn?: () => void) => {
     if (feedbackTimerRef.current) {
       clearTimeout(feedbackTimerRef.current);
     }
     setButtonFeedbackMessage(msg.toUpperCase());
+    setLastUndoAction(() => (undoFn ? undoFn : null));
     feedbackTimerRef.current = setTimeout(() => {
       setButtonFeedbackMessage(null);
-    }, 2500);
+      setLastUndoAction(null);
+    }, 2800);
   }, []);
+
+  const handleUndo = useCallback(() => {
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+    }
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+    if (lastUndoAction) {
+      lastUndoAction();
+    }
+    setButtonFeedbackMessage(null);
+    setLastUndoAction(null);
+  }, [lastUndoAction, triggerHaptic]);
 
   useEffect(() => {
     return () => {
@@ -599,17 +644,6 @@ export default function WorkoutCalendarScreen() {
     width: number;
     height: number;
   } | null>(null);
-
-  const triggerHaptic = useCallback(
-    (
-      style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light,
-    ) => {
-      if (Platform.OS !== "web") {
-        Haptics.impactAsync(style).catch(() => {});
-      }
-    },
-    [],
-  );
 
   const handlePrevMonth = () => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
@@ -855,7 +889,12 @@ export default function WorkoutCalendarScreen() {
         triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
         removeWorkoutFromDate(sourceDate);
         applyWorkoutToDate(targetDate, split);
-        triggerButtonFeedback(`Moved ${split.name} to Day ${targetDate}`);
+
+        const undo = () => {
+          removeWorkoutFromDate(targetDate);
+          applyWorkoutToDate(sourceDate, split);
+        };
+        triggerButtonFeedback(`Moved ${split.name} to Day ${targetDate}`, undo);
       }
     },
     [
@@ -904,7 +943,11 @@ export default function WorkoutCalendarScreen() {
       } else {
         triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
         applyWorkoutToDate(targetDate, split);
-        triggerButtonFeedback(`Assigned ${split.name} to Day ${targetDate}`);
+
+        const undo = () => {
+          removeWorkoutFromDate(targetDate);
+        };
+        triggerButtonFeedback(`Assigned ${split.name} to Day ${targetDate}`, undo);
       }
     },
     [
@@ -922,9 +965,11 @@ export default function WorkoutCalendarScreen() {
 
   const handleConfirmConflict = useCallback(() => {
     if (!conflictModalData) return;
-    const { sourceDate, targetDate, sourceSplit } = conflictModalData;
+    const { sourceDate, targetDate, sourceSplit, targetSplitName } = conflictModalData;
 
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+
+    const prevTargetSplit = getSplitByLabel(targetSplitName);
 
     if (sourceDate !== null) {
       removeWorkoutFromDate(sourceDate);
@@ -932,10 +977,23 @@ export default function WorkoutCalendarScreen() {
     applyWorkoutToDate(targetDate, sourceSplit);
 
     setConflictModalData(null);
+
+    const undo = () => {
+      if (prevTargetSplit) {
+        applyWorkoutToDate(targetDate, prevTargetSplit);
+      } else {
+        removeWorkoutFromDate(targetDate);
+      }
+      if (sourceDate !== null) {
+        applyWorkoutToDate(sourceDate, sourceSplit);
+      }
+    };
+
     triggerButtonFeedback(
       sourceDate !== null
         ? `Moved ${sourceSplit.name} to Day ${targetDate}`
         : `Replaced Day ${targetDate} with ${sourceSplit.name}`,
+      undo,
     );
   }, [
     conflictModalData,
@@ -1007,8 +1065,12 @@ export default function WorkoutCalendarScreen() {
         onScroll={() => measureCalendarGrid()}
         scrollEventThrottle={16}
       >
-        {/* Title Section with Masked Gradient Title & Description */}
+        {/* Title Section with Micro Cyber Telemetry Badge */}
         <View style={styles.titleSection}>
+          <View style={styles.titleBadgeRow}>
+            <View style={styles.titleBadgeDot} />
+            <Text style={styles.titleBadgeText}>TELEMETRY ARCHITECTURE</Text>
+          </View>
           <View style={styles.maskedTitleWrapper}>
             <MaskedView
               style={styles.maskedTitleView}
@@ -1063,7 +1125,7 @@ export default function WorkoutCalendarScreen() {
             )}
           </View>
 
-          {/* Draggable split chips: 3 in first line, 2 in next line */}
+          {/* Draggable split chips: Symmetrical 3x2 Grid */}
           <View style={styles.splitsGridContainer}>
             <View style={styles.splitsRow}>
               {WORKOUT_SPLITS.slice(0, 3).map((split) => {
@@ -1090,7 +1152,7 @@ export default function WorkoutCalendarScreen() {
             </View>
 
             <View style={styles.splitsRow}>
-              {WORKOUT_SPLITS.slice(3, 5).map((split) => {
+              {WORKOUT_SPLITS.slice(3, 6).map((split) => {
                 const isActive = activeSelectedSplit?.id === split.id;
 
                 return (
@@ -1132,30 +1194,33 @@ export default function WorkoutCalendarScreen() {
           )}
         </View>
 
-        {/* Month Selector Row */}
-        <View style={styles.monthSelectorRow}>
+        {/* Unified Cyberpunk Month Navigator */}
+        <View style={styles.monthNavigatorCard}>
           <TouchableOpacity
-            activeOpacity={0.75}
+            activeOpacity={0.7}
             onPress={handlePrevMonth}
-            style={styles.monthBtnPrev}
+            style={styles.monthNavArrowBtn}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <ChevronLeft color="#94A3B8" size={16} />
-            <Text style={styles.monthBtnPrevText}>{prevMonthName}</Text>
+            <ChevronLeft color="#94A3B8" size={15} />
+            <Text style={styles.monthNavAdjacentText}>{prevMonthName}</Text>
           </TouchableOpacity>
 
-          <View style={styles.monthBtnCurrent}>
-            <Text style={styles.monthBtnCurrentText}>
+          <View style={styles.monthNavCenterPill}>
+            <Calendar size={13} color="#00f2fe" style={{ marginRight: 6 }} />
+            <Text style={styles.monthNavTitle}>
               {`${MONTH_NAMES[currentMonthIdx]} ${currentYear}`}
             </Text>
           </View>
 
           <TouchableOpacity
-            activeOpacity={0.75}
+            activeOpacity={0.7}
             onPress={handleNextMonth}
-            style={styles.monthBtnNext}
+            style={styles.monthNavArrowBtn}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Text style={styles.monthBtnNextText}>{nextMonthName}</Text>
-            <ChevronRight color="#94A3B8" size={16} />
+            <Text style={styles.monthNavAdjacentText}>{nextMonthName}</Text>
+            <ChevronRight color="#94A3B8" size={15} />
           </TouchableOpacity>
         </View>
 
@@ -1167,12 +1232,12 @@ export default function WorkoutCalendarScreen() {
           style={styles.calendarGradientBorder}
         >
           <View style={styles.calendarInner}>
-            {/* Days of Week Header */}
+            {/* Days of Week Header - Precision Column Aligned */}
             <View style={styles.daysHeader}>
               {daysOfWeek.map((day) => (
-                <Text key={day} style={styles.dayHeaderText}>
-                  {day}
-                </Text>
+                <View key={day} style={styles.dayHeaderCol}>
+                  <Text style={styles.dayHeaderText}>{day}</Text>
+                </View>
               ))}
             </View>
 
@@ -1253,32 +1318,28 @@ export default function WorkoutCalendarScreen() {
               })}
             </View>
 
-            {/* Legend */}
+            {/* HUD Calendar Legend */}
             <View style={styles.legendContainer}>
               <View style={styles.legendItem}>
-                <Image
-                  source={require("../assets/dumble.svg")}
-                  style={{ width: 13, height: 13, tintColor: "#2EE8B3" }}
-                  contentFit="contain"
-                />
-                <Text style={[styles.legendText, { color: "#2EE8B3" }]}>
-                  Completed
+                <View style={styles.legendTodayDot} />
+                <Text style={[styles.legendText, { color: "#00f2fe" }]}>
+                  Today
                 </Text>
               </View>
               <View style={styles.legendItem}>
                 <Image
-                  source={require("../assets/scheduledDumble.svg")}
-                  style={{ width: 13, height: 13, tintColor: "#C5C0FF" }}
+                  source={require("../assets/dumble.svg")}
+                  style={{ width: 12, height: 12, tintColor: "#38BDF8" }}
                   contentFit="contain"
                 />
-                <Text style={[styles.legendText, { color: "#C5C0FF" }]}>
+                <Text style={[styles.legendText, { color: "#94A3B8" }]}>
                   Scheduled
                 </Text>
               </View>
               <View style={styles.legendItem}>
                 <View style={styles.restDayDot} />
-                <Text style={[styles.legendText, { color: "#94A3B8" }]}>
-                  Rest Day
+                <Text style={[styles.legendText, { color: "#64748B" }]}>
+                  Rest
                 </Text>
               </View>
             </View>
@@ -1300,14 +1361,24 @@ export default function WorkoutCalendarScreen() {
           >
             {buttonFeedbackMessage ? (
               <>
-                <Check color="#050811" size={18} strokeWidth={2.5} />
+                <View style={styles.feedbackPlaceholder} />
                 <Text
                   style={[styles.updateButtonText, styles.updateButtonFeedbackText]}
                   numberOfLines={1}
                 >
                   {buttonFeedbackMessage}
                 </Text>
-                <Check color="#050811" size={18} strokeWidth={2.5} />
+                <TouchableOpacity
+                  activeOpacity={0.65}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleUndo();
+                  }}
+                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                  style={styles.undoCrossBtn}
+                >
+                  <X color="#050811" size={17} strokeWidth={2.8} />
+                </TouchableOpacity>
               </>
             ) : (
               <>
@@ -1585,6 +1656,25 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 16,
   },
+  titleBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 6,
+  },
+  titleBadgeDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: "#00f2fe",
+  },
+  titleBadgeText: {
+    color: "#00f2fe",
+    fontSize: 9.5,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 1.2,
+  },
   maskedTitleWrapper: {
     height: 48,
     width: "100%",
@@ -1676,7 +1766,7 @@ const styles = StyleSheet.create({
   },
   splitsRow: {
     flexDirection: "row",
-    gap: 8,
+    gap: 6,
   },
   splitItemWrap: {
     flex: 1,
@@ -1696,21 +1786,22 @@ const styles = StyleSheet.create({
   splitBadgeGrad: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
+    justifyContent: "center",
+    paddingHorizontal: 4,
     paddingVertical: 8,
   },
   splitBadgeText: {
-    fontSize: 11,
+    fontSize: 9.5,
     fontFamily: "monospace",
     fontWeight: "800",
-    letterSpacing: 0.5,
+    letterSpacing: 0.2,
   },
   splitActiveCheck: {
-    marginLeft: 6,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
+    marginLeft: 4,
+    width: 13,
+    height: 13,
+    borderRadius: 6.5,
+    backgroundColor: "rgba(0, 0, 0, 0.35)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -1728,67 +1819,51 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
   },
 
-  /* Month Selector Row */
-  monthSelectorRow: {
+  /* Unified Cyberpunk Month Navigator */
+  monthNavigatorCard: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-    gap: 8,
-  },
-  monthBtnPrev: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: "rgba(17, 20, 28, 0.9)",
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    marginBottom: 16,
   },
-  monthBtnPrevText: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    marginLeft: 4,
-  },
-  monthBtnCurrent: {
-    flex: 1,
+  monthNavArrowBtn: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(80, 53, 127, 0.25)",
-    borderWidth: 1,
-    borderColor: "rgba(112, 123, 255, 0.4)",
     paddingHorizontal: 10,
-    paddingVertical: 9,
-    borderRadius: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
   },
-  monthBtnCurrentText: {
-    color: "#C5C0FF",
+  monthNavAdjacentText: {
+    color: "#94A3B8",
+    fontSize: 11,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.5,
+    marginHorizontal: 3,
+  },
+  monthNavCenterPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: "rgba(0, 242, 254, 0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(0, 242, 254, 0.22)",
+  },
+  monthNavTitle: {
+    color: "#E2E8F0",
     fontSize: 12,
     fontFamily: "monospace",
     fontWeight: "900",
-    letterSpacing: 0.5,
-    textAlign: "center",
-  },
-  monthBtnNext: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-    borderRadius: 12,
-  },
-  monthBtnNextText: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    marginRight: 4,
+    letterSpacing: 1,
   },
 
   /* Calendar Card */
@@ -1800,47 +1875,55 @@ const styles = StyleSheet.create({
   calendarInner: {
     backgroundColor: "#11141C",
     borderRadius: 22.5,
-    padding: 16,
-    paddingTop: 18,
+    padding: 12,
+    paddingTop: 16,
   },
   daysHeader: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 14,
+    marginBottom: 10,
+  },
+  dayHeaderCol: {
+    width: "14.285%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   dayHeaderText: {
     color: "#64748B",
     fontSize: 11,
     fontFamily: "monospace",
-    fontWeight: "700",
-    width: 36,
-    textAlign: "center",
+    fontWeight: "800",
     letterSpacing: 0.5,
   },
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
   },
   cellContainer: {
-    width: "14%",
+    width: "14.285%",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 10,
   },
   dateBox: {
-    width: 42,
-    height: 48,
-    borderRadius: 12,
+    width: 40,
+    height: 46,
+    borderRadius: 11,
     backgroundColor: "#25252D",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 3,
   },
   dateBoxInactive: {
+    width: 40,
+    height: 46,
+    borderRadius: 11,
     backgroundColor: "transparent",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 3,
   },
   dateBoxToday: {
-    borderRadius: 12,
+    borderRadius: 11,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.4)",
     shadowColor: "#00f2fe",
@@ -1853,6 +1936,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     transform: [{ scale: 1.15 }],
   },
+  dateBoxRest: {
+    backgroundColor: "rgba(255, 255, 255, 0.025)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.05)",
+  },
   dateText: {
     color: "#FFFFFF",
     fontSize: 14,
@@ -1861,6 +1949,9 @@ const styles = StyleSheet.create({
   },
   dateTextInactive: {
     color: "#334155",
+    fontSize: 13,
+    fontFamily: "monospace",
+    fontWeight: "600",
   },
   dateTextToday: {
     color: "#050811",
@@ -1868,44 +1959,69 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "monospace",
   },
-  todayDumbbellIcon: {
-    width: 14,
-    height: 14,
+  dateTextRest: {
+    color: "#64748B",
+    fontSize: 13,
+    fontFamily: "monospace",
+    fontWeight: "700",
+  },
+  restDayDotMini: {
+    width: 3.5,
+    height: 3.5,
+    borderRadius: 2,
+    backgroundColor: "rgba(100, 116, 139, 0.45)",
     marginTop: 4,
+  },
+  todayDumbbellIcon: {
+    width: 13,
+    height: 13,
+    marginTop: 3,
     tintColor: "#050811",
   },
   labelText: {
-    fontSize: 8,
+    fontSize: 8.5,
     fontFamily: "monospace",
-    fontWeight: "700",
-    fontStyle: "italic",
+    fontWeight: "800",
+    letterSpacing: 0.5,
     textAlign: "center",
-    height: 11,
+    height: 12,
+    marginTop: 1,
+  },
+  labelTextPlaceholder: {
+    height: 12,
+    marginTop: 1,
   },
   legendContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 6,
-    paddingTop: 16,
+    marginTop: 4,
+    paddingTop: 14,
     borderTopWidth: 1,
     borderTopColor: "rgba(255, 255, 255, 0.05)",
-    gap: 18,
+    gap: 20,
   },
   legendItem: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
   },
-  legendText: {
-    fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "700",
-  },
-  restDayDot: {
+  legendTodayDot: {
     width: 7,
     height: 7,
     borderRadius: 3.5,
+    backgroundColor: "#00f2fe",
+  },
+  legendText: {
+    fontSize: 10.5,
+    fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: 0.3,
+  },
+  restDayDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: "#64748B",
   },
 
@@ -1934,6 +2050,20 @@ const styles = StyleSheet.create({
   updateButtonFeedbackText: {
     fontSize: 12,
     letterSpacing: 0.5,
+    flex: 1,
+    marginHorizontal: 8,
+  },
+  feedbackPlaceholder: {
+    width: 28,
+    height: 28,
+  },
+  undoCrossBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "rgba(5, 8, 17, 0.12)",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   /* Centered Circular Loading Overlay */

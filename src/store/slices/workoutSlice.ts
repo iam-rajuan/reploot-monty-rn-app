@@ -204,6 +204,15 @@ const createInitialCalendarSchedules = (): Record<string, ScheduledWorkoutEntry>
   return result;
 };
 
+export interface TrainingSettings {
+  frequency: number; // 3, 4, 5, 6
+  location: string; // "gym" | "home"
+  experience: string; // "beginner" | "intermed" | "advanced"
+  goal: string; // "muscle" | "fat" | "strength" | "endurance"
+  stylesSelected: string[]; // ["push", "pull", "chest", "upper", "lower", "fullbody"]
+  lastSyncedAt?: string;
+}
+
 export interface WorkoutState {
   completedExerciseIds: string[];
   activeWorkoutPathId: string | null;
@@ -213,6 +222,7 @@ export interface WorkoutState {
   regenerationCounterByPath: Record<string, number>;
   calendarSchedules: Record<string, ScheduledWorkoutEntry>;
   activeScheduleDateKey: string;
+  trainingSettings: TrainingSettings;
 }
 
 // Deep clone initial workouts so mutations don't alter raw module definitions
@@ -247,6 +257,14 @@ const initialState: WorkoutState = {
   },
   calendarSchedules: createInitialCalendarSchedules(),
   activeScheduleDateKey: getTodayDateKey(),
+  trainingSettings: {
+    frequency: 4,
+    location: "gym",
+    experience: "intermed",
+    goal: "muscle",
+    stylesSelected: ["push", "pull", "chest", "upper", "lower"],
+    lastSyncedAt: undefined,
+  },
 };
 
 export const workoutSlice = createSlice({
@@ -433,6 +451,135 @@ export const workoutSlice = createSlice({
         state.selectedWorkoutCategory = state.calendarSchedules[dateKey].splitId;
       }
     },
+
+    // 8. UPDATE TRAINING SETTINGS
+    updateTrainingSettings: (
+      state,
+      action: PayloadAction<Partial<TrainingSettings>>
+    ) => {
+      state.trainingSettings = {
+        ...state.trainingSettings,
+        ...action.payload,
+      };
+    },
+
+    // 9. AUTO-GENERATE & SYNC AI WORKOUT SCHEDULE TO CALENDAR
+    autoGenerateCalendarPlan: (
+      state,
+      action: PayloadAction<{
+        frequency: number;
+        location?: string;
+        experience?: string;
+        goal?: string;
+        stylesSelected?: string[];
+        year?: number;
+        month?: number;
+      }>
+    ) => {
+      const {
+        frequency,
+        location = state.trainingSettings.location,
+        experience = state.trainingSettings.experience,
+        goal = state.trainingSettings.goal,
+        stylesSelected = state.trainingSettings.stylesSelected,
+      } = action.payload;
+
+      state.trainingSettings = {
+        frequency,
+        location,
+        experience,
+        goal,
+        stylesSelected,
+        lastSyncedAt: new Date().toISOString(),
+      };
+
+      const now = new Date();
+      const year = action.payload.year ?? now.getFullYear();
+      const month = action.payload.month ?? now.getMonth();
+      const currentDay = now.getDate();
+      const isCurrentMonth = now.getFullYear() === year && now.getMonth() === month;
+
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // Normalize candidate splits
+      const candidateSplits = (stylesSelected && stylesSelected.length > 0
+        ? stylesSelected
+        : ["push", "pull", "chest", "upper", "lower"]
+      ).map((s) => (s === "full" ? "fullbody" : s.toLowerCase()));
+
+      // Frequency patterns (days of week to train: 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat)
+      let activeDaysOfWeek: number[] = [1, 2, 4, 5]; // 4 days: Mon, Tue, Thu, Fri
+      if (frequency === 3) {
+        activeDaysOfWeek = [1, 3, 5]; // Mon, Wed, Fri
+      } else if (frequency === 4) {
+        activeDaysOfWeek = [1, 2, 4, 5]; // Mon, Tue, Thu, Fri
+      } else if (frequency === 5) {
+        activeDaysOfWeek = [1, 2, 3, 5, 6]; // Mon, Tue, Wed, Fri, Sat
+      } else if (frequency === 6) {
+        activeDaysOfWeek = [1, 2, 3, 4, 5, 6]; // Mon through Sat
+      }
+
+      // Generate schedules for the target month and the subsequent month
+      let splitCounter = 0;
+
+      const monthsToGenerate = [
+        { y: year, m: month, isCurrent: isCurrentMonth },
+        { y: month === 11 ? year + 1 : year, m: (month + 1) % 12, isCurrent: false },
+      ];
+
+      for (const target of monthsToGenerate) {
+        const targetDaysInMonth = new Date(target.y, target.m + 1, 0).getDate();
+
+        for (let day = 1; day <= targetDaysInMonth; day++) {
+          const dateObj = new Date(target.y, target.m, day);
+          const dayOfWeek = dateObj.getDay();
+          const dateKey = `${target.y}-${target.m}-${day}`;
+
+          if (activeDaysOfWeek.includes(dayOfWeek)) {
+            const splitId = candidateSplits[splitCounter % candidateSplits.length];
+            splitCounter++;
+
+            const meta = SPLIT_MISSION_METADATA[splitId] || SPLIT_MISSION_METADATA.pull;
+
+            let entryType: 'completed' | 'scheduled' | 'today' = 'scheduled';
+            if (target.isCurrent) {
+              if (day < currentDay) {
+                entryType = 'completed';
+              } else if (day === currentDay) {
+                entryType = 'today';
+              } else {
+                entryType = 'scheduled';
+              }
+            } else {
+              entryType = 'scheduled';
+            }
+
+            state.calendarSchedules[dateKey] = {
+              dateKey,
+              splitId,
+              splitName: meta.name,
+              missionTitle: meta.missionTitle,
+              missionSubtitle: meta.missionSubtitle,
+              type: entryType,
+              color: meta.color,
+              bgColor: meta.bgColor,
+              borderColor: meta.borderColor,
+              route: meta.route,
+            };
+          } else {
+            // Rest day - clear any previous scheduled workout on this date
+            delete state.calendarSchedules[dateKey];
+          }
+        }
+      }
+
+      // Set active schedule key to today or current
+      const todayKey = `${year}-${month}-${currentDay}`;
+      state.activeScheduleDateKey = todayKey;
+      if (state.calendarSchedules[todayKey]) {
+        state.selectedWorkoutCategory = state.calendarSchedules[todayKey].splitId;
+      }
+    },
   },
 });
 
@@ -450,6 +597,8 @@ export const {
   assignWorkoutSchedule,
   removeWorkoutSchedule,
   setActiveScheduleDate,
+  updateTrainingSettings,
+  autoGenerateCalendarPlan,
 } = workoutSlice.actions;
 
 export default workoutSlice.reducer;
