@@ -35,7 +35,7 @@ import {
 
 const FREQUENCY_OPTIONS = [
   { id: 3, label: "3 DAYS" },
-  { id: 4, label: "4 DAYS", rec: true },
+  { id: 4, label: "4 DAYS" },
   { id: 5, label: "5 DAYS" },
   { id: 6, label: "6 DAYS" },
 ];
@@ -294,9 +294,6 @@ export default function SettingsScreen() {
                   isSelected && styles.freqBtnSelected,
                 ]}
               >
-                {opt.rec && (
-                  <View style={styles.recDot} />
-                )}
                 <Text
                   style={[
                     styles.freqText,
@@ -636,15 +633,6 @@ const styles = StyleSheet.create({
   freqTextSelected: {
     color: "#00f2fe",
     fontWeight: "900",
-  },
-  recDot: {
-    position: "absolute",
-    top: 5,
-    right: 5,
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: "#00f2fe",
   },
   segmentRow: {
     flexDirection: "row",
