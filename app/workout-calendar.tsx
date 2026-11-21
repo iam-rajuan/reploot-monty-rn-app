@@ -1525,115 +1525,215 @@ export default function WorkoutCalendarScreen() {
             style={styles.modalContent}
             onPress={(e) => e.stopPropagation()}
           >
-            <View style={styles.modalHeader}>
-              <View>
-                <Text style={styles.modalTitle}>
-                  {`${MONTH_NAMES[currentMonthIdx]} ${dateModalCell?.date}, ${currentYear}`}
-                </Text>
-                <Text style={styles.modalSub}>
-                  {dateModalCell?.label
-                    ? `Current Routine: ${dateModalCell.label}`
-                    : "No routine assigned for this date"}
-                </Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => setDateModalCell(null)}
-                style={styles.modalCloseBtn}
-                activeOpacity={0.7}
-              >
-                <X size={16} color="#94A3B8" />
-              </TouchableOpacity>
-            </View>
+            {/* Top Cyan/Purple Gradient Accent Bar */}
+            <LinearGradient
+              colors={["#50357F", "#00f2fe", "#1D8B9B"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.modalTopLine}
+            />
 
-            <Text style={styles.modalSectionLabel}>ASSIGN WORKOUT SPLIT:</Text>
+            {/* Pull Handle */}
+            <View style={styles.modalHandle} />
 
-            <View style={styles.modalSplitsList}>
-              {WORKOUT_SPLITS.map((split) => {
-                const isCurrent = dateModalCell?.label === split.name;
+            {(() => {
+              if (!dateModalCell) return null;
+              const modalDateKey = `${currentYear}-${currentMonthIdx}-${dateModalCell.date}`;
+              const scheduledEntry = calendarSchedules[modalDateKey];
+              const activeRoutineLabel = scheduledEntry?.splitName || dateModalCell.label;
+              const hasRoutine = Boolean(activeRoutineLabel);
+              const routineMeta = activeRoutineLabel
+                ? getSplitByLabel(activeRoutineLabel)
+                : null;
+              const isRoutineToday =
+                scheduledEntry?.type === "today" || dateModalCell.type === "today";
+              const isRoutineCompleted =
+                scheduledEntry?.type === "completed" ||
+                dateModalCell.type === "completed";
 
-                return (
-                  <TouchableOpacity
-                    key={split.id}
-                    activeOpacity={0.75}
-                    onPress={() => {
-                      if (dateModalCell) {
-                        applyWorkoutToDate(dateModalCell.date, split);
-                        setDateModalCell(null);
-                      }
-                    }}
-                    style={[
-                      styles.modalSplitItem,
-                      { borderColor: split.color },
-                      isCurrent && styles.modalSplitItemActive,
-                    ]}
-                  >
-                    <View style={styles.modalSplitLeft}>
-                      <View
-                        style={[
-                          styles.modalSplitDot,
-                          { backgroundColor: split.color },
-                        ]}
-                      />
-                      <Text style={styles.modalSplitName}>{split.name}</Text>
-                    </View>
-                    {isCurrent ? (
-                      <View style={styles.modalActiveBadge}>
-                        <Check size={12} color="#2DD4BF" />
-                        <Text style={styles.modalActiveText}>ASSIGNED</Text>
+              return (
+                <>
+                  {/* Header Row */}
+                  <View style={styles.modalHeader}>
+                    <View style={styles.modalHeaderInfo}>
+                      <View style={styles.modalMicroTag}>
+                        <View style={styles.modalCyanDot} />
+                        <Text style={styles.modalMicroText}>
+                          :: SCHEDULE INSPECTOR ::
+                        </Text>
                       </View>
-                    ) : (
-                      <ArrowRight size={14} color="#64748B" />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+                      <Text style={styles.modalTitle}>
+                        {`${MONTH_NAMES[currentMonthIdx]} ${dateModalCell.date}, ${currentYear}`}
+                      </Text>
 
-            {dateModalCell?.label && (
-              <TouchableOpacity
-                activeOpacity={0.75}
-                onPress={() => {
-                  if (dateModalCell) {
-                    const matchedSplit = WORKOUT_SPLITS.find(
-                      (s) => s.name === dateModalCell.label,
-                    );
-                    const pathKey = matchedSplit
-                      ? matchedSplit.id === "full"
-                        ? "fullbody"
-                        : matchedSplit.id
-                      : "push";
-                    dispatch(setSelectedWorkoutCategory(pathKey));
-                    setDateModalCell(null);
-                    router.push({
-                      pathname: "/workouts",
-                      params: { pathId: pathKey },
-                    });
-                  }
-                }}
-                style={styles.modalOpenRoutineBtn}
-              >
-                <Dumbbell size={15} color="#050811" />
-                <Text style={styles.modalOpenRoutineText}>
-                  VIEW AI DAILY WORKOUT
-                </Text>
-              </TouchableOpacity>
-            )}
+                      {hasRoutine ? (
+                        <View
+                          style={[
+                            styles.modalStatusCapsule,
+                            {
+                              borderColor: routineMeta?.color || "#38BDF8",
+                              backgroundColor:
+                                routineMeta?.bgColor || "rgba(56, 189, 248, 0.15)",
+                            },
+                          ]}
+                        >
+                          <View
+                            style={[
+                              styles.modalStatusDot,
+                              { backgroundColor: routineMeta?.color || "#38BDF8" },
+                            ]}
+                          />
+                          <Text
+                            style={[
+                              styles.modalStatusText,
+                              { color: routineMeta?.color || "#38BDF8" },
+                            ]}
+                          >
+                            {activeRoutineLabel?.toUpperCase()} •{" "}
+                            {isRoutineToday
+                              ? "TODAY'S MISSION"
+                              : isRoutineCompleted
+                                ? "COMPLETED"
+                                : "SCHEDULED"}
+                          </Text>
+                        </View>
+                      ) : (
+                        <View style={styles.modalRestCapsule}>
+                          <View style={styles.modalRestDot} />
+                          <Text style={styles.modalRestText}>
+                            REST DAY • ACTIVE RECOVERY
+                          </Text>
+                        </View>
+                      )}
+                    </View>
 
-            {dateModalCell?.label && (
-              <TouchableOpacity
-                activeOpacity={0.75}
-                onPress={() => {
-                  if (dateModalCell) {
-                    removeWorkoutFromDate(dateModalCell.date);
-                    setDateModalCell(null);
-                  }
-                }}
-                style={styles.modalClearBtn}
-              >
-                <Trash2 size={14} color="#F43F5E" />
-                <Text style={styles.modalClearText}>REMOVE WORKOUT</Text>
-              </TouchableOpacity>
-            )}
+                    <TouchableOpacity
+                      onPress={() => setDateModalCell(null)}
+                      style={styles.modalCloseBtn}
+                      activeOpacity={0.7}
+                    >
+                      <X size={15} color="#94A3B8" />
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Split Selection Grid */}
+                  <View style={styles.modalSectionRow}>
+                    <Text style={styles.modalSectionLabel}>
+                      ASSIGN OR CHANGE SPLIT
+                    </Text>
+                    <Text style={styles.modalSectionSub}>TAP TO SET</Text>
+                  </View>
+
+                  <View style={styles.modalGrid2}>
+                    {WORKOUT_SPLITS.map((split) => {
+                      const isCurrent = activeRoutineLabel === split.name;
+
+                      return (
+                        <TouchableOpacity
+                          key={split.id}
+                          activeOpacity={0.75}
+                          onPress={() => {
+                            applyWorkoutToDate(dateModalCell.date, split);
+                            setDateModalCell(null);
+                          }}
+                          style={[
+                            styles.modalSplitCard,
+                            isCurrent
+                              ? {
+                                  borderColor: split.color,
+                                  backgroundColor: split.bgColor,
+                                  shadowColor: split.color,
+                                  shadowOpacity: 0.25,
+                                  shadowRadius: 6,
+                                }
+                              : {
+                                  borderColor: "rgba(255, 255, 255, 0.08)",
+                                },
+                          ]}
+                        >
+                          <View
+                            style={[
+                              styles.modalSplitColorDot,
+                              { backgroundColor: split.color },
+                            ]}
+                          />
+                          <Text
+                            style={[
+                              styles.modalSplitCardName,
+                              isCurrent && { color: "#FFFFFF", fontWeight: "900" },
+                            ]}
+                          >
+                            {split.name}
+                          </Text>
+                          {isCurrent && (
+                            <Check
+                              size={13}
+                              color={split.color}
+                              strokeWidth={3}
+                              style={styles.modalSplitCheck}
+                            />
+                          )}
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+
+                  {/* Actions Row */}
+                  {hasRoutine ? (
+                    <View style={styles.modalActionsRow}>
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={() => {
+                          const matchedSplit = WORKOUT_SPLITS.find(
+                            (s) => s.name === activeRoutineLabel,
+                          );
+                          const pathKey = matchedSplit
+                            ? matchedSplit.id === "full"
+                              ? "fullbody"
+                              : matchedSplit.id
+                            : "push";
+                          dispatch(setSelectedWorkoutCategory(pathKey));
+                          setDateModalCell(null);
+                          router.push({
+                            pathname: "/workouts",
+                            params: { pathId: pathKey },
+                          });
+                        }}
+                        style={styles.modalOpenRoutineBtnWrapper}
+                      >
+                        <LinearGradient
+                          colors={["#00f2fe", "#4facfe"]}
+                          start={{ x: 0, y: 0.5 }}
+                          end={{ x: 1, y: 0.5 }}
+                          style={styles.modalOpenRoutineBtn}
+                        >
+                          <Dumbbell size={15} color="#050811" />
+                          <Text style={styles.modalOpenRoutineText}>
+                            VIEW WORKOUT
+                          </Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        activeOpacity={0.75}
+                        onPress={() => {
+                          removeWorkoutFromDate(dateModalCell.date);
+                          setDateModalCell(null);
+                        }}
+                        style={styles.modalClearBtn}
+                      >
+                        <Trash2 size={13} color="#F43F5E" />
+                        <Text style={styles.modalClearText}>SET REST DAY</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <Text style={styles.modalHelperText}>
+                      Tap any split above to schedule a workout for this date.
+                    </Text>
+                  )}
+                </>
+              );
+            })()}
           </Pressable>
         </Pressable>
       </Modal>
@@ -2147,135 +2247,242 @@ const styles = StyleSheet.create({
   /* Modal Sheet */
   modalBackdrop: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    backgroundColor: "rgba(4, 7, 14, 0.82)",
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "#11141C",
+    backgroundColor: "#0D111A",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 8,
     paddingBottom: 34,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: "rgba(56, 189, 248, 0.2)",
+    overflow: "hidden",
+    position: "relative",
+  },
+  modalTopLine: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+  },
+  modalHandle: {
+    width: 38,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.18)",
+    alignSelf: "center",
+    marginTop: 6,
+    marginBottom: 14,
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 16,
+    marginBottom: 14,
+  },
+  modalHeaderInfo: {
+    flex: 1,
+    paddingRight: 12,
+  },
+  modalMicroTag: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 4,
+  },
+  modalCyanDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: "#00f2fe",
+    shadowColor: "#00f2fe",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 3,
+  },
+  modalMicroText: {
+    color: "#38BDF8",
+    fontSize: 9.5,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 1,
   },
   modalTitle: {
     color: "#FFFFFF",
-    fontSize: 18,
+    fontSize: 19,
     fontFamily: "monospace",
     fontWeight: "900",
+    letterSpacing: 0.4,
   },
-  modalSub: {
-    color: "#94A3B8",
-    fontSize: 11,
+  modalStatusCapsule: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingVertical: 3.5,
+    paddingHorizontal: 8,
+    alignSelf: "flex-start",
+    marginTop: 7,
+    gap: 6,
+  },
+  modalStatusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  modalStatusText: {
+    fontSize: 9.5,
     fontFamily: "monospace",
-    marginTop: 2,
+    fontWeight: "800",
+    letterSpacing: 0.4,
+  },
+  modalRestCapsule: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    borderRadius: 6,
+    paddingVertical: 3.5,
+    paddingHorizontal: 8,
+    alignSelf: "flex-start",
+    marginTop: 7,
+    gap: 6,
+  },
+  modalRestDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#64748B",
+  },
+  modalRestText: {
+    color: "#94A3B8",
+    fontSize: 9.5,
+    fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: 0.4,
   },
   modalCloseBtn: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    backgroundColor: "rgba(255, 255, 255, 0.07)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
     justifyContent: "center",
     alignItems: "center",
   },
-  modalSectionLabel: {
-    color: "#64748B",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 1,
+  modalSectionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 10,
     marginBottom: 10,
   },
-  modalSplitsList: {
-    gap: 8,
-    marginBottom: 16,
+  modalSectionLabel: {
+    color: "#94A3B8",
+    fontSize: 10.5,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.8,
   },
-  modalSplitItem: {
+  modalSectionSub: {
+    color: "#64748B",
+    fontSize: 9,
+    fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
+  modalGrid2: {
     flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "space-between",
+    rowGap: 8,
+    marginBottom: 14,
+  },
+  modalSplitCard: {
+    flexBasis: "48.5%",
+    flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 14,
+    backgroundColor: "rgba(255, 255, 255, 0.035)",
+    borderRadius: 12,
     paddingVertical: 12,
-    borderRadius: 14,
-    borderWidth: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    paddingHorizontal: 12,
+    borderWidth: 1.5,
   },
-  modalSplitItemActive: {
-    backgroundColor: "rgba(56, 189, 248, 0.15)",
+  modalSplitColorDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    marginRight: 8,
   },
-  modalSplitLeft: {
+  modalSplitCardName: {
+    color: "#CBD5E1",
+    fontSize: 11.5,
+    fontFamily: "monospace",
+    fontWeight: "700",
     flex: 1,
+  },
+  modalSplitCheck: {
+    marginLeft: 4,
+  },
+  modalActionsRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    marginTop: 4,
   },
-  modalSplitDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  modalSplitName: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "800",
-  },
-  modalActiveBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  modalActiveText: {
-    color: "#2DD4BF",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+  modalOpenRoutineBtnWrapper: {
+    flex: 1.6,
+    borderRadius: 12,
+    overflow: "hidden",
   },
   modalOpenRoutineBtn: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 8,
-    paddingVertical: 14,
-    borderRadius: 14,
-    backgroundColor: "#00f2fe",
-    marginBottom: 10,
-    shadowColor: "#00f2fe",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 4,
+    gap: 7,
+    paddingVertical: 13,
+    borderRadius: 12,
   },
   modalOpenRoutineText: {
     color: "#050811",
-    fontSize: 12,
+    fontSize: 11.5,
     fontFamily: "monospace",
     fontWeight: "900",
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
   },
   modalClearBtn: {
+    flex: 1,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 8,
-    paddingVertical: 12,
-    borderRadius: 14,
-    backgroundColor: "rgba(244, 63, 94, 0.1)",
+    gap: 6,
+    paddingVertical: 13,
+    borderRadius: 12,
+    backgroundColor: "rgba(244, 63, 94, 0.08)",
     borderWidth: 1,
     borderColor: "rgba(244, 63, 94, 0.25)",
   },
   modalClearText: {
     color: "#F43F5E",
-    fontSize: 11,
+    fontSize: 10.5,
     fontFamily: "monospace",
     fontWeight: "800",
+    letterSpacing: 0.4,
+  },
+  modalHelperText: {
+    color: "#64748B",
+    fontSize: 10,
+    fontFamily: "monospace",
+    textAlign: "center",
+    marginTop: 6,
+    marginBottom: 2,
+    lineHeight: 14,
   },
 
   /* Simple, Neat & Clean Conflict Alert Modal */
