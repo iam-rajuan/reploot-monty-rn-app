@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   },
   sectionSpacing: {
     marginHorizontal: 20,
-    marginBottom: 28,
+    marginBottom: 16,
   },
   fabContainer: {
     position: "absolute",

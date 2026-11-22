@@ -8,10 +8,10 @@ import Svg, {
 } from "react-native-svg";
 
 export const NutritionRingCard = () => {
-  const radius = 58;
-  const strokeWidth = 13;
-  const circumference = 2 * Math.PI * radius; // ~364.42
-  const progressLength = circumference * 0.75; // 75% goal = ~273.3
+  const radius = 56;
+  const strokeWidth = 14;
+  const circumference = 2 * Math.PI * radius; // ~351.86
+  const progressLength = circumference * 0.75; // 75% goal = ~263.9
 
   return (
     <View style={styles.ringCard}>
@@ -25,12 +25,12 @@ export const NutritionRingCard = () => {
             </SvgGradient>
           </Defs>
 
-          {/* Muted Background Track Circle */}
+          {/* Complete Circular Background Track (crisply visible in #242C44) */}
           <Circle
             cx={75}
             cy={75}
             r={radius}
-            stroke="#161B2E"
+            stroke="#242C44"
             strokeWidth={strokeWidth}
             fill="none"
           />

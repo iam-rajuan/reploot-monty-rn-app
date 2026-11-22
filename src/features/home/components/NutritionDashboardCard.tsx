@@ -32,13 +32,15 @@ export const NutritionDashboardCard = () => {
         end={{ x: 0.15, y: 0.55 }}
       />
 
-      {/* Header: Glowing Dot + Title on Left, Link on Right */}
+      {/* Header: Glowing Dot + Title on Left, Link on Right (single-line guaranteed) */}
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
           <View style={styles.cyanHalo}>
             <View style={styles.cyanDot} />
           </View>
-          <Text style={styles.headerTitle}>Today's Nutrition</Text>
+          <Text style={styles.headerTitle} numberOfLines={1}>
+            Today's Nutrition
+          </Text>
         </View>
 
         <Pressable
@@ -50,8 +52,10 @@ export const NutritionDashboardCard = () => {
           accessibilityRole="button"
           accessibilityLabel="View Nutrition Details"
         >
-          <Text style={styles.headerLink}>View Nutrition</Text>
-          <ArrowRight size={16} color="#2EE5C5" strokeWidth={2.5} />
+          <Text style={styles.headerLink} numberOfLines={1}>
+            View Nutrition
+          </Text>
+          <ArrowRight size={15} color="#2EE5C5" strokeWidth={2.6} />
         </Pressable>
       </View>
 
@@ -107,23 +111,25 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: "#FFFFFF",
-    fontSize: 16.5,
+    fontSize: 16,
     fontWeight: "800",
     fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   headerRight: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 6,
+    flexShrink: 0,
+    flexWrap: "nowrap",
   },
   pressed: {
     opacity: 0.75,
   },
   headerLink: {
     color: "#2EE5C5",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
-    letterSpacing: 0.4,
+    letterSpacing: 0.2,
     fontFamily: "JetBrainsMono_700Bold",
   },
 });

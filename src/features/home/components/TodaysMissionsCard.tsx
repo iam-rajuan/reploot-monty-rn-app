@@ -8,15 +8,16 @@ import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { ArrowRight, Calendar, Settings } from "lucide-react-native";
 import React from "react";
-import { Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+
+const missionBackground = require("../../../../assets/figma/missions/todays-missions-background.jpeg");
+const calendarIcon = require("../../../../assets/figma/missions/mission-calendar.svg");
+const settingsIcon = require("../../../../assets/figma/missions/mission-settings.svg");
 
 export const TodaysMissionsCard = () => {
   const dispatch = useAppDispatch();
   const todayKey = getTodayDateKey();
-
-  // Read schedules and active schedule date key from Redux store
   const calendarSchedules = useAppSelector(
     (state) => state.workout.calendarSchedules || {}
   );
@@ -26,22 +27,14 @@ export const TodaysMissionsCard = () => {
   const selectedWorkoutCategory = useAppSelector(
     (state) => state.workout.selectedWorkoutCategory || "pull"
   );
-
-  // Check if a workout is scheduled for the active date
   const scheduledToday = calendarSchedules[activeScheduleDateKey];
-  const splitId = scheduledToday
-    ? scheduledToday.splitId
-    : selectedWorkoutCategory || "pull";
-
+  const splitId = scheduledToday?.splitId || selectedWorkoutCategory || "pull";
   const activeMetadata =
     SPLIT_MISSION_METADATA[splitId] || SPLIT_MISSION_METADATA.pull;
-
   const isRestDay = !scheduledToday && activeScheduleDateKey !== todayKey;
-
   const missionTitle = isRestDay
     ? "Active Recovery / Rest Day"
     : scheduledToday?.missionTitle || activeMetadata.missionTitle;
-
   const missionSubtitle = isRestDay
     ? "Tap to assign a workout in calendar"
     : scheduledToday?.missionSubtitle || activeMetadata.missionSubtitle;
@@ -54,7 +47,6 @@ export const TodaysMissionsCard = () => {
       router.push("/workout-calendar");
       return;
     }
-    // Update active category in shared Redux store and route straight to selected workout
     dispatch(setSelectedWorkoutCategory(splitId));
     const targetRoute =
       activeMetadata.route ||
@@ -81,35 +73,30 @@ export const TodaysMissionsCard = () => {
   return (
     <Pressable
       onPress={handleWorkoutPress}
-      style={({ pressed }) => [
-        styles.container,
-        pressed && styles.containerPressed,
-      ]}
+      style={({ pressed }) => [styles.pressTarget, pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={`Today's Mission: ${missionTitle}, ${missionSubtitle}`}
     >
-      <Image
-        source={require("../../../../assets/todaysMission/todaysMissionsBg.png")}
-        style={[StyleSheet.absoluteFill, { borderRadius: 24 }]}
-        contentFit="cover"
-        pointerEvents="none"
-      />
-      <LinearGradient
-        colors={[
-          "rgba(10, 13, 20, 0.35)",
-          "rgba(10, 13, 20, 0.72)",
-          "rgba(10, 13, 20, 0.95)",
-        ]}
-        locations={[0, 0.5, 1]}
-        style={[StyleSheet.absoluteFill, { borderRadius: 24 }]}
-        pointerEvents="none"
-      />
-
-      <View style={styles.content}>
-        <Text style={styles.headerTitle}>TODAY'S MISSIONS</Text>
-
-        {/* Mission Info: Title & Subtitle */}
-        <View style={styles.missionInfo}>
+      <View style={styles.card}>
+        <View style={styles.glassBase} pointerEvents="none" />
+        <Image
+          source={missionBackground}
+          style={styles.backgroundImage}
+          contentFit="fill"
+          pointerEvents="none"
+        />
+        <LinearGradient
+          colors={[
+            "rgba(13, 14, 19, 0.48)",
+            "rgba(13, 14, 19, 0.36)",
+            "rgba(13, 14, 19, 0.54)",
+          ]}
+          locations={[0.1875, 0.5, 1]}
+          style={styles.gradient}
+          pointerEvents="none"
+        />
+        <Text style={styles.heading}>TODAY'S MISSIONS</Text>
+        <View style={styles.missionCopy} pointerEvents="none">
           <Text style={styles.missionTitle} numberOfLines={1}>
             {missionTitle}
           </Text>
@@ -117,128 +104,161 @@ export const TodaysMissionsCard = () => {
             {missionSubtitle}
           </Text>
         </View>
-
-        {/* Action Buttons: Calendar, Settings, and Arrow grouped in bottom middle */}
-        <View style={styles.actionButtons}>
-          <TouchableOpacity
+        <View style={styles.actions}>
+          <Pressable
             accessibilityRole="button"
             accessibilityLabel="Workout Calendar"
-            activeOpacity={0.7}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            onPress={(e) => {
-              e?.stopPropagation?.();
+            hitSlop={8}
+            onPress={(event) => {
+              event.stopPropagation();
               handleCalendarPress();
             }}
-            style={styles.circleButton}
+            style={styles.actionButton}
           >
-            <Calendar size={18} color="#2EE5C5" strokeWidth={2.2} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
+            <Image
+              source={calendarIcon}
+              style={styles.calendarIcon}
+              contentFit="contain"
+            />
+          </Pressable>
+          <Pressable
             accessibilityRole="button"
             accessibilityLabel="Settings"
-            activeOpacity={0.7}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            onPress={(e) => {
-              e?.stopPropagation?.();
+            hitSlop={8}
+            onPress={(event) => {
+              event.stopPropagation();
               handleSettingsPress();
             }}
-            style={styles.circleButton}
+            style={styles.actionButton}
           >
-            <Settings size={18} color="#2EE5C5" strokeWidth={2.2} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel="Go to Workout"
-            activeOpacity={0.7}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            onPress={(e) => {
-              e?.stopPropagation?.();
-              handleWorkoutPress();
-            }}
-            style={styles.circleButton}
-          >
-            <ArrowRight size={18} color="#2EE5C5" strokeWidth={2.2} />
-          </TouchableOpacity>
+            <Image
+              source={settingsIcon}
+              style={styles.settingsIcon}
+              contentFit="contain"
+            />
+          </Pressable>
         </View>
+        <View style={styles.insetHighlight} pointerEvents="none" />
       </View>
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    marginHorizontal: 20,
-    marginBottom: 28,
+  pressTarget: {
     height: 240,
     minHeight: 240,
-    borderRadius: 24,
+    maxHeight: 240,
+    flexShrink: 0,
+  },
+  pressed: { opacity: 0.96 },
+  card: {
+    height: 240,
+    width: "100%",
     overflow: "hidden",
-    borderWidth: 1.2,
-    borderColor: "rgba(46, 229, 197, 0.35)",
-    backgroundColor: "#11141C",
     position: "relative",
-    shadowColor: "#2EE5C5",
+    borderRadius: 32,
+    borderWidth: 1,
+    borderColor: "#6C5CFF",
+    backgroundColor: "#0D0E13",
+    shadowColor: "#6C5CFF",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
     elevation: 4,
   },
-  containerPressed: {
-    opacity: 0.95,
-    transform: [{ scale: 0.992 }],
+  glassBase: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
   },
-  content: {
-    flex: 1,
-    padding: 22,
-    justifyContent: "space-between",
-    position: "relative",
-    zIndex: 2,
+  backgroundImage: {
+    position: "absolute",
+    top: 1.6,
+    left: "-15.6%",
+    width: "131.43%",
+    aspectRatio: 512 / 286,
+    opacity: 0.35,
   },
-  headerTitle: {
-    color: "#FFFFFF",
-    fontSize: 26,
-    lineHeight: 30,
+  gradient: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
+  heading: {
+    position: "absolute",
+    top: 40,
+    left: 24,
+    color: "#E3E1E9",
+    fontSize: 30,
+    lineHeight: 32,
     fontWeight: "900",
+    fontStyle: "italic",
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    letterSpacing: 0.5,
-    textAlign: "left",
-    textTransform: "uppercase",
+    letterSpacing: -0.6,
   },
-  missionInfo: {
-    marginVertical: "auto",
+  missionCopy: {
+    position: "absolute",
+    top: 101,
+    left: 30,
+    width: 237,
   },
   missionTitle: {
-    color: "#FFFFFF",
-    fontSize: 22,
-    lineHeight: 26,
-    fontWeight: "800",
+    color: "#E3E1E9",
+    fontSize: 24,
+    lineHeight: 28,
+    fontWeight: "700",
     fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
-    letterSpacing: 0.2,
+    letterSpacing: -0.35,
     marginBottom: 4,
   },
   missionSubtitle: {
-    color: "#8E94B8",
-    fontSize: 12.5,
-    lineHeight: 17,
-    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
-    fontWeight: "500",
+    color: "#C8C4D8",
+    fontSize: 12,
+    lineHeight: 16,
+    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
+    fontWeight: "400",
   },
-  actionButtons: {
+  actions: {
+    position: "absolute",
+    top: 187,
+    left: 0,
+    right: 0,
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "center",
-    gap: 16,
+    gap: 6,
   },
-  circleButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(46, 229, 197, 0.08)",
-    borderWidth: 1.5,
-    borderColor: "rgba(46, 229, 197, 0.35)",
-    justifyContent: "center",
+  actionButton: {
+    width: 39,
+    height: 39,
+    borderRadius: 20,
+    borderWidth: 1.219,
+    borderColor: "#3385C0",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
     alignItems: "center",
+    justifyContent: "center",
+  },
+  calendarIcon: {
+    width: 13.5,
+    height: 15,
+  },
+  settingsIcon: {
+    width: 18,
+    height: 18,
+  },
+  insetHighlight: {
+    position: "absolute",
+    top: 1,
+    right: 1,
+    bottom: 1,
+    left: 1,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 31,
   },
 });

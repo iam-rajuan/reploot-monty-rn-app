@@ -93,7 +93,7 @@ export const WorkoutModalityCard: React.FC<WorkoutModalityCardProps> = ({
 const styles = StyleSheet.create({
   cardContainer: {
     width: "100%",
-    height: 240,
+    height: 220,
     borderRadius: 24,
     overflow: "hidden",
     backgroundColor: "#11141C",
@@ -110,9 +110,9 @@ const styles = StyleSheet.create({
   },
   bottomRow: {
     position: "absolute",
-    bottom: 20,
-    left: 20,
-    right: 20,
+    bottom: 18,
+    left: 18,
+    right: 18,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -120,22 +120,22 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
-    marginRight: 16,
+    marginRight: 12,
   },
   arrowButtonWrapper: {
-    width: 52,
-    height: 52,
+    width: 46,
+    height: 46,
     alignItems: "center",
     justifyContent: "center",
   },
   arrowImage: {
-    width: 50,
-    height: 50,
+    width: 44,
+    height: 44,
   },
   title: {
     color: "#FFFFFF",
-    fontSize: 26,
-    lineHeight: 30,
+    fontSize: 24,
+    lineHeight: 28,
     fontWeight: "900",
     fontStyle: "italic",
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
@@ -145,9 +145,9 @@ const styles = StyleSheet.create({
   subtitle: {
     color: "#CBD5E1",
     fontSize: 13,
-    lineHeight: 18,
+    lineHeight: 17,
     fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
     fontWeight: "600",
-    marginTop: 4,
+    marginTop: 3,
   },
 });
