@@ -1,12 +1,22 @@
 import * as Haptics from "expo-haptics";
-import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import Svg, { Path } from "react-native-svg";
 
 import { MacrosGrid } from "./MacrosGrid";
 import { NutritionRingCard } from "./NutritionRingCard";
+
+// Figma-exact arrow SVG matching #44EAC3 neon cyan path
+const NutritionArrow = () => (
+  <Svg width={14} height={14} viewBox="0 0 16 16" fill="none">
+    <Path
+      d="M12.175 9H0V7H12.175L6.575 1.4L8 0L16 8L8 16L6.575 14.6L12.175 9V9"
+      fill="#44EAC3"
+    />
+  </Svg>
+);
 
 export const NutritionDashboardCard = () => {
   const router = useRouter();
@@ -33,7 +43,7 @@ export const NutritionDashboardCard = () => {
       />
       <View pointerEvents="none" style={styles.bottomAmbientGlow} />
 
-      {/* Header: Glowing Dot + Title on Left, Link on Right (single-line guaranteed) */}
+      {/* Header: Glowing Dot + Title on Left, Link on Right (strictly single-line) */}
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
           <View style={styles.cyanHalo}>
@@ -52,15 +62,12 @@ export const NutritionDashboardCard = () => {
           onPress={handleViewNutrition}
           accessibilityRole="button"
           accessibilityLabel="View Nutrition Details"
+          hitSlop={8}
         >
           <Text style={styles.headerLink} numberOfLines={1}>
             View Nutrition
           </Text>
-          <Image
-            source={require("../../../../assets/figma/nutrition/nutrition-arrow.svg")}
-            style={styles.headerArrow}
-            contentFit="contain"
-          />
+          <NutritionArrow />
         </Pressable>
       </View>
 
@@ -108,6 +115,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    flex: 1,
+    marginRight: 8,
   },
   cyanHalo: {
     width: 14,
@@ -125,17 +134,16 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: "#E3E1E9",
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: "400",
-    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: "500",
+    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
   },
   headerRight: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
     flexShrink: 0,
-    flexWrap: "nowrap",
   },
   pressed: {
     opacity: 0.75,
@@ -146,9 +154,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 0.2,
     fontFamily: "JetBrainsMono_700Bold",
-  },
-  headerArrow: {
-    width: 16,
-    height: 16,
+    includeFontPadding: false,
   },
 });

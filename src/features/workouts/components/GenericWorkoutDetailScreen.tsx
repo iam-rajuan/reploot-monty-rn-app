@@ -206,7 +206,7 @@ export const GenericWorkoutDetailScreen: React.FC<
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: bottomInset + 196 },
+          { paddingBottom: bottomInset + 172 },
         ]}
       >
         {/* Workout Category Selector Pills */}
@@ -493,11 +493,11 @@ const styles = StyleSheet.create({
   regenerateBtn: {
     alignSelf: "stretch",
     width: "100%",
-    height: 60,
-    minHeight: 60,
-    maxHeight: 60,
+    height: 48,
+    minHeight: 48,
+    maxHeight: 48,
     flexShrink: 0,
-    borderRadius: 30,
+    borderRadius: 24,
     overflow: "hidden",
     shadowColor: "#2BD8F3",
     shadowOffset: { width: 0, height: 4 },
@@ -511,8 +511,8 @@ const styles = StyleSheet.create({
   },
   regenerateSurface: {
     width: "100%",
-    height: 60,
-    borderRadius: 30,
+    height: 48,
+    borderRadius: 24,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -530,11 +530,11 @@ const styles = StyleSheet.create({
   startWorkoutBtn: {
     alignSelf: "stretch",
     width: "100%",
-    height: 60,
-    minHeight: 60,
-    maxHeight: 60,
+    height: 48,
+    minHeight: 48,
+    maxHeight: 48,
     flexShrink: 0,
-    borderRadius: 30,
+    borderRadius: 24,
     overflow: "hidden",
     shadowColor: "#00f2fe",
     shadowOffset: { width: 0, height: 4 },
@@ -548,9 +548,9 @@ const styles = StyleSheet.create({
   },
   startWorkoutGradient: {
     width: "100%",
-    height: 60,
-    minHeight: 60,
-    borderRadius: 30,
+    height: 48,
+    minHeight: 48,
+    borderRadius: 24,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
