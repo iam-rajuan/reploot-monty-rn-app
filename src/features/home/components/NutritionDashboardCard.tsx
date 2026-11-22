@@ -1,7 +1,7 @@
 import * as Haptics from "expo-haptics";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { ArrowRight } from "lucide-react-native";
 import React from "react";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -23,14 +23,15 @@ export const NutritionDashboardCard = () => {
       {/* Top-Right Glowing Flare Gradient matching Figma */}
       <LinearGradient
         colors={[
-          "rgba(37, 99, 235, 0.3)",
-          "rgba(30, 64, 175, 0.12)",
+          "rgba(32, 68, 117, 0.82)",
+          "rgba(32, 68, 117, 0.2)",
           "transparent",
         ]}
         style={StyleSheet.absoluteFill}
         start={{ x: 1, y: 0 }}
         end={{ x: 0.15, y: 0.55 }}
       />
+      <View pointerEvents="none" style={styles.bottomAmbientGlow} />
 
       {/* Header: Glowing Dot + Title on Left, Link on Right (single-line guaranteed) */}
       <View style={styles.headerRow}>
@@ -55,7 +56,11 @@ export const NutritionDashboardCard = () => {
           <Text style={styles.headerLink} numberOfLines={1}>
             View Nutrition
           </Text>
-          <ArrowRight size={15} color="#2EE5C5" strokeWidth={2.6} />
+          <Image
+            source={require("../../../../assets/figma/nutrition/nutrition-arrow.svg")}
+            style={styles.headerArrow}
+            contentFit="contain"
+          />
         </Pressable>
       </View>
 
@@ -67,28 +72,37 @@ export const NutritionDashboardCard = () => {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: "#111422",
-    borderRadius: 24,
+    backgroundColor: "#14141C",
+    borderRadius: 32,
     marginHorizontal: 20,
-    marginBottom: 28,
-    paddingTop: 20,
-    paddingHorizontal: 18,
-    paddingBottom: 20,
+    marginBottom: 24,
+    paddingTop: 21,
+    paddingHorizontal: 17,
+    paddingBottom: 17,
     position: "relative",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.25)",
+    borderColor: "#225291",
     overflow: "hidden",
-    shadowColor: "#2563EB",
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
     elevation: 4,
+  },
+  bottomAmbientGlow: {
+    position: "absolute",
+    width: 144,
+    height: 144,
+    borderRadius: 72,
+    left: -40,
+    bottom: -40,
+    backgroundColor: "rgba(25, 37, 53, 0.72)",
   },
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 14,
   },
   headerLeft: {
     flexDirection: "row",
@@ -110,10 +124,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#2EE5C5",
   },
   headerTitle: {
-    color: "#FFFFFF",
+    color: "#E3E1E9",
     fontSize: 16,
-    fontWeight: "800",
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
+    lineHeight: 24,
+    fontWeight: "400",
+    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
   },
   headerRight: {
     flexDirection: "row",
@@ -126,10 +141,14 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
   headerLink: {
-    color: "#2EE5C5",
-    fontSize: 12,
+    color: "#44EAC3",
+    fontSize: 11,
     fontWeight: "700",
     letterSpacing: 0.2,
     fontFamily: "JetBrainsMono_700Bold",
+  },
+  headerArrow: {
+    width: 16,
+    height: 16,
   },
 });

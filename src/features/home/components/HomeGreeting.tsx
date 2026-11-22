@@ -32,7 +32,7 @@ export const HomeGreeting = ({ name }: HomeGreetingProps) => {
       </View>
 
       <View style={styles.dateContainer}>
-        <Calendar size={13} color="#8E94B8" />
+        <Calendar size={10.5} color="#C8C4D8" />
         <Text style={styles.dateText}>{formattedDate}</Text>
       </View>
     </View>
@@ -41,44 +41,47 @@ export const HomeGreeting = ({ name }: HomeGreetingProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
-    marginTop: 16,
-    marginBottom: 20,
+    paddingHorizontal: 24,
+    marginTop: 20,
+    marginBottom: 30,
   },
   greetingSub: {
-    color: "#8E94B8",
-    fontSize: 12,
+    color: "#C8C4D8",
+    fontSize: 16,
+    lineHeight: 24,
     fontWeight: "700",
     letterSpacing: 2,
     fontFamily: "JetBrainsMono_700Bold",
-    marginBottom: 6,
+    marginBottom: 7,
   },
   titleWrapper: {
-    marginBottom: 6,
-    marginTop: 2,
+    height: 52,
+    justifyContent: "center",
+    marginBottom: 7,
   },
   titleLine: {
     color: "#FFFFFF",
-    fontSize: 36,
-    lineHeight: 42,
+    fontSize: 44,
+    lineHeight: 44,
     fontWeight: "900",
-    letterSpacing: 0.8,
+    letterSpacing: -1.76,
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    textShadowColor: "rgba(0, 242, 254, 0.45)",
+    textShadowColor: "rgba(95, 255, 215, 0.5)",
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 18,
+    textShadowRadius: 20,
   },
   dateContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 4,
-    gap: 6,
+    marginTop: 0,
+    gap: 8,
   },
   dateText: {
-    color: "#8E94B8",
-    fontSize: 11,
+    color: "#C8C4D8",
+    fontSize: 12,
+    lineHeight: 16,
     fontWeight: "700",
-    letterSpacing: 1.5,
+    letterSpacing: 1.2,
     fontFamily: "JetBrainsMono_700Bold",
   },
 });

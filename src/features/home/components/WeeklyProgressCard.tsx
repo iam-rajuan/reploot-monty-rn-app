@@ -14,7 +14,7 @@ import Svg, { Path } from "react-native-svg";
 
 // Crisp hollow neon cyan lightning bolt matching Figma outline design exactly
 const StreakLightningIcon = () => (
-  <Svg width={20} height={26} viewBox="0 0 24 30" fill="none">
+  <Svg width={18} height={24} viewBox="0 0 24 30" fill="none">
     <Path
       d="M13.5 2H16.5L15 12.5H23L8.5 28H6.5L8 18H1.5L13.5 2Z"
       stroke="#2EE5C5"
@@ -42,7 +42,7 @@ export const WeeklyProgressCard = () => {
       <View style={styles.headerRow}>
         {/* LVL 42 Gradient Badge: Left-aligned bold text matching Figma */}
         <LinearGradient
-          colors={["#5851FD", "#3B82F6"]}
+          colors={["#5B5CF6", "#3B82F6"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.levelBox}
@@ -137,46 +137,46 @@ export const WeeklyProgressCard = () => {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: "#111422",
-    borderRadius: 24,
-    padding: 22,
-    paddingBottom: 20,
-    marginHorizontal: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 32,
+    padding: 33,
+    marginHorizontal: 24,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    marginBottom: 28,
+    borderColor: "rgba(255, 255, 255, 0.07)",
+    marginBottom: 30,
+    overflow: "hidden",
   },
   headerRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
-    marginBottom: 22,
+    marginBottom: 24,
   },
   levelBox: {
-    width: 126,
-    height: 98,
-    borderRadius: 22,
-    paddingLeft: 18,
-    paddingTop: 14,
-    paddingBottom: 12,
-    justifyContent: "space-between",
+    width: 133,
+    minHeight: 96,
+    borderRadius: 16,
     alignItems: "flex-start",
+    justifyContent: "center",
+    padding: 12,
   },
   levelLabel: {
     color: "#FFFFFF",
-    fontSize: 26,
-    lineHeight: 28,
+    fontSize: 48,
+    lineHeight: 40,
     fontWeight: "900",
-    letterSpacing: 0.8,
+    letterSpacing: 0,
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    textAlign: "left",
   },
   levelNumber: {
     color: "#FFFFFF",
-    fontSize: 44,
-    lineHeight: 46,
+    fontSize: 48,
+    lineHeight: 44,
     fontWeight: "900",
-    letterSpacing: -1,
+    letterSpacing: 0,
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    textAlign: "left",
   },
   headerRight: {
     flexDirection: "row",
@@ -185,14 +185,15 @@ const styles = StyleSheet.create({
   },
   tierCol: {
     justifyContent: "center",
-    gap: 4,
+    paddingRight: 12,
   },
   tierText: {
     color: "#C8C4D8",
     fontSize: 12,
+    lineHeight: 18,
     fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
-    letterSpacing: 2,
+    letterSpacing: 1.2,
   },
   streakCol: {
     alignItems: "flex-start",
@@ -200,105 +201,111 @@ const styles = StyleSheet.create({
   streakTopRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 4,
   },
   streakNumber: {
     color: "#2EE5C5",
-    fontSize: 38,
+    fontSize: 36,
     fontWeight: "900",
-    lineHeight: 42,
-    letterSpacing: -0.5,
+    lineHeight: 40,
+    letterSpacing: 0,
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
   },
   streakLabel: {
     color: "#C8C4D8",
-    fontSize: 11,
+    fontSize: 12,
+    lineHeight: 18,
     fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
-    letterSpacing: 2,
-    marginTop: 2,
+    letterSpacing: 0,
+    marginTop: 0,
   },
   xpRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 8,
+    marginTop: 8,
+    marginBottom: 12,
   },
   xpText: {
-    color: "#CBD5E1",
-    fontSize: 11.5,
+    color: "#C8C4D8",
+    fontSize: 12,
+    lineHeight: 18,
     fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
-    letterSpacing: 0.8,
+    letterSpacing: 0,
   },
   progressBarTrack: {
     height: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    borderRadius: 6,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 999,
     overflow: "hidden",
-    marginBottom: 28,
+    marginBottom: 24,
   },
   progressBarFill: {
     height: 12,
-    borderRadius: 6,
+    borderRadius: 999,
   },
   chartContainer: {
-    height: 96,
+    height: 116,
     justifyContent: "flex-end",
-    marginBottom: 20,
+    marginBottom: 16,
   },
   chartBars: {
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "flex-end",
-    gap: 6,
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
   },
   barWrap: {
-    width: 33,
+    width: 32.7,
     alignItems: "center",
     gap: 8,
   },
   bar: {
-    width: 33,
-    borderRadius: 8,
+    width: 32.7,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
   barBlue: {
-    backgroundColor: "#659AF8",
+    backgroundColor: "#71AAE8",
   },
   barPurple: {
-    backgroundColor: "#5B597F",
+    backgroundColor: "rgba(197, 192, 255, 0.4)",
   },
   barActive: {
-    backgroundColor: "#2EE5C5",
+    backgroundColor: "#44EAC3",
     shadowColor: "#2EE5C5",
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    elevation: 6,
   },
   dayLabel: {
-    width: 33,
+    width: 32.7,
     textAlign: "center",
-    color: "#7E83A0",
-    fontSize: 10,
+    color: "#C8C4D8",
+    fontSize: 8,
+    lineHeight: 12,
     fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
   },
   dayLabelActive: {
-    color: "#2EE5C5",
+    color: "#44EAC3",
     fontWeight: "900",
   },
   linkRow: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 6,
-    marginTop: 4,
+    gap: 4,
+    alignSelf: "center",
   },
   viewProgressLink: {
-    color: "#2EE5C5",
+    color: "#44EAC3",
     fontSize: 12,
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
+    lineHeight: 18,
+    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
-    letterSpacing: 0.4,
+    letterSpacing: 0,
   },
 });

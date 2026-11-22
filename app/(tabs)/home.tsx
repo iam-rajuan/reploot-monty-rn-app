@@ -3,7 +3,6 @@ import { AiCoachFloatingCard } from "@/features/home/components/AiCoachFloatingC
 import { AiWorkoutCard } from "@/features/home/components/AiWorkoutCard";
 import { HomeGreeting } from "@/features/home/components/HomeGreeting";
 import { NutritionDashboardCard } from "@/features/home/components/NutritionDashboardCard";
-import { TodaysMissionsCard } from "@/features/home/components/TodaysMissionsCard";
 import { WeeklyProgressCard } from "@/features/home/components/WeeklyProgressCard";
 import { WorkoutHeader } from "@/features/workouts";
 import { useAppSelector } from "@/store/hooks";
@@ -72,7 +71,6 @@ export default function HomeTabRoute() {
       >
         <HomeGreeting name={userName} />
         <WeeklyProgressCard />
-        <TodaysMissionsCard />
         <View style={styles.sectionSpacing}>
           <WorkoutModalitiesSection />
         </View>
@@ -106,8 +104,10 @@ const styles = StyleSheet.create({
     paddingBottom: 110,
   },
   sectionSpacing: {
-    marginHorizontal: 20,
-    marginBottom: 16,
+    marginHorizontal: 24,
+    marginBottom: 24,
+    height: 752,
+    flexShrink: 0,
   },
   fabContainer: {
     position: "absolute",

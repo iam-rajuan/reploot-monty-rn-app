@@ -1,53 +1,21 @@
+import { Image } from "expo-image";
 import React from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
-import Svg, {
-  Circle,
-  Defs,
-  LinearGradient as SvgGradient,
-  Stop,
-} from "react-native-svg";
 
 export const NutritionRingCard = () => {
-  const radius = 56;
-  const strokeWidth = 14;
-  const circumference = 2 * Math.PI * radius; // ~351.86
-  const progressLength = circumference * 0.75; // 75% goal = ~263.9
-
   return (
     <View style={styles.ringCard}>
       <View style={styles.ringContainer}>
-        <Svg width={180} height={180} viewBox="0 0 150 150">
-          <Defs>
-            <SvgGradient id="ringGrad" x1="0" y1="1" x2="1" y2="0">
-              <Stop offset="0%" stopColor="#4F46E5" />
-              <Stop offset="45%" stopColor="#38BDF8" />
-              <Stop offset="100%" stopColor="#2EE5C5" />
-            </SvgGradient>
-          </Defs>
-
-          {/* Complete Circular Background Track (crisply visible in #242C44) */}
-          <Circle
-            cx={75}
-            cy={75}
-            r={radius}
-            stroke="#242C44"
-            strokeWidth={strokeWidth}
-            fill="none"
-          />
-
-          {/* Active 75% Progress Arc with Rounded Caps */}
-          <Circle
-            cx={75}
-            cy={75}
-            r={radius}
-            stroke="url(#ringGrad)"
-            strokeWidth={strokeWidth}
-            strokeDasharray={`${progressLength} ${circumference}`}
-            strokeLinecap="round"
-            fill="none"
-            transform="rotate(135 75 75)"
-          />
-        </Svg>
+        <Image
+          source={require("../../../../assets/figma/nutrition/nutrition-ring-track.svg")}
+          style={styles.ringAsset}
+          contentFit="contain"
+        />
+        <Image
+          source={require("../../../../assets/figma/nutrition/nutrition-ring-progress.svg")}
+          style={styles.ringAsset}
+          contentFit="contain"
+        />
 
         {/* Center Text Information */}
         <View style={styles.ringCenterText}>
@@ -73,18 +41,31 @@ export const NutritionRingCard = () => {
 
 const styles = StyleSheet.create({
   ringCard: {
-    backgroundColor: "#131624",
-    borderRadius: 20,
+    backgroundColor: "rgba(24, 37, 50, 0.4)",
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.07)",
-    paddingVertical: 24,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+    padding: 21,
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 12,
     position: "relative",
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 3,
   },
   ringContainer: {
+    width: 160,
+    height: 160,
     alignItems: "center",
     justifyContent: "center",
+    position: "relative",
+  },
+  ringAsset: {
+    position: "absolute",
+    width: 160,
+    height: 160,
   },
   ringCenterText: {
     position: "absolute",
@@ -97,9 +78,9 @@ const styles = StyleSheet.create({
   },
   ringSubtext: {
     color: "#2EE5C5",
-    fontSize: 10.5,
-    fontWeight: "800",
-    letterSpacing: 1.5,
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1,
     fontFamily: "JetBrainsMono_700Bold",
     marginBottom: 2,
   },
@@ -110,58 +91,59 @@ const styles = StyleSheet.create({
   },
   ringValue: {
     color: "#FFFFFF",
-    fontSize: 34,
-    lineHeight: 38,
-    fontWeight: "900",
+    fontSize: 20,
+    lineHeight: 24,
+    fontWeight: "800",
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
   },
   ringUnit: {
     fontSize: 22,
-    lineHeight: 38,
+    lineHeight: 24,
     fontWeight: "900",
     color: "#2EE5C5",
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    marginLeft: 6,
+    marginLeft: 4,
   },
   ringTarget: {
-    color: "#8E94B8",
-    fontSize: 10.5,
+    color: "#C8C4D8",
+    fontSize: 9,
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
-    marginTop: 2,
-    letterSpacing: 1,
+    marginTop: 1,
+    letterSpacing: 0.45,
   },
   dailyGoalPill: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(24, 44, 78, 0.65)",
-    borderWidth: 1.2,
-    borderColor: "rgba(56, 189, 248, 0.4)",
-    paddingHorizontal: 16,
+    backgroundColor: "#20487C",
+    borderWidth: 1,
+    borderColor: "rgba(14, 19, 129, 0.4)",
+    paddingHorizontal: 15,
     paddingVertical: 7,
-    borderRadius: 18,
+    borderRadius: 999,
     gap: 8,
     marginTop: 14,
   },
   dailyGoalHalo: {
-    width: 13,
-    height: 13,
-    borderRadius: 6.5,
-    backgroundColor: "rgba(56, 189, 248, 0.3)",
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#44EAC3",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 4,
     alignItems: "center",
     justifyContent: "center",
   },
   dailyGoalDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#FFFFFF",
+    display: "none",
   },
   dailyGoalText: {
     color: "#FFFFFF",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "800",
-    letterSpacing: 1.5,
+    letterSpacing: 0.5,
     fontFamily: "JetBrainsMono_700Bold",
   },
 });

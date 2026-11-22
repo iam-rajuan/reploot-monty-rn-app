@@ -1,10 +1,11 @@
 import { useRouter } from "expo-router";
 import React from "react";
 import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { TodaysMissionsCard } from "./TodaysMissionsCard";
 import { WorkoutModalityCard } from "./WorkoutModalityCard";
 
-const gymWorkoutAsset = require("../../../../assets/workout/GymWorkout.png");
-const homeWorkoutAsset = require("../../../../assets/workout/HomeWorkout.png");
+const gymWorkoutAsset = require("../../../../assets/figma/modalities/gym-workout-card.jpeg");
+const homeWorkoutAsset = require("../../../../assets/figma/modalities/home-workout-card.jpeg");
 
 export interface WorkoutModalitiesSectionProps {
   onSelectModality?: (modality: "gym" | "home") => void;
@@ -38,10 +39,12 @@ export const WorkoutModalitiesSection: React.FC<
   return (
     <View style={[styles.container, style]}>
       <View style={styles.cardsColumn}>
+        <TodaysMissionsCard />
         <WorkoutModalityCard
           title="GYM WORKOUT"
           subtitle="Full equipment access"
           image={gymWorkoutAsset}
+          arrowBottom={96}
           onPress={handleSelectGym}
           testID="gym-workout-card"
         />
@@ -50,6 +53,7 @@ export const WorkoutModalitiesSection: React.FC<
           title="HOME WORKOUT"
           subtitle="Bodyweight & dumbbells"
           image={homeWorkoutAsset}
+          arrowBottom={105}
           onPress={handleSelectHome}
           testID="home-workout-card"
         />
@@ -61,9 +65,13 @@ export const WorkoutModalitiesSection: React.FC<
 const styles = StyleSheet.create({
   container: {
     width: "100%",
+    height: 752,
+    flexShrink: 0,
   },
   cardsColumn: {
     width: "100%",
+    height: 752,
+    flexShrink: 0,
     gap: 16,
   },
 });
