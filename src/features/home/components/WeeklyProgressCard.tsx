@@ -1,7 +1,8 @@
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { ArrowRight, Star, Zap } from "lucide-react-native";
+import { ArrowRight, Zap } from "lucide-react-native";
+import React from "react";
 import {
   Platform,
   StyleSheet,
@@ -11,42 +12,45 @@ import {
 } from "react-native";
 
 export const WeeklyProgressCard = () => {
-  const now = new Date();
-  const currentDayOfWeek = now.getDay(); // 0 is Sunday, 1 is Monday ...
-
   const WEEK_DAYS = [
-    { label: "M", height: 32, dayNum: 1 },
-    { label: "T", height: 48, dayNum: 2 },
-    { label: "W", height: 68, dayNum: 3 },
-    { label: "T", height: 80, dayNum: 4 },
-    { label: "F", height: 24, dayNum: 5 },
-    { label: "S", height: 44, dayNum: 6 },
-    { label: "S", height: 16, dayNum: 0 },
+    { label: "M", height: 30, type: "blue" },
+    { label: "T", height: 46, type: "blue" },
+    { label: "W", height: 66, type: "purple" },
+    { label: "T", height: 86, type: "active" },
+    { label: "F", height: 22, type: "blue" },
+    { label: "S", height: 52, type: "blue" },
+    { label: "S", height: 18, type: "blue" },
   ];
+
   return (
     <View style={styles.cardContainer}>
+      {/* Header Row: LVL 42 Box + ELITE TIER + 12 DAY STREAK */}
       <View style={styles.headerRow}>
-        {/* LVL 42 Box */}
-        <View style={{ alignItems: "center" }}>
-          <View style={styles.streakTopRow}>
-            <Star size={28} color="#38EDD8" strokeWidth={2.5} />
-            <Text style={[styles.streakNumber, { color: "#38EDD8" }]}>42</Text>
-          </View>
-          <View style={styles.streakBottomRow}>
-            <Text style={styles.streakLabel}>ELITE</Text>
-            <Text style={styles.streakLabel}>TIER</Text>
-          </View>
-        </View>
+        {/* LVL 42 Gradient Badge */}
+        <LinearGradient
+          colors={["#5A55FD", "#3B82F6"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.levelBox}
+        >
+          <Text style={styles.levelLabel}>LVL</Text>
+          <Text style={styles.levelNumber}>42</Text>
+        </LinearGradient>
 
-        {/* 12 DAY STREAK */}
-        <View style={styles.streakContainer}>
-          <View style={styles.streakTopRow}>
-            <Zap size={28} color="#38EDD8" strokeWidth={2.5} />
-            <Text style={styles.streakNumber}>12</Text>
+        <View style={styles.headerRight}>
+          {/* ELITE TIER */}
+          <View style={styles.tierCol}>
+            <Text style={styles.tierText}>ELITE</Text>
+            <Text style={styles.tierText}>TIER</Text>
           </View>
-          <View style={styles.streakBottomRow}>
-            <Text style={styles.streakLabel}>DAY</Text>
-            <Text style={styles.streakLabel}>STREAK</Text>
+
+          {/* 12 DAY STREAK */}
+          <View style={styles.streakCol}>
+            <View style={styles.streakTopRow}>
+              <Zap size={24} color="#2EE5C5" strokeWidth={3} />
+              <Text style={styles.streakNumber}>12</Text>
+            </View>
+            <Text style={styles.streakLabel}>DAY  STREAK</Text>
           </View>
         </View>
       </View>
@@ -58,10 +62,10 @@ export const WeeklyProgressCard = () => {
       </View>
       <View style={styles.progressBarTrack}>
         <LinearGradient
-          colors={["#707BFF", "#5260FF"]}
-          style={[styles.progressBarFill, { width: "80%" }]}
+          colors={["#5A55FD", "#3B82F6"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
+          style={[styles.progressBarFill, { width: "75%" }]}
         />
       </View>
 
@@ -69,33 +73,26 @@ export const WeeklyProgressCard = () => {
       <View style={styles.chartContainer}>
         <View style={styles.chartBars}>
           {WEEK_DAYS.map((dayItem, index) => {
-            const isToday = currentDayOfWeek === dayItem.dayNum;
+            const isActive = dayItem.type === "active";
+            const isPurple = dayItem.type === "purple";
+
             return (
               <View key={index} style={styles.barWrap}>
-                {isToday ? (
-                  <View style={styles.barActiveGlow}>
-                    <LinearGradient
-                      colors={["#38EDD8", "#38EDD8"]}
-                      style={[
-                        styles.bar,
-                        styles.barActive,
-                        { height: dayItem.height },
-                      ]}
-                    />
-                  </View>
-                ) : (
-                  <View
-                    style={[
-                      styles.bar,
-                      dayItem.height > 50 ? styles.barPurpleGray : styles.barBlue,
-                      { height: dayItem.height },
-                    ]}
-                  />
-                )}
+                <View
+                  style={[
+                    styles.bar,
+                    { height: dayItem.height },
+                    isActive
+                      ? styles.barActive
+                      : isPurple
+                        ? styles.barPurple
+                        : styles.barBlue,
+                  ]}
+                />
                 <Text
                   style={[
                     styles.dayLabel,
-                    isToday && styles.dayLabelActive,
+                    isActive && styles.dayLabelActive,
                   ]}
                 >
                   {dayItem.label}
@@ -106,6 +103,7 @@ export const WeeklyProgressCard = () => {
         </View>
       </View>
 
+      {/* Bottom Link */}
       <TouchableOpacity
         activeOpacity={0.7}
         style={styles.linkRow}
@@ -117,7 +115,7 @@ export const WeeklyProgressCard = () => {
         }}
       >
         <Text style={styles.viewProgressLink}>View Weekly Progress</Text>
-        <ArrowRight size={14} color="#38EDD8" strokeWidth={2.5} />
+        <ArrowRight size={13} color="#2EE5C5" strokeWidth={2.5} />
       </TouchableOpacity>
     </View>
   );
@@ -125,9 +123,10 @@ export const WeeklyProgressCard = () => {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: "#11141C",
-    borderRadius: 24,
+    backgroundColor: "#111422",
+    borderRadius: 28,
     padding: 24,
+    paddingBottom: 22,
     marginHorizontal: 20,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
@@ -136,103 +135,101 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 32,
+    justifyContent: "space-between",
+    marginBottom: 26,
   },
   levelBox: {
-    width: 100,
-    height: 100,
-    borderRadius: 20,
-    paddingHorizontal: 18,
+    width: 96,
+    height: 96,
+    borderRadius: 22,
     justifyContent: "center",
-  },
-  levelTextSmall: {
-    color: "#FFFFFF",
-    fontSize: 32,
-    fontWeight: "700",
-    lineHeight: 32,
-    letterSpacing: 1,
-    marginBottom: 1,
-  },
-  levelTextBig: {
-    color: "#FFFFFF",
-    fontSize: 48,
-    fontWeight: "900",
-    lineHeight: 48,
-    letterSpacing: -1,
-  },
-  tierStreakCol: {
-    marginLeft: 16,
-    justifyContent: "center",
-    gap: 4,
-  },
-  eliteTierText: {
-    color: "#C2C6DC",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 2.5,
-    fontFamily: "monospace",
-  },
-  streakContainer: {
-    marginLeft: "auto",
     alignItems: "center",
+  },
+  levelLabel: {
+    color: "#FFFFFF",
+    fontSize: 26,
+    fontWeight: "900",
+    letterSpacing: 0.5,
+  },
+  levelNumber: {
+    color: "#FFFFFF",
+    fontSize: 40,
+    fontWeight: "900",
+    lineHeight: 42,
+    letterSpacing: -0.5,
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 22,
+  },
+  tierCol: {
+    justifyContent: "center",
+    gap: 3,
+  },
+  tierText: {
+    color: "#8E94B8",
+    fontSize: 11,
+    fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: 2,
+  },
+  streakCol: {
+    alignItems: "flex-start",
   },
   streakTopRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    marginBottom: 4,
   },
   streakNumber: {
-    color: "#38EDD8",
-    fontSize: 40,
+    color: "#2EE5C5",
+    fontSize: 34,
     fontWeight: "900",
-    lineHeight: 40,
-    letterSpacing: -1,
-  },
-  streakBottomRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+    lineHeight: 36,
+    letterSpacing: -0.5,
   },
   streakLabel: {
-    color: "#C2C6DC",
+    color: "#8E94B8",
     fontSize: 10,
+    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 1.5,
-    fontFamily: "monospace",
+    marginTop: 2,
   },
   xpRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 8,
   },
   xpText: {
-    color: "#E2E8F0",
+    color: "#CBD0E8",
     fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.5,
     fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: 1,
   },
   progressBarTrack: {
-    height: 10,
-    backgroundColor: "#2B2D42", // Dark track
-    borderRadius: 5,
-    marginBottom: 40,
+    height: 8,
+    backgroundColor: "#1F2338",
+    borderRadius: 4,
+    overflow: "hidden",
+    marginBottom: 32,
   },
   progressBarFill: {
-    height: 10,
-    borderRadius: 5,
+    height: 8,
+    borderRadius: 4,
   },
   chartContainer: {
     height: 100,
     justifyContent: "flex-end",
-    marginBottom: 24,
+    marginBottom: 20,
   },
   chartBars: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
   },
   barWrap: {
     alignItems: "center",
@@ -240,40 +237,44 @@ const styles = StyleSheet.create({
   },
   bar: {
     width: 24,
-    borderRadius: 6,
+    borderRadius: 7,
   },
   barBlue: {
-    backgroundColor: "#6FA5F6", // Light blue
+    backgroundColor: "#5D95EA",
   },
-  barPurpleGray: {
-    backgroundColor: "#6E7196", // Purplish gray
-  },
-  barActiveGlow: {
-    borderRadius: 6,
+  barPurple: {
+    backgroundColor: "#5A597E",
   },
   barActive: {
-    // Gradient used inside view
+    backgroundColor: "#2EE5C5",
+    shadowColor: "#2EE5C5",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 10,
+    elevation: 8,
   },
   dayLabel: {
-    color: "#C2C6DC",
+    color: "#7E83A0",
     fontSize: 10,
-    fontWeight: "800",
     fontFamily: "monospace",
+    fontWeight: "700",
   },
   dayLabelActive: {
-    color: "#38EDD8",
+    color: "#2EE5C5",
+    fontWeight: "800",
   },
   linkRow: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     gap: 6,
+    marginTop: 6,
   },
   viewProgressLink: {
-    color: "#38EDD8",
-    fontSize: 13,
+    color: "#2EE5C5",
+    fontSize: 12.5,
+    fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 0.5,
-    fontFamily: "monospace",
   },
 });
