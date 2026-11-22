@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     position: "relative",
     borderRadius: 32,
     borderWidth: 1,
-    borderColor: "#6C5CFF",
+    borderColor: "rgba(108, 92, 255, 0.55)",
     backgroundColor: "#0D0E13",
     shadowColor: "#6C5CFF",
     shadowOffset: { width: 0, height: 4 },

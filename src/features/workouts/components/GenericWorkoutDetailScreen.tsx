@@ -206,7 +206,7 @@ export const GenericWorkoutDetailScreen: React.FC<
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: bottomInset + 160 },
+          { paddingBottom: bottomInset + 196 },
         ]}
       >
         {/* Workout Category Selector Pills */}
@@ -316,15 +316,17 @@ export const GenericWorkoutDetailScreen: React.FC<
             accessibilityRole="button"
             accessibilityLabel="Regenerate Workout"
           >
-            <RefreshCw
-              size={15}
-              color="#67E8F9"
-              strokeWidth={2.4}
-              style={{ marginRight: 8 }}
-            />
-            <Text style={styles.regenerateBtnText} numberOfLines={1}>
-              REGENERATE WORKOUT
-            </Text>
+            <View style={styles.regenerateSurface}>
+              <RefreshCw
+                size={18}
+                color="#6FE8FF"
+                strokeWidth={2.2}
+                style={{ marginRight: 10 }}
+              />
+              <Text style={styles.regenerateBtnText} numberOfLines={1}>
+                REGENERATE WORKOUT
+              </Text>
+            </View>
           </Pressable>
 
           {/* 2. START AI WORKOUT BUTTON */}
@@ -466,10 +468,10 @@ const styles = StyleSheet.create({
   },
   fadeGradient: {
     position: "absolute",
-    top: -24,
+    top: -32,
     left: 0,
     right: 0,
-    height: 24,
+    height: 32,
   },
   bottomCtaContainer: {
     position: "absolute",
@@ -477,58 +479,62 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingTop: 14,
     zIndex: 99,
     backgroundColor: "#070A11",
     borderTopWidth: 1,
     borderTopColor: "rgba(255, 255, 255, 0.08)",
   },
   ctaButtonsCol: {
-    gap: 10,
+    gap: 8,
     width: "100%",
     flexShrink: 0,
   },
   regenerateBtn: {
     alignSelf: "stretch",
     width: "100%",
-    height: 52,
-    minHeight: 52,
-    maxHeight: 52,
+    height: 60,
+    minHeight: 60,
+    maxHeight: 60,
     flexShrink: 0,
-    borderRadius: 26,
+    borderRadius: 30,
     overflow: "hidden",
+    shadowColor: "#2BD8F3",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.14,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  regenerateBtnPressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.985 }],
+  },
+  regenerateSurface: {
+    width: "100%",
+    height: 60,
+    borderRadius: 30,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#172033",
-    borderWidth: 1.5,
-    borderColor: "#334155",
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.28,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  regenerateBtnPressed: {
-    opacity: 0.92,
-    transform: [{ scale: 0.985 }],
-    backgroundColor: "#22314A",
+    backgroundColor: "#142432",
+    borderWidth: 1,
+    borderColor: "rgba(111, 232, 255, 0.45)",
   },
   regenerateBtnText: {
-    color: "#E2E8F0",
-    fontSize: 13,
+    color: "#D7F8FF",
+    fontSize: 14,
     fontWeight: "800",
     fontFamily: "monospace",
-    letterSpacing: 1,
+    letterSpacing: 1.2,
   },
   startWorkoutBtn: {
     alignSelf: "stretch",
     width: "100%",
-    height: 52,
-    minHeight: 52,
-    maxHeight: 52,
+    height: 60,
+    minHeight: 60,
+    maxHeight: 60,
     flexShrink: 0,
-    borderRadius: 26,
+    borderRadius: 30,
     overflow: "hidden",
     shadowColor: "#00f2fe",
     shadowOffset: { width: 0, height: 4 },
@@ -542,9 +548,9 @@ const styles = StyleSheet.create({
   },
   startWorkoutGradient: {
     width: "100%",
-    height: 52,
-    minHeight: 52,
-    borderRadius: 26,
+    height: 60,
+    minHeight: 60,
+    borderRadius: 30,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

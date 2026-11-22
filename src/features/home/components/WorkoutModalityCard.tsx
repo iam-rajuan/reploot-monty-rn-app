@@ -67,6 +67,7 @@ export const WorkoutModalityCard: React.FC<WorkoutModalityCardProps> = ({
         locations={[0, 0.5, 1]}
         style={StyleSheet.absoluteFill}
       />
+      <View style={styles.insetHighlight} pointerEvents="none" />
 
       {/* Bottom Content Row (Text and Opposite Arrow Button) */}
       <View style={styles.textContainer} pointerEvents="none">
@@ -99,6 +100,8 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     overflow: "hidden",
     backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "rgba(108, 92, 255, 0.55)",
     position: "relative",
     shadowColor: "#000000",
     shadowOffset: { width: 0, height: 25 },
@@ -112,6 +115,16 @@ const styles = StyleSheet.create({
     left: "-12.81%",
     width: "125.63%",
     height: "100%",
+  },
+  insetHighlight: {
+    position: "absolute",
+    top: 1,
+    right: 1,
+    bottom: 1,
+    left: 1,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 31,
   },
   pressableOverlay: {
     ...StyleSheet.absoluteFill,
