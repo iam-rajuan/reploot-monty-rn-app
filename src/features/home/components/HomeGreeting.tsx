@@ -1,8 +1,6 @@
-import MaskedView from "@react-native-masked-view/masked-view";
-import { LinearGradient } from "expo-linear-gradient";
 import { Calendar } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 
 export interface HomeGreetingProps {
   name: string;
@@ -20,31 +18,21 @@ export const HomeGreeting = ({ name }: HomeGreetingProps) => {
   return (
     <View style={styles.container}>
       <Text style={styles.greetingSub}>GOOD MORNING, {name.toUpperCase()}</Text>
+
+      {/* Single-line Title matching Figma request */}
       <View style={styles.titleWrapper}>
-        <MaskedView
-          style={styles.maskedTitleView}
-          maskElement={
-            <View style={styles.maskWrapper}>
-              <Text
-                style={styles.title}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
-                TRAIN TODAY
-              </Text>
-            </View>
-          }
+        <Text
+          style={styles.titleLine}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.7}
         >
-          <LinearGradient
-            colors={["#00f2fe", "#4facfe"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.gradient}
-          />
-        </MaskedView>
+          TRAIN TODAY
+        </Text>
       </View>
+
       <View style={styles.dateContainer}>
-        <Calendar size={14} color="#38BDF8" />
+        <Calendar size={13} color="#8E94B8" />
         <Text style={styles.dateText}>{formattedDate}</Text>
       </View>
     </View>
@@ -55,54 +43,42 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
     marginTop: 16,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   greetingSub: {
-    color: "#94A3B8",
-    fontSize: 13,
+    color: "#8E94B8",
+    fontSize: 12,
     fontWeight: "700",
     letterSpacing: 2,
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     marginBottom: 6,
   },
   titleWrapper: {
-    alignItems: "flex-start",
-    width: "100%",
+    marginBottom: 6,
+    marginTop: 2,
   },
-  maskedTitleView: {
-    height: 52,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "flex-start",
-  },
-  gradient: {
-    flex: 1,
-  },
-  title: {
+  titleLine: {
     color: "#FFFFFF",
-    fontSize: 38,
-    lineHeight: 44,
-    fontFamily: "monospace",
+    fontSize: 36,
+    lineHeight: 42,
     fontWeight: "900",
-    letterSpacing: 1.5,
-    textAlign: "left",
-    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    textShadowColor: "rgba(0, 242, 254, 0.45)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 18,
   },
   dateContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 4,
     gap: 6,
   },
   dateText: {
-    color: "#64748B",
-    fontSize: 12,
-    fontWeight: "600",
+    color: "#8E94B8",
+    fontSize: 11,
+    fontWeight: "700",
     letterSpacing: 1.5,
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
   },
 });

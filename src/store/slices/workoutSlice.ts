@@ -364,7 +364,23 @@ export const workoutSlice = createSlice({
     regenerateWorkout: (state, action: PayloadAction<{ pathId: string }>) => {
       const { pathId } = action.payload;
       const key = pathId.toLowerCase();
-      const currentWorkout = state.workoutsByPath[key];
+      let currentWorkout = state.workoutsByPath[key];
+
+      // A route can be opened before its Redux entry has been restored or
+      // initialized. Recreate that entry from the canonical workout data so
+      // tapping Regenerate always changes the routine that is on screen.
+      if (!currentWorkout && WORKOUT_PATH_DETAILS_MAP[key]) {
+        const sourceWorkout = WORKOUT_PATH_DETAILS_MAP[key];
+        currentWorkout = {
+          ...sourceWorkout,
+          exercises: sourceWorkout.exercises.map((ex, index) => ({
+            ...ex,
+            index: String(index + 1).padStart(2, '0'),
+          })),
+        };
+        state.workoutsByPath[key] = currentWorkout;
+      }
+
       if (!currentWorkout) return;
 
       const currentCounter = state.regenerationCounterByPath[key] || 0;

@@ -2,8 +2,10 @@ import { useAppSelector } from "@/store/hooks";
 import * as Haptics from "expo-haptics";
 import { Image, ImageSource } from "expo-image";
 import { Check, Play, RefreshCw, Trash2 } from "lucide-react-native";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
+  Animated,
+  PanResponder,
   Platform,
   Pressable,
   StyleProp,
@@ -23,6 +25,9 @@ export interface PushDayExerciseCardProps {
   targetMuscle?: string;
   image?: ImageSource | number | string;
   isCompleted?: boolean;
+  isOpen?: boolean;
+  onOpen?: () => void;
+  onClose?: () => void;
   onPress?: () => void;
   onReplace?: () => void;
   onDelete?: () => void;
@@ -38,167 +43,289 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
   targetMuscle = (exercise as WorkoutExerciseItem)?.targetMuscle,
   image = exercise?.image,
   isCompleted = false,
+  isOpen,
+  onOpen,
+  onClose,
   onPress,
   onReplace,
   onDelete,
   style,
   testID,
 }) => {
-  const handlePress = () => {
+  const hasActions = Boolean(onReplace || onDelete);
+  const actionDrawerWidth = (onReplace ? 68 : 0) + (onDelete ? 68 : 0) + 8;
+
+  const translateX = useRef(new Animated.Value(0)).current;
+  const isLocallyOpenRef = useRef(false);
+
+  const closeRow = (callback?: () => void) => {
+    Animated.spring(translateX, {
+      toValue: 0,
+      useNativeDriver: true,
+      tension: 65,
+      friction: 10,
+    }).start(() => {
+      isLocallyOpenRef.current = false;
+      onClose?.();
+      callback?.();
+    });
+  };
+
+  const openRow = () => {
+    Animated.spring(translateX, {
+      toValue: -actionDrawerWidth,
+      useNativeDriver: true,
+      tension: 65,
+      friction: 10,
+    }).start(() => {
+      isLocallyOpenRef.current = true;
+      onOpen?.();
+    });
+  };
+
+  // Sync external open state if provided by parent list
+  useEffect(() => {
+    if (isOpen === false && isLocallyOpenRef.current) {
+      closeRow();
+    } else if (isOpen === true && !isLocallyOpenRef.current) {
+      openRow();
+    }
+  }, [isOpen]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponderCapture: () => isLocallyOpenRef.current,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        if (!hasActions) return false;
+        // Only claim gesture if motion is decisively horizontal and past threshold
+        return (
+          Math.abs(gestureState.dx) > 10 &&
+          Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.4
+        );
+      },
+      onPanResponderGrant: () => {
+        translateX.stopAnimation();
+      },
+      onPanResponderMove: (_, gestureState) => {
+        if (!hasActions) return;
+        const currentOffset = isLocallyOpenRef.current
+          ? -actionDrawerWidth
+          : 0;
+        let newX = currentOffset + gestureState.dx;
+        // Prevent swiping right beyond 0
+        if (newX > 0) newX = 0;
+        // Limit left over-drag
+        if (newX < -actionDrawerWidth - 24) {
+          newX = -actionDrawerWidth - 24;
+        }
+        translateX.setValue(newX);
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (!hasActions) return;
+
+        // If currently open and user tapped without dragging, close it
+        if (isLocallyOpenRef.current && Math.abs(gestureState.dx) < 6) {
+          closeRow();
+          return;
+        }
+
+        // Swipe left threshold or fast flick
+        if (
+          gestureState.dx < -36 ||
+          gestureState.vx < -0.35 ||
+          (isLocallyOpenRef.current && gestureState.dx < 20)
+        ) {
+          openRow();
+          if (Platform.OS !== "web") {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+              () => {}
+            );
+          }
+        } else {
+          closeRow();
+        }
+      },
+      onPanResponderTerminate: () => {
+        closeRow();
+      },
+    })
+  ).current;
+
+  const handleCardPress = () => {
+    if (isLocallyOpenRef.current) {
+      closeRow();
+      return;
+    }
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     }
     onPress?.();
   };
 
-  const handleReplace = () => {
+  const handleReplacePress = () => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     }
-    onReplace?.();
+    closeRow(() => {
+      onReplace?.();
+    });
   };
 
-  const handleDelete = () => {
+  const handleDeletePress = () => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     }
-    onDelete?.();
+    closeRow(() => {
+      onDelete?.();
+    });
   };
 
   return (
-    <Pressable
-      onPress={handlePress}
-      style={[
-        styles.exerciseCard,
-        isCompleted && styles.exerciseCardCompleted,
-        style,
-      ]}
-      accessibilityRole="button"
-      accessibilityLabel={`${title}, ${isCompleted ? "Completed" : subtitle}`}
-      testID={testID}
-    >
-      {/* Exercise Thumbnail */}
-      <View style={styles.thumbnailWrapper}>
-        {image && (
-          <Image
-            source={image}
-            style={[
-              styles.thumbnailImage,
-              isCompleted && styles.thumbnailImageCompleted,
-            ]}
-            contentFit="cover"
-          />
-        )}
-        {index ? (
-          <View
-            style={[
-              styles.indexBadge,
-              isCompleted && styles.indexBadgeCompleted,
-            ]}
-          >
-            <Text
-              style={[
-                styles.indexBadgeText,
-                isCompleted && styles.indexBadgeTextCompleted,
-              ]}
-            >
-              {index}
-            </Text>
-          </View>
-        ) : null}
-
-        {isCompleted && (
-          <View style={styles.thumbnailCheckBadge}>
-            <Check size={11} color="#38EDD8" strokeWidth={3.5} />
-          </View>
-        )}
-      </View>
-
-      {/* Title & Sets/Reps */}
-      <View style={styles.exerciseTextContainer}>
-        <Text
+    <View style={[styles.cardWrapper, style]} testID={testID}>
+      {/* Revealed Swipe Action Buttons (Hidden behind card until swiped left) */}
+      {hasActions && (
+        <View
           style={[
-            styles.exerciseTitle,
-            isCompleted && styles.exerciseTitleCompleted,
+            styles.revealedActionsBackground,
+            { width: actionDrawerWidth },
           ]}
-          numberOfLines={2}
         >
-          {title}
-        </Text>
+          {onReplace ? (
+            <Pressable
+              onPress={handleReplacePress}
+              style={({ pressed }) => [
+                styles.actionItemCol,
+                pressed && styles.actionItemColPressed,
+              ]}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={`Replace ${title}`}
+            >
+              <View style={styles.replaceCircleBtn}>
+                <RefreshCw size={18} color="#FFFFFF" strokeWidth={2.4} />
+              </View>
+              <Text style={styles.replaceActionLabel}>Replace</Text>
+            </Pressable>
+          ) : null}
 
-        {isCompleted ? (
-          <View style={styles.completedStatusRow}>
-            <View style={styles.completedDot} />
-            <Text style={styles.completedStatusText}>COMPLETED</Text>
-          </View>
-        ) : (
-          <View style={styles.exerciseMetaCol}>
-            {targetMuscle ? (
-              <View style={styles.targetMuscleRow}>
-                <View style={styles.targetMuscleTag}>
-                  <Text style={styles.targetMuscleText} numberOfLines={1}>
-                    {targetMuscle.toUpperCase()}
-                  </Text>
-                </View>
+          {onDelete ? (
+            <Pressable
+              onPress={handleDeletePress}
+              style={({ pressed }) => [
+                styles.actionItemCol,
+                pressed && styles.actionItemColPressed,
+              ]}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={`Delete ${title}`}
+            >
+              <View style={styles.deleteCircleBtn}>
+                <Trash2 size={18} color="#FFFFFF" strokeWidth={2.4} />
+              </View>
+              <Text style={styles.deleteActionLabel}>Delete</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      )}
+
+      {/* Front Exercise Card: Slides left on swipe */}
+      <Animated.View
+        {...(hasActions ? panResponder.panHandlers : {})}
+        style={[
+          styles.animatedCardContainer,
+          { transform: [{ translateX }] },
+        ]}
+      >
+        <Pressable
+          onPress={handleCardPress}
+          style={[
+            styles.exerciseCard,
+            isCompleted && styles.exerciseCardCompleted,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={`${title}, ${isCompleted ? "Completed" : subtitle}`}
+        >
+          {/* Exercise Thumbnail */}
+          <View style={styles.thumbnailWrapper}>
+            {image && (
+              <Image
+                source={image}
+                style={[
+                  styles.thumbnailImage,
+                  isCompleted && styles.thumbnailImageCompleted,
+                ]}
+                contentFit="cover"
+              />
+            )}
+            {index ? (
+              <View
+                style={[
+                  styles.indexBadge,
+                  isCompleted && styles.indexBadgeCompleted,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.indexBadgeText,
+                    isCompleted && styles.indexBadgeTextCompleted,
+                  ]}
+                >
+                  {index}
+                </Text>
               </View>
             ) : null}
-            <Text style={styles.exerciseSubtitle} numberOfLines={1}>
-              {subtitle}
+
+            {isCompleted && (
+              <View style={styles.thumbnailCheckBadge}>
+                <Check size={11} color="#38EDD8" strokeWidth={3.5} />
+              </View>
+            )}
+          </View>
+
+          {/* Title & Sets/Reps */}
+          <View style={styles.exerciseTextContainer}>
+            <Text
+              style={[
+                styles.exerciseTitle,
+                isCompleted && styles.exerciseTitleCompleted,
+              ]}
+              numberOfLines={2}
+            >
+              {title}
             </Text>
-          </View>
-        )}
-      </View>
 
-      {/* Action Buttons: Replace, Delete & Play/Checkmark */}
-      <View style={styles.actionsContainer}>
-        {onReplace ? (
-          <Pressable
-            onPress={handleReplace}
-            style={({ pressed }) => [
-              styles.actionIconBtn,
-              styles.replaceBtn,
-              pressed && styles.actionIconBtnPressed,
-            ]}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel={`Replace ${title}`}
-          >
-            <RefreshCw size={13} color="#38BDF8" strokeWidth={2.4} />
-          </Pressable>
-        ) : null}
-
-        {onDelete ? (
-          <Pressable
-            onPress={handleDelete}
-            style={({ pressed }) => [
-              styles.actionIconBtn,
-              styles.deleteBtn,
-              pressed && styles.actionIconBtnPressed,
-            ]}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel={`Remove ${title}`}
-          >
-            <Trash2 size={13} color="#F43F5E" strokeWidth={2.4} />
-          </Pressable>
-        ) : null}
-
-        {isCompleted ? (
-          <View style={styles.completedCheckCircle}>
-            <Check size={16} color="#38EDD8" strokeWidth={3.2} />
+            {isCompleted ? (
+              <View style={styles.completedStatusRow}>
+                <View style={styles.completedDot} />
+                <Text style={styles.completedStatusText}>COMPLETED</Text>
+              </View>
+            ) : (
+              <Text style={styles.exerciseSubtitle} numberOfLines={1}>
+                {subtitle}
+              </Text>
+            )}
           </View>
-        ) : (
-          <View style={styles.playButton}>
-            <Play
-              size={13}
-              color="rgba(255, 255, 255, 0.85)"
-              fill="rgba(255, 255, 255, 0.85)"
-              style={styles.playIcon}
-            />
+
+          {/* Resting State Action Indicator (Play Button or Completed Checkmark) */}
+          <View style={styles.restingActionContainer}>
+            {isCompleted ? (
+              <View style={styles.completedCheckCircle}>
+                <Check size={16} color="#38EDD8" strokeWidth={3.2} />
+              </View>
+            ) : (
+              <View style={styles.playButton}>
+                <Play
+                  size={13}
+                  color="rgba(255, 255, 255, 0.85)"
+                  fill="rgba(255, 255, 255, 0.85)"
+                  style={styles.playIcon}
+                />
+              </View>
+            )}
           </View>
-        )}
-      </View>
-    </Pressable>
+        </Pressable>
+      </Animated.View>
+    </View>
   );
 };
 
@@ -219,6 +346,10 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
   onDeleteExercise,
   style,
 }) => {
+  const [swipedExerciseId, setSwipedExerciseId] = React.useState<string | null>(
+    null
+  );
+
   const reduxCompletedIds = useAppSelector(
     (state) => state.workout?.completedExerciseIds || []
   );
@@ -228,11 +359,20 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
     <View style={[styles.exerciseList, style]}>
       {exercises.map((exercise) => {
         const isCompleted = completedIds.includes(exercise.id);
+        const isOpen = swipedExerciseId === exercise.id;
+
         return (
           <PushDayExerciseCard
             key={exercise.id}
             exercise={exercise}
             isCompleted={isCompleted}
+            isOpen={isOpen}
+            onOpen={() => setSwipedExerciseId(exercise.id)}
+            onClose={() =>
+              setSwipedExerciseId((prev) =>
+                prev === exercise.id ? null : prev
+              )
+            }
             onPress={() => onExercisePress?.(exercise)}
             onReplace={
               onReplaceExercise
@@ -259,12 +399,85 @@ const styles = StyleSheet.create({
   exerciseList: {
     gap: 12,
   },
+  cardWrapper: {
+    position: "relative",
+    width: "100%",
+  },
+  revealedActionsBackground: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    right: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingRight: 6,
+    gap: 10,
+    zIndex: 1,
+  },
+  actionItemCol: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 60,
+  },
+  actionItemColPressed: {
+    opacity: 0.75,
+    transform: [{ scale: 0.94 }],
+  },
+  replaceCircleBtn: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: "#222736",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.16)",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  replaceActionLabel: {
+    color: "#CBD5E1",
+    fontSize: 11,
+    fontWeight: "600",
+    marginTop: 5,
+    letterSpacing: 0.2,
+  },
+  deleteCircleBtn: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: "#EF4444",
+    borderWidth: 1,
+    borderColor: "#DC2626",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#EF4444",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  deleteActionLabel: {
+    color: "#EF4444",
+    fontSize: 11,
+    fontWeight: "600",
+    marginTop: 5,
+    letterSpacing: 0.2,
+  },
+  animatedCardContainer: {
+    width: "100%",
+    zIndex: 2,
+  },
   exerciseCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#161821",
+    backgroundColor: "#111624",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(255, 255, 255, 0.06)",
     borderRadius: 20,
     padding: 14,
   },
@@ -291,12 +504,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 5,
     left: 5,
-    backgroundColor: "rgba(8, 10, 16, 0.78)",
-    borderRadius: 5,
-    paddingHorizontal: 5,
-    paddingVertical: 1.5,
+    backgroundColor: "rgba(0, 0, 0, 0.65)",
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     borderWidth: 0.5,
-    borderColor: "rgba(255, 255, 255, 0.15)",
+    borderColor: "rgba(255, 255, 255, 0.12)",
   },
   indexBadgeCompleted: {
     backgroundColor: "rgba(10, 30, 35, 0.88)",
@@ -304,9 +517,9 @@ const styles = StyleSheet.create({
   },
   indexBadgeText: {
     color: "#FFFFFF",
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: "800",
-    letterSpacing: 0.8,
+    letterSpacing: 0.5,
   },
   indexBadgeTextCompleted: {
     color: "#38EDD8",
@@ -326,50 +539,27 @@ const styles = StyleSheet.create({
   },
   exerciseTextContainer: {
     flex: 1,
-    marginLeft: 12,
-    marginRight: 6,
+    marginLeft: 14,
+    marginRight: 8,
     justifyContent: "center",
   },
   exerciseTitle: {
     color: "#FFFFFF",
-    fontSize: 13.5,
-    lineHeight: 18,
+    fontSize: 15,
+    lineHeight: 20,
     fontWeight: "800",
-    letterSpacing: 0.8,
+    letterSpacing: 0.2,
     textTransform: "uppercase",
   },
   exerciseTitleCompleted: {
     color: "#CBD5E1",
   },
-  exerciseMetaCol: {
-    marginTop: 4,
-  },
-  targetMuscleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 3,
-  },
-  targetMuscleTag: {
-    backgroundColor: "rgba(56, 189, 248, 0.12)",
-    borderWidth: 0.8,
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 5,
-  },
-  targetMuscleText: {
-    color: "#38BDF8",
-    fontSize: 9,
-    fontWeight: "800",
-    fontFamily: "monospace",
-    letterSpacing: 0.6,
-  },
   exerciseSubtitle: {
-    color: "#94A3B8",
-    fontSize: 11.5,
-    lineHeight: 15,
-    fontWeight: "600",
-    fontFamily: "monospace",
+    color: "#8E95A5",
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: "500",
+    marginTop: 4,
   },
   completedStatusRow: {
     flexDirection: "row",
@@ -385,59 +575,36 @@ const styles = StyleSheet.create({
   },
   completedStatusText: {
     color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "800",
-    fontFamily: "monospace",
-    letterSpacing: 0.8,
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 0.5,
   },
-  actionsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  actionIconBtn: {
-    width: 30,
-    height: 30,
-    borderRadius: 9,
+  restingActionContainer: {
     alignItems: "center",
     justifyContent: "center",
-  },
-  actionIconBtnPressed: {
-    opacity: 0.7,
-    transform: [{ scale: 0.94 }],
-  },
-  replaceBtn: {
-    backgroundColor: "rgba(56, 189, 248, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.25)",
-  },
-  deleteBtn: {
-    backgroundColor: "rgba(244, 63, 94, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(244, 63, 94, 0.25)",
+    paddingLeft: 4,
   },
   playButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.35)",
+    borderColor: "rgba(255, 255, 255, 0.25)",
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: 2,
   },
   playIcon: {
     marginLeft: 2,
   },
   completedCheckCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     borderWidth: 1.5,
     borderColor: "#38EDD8",
     backgroundColor: "rgba(56, 237, 216, 0.15)",
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: 2,
   },
 });

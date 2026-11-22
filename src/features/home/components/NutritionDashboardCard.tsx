@@ -1,4 +1,3 @@
-import MaskedView from "@react-native-masked-view/masked-view";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -21,37 +20,25 @@ export const NutritionDashboardCard = () => {
 
   return (
     <View style={styles.cardContainer}>
+      {/* Top-Right Glowing Flare Gradient matching Figma */}
       <LinearGradient
-        colors={["rgba(32, 68, 117, 0.35)", "transparent"]}
+        colors={[
+          "rgba(37, 99, 235, 0.3)",
+          "rgba(30, 64, 175, 0.12)",
+          "transparent",
+        ]}
         style={StyleSheet.absoluteFill}
         start={{ x: 1, y: 0 }}
-        end={{ x: 0.2, y: 0.8 }}
+        end={{ x: 0.15, y: 0.55 }}
       />
 
-      {/* Header */}
+      {/* Header: Glowing Dot + Title on Left, Link on Right */}
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
-          <MaskedView
-            style={styles.maskedTitleView}
-            maskElement={
-              <View style={styles.maskWrapper}>
-                <Text
-                  style={styles.headerTitle}
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                >
-                  TODAY'S NUTRITION
-                </Text>
-              </View>
-            }
-          >
-            <LinearGradient
-              colors={["#00f2fe", "#4facfe"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.gradient}
-            />
-          </MaskedView>
+          <View style={styles.cyanHalo}>
+            <View style={styles.cyanDot} />
+          </View>
+          <Text style={styles.headerTitle}>Today's Nutrition</Text>
         </View>
 
         <Pressable
@@ -61,9 +48,10 @@ export const NutritionDashboardCard = () => {
           ]}
           onPress={handleViewNutrition}
           accessibilityRole="button"
+          accessibilityLabel="View Nutrition Details"
         >
-          <Text style={styles.headerLink}>VIEW ALL</Text>
-          <ArrowRight size={13} color="#38EDD8" strokeWidth={2.5} />
+          <Text style={styles.headerLink}>View Nutrition</Text>
+          <ArrowRight size={16} color="#2EE5C5" strokeWidth={2.5} />
         </Pressable>
       </View>
 
@@ -75,69 +63,67 @@ export const NutritionDashboardCard = () => {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: "#11141C",
+    backgroundColor: "#111422",
     borderRadius: 24,
     marginHorizontal: 20,
-    marginBottom: 24,
+    marginBottom: 28,
     paddingTop: 20,
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
     paddingBottom: 20,
     position: "relative",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(56, 189, 248, 0.25)",
     overflow: "hidden",
+    shadowColor: "#2563EB",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 4,
   },
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 18,
+    marginBottom: 16,
   },
   headerLeft: {
-    flex: 1,
-    height: 32,
-    marginRight: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
-  maskedTitleView: {
-    flex: 1,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
+  cyanHalo: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: "rgba(46, 229, 197, 0.25)",
+    alignItems: "center",
     justifyContent: "center",
   },
-  gradient: {
-    flex: 1,
+  cyanDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: "#2EE5C5",
   },
   headerTitle: {
     color: "#FFFFFF",
-    fontSize: 22,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
+    fontSize: 16.5,
+    fontWeight: "800",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   headerRight: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    backgroundColor: "rgba(56, 237, 216, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 237, 216, 0.2)",
+    gap: 5,
   },
   pressed: {
     opacity: 0.75,
-    transform: [{ scale: 0.98 }],
   },
   headerLink: {
-    color: "#38EDD8",
-    fontSize: 11,
+    color: "#2EE5C5",
+    fontSize: 13,
     fontWeight: "700",
-    letterSpacing: 0.8,
-    fontFamily: "monospace",
+    letterSpacing: 0.4,
+    fontFamily: "JetBrainsMono_700Bold",
   },
 });

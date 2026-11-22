@@ -8,8 +8,9 @@ import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
+import { ArrowRight, Calendar, Settings } from "lucide-react-native";
 import React from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export const TodaysMissionsCard = () => {
   const dispatch = useAppDispatch();
@@ -17,13 +18,13 @@ export const TodaysMissionsCard = () => {
 
   // Read schedules and active schedule date key from Redux store
   const calendarSchedules = useAppSelector(
-    (state) => state.workout.calendarSchedules || {},
+    (state) => state.workout.calendarSchedules || {}
   );
   const activeScheduleDateKey = useAppSelector(
-    (state) => state.workout.activeScheduleDateKey || todayKey,
+    (state) => state.workout.activeScheduleDateKey || todayKey
   );
   const selectedWorkoutCategory = useAppSelector(
-    (state) => state.workout.selectedWorkoutCategory || "pull",
+    (state) => state.workout.selectedWorkoutCategory || "pull"
   );
 
   // Check if a workout is scheduled for the active date
@@ -78,182 +79,166 @@ export const TodaysMissionsCard = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <Pressable
+      onPress={handleWorkoutPress}
+      style={({ pressed }) => [
+        styles.container,
+        pressed && styles.containerPressed,
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={`Today's Mission: ${missionTitle}, ${missionSubtitle}`}
+    >
       <Image
         source={require("../../../../assets/todaysMission/todaysMissionsBg.png")}
-        style={StyleSheet.absoluteFill}
+        style={[StyleSheet.absoluteFill, { borderRadius: 24 }]}
         contentFit="cover"
         pointerEvents="none"
       />
       <LinearGradient
-        colors={["rgba(10, 13, 20, 0.45)", "rgba(10, 13, 20, 0.92)"]}
-        style={StyleSheet.absoluteFill}
+        colors={[
+          "rgba(10, 13, 20, 0.35)",
+          "rgba(10, 13, 20, 0.72)",
+          "rgba(10, 13, 20, 0.95)",
+        ]}
+        locations={[0, 0.5, 1]}
+        style={[StyleSheet.absoluteFill, { borderRadius: 24 }]}
         pointerEvents="none"
       />
 
       <View style={styles.content}>
         <Text style={styles.headerTitle}>TODAY'S MISSIONS</Text>
 
-        <TouchableOpacity
-          accessibilityRole="button"
-          activeOpacity={0.75}
-          onPress={handleWorkoutPress}
-        >
-          <View style={styles.missionRow}>
-            <View style={styles.missionInfo}>
-              <Text style={styles.missionTitle}>{missionTitle}</Text>
-              <Text style={styles.missionSubtitle}>{missionSubtitle}</Text>
-            </View>
-            <View style={styles.arrowButton}>
-              <Image
-                source={require("../../../../assets/todaysMission/RightArrow.png")}
-                style={styles.arrowIcon}
-                contentFit="contain"
-              />
-            </View>
-          </View>
-        </TouchableOpacity>
+        {/* Mission Info: Title & Subtitle */}
+        <View style={styles.missionInfo}>
+          <Text style={styles.missionTitle} numberOfLines={1}>
+            {missionTitle}
+          </Text>
+          <Text style={styles.missionSubtitle} numberOfLines={1}>
+            {missionSubtitle}
+          </Text>
+        </View>
 
+        {/* Action Buttons: Calendar, Settings, and Arrow grouped in bottom middle */}
         <View style={styles.actionButtons}>
           <TouchableOpacity
             accessibilityRole="button"
+            accessibilityLabel="Workout Calendar"
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            onPress={handleCalendarPress}
-            style={styles.iconButton}
+            onPress={(e) => {
+              e?.stopPropagation?.();
+              handleCalendarPress();
+            }}
+            style={styles.circleButton}
           >
-            <Image
-              source={require("../../../../assets/todaysMission/calendar.svg")}
-              style={styles.icon}
-              contentFit="contain"
-            />
-            <Text style={styles.iconLabel}>CALENDAR</Text>
+            <Calendar size={18} color="#2EE5C5" strokeWidth={2.2} />
           </TouchableOpacity>
 
           <TouchableOpacity
             accessibilityRole="button"
+            accessibilityLabel="Settings"
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            onPress={handleSettingsPress}
-            style={styles.iconButton}
+            onPress={(e) => {
+              e?.stopPropagation?.();
+              handleSettingsPress();
+            }}
+            style={styles.circleButton}
           >
-            <Image
-              source={require("../../../../assets/todaysMission/settings.svg")}
-              style={styles.icon}
-              contentFit="contain"
-            />
-            <Text style={styles.iconLabel}>SETTINGS</Text>
+            <Settings size={18} color="#2EE5C5" strokeWidth={2.2} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Go to Workout"
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            onPress={(e) => {
+              e?.stopPropagation?.();
+              handleWorkoutPress();
+            }}
+            style={styles.circleButton}
+          >
+            <ArrowRight size={18} color="#2EE5C5" strokeWidth={2.2} />
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,
-    marginBottom: 24,
+    marginBottom: 28,
+    height: 240,
+    minHeight: 240,
     borderRadius: 24,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderWidth: 1.2,
+    borderColor: "rgba(46, 229, 197, 0.35)",
     backgroundColor: "#11141C",
     position: "relative",
+    shadowColor: "#2EE5C5",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  containerPressed: {
+    opacity: 0.95,
+    transform: [{ scale: 0.992 }],
   },
   content: {
+    flex: 1,
     padding: 22,
+    justifyContent: "space-between",
     position: "relative",
     zIndex: 2,
   },
   headerTitle: {
     color: "#FFFFFF",
-    fontSize: 22,
-    lineHeight: 28,
+    fontSize: 26,
+    lineHeight: 30,
     fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    letterSpacing: 0.5,
     textAlign: "left",
     textTransform: "uppercase",
-    marginBottom: 16,
-  },
-  missionRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 14,
-    paddingVertical: 18,
-    paddingHorizontal: 18,
-    marginBottom: 16,
   },
   missionInfo: {
-    flex: 1,
-    marginRight: 12,
+    marginVertical: "auto",
   },
   missionTitle: {
     color: "#FFFFFF",
-    fontSize: 18,
-    lineHeight: 24,
+    fontSize: 22,
+    lineHeight: 26,
     fontWeight: "800",
-    fontFamily: "monospace",
-    letterSpacing: 0.5,
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
+    letterSpacing: 0.2,
     marginBottom: 4,
   },
   missionSubtitle: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontFamily: "monospace",
+    color: "#8E94B8",
+    fontSize: 12.5,
+    lineHeight: 17,
+    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
     fontWeight: "500",
-  },
-  arrowButton: {
-    width: 48,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  arrowIcon: {
-    width: 44,
-    height: 44,
   },
   actionButtons: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 12,
+    gap: 16,
   },
-  buttonWrapper: {
-    flex: 1,
-  },
-  iconButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
+  circleButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(46, 229, 197, 0.08)",
+    borderWidth: 1.5,
+    borderColor: "rgba(46, 229, 197, 0.35)",
     justifyContent: "center",
-    gap: 10,
-    paddingVertical: 13,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.35)",
-  },
-  icon: {
-    width: 28,
-    height: 28,
-  },
-  iconLabel: {
-    color: "#CBD5E1",
-    fontSize: 12,
-    fontWeight: "800",
-    fontFamily: "monospace",
-    letterSpacing: 1.2,
-  },
-  pressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.98 }],
+    alignItems: "center",
   },
 });

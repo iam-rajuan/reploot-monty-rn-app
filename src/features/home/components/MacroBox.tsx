@@ -1,30 +1,36 @@
-import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 
 export interface MacroBoxProps {
   icon: React.ReactNode;
   percent: string;
   label: string;
+  labelColor?: string;
   current: string;
+  currentColor?: string;
   target: string;
   color: string;
   pillBgColor: string;
   pillBorderColor: string;
+  pillTextColor?: string;
 }
 
 export const MacroBox = ({
   icon,
   percent,
   label,
+  labelColor = "#8E94B8",
   current,
+  currentColor,
   target,
   color,
   pillBgColor,
   pillBorderColor,
+  pillTextColor = "#FFFFFF",
 }: MacroBoxProps) => {
   return (
     <View style={styles.macroBox}>
+      {/* Top Header: Icon on Left, Percent Badge on Right */}
       <View style={styles.macroHeader}>
         {icon}
         <View
@@ -36,18 +42,35 @@ export const MacroBox = ({
             },
           ]}
         >
-          <Text style={styles.macroPercentText}>{percent}</Text>
+          <Text style={[styles.macroPercentText, { color: pillTextColor }]}>
+            {percent}
+          </Text>
         </View>
       </View>
-      <Text style={styles.macroLabel}>{label}</Text>
+
+      {/* Label */}
+      <Text style={[styles.macroLabel, { color: labelColor }]}>{label}</Text>
+
+      {/* Values: current / target */}
       <Text style={styles.macroValues}>
-        <Text style={[styles.macroCurrent, { color }]}>{current}</Text>{" "}
+        <Text
+          style={[
+            styles.macroCurrent,
+            { color: currentColor || color },
+          ]}
+        >
+          {current}
+        </Text>{" "}
         <Text style={styles.macroSlash}>/ {target}</Text>
       </Text>
+
+      {/* Track & Fill Progress Bar */}
       <View style={styles.macroProgressBar}>
-        <LinearGradient
-          colors={[color, color]}
-          style={[styles.macroProgressFill, { width: percent as any }]}
+        <View
+          style={[
+            styles.macroProgressFill,
+            { width: percent as any, backgroundColor: color },
+          ]}
         />
       </View>
     </View>
@@ -57,17 +80,19 @@ export const MacroBox = ({
 const styles = StyleSheet.create({
   macroBox: {
     width: "48%",
-    backgroundColor: "#0D1017",
-    borderRadius: 16,
+    backgroundColor: "#131826",
+    borderRadius: 18,
     padding: 14,
+    paddingTop: 15,
+    paddingBottom: 15,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
+    borderColor: "rgba(255, 255, 255, 0.08)",
   },
   macroHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 14,
+    marginBottom: 12,
   },
   macroPercentPill: {
     paddingHorizontal: 8,
@@ -76,40 +101,39 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   macroPercentText: {
-    color: "#FFFFFF",
     fontSize: 10,
-    fontWeight: "700",
-    fontFamily: "monospace",
+    fontWeight: "800",
+    fontFamily: "JetBrainsMono_700Bold",
   },
   macroLabel: {
-    color: "#94A3B8",
     fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1,
-    fontFamily: "monospace",
-    marginBottom: 4,
+    fontWeight: "800",
+    letterSpacing: 1.2,
+    fontFamily: "JetBrainsMono_700Bold",
+    marginBottom: 5,
   },
   macroValues: {
     marginBottom: 12,
   },
   macroCurrent: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "900",
-    fontFamily: "monospace",
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
   },
   macroSlash: {
-    color: "#64748B",
-    fontSize: 11,
-    fontWeight: "600",
-    fontFamily: "monospace",
+    color: "#CBD5E1",
+    fontSize: 12.5,
+    fontWeight: "700",
+    fontFamily: "JetBrainsMono_700Bold",
   },
   macroProgressBar: {
-    height: 5,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
+    height: 6,
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
     borderRadius: 3,
+    overflow: "hidden",
   },
   macroProgressFill: {
-    height: 5,
+    height: 6,
     borderRadius: 3,
   },
 });

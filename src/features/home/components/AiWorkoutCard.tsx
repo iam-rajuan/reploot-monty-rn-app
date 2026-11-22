@@ -56,7 +56,7 @@ export const AiWorkoutCard = () => {
             <Text style={styles.badgeOutlineText}>420 KCAL</Text>
           </View>
           <View style={styles.badgeGreenOutline}>
-            <Text style={styles.badgeGreenOutlineText}>+120 XP</Text>
+            <Text style={styles.badgeGreenOutlineText}>+100 XP</Text>
           </View>
         </View>
 
@@ -64,60 +64,52 @@ export const AiWorkoutCard = () => {
         <View style={styles.workoutInfoBlock}>
           <Text style={styles.workoutSubtext}>TODAY'S AI WORKOUT</Text>
 
-          <Text style={styles.workoutTitle} numberOfLines={1}>
-            UPPER BODY STRENGTH
+          <Text style={styles.workoutTitle}>
+            UPPER BODY{"\n"}STRENGTH
           </Text>
 
           <View style={styles.durationRow}>
-            <Clock size={13} color="#38EDD8" strokeWidth={2.5} />
+            <Clock size={13} color="#2EE5C5" strokeWidth={2.5} />
             <Text style={styles.durationText}>45 MIN SESSION</Text>
           </View>
         </View>
 
-        {/* Gym / Home Toggle */}
-        <View style={styles.toggleRow}>
+        {/* Gym / Home Segmented Toggle matching Figma */}
+        <View style={styles.toggleCapsule}>
           <Pressable
-            style={styles.toggleWrapper}
+            style={[
+              styles.toggleTab,
+              modality === "GYM" && styles.toggleTabActive,
+            ]}
             onPress={() => handleToggle("GYM")}
             accessibilityRole="button"
           >
-            <View
+            <Text
               style={[
-                styles.togglePill,
-                modality === "GYM" && styles.togglePillActive,
+                styles.toggleTabText,
+                modality === "GYM" && styles.toggleTabTextActive,
               ]}
             >
-              <Text
-                style={[
-                  styles.togglePillText,
-                  modality === "GYM" && styles.togglePillTextActive,
-                ]}
-              >
-                GYM
-              </Text>
-            </View>
+              GYM
+            </Text>
           </Pressable>
 
           <Pressable
-            style={styles.toggleWrapper}
+            style={[
+              styles.toggleTab,
+              modality === "HOME" && styles.toggleTabActive,
+            ]}
             onPress={() => handleToggle("HOME")}
             accessibilityRole="button"
           >
-            <View
+            <Text
               style={[
-                styles.togglePill,
-                modality === "HOME" && styles.togglePillActive,
+                styles.toggleTabText,
+                modality === "HOME" && styles.toggleTabTextActive,
               ]}
             >
-              <Text
-                style={[
-                  styles.togglePillText,
-                  modality === "HOME" && styles.togglePillTextActive,
-                ]}
-              >
-                HOME
-              </Text>
-            </View>
+              HOME
+            </Text>
           </Pressable>
         </View>
 
@@ -125,16 +117,17 @@ export const AiWorkoutCard = () => {
         <Pressable
           onPress={handleStartWorkout}
           accessibilityRole="button"
+          style={({ pressed }) => [pressed && styles.buttonPressed]}
         >
           <View style={styles.actionButton}>
             <LinearGradient
-              colors={["#00a8e8", "#007ea7"]}
+              colors={["#1E7CC4", "#2997E8"]}
               start={{ x: 0, y: 0.5 }}
               end={{ x: 1, y: 0.5 }}
               style={styles.buttonGradient}
             >
               <Text style={styles.buttonText}>START WORKOUT</Text>
-              <ArrowRight size={20} color="#FFFFFF" strokeWidth={2.5} />
+              <ArrowRight size={18} color="#FFFFFF" strokeWidth={2.8} />
             </LinearGradient>
           </View>
         </Pressable>
@@ -149,7 +142,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: "hidden",
     marginHorizontal: 20,
-    marginBottom: 24,
+    marginBottom: 28,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
     position: "relative",
@@ -163,9 +156,9 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   badgeSolid: {
-    backgroundColor: "rgba(99, 102, 241, 0.2)",
+    backgroundColor: "rgba(108, 92, 255, 0.2)",
     borderWidth: 1,
-    borderColor: "rgba(99, 102, 241, 0.35)",
+    borderColor: "rgba(108, 92, 255, 0.45)",
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
@@ -174,13 +167,13 @@ const styles = StyleSheet.create({
     color: "#C5C0FF",
     fontSize: 10,
     fontWeight: "700",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
   },
   badgeOutline: {
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.12)",
+    borderColor: "rgba(255, 255, 255, 0.15)",
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
@@ -189,43 +182,44 @@ const styles = StyleSheet.create({
     color: "#CBD5E1",
     fontSize: 10,
     fontWeight: "700",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
   },
   badgeGreenOutline: {
-    backgroundColor: "rgba(56, 237, 216, 0.1)",
+    backgroundColor: "rgba(46, 229, 197, 0.2)",
     borderWidth: 1,
-    borderColor: "rgba(56, 237, 216, 0.3)",
+    borderColor: "rgba(46, 229, 197, 0.45)",
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
   },
   badgeGreenOutlineText: {
-    color: "#38EDD8",
+    color: "#2EE5C5",
     fontSize: 10,
     fontWeight: "700",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
   },
   workoutInfoBlock: {
-    marginBottom: 18,
+    marginBottom: 16,
   },
   workoutSubtext: {
-    color: "#94A3B8",
+    color: "#8E94B8",
     fontSize: 11,
     fontWeight: "700",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1.5,
     marginBottom: 6,
     textTransform: "uppercase",
   },
   workoutTitle: {
     color: "#FFFFFF",
-    fontSize: 22,
-    lineHeight: 28,
+    fontSize: 26,
+    lineHeight: 30,
     fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1,
+    fontStyle: "italic",
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    letterSpacing: 0.5,
     textTransform: "uppercase",
     marginBottom: 8,
   },
@@ -236,53 +230,49 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   durationText: {
-    color: "#94A3B8",
+    color: "#8E94B8",
     fontSize: 11,
-    fontWeight: "600",
-    fontFamily: "monospace",
+    fontWeight: "700",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
   },
-  toggleRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 20,
-  },
-  toggleWrapper: {
-    flex: 1,
-  },
-  togglePill: {
-    width: "100%",
-    paddingVertical: 12,
-    borderRadius: 14,
+  toggleCapsule: {
+    width: 120,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.1)",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 3,
+    marginBottom: 20,
+  },
+  toggleTab: {
+    flex: 1,
+    height: 32,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
   },
-  togglePillActive: {
-    backgroundColor: "rgba(0, 242, 254, 0.08)",
-    borderColor: "#00f2fe",
-    borderWidth: 1.5,
+  toggleTabActive: {
+    backgroundColor: "#5851FD",
   },
-  togglePillText: {
-    color: "#64748B",
-    fontSize: 12,
+  toggleTabText: {
+    color: "#8E94B8",
+    fontSize: 10,
     fontWeight: "700",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
   },
-  togglePillTextActive: {
-    color: "#00f2fe",
+  toggleTabTextActive: {
+    color: "#FFFFFF",
     fontWeight: "800",
-  },
-  pillPressed: {
-    opacity: 0.8,
   },
   actionButton: {
     width: "100%",
-    height: 54,
-    borderRadius: 16,
+    height: 56,
+    borderRadius: 28,
     overflow: "hidden",
   },
   buttonGradient: {
@@ -295,9 +285,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "900",
-    fontFamily: "monospace",
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
     letterSpacing: 1.5,
   },
   buttonPressed: {

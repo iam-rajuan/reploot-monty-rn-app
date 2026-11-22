@@ -8,15 +8,13 @@ import { WeeklyProgressCard } from "@/features/home/components/WeeklyProgressCar
 import { WorkoutHeader } from "@/features/workouts";
 import { useAppSelector } from "@/store/hooks";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import Svg, { Line as SvgLine } from "react-native-svg";
 
 export default function HomeTabRoute() {
   const user = useAppSelector((state) => state.auth.user);
-  const router = useRouter();
 
   const userName = user?.fullName?.split(" ")[0] || "USER";
 
@@ -80,16 +78,6 @@ export default function HomeTabRoute() {
         <NutritionDashboardCard />
         <AiCoachFloatingCard />
       </ScrollView>
-      <Pressable
-        style={styles.fabContainer}
-        onPress={() => router.push("/coach")}
-      >
-        <Image
-          source={require("../../assets/coachOnline/floatingButton.png")}
-          style={{ width: 100, height: 100 }}
-          resizeMode="contain"
-        />
-      </Pressable>
     </View>
   );
 }
@@ -107,12 +95,6 @@ const styles = StyleSheet.create({
   },
   sectionSpacing: {
     marginHorizontal: 20,
-    marginBottom: 24,
-  },
-  fabContainer: {
-    position: "absolute",
-    bottom: 100,
-    right: 20,
-    zIndex: 50,
+    marginBottom: 28,
   },
 });

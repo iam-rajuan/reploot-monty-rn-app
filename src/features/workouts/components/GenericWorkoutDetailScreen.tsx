@@ -7,7 +7,6 @@ import {
   setActiveWorkoutPathId,
   setSelectedWorkoutCategory,
 } from "@/store/slices/workoutSlice";
-import MaskedView from "@react-native-masked-view/masked-view";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -58,6 +57,7 @@ export const GenericWorkoutDetailScreen: React.FC<
   onSelectExercise,
 }) => {
   const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 24);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const params = useLocalSearchParams<{ pathId?: string; split?: string }>();
@@ -206,7 +206,7 @@ export const GenericWorkoutDetailScreen: React.FC<
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: Math.max(insets.bottom, 16) + 160 },
+          { paddingBottom: bottomInset + 160 },
         ]}
       >
         {/* Workout Category Selector Pills */}
@@ -248,41 +248,10 @@ export const GenericWorkoutDetailScreen: React.FC<
           </ScrollView>
         </View>
 
-        {/* Title Section with AI-Recommended Badge and Masked Gradient Title */}
+        {/* Title Section matching clean Figma design */}
         <View style={styles.titleSection}>
-          <View style={styles.aiBadgeRow}>
-            <Sparkles size={13} color="#44EAC3" />
-            <Text style={styles.categoryBadge}>
-              AI-RECOMMENDED DAILY WORKOUT
-            </Text>
-          </View>
-
-          <View style={styles.maskedTitleWrapper}>
-            <MaskedView
-              style={styles.maskedTitleView}
-              maskElement={
-                <View style={styles.maskWrapper}>
-                  <Text
-                    style={styles.mainTitle}
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                  >
-                    {workout.title}
-                  </Text>
-                </View>
-              }
-            >
-              <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradient}
-              />
-            </MaskedView>
-          </View>
-          <Text style={styles.subtitle}>
-            {workout.subtitle} • {workout.exercises.length} AI-recommended exercises
-          </Text>
+          <Text style={styles.mainTitle}>{workout.title}</Text>
+          <Text style={styles.subtitle}>{workout.subtitle}</Text>
         </View>
 
         {/* Hero Card with Stats */}
@@ -293,33 +262,19 @@ export const GenericWorkoutDetailScreen: React.FC<
           caloriesText={workout.caloriesText}
         />
 
-        {/* Section Header for Exercise List */}
-        <View style={styles.exerciseHeaderRow}>
-          <View style={styles.exerciseHeaderLeft}>
-            <Text style={styles.exerciseHeaderTitle}>EXERCISES</Text>
-            <Text style={styles.exerciseHint}>
-              Tap 🔄 to swap • 🗑️ to remove
-            </Text>
-          </View>
-
-          {completedCount > 0 ? (
-            <View
-              style={[styles.exerciseCountBadge, styles.completedCountBadge]}
-            >
+        {/* Completion Progress Pill (only shown when user has checked off exercises) */}
+        {completedCount > 0 ? (
+          <View style={styles.completedHeaderRow}>
+            <View style={styles.completedPill}>
+              <Check size={12} color="#38EDD8" strokeWidth={3} />
               <Text style={styles.completedCountText}>
-                {completedCount}/{workout.exercises.length} COMPLETED
+                {completedCount} OF {workout.exercises.length} COMPLETED
               </Text>
             </View>
-          ) : (
-            <View style={styles.exerciseCountBadge}>
-              <Text style={styles.exerciseCountText}>
-                {workout.exercises.length} TARGETS
-              </Text>
-            </View>
-          )}
-        </View>
+          </View>
+        ) : null}
 
-        {/* Exercise List with Individual Management Actions */}
+        {/* Exercise List with Swipe-to-Reveal Actions */}
         <PushDayExerciseList
           exercises={workout.exercises}
           onExercisePress={handleExercisePress}
@@ -336,15 +291,22 @@ export const GenericWorkoutDetailScreen: React.FC<
         </View>
       ) : null}
 
-      {/* Bottom Action CTAs: Regenerate Workout immediately before Start AI Workout */}
+      {/* Bottom Action CTAs: Regenerate Workout and Start AI Workout */}
       <View
         style={[
           styles.bottomCtaContainer,
-          { paddingBottom: Math.max(insets.bottom, 16) + 6 },
+          { paddingBottom: bottomInset + 8 },
         ]}
       >
+        {/* Soft fade gradient above the dock so scrolling cards dissolve seamlessly */}
+        <LinearGradient
+          colors={["transparent", "#070A11"]}
+          style={styles.fadeGradient}
+          pointerEvents="none"
+        />
+
         <View style={styles.ctaButtonsCol}>
-          {/* 1. REGENERATE WORKOUT BUTTON (immediately before Start AI Workout) */}
+          {/* 1. REGENERATE WORKOUT BUTTON */}
           <Pressable
             onPress={handleRegenerate}
             style={({ pressed }) => [
@@ -356,11 +318,13 @@ export const GenericWorkoutDetailScreen: React.FC<
           >
             <RefreshCw
               size={15}
-              color="#38BDF8"
+              color="#67E8F9"
               strokeWidth={2.4}
               style={{ marginRight: 8 }}
             />
-            <Text style={styles.regenerateBtnText}>REGENERATE WORKOUT</Text>
+            <Text style={styles.regenerateBtnText} numberOfLines={1}>
+              REGENERATE WORKOUT
+            </Text>
           </Pressable>
 
           {/* 2. START AI WORKOUT BUTTON */}
@@ -385,7 +349,9 @@ export const GenericWorkoutDetailScreen: React.FC<
                 fill="#050811"
                 style={{ marginRight: 8 }}
               />
-              <Text style={styles.startWorkoutText}>START AI WORKOUT</Text>
+              <Text style={styles.startWorkoutText} numberOfLines={1}>
+                START AI WORKOUT
+              </Text>
             </LinearGradient>
           </Pressable>
         </View>
@@ -415,9 +381,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.04)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: "rgba(255, 255, 255, 0.08)",
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 7,
     borderRadius: 14,
   },
   categoryPillActive: {
@@ -426,115 +392,52 @@ const styles = StyleSheet.create({
   },
   categoryPillText: {
     color: "#64748B",
-    fontSize: 11,
-    fontWeight: "800",
-    fontFamily: "monospace",
-    letterSpacing: 0.8,
+    fontSize: 11.5,
+    fontWeight: "700",
+    letterSpacing: 0.5,
   },
   categoryPillTextActive: {
     color: "#00f2fe",
   },
   titleSection: {
-    marginBottom: 18,
-    marginTop: 2,
-  },
-  aiBadgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 6,
-  },
-  categoryBadge: {
-    color: "#44EAC3",
-    fontSize: 11,
-    fontWeight: "800",
-    letterSpacing: 1.2,
-    fontFamily: "monospace",
-    textTransform: "uppercase",
-  },
-  maskedTitleWrapper: {
-    height: 44,
-    width: "100%",
-    marginBottom: 4,
-  },
-  maskedTitleView: {
-    flex: 1,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-  },
-  gradient: {
-    flex: 1,
+    marginBottom: 20,
+    marginTop: 6,
   },
   mainTitle: {
     color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 38,
+    fontSize: 34,
+    lineHeight: 40,
     fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.2,
+    letterSpacing: -0.5,
     textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
-    fontSize: 12.5,
-    lineHeight: 18,
-    fontFamily: "monospace",
-    fontWeight: "600",
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: "500",
+    marginTop: 4,
   },
-  exerciseHeaderRow: {
+  completedHeaderRow: {
+    marginBottom: 14,
+    alignItems: "flex-start",
+  },
+  completedPill: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 12,
-    marginBottom: 14,
-    paddingHorizontal: 2,
-  },
-  exerciseHeaderLeft: {
-    flex: 1,
-  },
-  exerciseHeaderTitle: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-  },
-  exerciseHint: {
-    color: "#64748B",
-    fontSize: 10,
-    fontFamily: "monospace",
-    marginTop: 2,
-  },
-  exerciseCountBadge: {
-    backgroundColor: "rgba(56, 189, 248, 0.12)",
+    gap: 6,
+    backgroundColor: "rgba(56, 237, 216, 0.12)",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
+    borderColor: "rgba(56, 237, 216, 0.35)",
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 12,
-  },
-  exerciseCountText: {
-    color: "#38BDF8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 0.8,
-  },
-  completedCountBadge: {
-    backgroundColor: "rgba(56, 237, 216, 0.15)",
-    borderColor: "rgba(56, 237, 216, 0.45)",
   },
   completedCountText: {
     color: "#38EDD8",
-    fontSize: 10,
-    fontFamily: "monospace",
+    fontSize: 11,
     fontWeight: "800",
-    letterSpacing: 0.8,
+    letterSpacing: 0.5,
   },
   hudToast: {
     position: "absolute",
@@ -561,55 +464,75 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: 0.8,
   },
+  fadeGradient: {
+    position: "absolute",
+    top: -24,
+    left: 0,
+    right: 0,
+    height: 24,
+  },
   bottomCtaContainer: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     paddingHorizontal: 20,
-    paddingTop: 14,
+    paddingTop: 12,
     zIndex: 99,
     backgroundColor: "#070A11",
     borderTopWidth: 1,
     borderTopColor: "rgba(255, 255, 255, 0.08)",
   },
   ctaButtonsCol: {
-    gap: 12,
+    gap: 10,
+    width: "100%",
+    flexShrink: 0,
   },
   regenerateBtn: {
-    height: 48,
-    borderRadius: 24,
+    alignSelf: "stretch",
+    width: "100%",
+    height: 52,
+    minHeight: 52,
+    maxHeight: 52,
+    flexShrink: 0,
+    borderRadius: 26,
+    overflow: "hidden",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#111622",
+    backgroundColor: "#172033",
     borderWidth: 1.5,
-    borderColor: "rgba(56, 189, 248, 0.55)",
-    shadowColor: "#38BDF8",
+    borderColor: "#334155",
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 4,
+    shadowOpacity: 0.28,
+    shadowRadius: 5,
+    elevation: 2,
   },
   regenerateBtnPressed: {
-    opacity: 0.85,
+    opacity: 0.92,
     transform: [{ scale: 0.985 }],
-    backgroundColor: "rgba(56, 189, 248, 0.2)",
+    backgroundColor: "#22314A",
   },
   regenerateBtnText: {
-    color: "#38BDF8",
+    color: "#E2E8F0",
     fontSize: 13,
-    fontWeight: "900",
+    fontWeight: "800",
     fontFamily: "monospace",
     letterSpacing: 1,
   },
   startWorkoutBtn: {
+    alignSelf: "stretch",
+    width: "100%",
     height: 52,
+    minHeight: 52,
+    maxHeight: 52,
+    flexShrink: 0,
     borderRadius: 26,
     overflow: "hidden",
     shadowColor: "#00f2fe",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.4,
     shadowRadius: 10,
     elevation: 6,
   },
@@ -618,7 +541,10 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.985 }],
   },
   startWorkoutGradient: {
-    flex: 1,
+    width: "100%",
+    height: 52,
+    minHeight: 52,
+    borderRadius: 26,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

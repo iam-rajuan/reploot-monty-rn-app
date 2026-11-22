@@ -1,7 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { ArrowRight, Zap } from "lucide-react-native";
+import { ArrowRight } from "lucide-react-native";
 import React from "react";
 import {
   Platform,
@@ -10,25 +10,39 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Svg, { Path } from "react-native-svg";
+
+// Crisp hollow neon cyan lightning bolt matching Figma outline design exactly
+const StreakLightningIcon = () => (
+  <Svg width={20} height={26} viewBox="0 0 24 30" fill="none">
+    <Path
+      d="M13.5 2H16.5L15 12.5H23L8.5 28H6.5L8 18H1.5L13.5 2Z"
+      stroke="#2EE5C5"
+      strokeWidth={2.4}
+      strokeLinejoin="round"
+      strokeLinecap="round"
+    />
+  </Svg>
+);
 
 export const WeeklyProgressCard = () => {
   const WEEK_DAYS = [
-    { label: "M", height: 30, type: "blue" },
-    { label: "T", height: 46, type: "blue" },
-    { label: "W", height: 66, type: "purple" },
-    { label: "T", height: 86, type: "active" },
-    { label: "F", height: 22, type: "blue" },
-    { label: "S", height: 52, type: "blue" },
-    { label: "S", height: 18, type: "blue" },
+    { label: "M", height: 32, type: "blue" },
+    { label: "T", height: 48, type: "blue" },
+    { label: "W", height: 68, type: "purple" },
+    { label: "T", height: 80, type: "active" },
+    { label: "F", height: 24, type: "blue" },
+    { label: "S", height: 44, type: "blue" },
+    { label: "S", height: 16, type: "blue" },
   ];
 
   return (
     <View style={styles.cardContainer}>
       {/* Header Row: LVL 42 Box + ELITE TIER + 12 DAY STREAK */}
       <View style={styles.headerRow}>
-        {/* LVL 42 Gradient Badge */}
+        {/* LVL 42 Gradient Badge: Left-aligned bold text matching Figma */}
         <LinearGradient
-          colors={["#5A55FD", "#3B82F6"]}
+          colors={["#5851FD", "#3B82F6"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.levelBox}
@@ -47,10 +61,10 @@ export const WeeklyProgressCard = () => {
           {/* 12 DAY STREAK */}
           <View style={styles.streakCol}>
             <View style={styles.streakTopRow}>
-              <Zap size={24} color="#2EE5C5" strokeWidth={3} />
+              <StreakLightningIcon />
               <Text style={styles.streakNumber}>12</Text>
             </View>
-            <Text style={styles.streakLabel}>DAY  STREAK</Text>
+            <Text style={styles.streakLabel}>DAY STREAK</Text>
           </View>
         </View>
       </View>
@@ -62,10 +76,10 @@ export const WeeklyProgressCard = () => {
       </View>
       <View style={styles.progressBarTrack}>
         <LinearGradient
-          colors={["#5A55FD", "#3B82F6"]}
+          colors={["#5851FD", "#4D8DFF"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={[styles.progressBarFill, { width: "75%" }]}
+          style={[styles.progressBarFill, { width: "72%" }]}
         />
       </View>
 
@@ -124,53 +138,59 @@ export const WeeklyProgressCard = () => {
 const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: "#111422",
-    borderRadius: 28,
-    padding: 24,
-    paddingBottom: 22,
+    borderRadius: 24,
+    padding: 22,
+    paddingBottom: 20,
     marginHorizontal: 20,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
-    marginBottom: 24,
+    marginBottom: 28,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 26,
+    marginBottom: 22,
   },
   levelBox: {
-    width: 96,
-    height: 96,
+    width: 126,
+    height: 98,
     borderRadius: 22,
-    justifyContent: "center",
-    alignItems: "center",
+    paddingLeft: 18,
+    paddingTop: 14,
+    paddingBottom: 12,
+    justifyContent: "space-between",
+    alignItems: "flex-start",
   },
   levelLabel: {
     color: "#FFFFFF",
     fontSize: 26,
+    lineHeight: 28,
     fontWeight: "900",
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
   },
   levelNumber: {
     color: "#FFFFFF",
-    fontSize: 40,
+    fontSize: 44,
+    lineHeight: 46,
     fontWeight: "900",
-    lineHeight: 42,
-    letterSpacing: -0.5,
+    letterSpacing: -1,
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
   },
   headerRight: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 22,
+    gap: 16,
   },
   tierCol: {
     justifyContent: "center",
-    gap: 3,
+    gap: 4,
   },
   tierText: {
-    color: "#8E94B8",
-    fontSize: 11,
-    fontFamily: "monospace",
+    color: "#C8C4D8",
+    fontSize: 12,
+    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
     letterSpacing: 2,
   },
@@ -184,17 +204,18 @@ const styles = StyleSheet.create({
   },
   streakNumber: {
     color: "#2EE5C5",
-    fontSize: 34,
+    fontSize: 38,
     fontWeight: "900",
-    lineHeight: 36,
+    lineHeight: 42,
     letterSpacing: -0.5,
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
   },
   streakLabel: {
-    color: "#8E94B8",
-    fontSize: 10,
-    fontFamily: "monospace",
+    color: "#C8C4D8",
+    fontSize: 11,
+    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
-    letterSpacing: 1.5,
+    letterSpacing: 2,
     marginTop: 2,
   },
   xpRow: {
@@ -203,47 +224,48 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   xpText: {
-    color: "#CBD0E8",
-    fontSize: 11,
-    fontFamily: "monospace",
+    color: "#CBD5E1",
+    fontSize: 11.5,
+    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
   progressBarTrack: {
-    height: 8,
-    backgroundColor: "#1F2338",
-    borderRadius: 4,
+    height: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
+    borderRadius: 6,
     overflow: "hidden",
-    marginBottom: 32,
+    marginBottom: 28,
   },
   progressBarFill: {
-    height: 8,
-    borderRadius: 4,
+    height: 12,
+    borderRadius: 6,
   },
   chartContainer: {
-    height: 100,
+    height: 96,
     justifyContent: "flex-end",
     marginBottom: 20,
   },
   chartBars: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "flex-end",
-    paddingHorizontal: 4,
+    gap: 6,
   },
   barWrap: {
+    width: 33,
     alignItems: "center",
-    gap: 12,
+    gap: 8,
   },
   bar: {
-    width: 24,
-    borderRadius: 7,
+    width: 33,
+    borderRadius: 8,
   },
   barBlue: {
-    backgroundColor: "#5D95EA",
+    backgroundColor: "#659AF8",
   },
   barPurple: {
-    backgroundColor: "#5A597E",
+    backgroundColor: "#5B597F",
   },
   barActive: {
     backgroundColor: "#2EE5C5",
@@ -254,27 +276,29 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   dayLabel: {
+    width: 33,
+    textAlign: "center",
     color: "#7E83A0",
     fontSize: 10,
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
   },
   dayLabelActive: {
     color: "#2EE5C5",
-    fontWeight: "800",
+    fontWeight: "900",
   },
   linkRow: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     gap: 6,
-    marginTop: 6,
+    marginTop: 4,
   },
   viewProgressLink: {
     color: "#2EE5C5",
-    fontSize: 12.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 0.5,
+    fontSize: 12,
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
+    fontWeight: "700",
+    letterSpacing: 0.4,
   },
 });

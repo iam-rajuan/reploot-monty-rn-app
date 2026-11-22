@@ -51,12 +51,12 @@ export const StartAiWorkoutButton: React.FC<StartAiWorkoutButtonProps> = ({
           accessibilityLabel={title}
         >
           <LinearGradient
-            colors={["#3D79E6", "#6AA8FD"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+            colors={["#00f2fe", "#4facfe"]}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
             style={styles.ctaGradient}
           >
-            <Sparkles size={18} color="#FFFFFF" fill="#FFFFFF" />
+            <Sparkles size={18} color="#050811" fill="#050811" />
             <Text style={styles.ctaText}>{title}</Text>
           </LinearGradient>
         </Pressable>
@@ -68,7 +68,7 @@ export const StartAiWorkoutButton: React.FC<StartAiWorkoutButtonProps> = ({
     <View
       style={[
         styles.bottomBarContainer,
-        { paddingBottom: Math.max(insets.bottom, 16) },
+        { paddingBottom: Math.max(insets.bottom, 24) + 6 },
         style,
       ]}
       pointerEvents="box-none"
@@ -90,12 +90,12 @@ export const StartAiWorkoutButton: React.FC<StartAiWorkoutButtonProps> = ({
         accessibilityLabel={title}
       >
         <LinearGradient
-          colors={["#3D79E6", "#6AA8FD"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          colors={["#00f2fe", "#4facfe"]}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
           style={styles.ctaGradient}
         >
-          <Sparkles size={18} color="#FFFFFF" fill="#FFFFFF" />
+          <Sparkles size={18} color="#050811" fill="#050811" />
           <Text style={styles.ctaText}>{title}</Text>
         </LinearGradient>
       </Pressable>
@@ -119,9 +119,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   ctaWrapper: {
-    borderRadius: 28,
+    borderRadius: 26,
     overflow: "hidden",
     elevation: 8,
+    height: 52,
+    minHeight: 52,
+    flexShrink: 0,
   },
   ctaPressed: {
     opacity: 0.92,
@@ -131,18 +134,20 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   ctaGradient: {
-    height: 56,
-    borderRadius: 28,
+    height: 52,
+    minHeight: 52,
+    borderRadius: 26,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
   },
   ctaText: {
-    color: "#FFFFFF",
-    fontSize: 15.5,
-    fontWeight: "800",
-    letterSpacing: 0.8,
+    color: "#050811",
+    fontSize: 14,
+    fontWeight: "900",
+    letterSpacing: 1.2,
+    fontFamily: "JetBrainsMono_700Bold",
     textTransform: "uppercase",
   },
 });

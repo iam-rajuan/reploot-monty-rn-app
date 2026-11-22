@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
+import { useRouter } from "expo-router";
+import { Bot } from "lucide-react-native";
 import Svg, { Path, Circle, Rect, G } from "react-native-svg";
 import type { BottomTabBarProps } from "expo-router/build/react-navigation/bottom-tabs";
 
@@ -12,6 +14,7 @@ export function CustomBottomTabBar({
   navigation,
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   const handleTabPress = (
     route: (typeof state.routes)[number],
@@ -45,6 +48,13 @@ export function CustomBottomTabBar({
   const bottomInset =
     Platform.OS === "web" ? 12 : Math.max(insets.bottom + 4, 18);
 
+  const handleOpenCoach = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    }
+    router.push("/coach");
+  };
+
   return (
     <View
       pointerEvents="box-none"
@@ -59,6 +69,27 @@ export function CustomBottomTabBar({
           style={styles.barSurfaceGradient}
         />
       </View>
+
+      {currentRoute?.name === "home" ? (
+        <Pressable
+          onPress={handleOpenCoach}
+          accessibilityRole="button"
+          accessibilityLabel="Open AI Coach"
+          style={({ pressed }) => [
+            styles.coachFab,
+            pressed && styles.coachFabPressed,
+          ]}
+        >
+          <LinearGradient
+            colors={["#22D3EE", "#2563EB"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.coachFabGradient}
+          >
+            <Bot size={30} color="#FFFFFF" strokeWidth={2.4} />
+          </LinearGradient>
+        </Pressable>
+      ) : null}
 
       <View style={styles.tabsRow}>
         {state.routes.map((route, index) => {
@@ -351,6 +382,34 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
+  },
+  coachFab: {
+    position: "absolute",
+    top: -86,
+    right: 20,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: "#080D18",
+    padding: 4,
+    borderWidth: 1,
+    borderColor: "rgba(103, 232, 249, 0.75)",
+    shadowColor: "#22D3EE",
+    shadowOffset: { width: 0, height: 7 },
+    shadowOpacity: 0.5,
+    shadowRadius: 14,
+    elevation: 20,
+    zIndex: 200,
+  },
+  coachFabPressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.94 }],
+  },
+  coachFabGradient: {
+    flex: 1,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
   },
   tabsRow: {
     flexDirection: "row",
