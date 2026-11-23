@@ -649,7 +649,7 @@ export default function UnifiedMealPlanScreen() {
           <Pressable
             style={({ pressed }) => [
               styles.adjustBtn,
-              pressed && { opacity: 0.88, transform: [{ scale: 0.99 }] },
+              pressed && { opacity: 0.85, transform: [{ scale: 0.99 }] },
             ]}
             onPress={() => {
               triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
@@ -659,12 +659,12 @@ export default function UnifiedMealPlanScreen() {
             accessibilityLabel="Adjust meal plan with AI"
           >
             <LinearGradient
-              colors={["rgba(56, 189, 248, 0.16)", "rgba(2, 132, 199, 0.08)"]}
+              colors={["rgba(56, 189, 248, 0.14)", "rgba(2, 132, 199, 0.05)"]}
               start={{ x: 0, y: 0.5 }}
               end={{ x: 1, y: 0.5 }}
               style={styles.adjustBtnGradient}
             >
-              <Sparkles size={15} color="#38BDF8" />
+              <Sparkles size={15} color="#38BDF8" style={{ marginRight: 8 }} />
               <Text style={styles.adjustBtnText}>ADJUST MEAL PLAN WITH AI</Text>
             </LinearGradient>
           </Pressable>
@@ -1174,17 +1174,15 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: "rgba(56, 189, 248, 0.55)",
+    borderColor: "rgba(56, 189, 248, 0.45)",
     backgroundColor: "#0D172A",
     overflow: "hidden",
   },
   adjustBtnGradient: {
-    width: "100%",
-    height: "100%",
+    height: 47,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
   },
   adjustBtnText: {
     color: "#38BDF8",
@@ -1197,8 +1195,8 @@ const styles = StyleSheet.create({
     height: 46,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    backgroundColor: "#0D1527",
+    borderColor: "rgba(56, 189, 248, 0.25)",
+    backgroundColor: "#0B1324",
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
@@ -1207,8 +1205,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(56, 189, 248, 0.15)",
   },
   regenerateBtnContent: {
-    width: "100%",
-    height: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
