@@ -142,12 +142,14 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
         </View>
       )}
       onSwipeableOpenStartDrag={(direction) => {
-        if (direction === "right") onSwipeStart?.();
+        if (direction === "left") onSwipeStart?.();
       }}
       onSwipeableWillOpen={(direction) => {
-        if (direction !== "right") return;
+        if (direction !== "left") return;
         isOpenRef.current = true;
-        onSwipeOpen?.(() => swipeableRef.current?.close());
+        // Reset the previously active row instantly so this new swipe can
+        // take over without waiting for another row's close animation.
+        onSwipeOpen?.(() => swipeableRef.current?.reset());
         if (Platform.OS !== "web") {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
         }

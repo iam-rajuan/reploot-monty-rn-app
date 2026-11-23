@@ -99,11 +99,13 @@ const MealSwipeShell = ({
         </View>
       )}
       onSwipeableOpenStartDrag={(direction) => {
-        if (direction === "right") onSwipeStart();
+        if (direction === "left") onSwipeStart();
       }}
       onSwipeableWillOpen={(direction) => {
-        if (direction === "right") {
-          onSwipeOpen(() => swipeableRef.current?.close());
+        if (direction === "left") {
+          // A new row should be able to take over immediately, so reset the
+          // prior row without waiting for its close animation.
+          onSwipeOpen(() => swipeableRef.current?.reset());
         }
       }}
       onSwipeableClose={onSwipeClose}
