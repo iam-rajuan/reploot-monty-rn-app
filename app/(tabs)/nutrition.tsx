@@ -159,6 +159,53 @@ export default function NutritionTabRoute() {
   return (
     <View style={styles.screen}>
       <StatusBar style="light" />
+
+      {/* Multi-layered gradient background — matching home page */}
+      <View
+        style={[StyleSheet.absoluteFill, { overflow: "hidden" }]}
+        pointerEvents="none"
+      >
+        <LinearGradient
+          colors={["#121A35", "#0C1429", "#080D1A", "#060810"]}
+          locations={[0, 0.26, 0.62, 1]}
+          start={{ x: 0.9, y: 0 }}
+          end={{ x: 0.18, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <LinearGradient
+          colors={["rgba(56, 189, 248, 0.07)", "rgba(56, 189, 248, 0)"]}
+          start={{ x: 1, y: 0 }}
+          end={{ x: 0.2, y: 0.45 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <LinearGradient
+          colors={["rgba(45, 212, 191, 0)", "rgba(45, 212, 191, 0.035)"]}
+          start={{ x: 0.3, y: 0.5 }}
+          end={{ x: 0, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <Svg
+          style={[StyleSheet.absoluteFill, { overflow: "hidden" }]}
+          pointerEvents="none"
+        >
+          <SvgLine
+            x1="420" y1="-20" x2="-40" y2="440"
+            stroke="rgba(147, 164, 255, 0.04)"
+            strokeWidth="1"
+          />
+          <SvgLine
+            x1="460" y1="260" x2="-40" y2="760"
+            stroke="rgba(78, 143, 255, 0.03)"
+            strokeWidth="1"
+          />
+          <SvgLine
+            x1="480" y1="560" x2="-40" y2="1080"
+            stroke="rgba(48, 211, 195, 0.025)"
+            strokeWidth="1"
+          />
+        </Svg>
+      </View>
+
       <WorkoutHeader transparent={true} />
 
       <ScrollView
@@ -183,7 +230,7 @@ export default function NutritionTabRoute() {
               }
             >
               <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
+                colors={["#38BDF8", "#0EA5E9", "#2DD4BF"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.gradient}
@@ -340,7 +387,7 @@ export default function NutritionTabRoute() {
           </View>
         ) : (
         <LinearGradient
-          colors={["#0E1424", "#090D1A"]}
+          colors={["rgba(14, 20, 36, 0.9)", "rgba(9, 13, 26, 0.9)"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.planHeroCard}
@@ -373,14 +420,14 @@ export default function NutritionTabRoute() {
             accessibilityLabel="Generate nutrition plan"
           >
             <LinearGradient
-              colors={["#00f2fe", "#4facfe"]}
+              colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
               start={{ x: 0, y: 0.5 }}
               end={{ x: 1, y: 0.5 }}
               style={styles.planHeroBtnGradient}
             >
-              <Sparkles color="#050811" size={15} style={{ marginRight: 6 }} />
+              <Sparkles color="#FFFFFF" size={15} style={{ marginRight: 6 }} />
               <Text style={styles.planHeroBtnText}>GENERATE PLAN</Text>
-              <ArrowRight color="#050811" size={14} style={{ marginLeft: 6 }} />
+              <ArrowRight color="#FFFFFF" size={14} style={{ marginLeft: 6 }} />
             </LinearGradient>
           </Pressable>
         </LinearGradient>
@@ -472,7 +519,7 @@ export default function NutritionTabRoute() {
                 r={WATER_RADIUS}
                 stroke="rgba(255, 255, 255, 0.04)"
                 strokeWidth={WATER_STROKE_WIDTH}
-                fill="#0B0E17"
+                fill="rgba(11, 14, 23, 0.9)"
               />
               {/* Calculating Animated Arc */}
               <AnimatedCircle
@@ -593,7 +640,7 @@ export default function NutritionTabRoute() {
         </View>
 
         <LinearGradient
-          colors={["#0F1626", "#0B101D", "#070A12"]}
+          colors={["rgba(15, 22, 38, 0.88)", "rgba(11, 16, 29, 0.88)", "rgba(7, 10, 18, 0.88)"]}
           locations={[0, 0.6, 1]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -766,12 +813,12 @@ export default function NutritionTabRoute() {
               accessibilityLabel="Confirm and save hydration goal"
             >
               <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
+                colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
                 start={{ x: 0, y: 0.5 }}
                 end={{ x: 1, y: 0.5 }}
                 style={styles.modalSaveBtnGradient}
               >
-                <Check size={18} color="#050811" strokeWidth={2.8} style={{ marginRight: 6 }} />
+                <Check size={18} color="#FFFFFF" strokeWidth={2.8} style={{ marginRight: 6 }} />
                 <Text style={styles.modalSaveBtnText}>SET DAILY GOAL</Text>
               </LinearGradient>
             </Pressable>
@@ -785,7 +832,7 @@ export default function NutritionTabRoute() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#090A10",
+    backgroundColor: "#060810",
   },
   scrollView: {
     flex: 1,
@@ -834,10 +881,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   card: {
-    backgroundColor: "#0D131F",
+    backgroundColor: "rgba(13, 19, 31, 0.85)",
     borderRadius: 22,
     borderWidth: 1.2,
-    borderColor: "rgba(56, 189, 248, 0.16)",
+    borderColor: "rgba(56, 189, 248, 0.14)",
     padding: 20,
     marginBottom: 20,
     shadowColor: "#000",
@@ -1201,7 +1248,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   planHeroBtnText: {
-    color: "#050811",
+    color: "#FFFFFF",
     fontSize: 11.5,
     fontFamily: "monospace",
     fontWeight: "900",
@@ -1219,10 +1266,10 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   hydrationCard: {
-    backgroundColor: "#0B0E17",
+    backgroundColor: "rgba(11, 14, 23, 0.85)",
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.18)",
+    borderColor: "rgba(45, 212, 191, 0.16)",
     padding: 22,
     marginBottom: 20,
     shadowColor: "#000000",
@@ -1422,7 +1469,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   modalSaveBtnText: {
-    color: "#050811",
+    color: "#FFFFFF",
     fontSize: 12.5,
     fontFamily: "monospace",
     fontWeight: "900",
