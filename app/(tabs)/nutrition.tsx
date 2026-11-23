@@ -196,43 +196,148 @@ export default function NutritionTabRoute() {
         </View>
 
         {hasGeneratedPlan ? (
-        <View style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <View style={styles.headerBadge}>
-              <Flame size={14} color="#38BDF8" />
-              <Text style={styles.headerBadgeText}>DAILY ENERGY BUDGET</Text>
+          <View style={styles.card}>
+            {/* Header: Badge + Actions */}
+            <View style={styles.cardHeaderRow}>
+              <View style={styles.budgetBadge}>
+                <Flame size={13} color="#38BDF8" />
+                <Text style={styles.budgetBadgeText}>DAILY ENERGY BUDGET</Text>
+              </View>
+              <View style={styles.cardActions}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Reset nutrition plan"
+                  onPress={() => {
+                    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+                    resetGeneratedPlan();
+                  }}
+                  style={({ pressed }) => [
+                    styles.resetPlanButton,
+                    pressed && { opacity: 0.7, transform: [{ scale: 0.96 }] },
+                  ]}
+                >
+                  <RotateCcw size={13} color="#94A3B8" />
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    triggerHaptic();
+                    router.push("/meal-history");
+                  }}
+                  style={({ pressed }) => [
+                    styles.headerLink,
+                    pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="View meal logs"
+                >
+                  <Text style={styles.headerLinkText}>LOGS</Text>
+                  <ChevronRight size={11} color="#38BDF8" />
+                </Pressable>
+              </View>
             </View>
-            <View style={styles.cardActions}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Reset nutrition plan"
-                onPress={() => { triggerHaptic(Haptics.ImpactFeedbackStyle.Medium); resetGeneratedPlan(); }}
-                style={styles.resetPlanButton}
+
+            {/* Calorie Telemetry Row */}
+            <View style={styles.budgetRow}>
+              <Text style={styles.budgetMain}>1,850</Text>
+              <Text style={styles.budgetTargetSlash}>/</Text>
+              <Text style={styles.budgetTargetTotal}>2,300</Text>
+              <Text style={styles.budgetTargetUnit}>KCAL</Text>
+            </View>
+
+            {/* Progress Meter */}
+            <View style={styles.progressContainer}>
+              <View style={styles.progressBarBg}>
+                <LinearGradient
+                  colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
+                  start={{ x: 0, y: 0.5 }}
+                  end={{ x: 1, y: 0.5 }}
+                  style={[StyleSheet.absoluteFill, { width: "80%" }]}
+                />
+              </View>
+              <View style={styles.progressMeta}>
+                <View style={styles.progressMetaLeft}>
+                  <View style={styles.metaDot} />
+                  <Text style={styles.progressRemaining}>450 KCAL REMAINING</Text>
+                </View>
+                <Text style={styles.progressPercent}>80% CONSUMED</Text>
+              </View>
+            </View>
+
+            {/* 3 Macro Cards with Micro Progress */}
+            <View style={styles.macrosRow}>
+              {/* Protein */}
+              <View style={[styles.macroBox, { borderColor: "rgba(56, 189, 248, 0.22)" }]}>
+                <View style={styles.macroHeader}>
+                  <View style={[styles.macroDot, { backgroundColor: "#38BDF8" }]} />
+                  <Text style={[styles.macroLabel, { color: "#38BDF8" }]}>PROTEIN</Text>
+                </View>
+                <View style={styles.macroValueRow}>
+                  <Text style={styles.macroValue}>120</Text>
+                  <Text style={styles.macroUnit}>g</Text>
+                </View>
+                <Text style={styles.macroTarget}>of 180g</Text>
+                <View style={styles.macroTrackBg}>
+                  <View style={[styles.macroTrackFill, { width: "67%", backgroundColor: "#38BDF8" }]} />
+                </View>
+              </View>
+
+              {/* Carbs */}
+              <View style={[styles.macroBox, { borderColor: "rgba(251, 191, 36, 0.22)" }]}>
+                <View style={styles.macroHeader}>
+                  <View style={[styles.macroDot, { backgroundColor: "#FBBF24" }]} />
+                  <Text style={[styles.macroLabel, { color: "#FBBF24" }]}>CARBS</Text>
+                </View>
+                <View style={styles.macroValueRow}>
+                  <Text style={styles.macroValue}>180</Text>
+                  <Text style={styles.macroUnit}>g</Text>
+                </View>
+                <Text style={styles.macroTarget}>of 250g</Text>
+                <View style={styles.macroTrackBg}>
+                  <View style={[styles.macroTrackFill, { width: "72%", backgroundColor: "#FBBF24" }]} />
+                </View>
+              </View>
+
+              {/* Fat */}
+              <View style={[styles.macroBox, { borderColor: "rgba(251, 113, 133, 0.22)" }]}>
+                <View style={styles.macroHeader}>
+                  <View style={[styles.macroDot, { backgroundColor: "#FB7185" }]} />
+                  <Text style={[styles.macroLabel, { color: "#FB7185" }]}>FAT</Text>
+                </View>
+                <View style={styles.macroValueRow}>
+                  <Text style={styles.macroValue}>55</Text>
+                  <Text style={styles.macroUnit}>g</Text>
+                </View>
+                <Text style={styles.macroTarget}>of 70g</Text>
+                <View style={styles.macroTrackBg}>
+                  <View style={[styles.macroTrackFill, { width: "78%", backgroundColor: "#FB7185" }]} />
+                </View>
+              </View>
+            </View>
+
+            {/* CTA Button */}
+            <Pressable
+              style={({ pressed }) => [
+                styles.scanBtn,
+                pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] },
+              ]}
+              onPress={() => {
+                triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+                router.push("/scan-meal");
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Scan today's meal"
+            >
+              <LinearGradient
+                colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.scanBtnGradient}
               >
-                <RotateCcw size={14} color="#94A3B8" />
-              </Pressable>
-              <Pressable onPress={() => { triggerHaptic(); router.push("/meal-history"); }} style={styles.headerLink}>
-                <Text style={styles.headerLinkText}>LOGS</Text>
-                <ChevronRight size={12} color="#38BDF8" />
-              </Pressable>
-            </View>
+                <Camera color="#FFFFFF" size={16} style={{ marginRight: 8 }} />
+                <Text style={styles.scanBtnText}>SCAN TODAY'S MEAL</Text>
+              </LinearGradient>
+            </Pressable>
           </View>
-          <View style={styles.budgetRow}><Text style={styles.budgetMain}>1,850</Text><Text style={styles.budgetTotal}> / 2,300 KCAL</Text></View>
-          <View style={styles.progressContainer}>
-            <View style={styles.progressBarBg}><LinearGradient colors={["#00f2fe", "#4facfe"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[StyleSheet.absoluteFill, { width: "80%" }]} /></View>
-            <View style={styles.progressMeta}><Text style={styles.progressRemaining}>450 KCAL REMAINING</Text><Text style={styles.progressPercent}>80% CONSUMED</Text></View>
-          </View>
-          <View style={styles.macrosRow}>
-            <View style={[styles.macroBox, { borderColor: "rgba(56, 189, 248, 0.35)" }]}><Text style={[styles.macroLabel, { color: "#38BDF8" }]}>PROTEIN</Text><Text style={styles.macroValue}>120g</Text><Text style={styles.macroTarget}>/ 180g</Text></View>
-            <View style={[styles.macroBox, { borderColor: "rgba(255, 182, 140, 0.35)" }]}><Text style={[styles.macroLabel, { color: "#FFB68C" }]}>CARBS</Text><Text style={styles.macroValue}>180g</Text><Text style={styles.macroTarget}>/ 250g</Text></View>
-            <View style={[styles.macroBox, { borderColor: "rgba(244, 63, 94, 0.35)" }]}><Text style={[styles.macroLabel, { color: "#F43F5E" }]}>FAT</Text><Text style={styles.macroValue}>55g</Text><Text style={styles.macroTarget}>/ 70g</Text></View>
-          </View>
-          <Pressable style={styles.scanBtn} onPress={() => { triggerHaptic(Haptics.ImpactFeedbackStyle.Medium); router.push("/scan-meal"); }}>
-            <LinearGradient colors={["#0284C7", "#0EA5E9", "#38BDF8"]} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.scanBtnGradient}>
-              <Camera color="#FFFFFF" size={17} style={{ marginRight: 8 }} /><Text style={styles.scanBtnText}>SCAN TODAY'S MEAL</Text>
-            </LinearGradient>
-          </Pressable>
-        </View>
         ) : (
         <LinearGradient
           colors={["#0E1424", "#090D1A"]}
@@ -729,18 +834,41 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   card: {
-    backgroundColor: "#11131A",
+    backgroundColor: "#0D131F",
     borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 22,
+    borderWidth: 1.2,
+    borderColor: "rgba(56, 189, 248, 0.16)",
+    padding: 20,
     marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 4,
   },
   cardHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
+  },
+  budgetBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "rgba(56, 189, 248, 0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.2)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 7,
+  },
+  budgetBadgeText: {
+    color: "#38BDF8",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 1,
   },
   headerBadge: {
     flexDirection: "row",
@@ -754,21 +882,38 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: 1.2,
   },
+  cardActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  resetPlanButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   headerLink: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    paddingVertical: 2,
-    paddingHorizontal: 4,
+    gap: 3,
+    paddingVertical: 5,
+    paddingHorizontal: 9,
+    borderRadius: 8,
+    backgroundColor: "rgba(56, 189, 248, 0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.2)",
   },
-  cardActions: { flexDirection: "row", alignItems: "center", gap: 6 },
-  resetPlanButton: { width: 30, height: 30, alignItems: "center", justifyContent: "center" },
   headerLinkText: {
     color: "#38BDF8",
     fontSize: 10,
     fontFamily: "monospace",
     fontWeight: "800",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
   statusPill: {
     backgroundColor: "rgba(45, 212, 191, 0.12)",
@@ -789,24 +934,39 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "baseline",
     justifyContent: "center",
-    marginBottom: 14,
+    marginTop: 2,
+    marginBottom: 16,
   },
   budgetMain: {
     color: "#FFFFFF",
     fontSize: 44,
     fontFamily: "monospace",
     fontWeight: "900",
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
-  budgetTotal: {
-    color: "#64748B",
-    fontSize: 16,
+  budgetTargetSlash: {
+    color: "#475569",
+    fontSize: 20,
     fontFamily: "monospace",
     fontWeight: "700",
-    marginLeft: 6,
+    marginHorizontal: 6,
+  },
+  budgetTargetTotal: {
+    color: "#94A3B8",
+    fontSize: 20,
+    fontFamily: "monospace",
+    fontWeight: "800",
+  },
+  budgetTargetUnit: {
+    color: "#64748B",
+    fontSize: 12,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.8,
+    marginLeft: 4,
   },
   progressContainer: {
-    marginBottom: 20,
+    marginBottom: 18,
   },
   progressBarBg: {
     height: 8,
@@ -818,6 +978,18 @@ const styles = StyleSheet.create({
   progressMeta: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
+  },
+  progressMetaLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  metaDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#38BDF8",
+    marginRight: 6,
   },
   progressRemaining: {
     color: "#38BDF8",
@@ -827,14 +999,14 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   progressPercent: {
-    color: "#64748B",
+    color: "#94A3B8",
     fontSize: 10,
     fontFamily: "monospace",
     fontWeight: "700",
   },
   macrosRow: {
     flexDirection: "row",
-    gap: 8,
+    gap: 10,
     marginBottom: 20,
   },
   macroBox: {
@@ -846,41 +1018,79 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.03)",
   },
+  macroHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginBottom: 6,
+  },
+  macroDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
   macroLabel: {
     fontSize: 10,
     fontFamily: "monospace",
     fontWeight: "800",
-    letterSpacing: 1,
-    marginBottom: 4,
+    letterSpacing: 0.8,
+  },
+  macroValueRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    marginBottom: 2,
   },
   macroValue: {
     color: "#FFFFFF",
-    fontSize: 18,
+    fontSize: 19,
     fontFamily: "monospace",
     fontWeight: "900",
-    marginBottom: 2,
+  },
+  macroUnit: {
+    color: "#94A3B8",
+    fontSize: 11,
+    fontFamily: "monospace",
+    fontWeight: "700",
+    marginLeft: 1,
   },
   macroTarget: {
     color: "#64748B",
-    fontSize: 9,
+    fontSize: 9.5,
     fontFamily: "monospace",
     fontWeight: "700",
+    marginBottom: 8,
+  },
+  macroTrackBg: {
+    width: "100%",
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    overflow: "hidden",
+  },
+  macroTrackFill: {
+    height: "100%",
+    borderRadius: 2,
   },
   scanBtn: {
-    borderRadius: 16,
+    borderRadius: 14,
     overflow: "hidden",
+    shadowColor: "#0284C7",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
   },
   scanBtnGradient: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 14,
+    height: 50,
   },
   scanBtnText: {
     color: "#FFFFFF",
     fontSize: 12,
     fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "900",
     letterSpacing: 1.2,
   },
   planHeroCard: {
