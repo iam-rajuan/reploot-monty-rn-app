@@ -195,7 +195,7 @@ export default function UnifiedMealPlanScreen() {
       id: 2,
       time: "01:00 PM",
       type: "LUNCH",
-      typeColor: "#2DD4BF",
+      typeColor: "#38BDF8",
       name: "Grilled Chicken Quinoa Bowl",
       calories: 680,
       protein: 48,
@@ -208,7 +208,7 @@ export default function UnifiedMealPlanScreen() {
       id: 3,
       time: "04:30 PM",
       type: "SNACK",
-      typeColor: "#FFB68C",
+      typeColor: "#38BDF8",
       name: "Almond & Whey Cacao Crunch",
       calories: 310,
       protein: 18,
@@ -221,7 +221,7 @@ export default function UnifiedMealPlanScreen() {
       id: 4,
       time: "07:45 PM",
       type: "DINNER",
-      typeColor: "#C084FC",
+      typeColor: "#38BDF8",
       name: "Atlantic Salmon & Grilled Greens",
       calories: 540,
       protein: 42,
@@ -445,38 +445,17 @@ export default function UnifiedMealPlanScreen() {
 
                       {/* Clean Macro Telemetry */}
                       <View style={styles.mealMacrosRow}>
-                        <View style={styles.macroItem}>
-                          <View
-                            style={[
-                              styles.macroDot,
-                              { backgroundColor: "#38BDF8" },
-                            ]}
-                          />
-                          <Text style={styles.macroVal}>{meal.protein}g</Text>
-                          <Text style={styles.macroKey}>P</Text>
-                        </View>
-
-                        <View style={styles.macroItem}>
-                          <View
-                            style={[
-                              styles.macroDot,
-                              { backgroundColor: "#FFB68C" },
-                            ]}
-                          />
-                          <Text style={styles.macroVal}>{meal.carbs}g</Text>
-                          <Text style={styles.macroKey}>C</Text>
-                        </View>
-
-                        <View style={styles.macroItem}>
-                          <View
-                            style={[
-                              styles.macroDot,
-                              { backgroundColor: "#F43F5E" },
-                            ]}
-                          />
-                          <Text style={styles.macroVal}>{meal.fat}g</Text>
-                          <Text style={styles.macroKey}>F</Text>
-                        </View>
+                        <Text style={styles.macroVal}>
+                          {meal.protein}g <Text style={styles.macroKey}>P</Text>
+                        </Text>
+                        <Text style={styles.macroDotDivider}>•</Text>
+                        <Text style={styles.macroVal}>
+                          {meal.carbs}g <Text style={styles.macroKey}>C</Text>
+                        </Text>
+                        <Text style={styles.macroDotDivider}>•</Text>
+                        <Text style={styles.macroVal}>
+                          {meal.fat}g <Text style={styles.macroKey}>F</Text>
+                        </Text>
                       </View>
                     </View>
                   </View>
@@ -596,21 +575,8 @@ export default function UnifiedMealPlanScreen() {
                     {/* Unified Macro Telemetry Bar */}
                     <View style={styles.historyNutrientsRow}>
                       <View style={styles.nutrientCol}>
-                        <Text
-                          style={[
-                            styles.nutrientLabel,
-                            { color: "#38BDF8" },
-                          ]}
-                        >
-                          PROTEIN
-                        </Text>
+                        <Text style={styles.nutrientLabel}>PROTEIN</Text>
                         <View style={styles.nutrientValueRow}>
-                          <View
-                            style={[
-                              styles.macroDotMicro,
-                              { backgroundColor: "#38BDF8" },
-                            ]}
-                          />
                           <Text style={styles.nutrientValue}>
                             {day.proteinTaken}g
                           </Text>
@@ -623,21 +589,8 @@ export default function UnifiedMealPlanScreen() {
                       <View style={styles.nutrientDivider} />
 
                       <View style={styles.nutrientCol}>
-                        <Text
-                          style={[
-                            styles.nutrientLabel,
-                            { color: "#FFB68C" },
-                          ]}
-                        >
-                          CARBS
-                        </Text>
+                        <Text style={styles.nutrientLabel}>CARBS</Text>
                         <View style={styles.nutrientValueRow}>
-                          <View
-                            style={[
-                              styles.macroDotMicro,
-                              { backgroundColor: "#FFB68C" },
-                            ]}
-                          />
                           <Text style={styles.nutrientValue}>
                             {day.carbsTaken}g
                           </Text>
@@ -650,21 +603,8 @@ export default function UnifiedMealPlanScreen() {
                       <View style={styles.nutrientDivider} />
 
                       <View style={styles.nutrientCol}>
-                        <Text
-                          style={[
-                            styles.nutrientLabel,
-                            { color: "#F43F5E" },
-                          ]}
-                        >
-                          FAT
-                        </Text>
+                        <Text style={styles.nutrientLabel}>FAT</Text>
                         <View style={styles.nutrientValueRow}>
-                          <View
-                            style={[
-                              styles.macroDotMicro,
-                              { backgroundColor: "#F43F5E" },
-                            ]}
-                          />
                           <Text style={styles.nutrientValue}>
                             {day.fatTaken}g
                           </Text>
@@ -1005,23 +945,20 @@ const styles = StyleSheet.create({
   mealMacrosRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-  },
-  macroItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  macroDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
+    gap: 7,
   },
   macroVal: {
-    color: "#E2E8F0",
-    fontSize: 11,
+    color: "#CBD5E1",
+    fontSize: 11.5,
     fontFamily: "monospace",
     fontWeight: "700",
+  },
+  macroDotDivider: {
+    color: "#334155",
+    fontSize: 11,
+    lineHeight: 14,
+    fontFamily: "monospace",
+    marginHorizontal: 1,
   },
   macroKey: {
     color: "#64748B",
@@ -1176,30 +1113,26 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   nutrientLabel: {
-    fontSize: 8.5,
+    color: "#64748B",
+    fontSize: 9,
     fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 0.8,
-    marginBottom: 3,
+    marginBottom: 4,
   },
   nutrientValueRow: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  macroDotMicro: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    alignItems: "baseline",
+    gap: 2,
   },
   nutrientValue: {
-    color: "#FFFFFF",
-    fontSize: 11.5,
+    color: "#F8FAFC",
+    fontSize: 12,
     fontFamily: "monospace",
     fontWeight: "800",
   },
   nutrientTarget: {
-    color: "#64748B",
+    color: "#475569",
     fontSize: 9.5,
     fontFamily: "monospace",
     fontWeight: "600",
