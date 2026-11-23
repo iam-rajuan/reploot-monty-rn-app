@@ -10,12 +10,10 @@ import {
   Check,
   ChevronRight,
   Clock,
-  Flame,
   Heart,
   Plus,
   RefreshCw,
   Sparkles,
-  Target,
   Utensils,
 } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
@@ -168,47 +166,8 @@ export default function UnifiedMealPlanScreen() {
     }, 1000);
   };
 
-  // Planned totals
-  const targetCalories = useMemo(
-    () => meals.reduce((sum, m) => sum + m.calories, 0),
-    [meals],
-  );
-  const targetProtein = useMemo(
-    () => meals.reduce((sum, m) => sum + m.protein, 0),
-    [meals],
-  );
-  const targetCarbs = useMemo(
-    () => meals.reduce((sum, m) => sum + m.carbs, 0),
-    [meals],
-  );
-  const targetFat = useMemo(
-    () => meals.reduce((sum, m) => sum + m.fat, 0),
-    [meals],
-  );
-
   // Logged totals
   const loggedMeals = useMemo(() => meals.filter((m) => m.completed), [meals]);
-  const consumedCalories = useMemo(
-    () => loggedMeals.reduce((sum, m) => sum + m.calories, 0),
-    [loggedMeals],
-  );
-  const consumedProtein = useMemo(
-    () => loggedMeals.reduce((sum, m) => sum + m.protein, 0),
-    [loggedMeals],
-  );
-  const consumedCarbs = useMemo(
-    () => loggedMeals.reduce((sum, m) => sum + m.carbs, 0),
-    [loggedMeals],
-  );
-  const consumedFat = useMemo(
-    () => loggedMeals.reduce((sum, m) => sum + m.fat, 0),
-    [loggedMeals],
-  );
-
-  const caloriesProgress = Math.min(
-    100,
-    Math.round((consumedCalories / (targetCalories || 1)) * 100),
-  );
 
   return (
     <View style={styles.container}>
@@ -240,105 +199,6 @@ export default function UnifiedMealPlanScreen() {
           <Text style={styles.subtitle}>
             Daily meal schedule, macro targets & log telemetry.
           </Text>
-        </View>
-
-        {/* Daily Energy & Macro Dashboard Card */}
-        <View style={styles.targetCard}>
-          <View style={styles.targetHeader}>
-            <View style={styles.targetBadge}>
-              <Target size={12} color="#38BDF8" />
-              <Text style={styles.targetBadgeText}>ENERGY & MACROS</Text>
-            </View>
-            <View style={styles.targetStatusPill}>
-              <Text style={styles.targetStatusText}>
-                {loggedMeals.length} OF {meals.length} LOGGED
-              </Text>
-            </View>
-          </View>
-
-          {/* Consumed vs Target Calories */}
-          <View style={styles.caloriesRow}>
-            <Flame size={20} color="#38BDF8" style={{ marginRight: 6 }} />
-            <Text style={styles.caloriesNumber}>
-              {consumedCalories.toLocaleString()}
-            </Text>
-            <Text style={styles.caloriesTarget}>
-              / {targetCalories.toLocaleString()} KCAL
-            </Text>
-          </View>
-
-          {/* Progress Bar */}
-          <View style={styles.progressBarTrack}>
-            <LinearGradient
-              colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={[
-                styles.progressBarFill,
-                { width: `${caloriesProgress}%` },
-              ]}
-            />
-          </View>
-
-          {/* Macro KPI Cards (Consumed / Target) */}
-          <View style={styles.macroCardsRow}>
-            {/* Protein */}
-            <View
-              style={[
-                styles.macroCard,
-                { borderColor: "rgba(56, 189, 248, 0.25)" },
-              ]}
-            >
-              <View style={styles.macroCardHeader}>
-                <View
-                  style={[styles.macroDot, { backgroundColor: "#38BDF8" }]}
-                />
-                <Text style={[styles.macroCardLabel, { color: "#38BDF8" }]}>
-                  PROTEIN
-                </Text>
-              </View>
-              <Text style={styles.macroCardValue}>{consumedProtein}g</Text>
-              <Text style={styles.macroCardTarget}>/ {targetProtein}g</Text>
-            </View>
-
-            {/* Carbs */}
-            <View
-              style={[
-                styles.macroCard,
-                { borderColor: "rgba(255, 182, 140, 0.25)" },
-              ]}
-            >
-              <View style={styles.macroCardHeader}>
-                <View
-                  style={[styles.macroDot, { backgroundColor: "#FFB68C" }]}
-                />
-                <Text style={[styles.macroCardLabel, { color: "#FFB68C" }]}>
-                  CARBS
-                </Text>
-              </View>
-              <Text style={styles.macroCardValue}>{consumedCarbs}g</Text>
-              <Text style={styles.macroCardTarget}>/ {targetCarbs}g</Text>
-            </View>
-
-            {/* Fat */}
-            <View
-              style={[
-                styles.macroCard,
-                { borderColor: "rgba(244, 63, 94, 0.25)" },
-              ]}
-            >
-              <View style={styles.macroCardHeader}>
-                <View
-                  style={[styles.macroDot, { backgroundColor: "#F43F5E" }]}
-                />
-                <Text style={[styles.macroCardLabel, { color: "#F43F5E" }]}>
-                  FAT
-                </Text>
-              </View>
-              <Text style={styles.macroCardValue}>{consumedFat}g</Text>
-              <Text style={styles.macroCardTarget}>/ {targetFat}g</Text>
-            </View>
-          </View>
         </View>
 
         {/* Adjust Plan Quick Action */}
@@ -595,122 +455,7 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
-  },
-  targetCard: {
-    backgroundColor: "#0D131F",
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: "rgba(56, 189, 248, 0.25)",
-    padding: 18,
-    marginBottom: 14,
-  },
-  targetHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  targetBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  targetBadgeText: {
-    color: "#38BDF8",
-    fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 1.2,
-  },
-  targetStatusPill: {
-    backgroundColor: "rgba(45, 212, 191, 0.1)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.3)",
-  },
-  targetStatusText: {
-    color: "#2DD4BF",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  caloriesRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    justifyContent: "center",
-    marginBottom: 12,
-  },
-  caloriesNumber: {
-    color: "#FFFFFF",
-    fontSize: 36,
-    lineHeight: 40,
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    fontWeight: "900",
-    letterSpacing: -0.5,
-  },
-  caloriesTarget: {
-    color: "#64748B",
-    fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "700",
-    marginLeft: 6,
-  },
-  progressBarTrack: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    overflow: "hidden",
     marginBottom: 16,
-  },
-  progressBarFill: {
-    height: "100%",
-    borderRadius: 4,
-  },
-  macroCardsRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  macroCard: {
-    flex: 1,
-    backgroundColor: "#121A2B",
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    alignItems: "center",
-  },
-  macroCardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    marginBottom: 4,
-  },
-  macroDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-  },
-  macroCardLabel: {
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 0.8,
-  },
-  macroCardValue: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    marginBottom: 1,
-  },
-  macroCardTarget: {
-    color: "#64748B",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "700",
   },
   adjustPill: {
     flexDirection: "row",
