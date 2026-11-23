@@ -34,7 +34,11 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
-import { HORIZONTAL_PADDING, clampFontSize, isSmallDevice } from "@/shared/utils/responsive";
+import {
+  HORIZONTAL_PADDING,
+  clampFontSize,
+  isSmallDevice,
+} from "@/shared/utils/responsive";
 
 const { width } = Dimensions.get("window");
 
@@ -532,63 +536,91 @@ export default function WeeklyProgressScreen() {
         {/* 4 Core Weekly Metrics Grid */}
         <View style={styles.statsGrid}>
           {/* Workouts */}
-          <View style={styles.statBox}>
-            <View
-              style={[
-                styles.statIconBadge,
-                { backgroundColor: "rgba(56, 189, 248, 0.12)" },
-              ]}
-            >
-              <Dumbbell size={16} color="#38BDF8" />
+          <View style={[styles.statBox, styles.statBoxBlue]}>
+            <View style={styles.statTopRow}>
+              <View
+                style={[
+                  styles.statIconBadge,
+                  { backgroundColor: "rgba(56, 189, 248, 0.14)" },
+                ]}
+              >
+                <Dumbbell size={17} color="#38BDF8" strokeWidth={2.2} />
+              </View>
+              <View style={styles.statBadgePill}>
+                <Text style={[styles.statBadgePillText, { color: "#38BDF8" }]}>
+                  100% TARGET
+                </Text>
+              </View>
             </View>
             <Text style={styles.statLabel}>WORKOUTS</Text>
             <Text style={styles.statValue}>5 / 5</Text>
-            <Text style={styles.statSub}>100% Target</Text>
+            <Text style={styles.statSub}>Full compliance</Text>
           </View>
 
           {/* Time Duration */}
-          <View style={styles.statBox}>
-            <View
-              style={[
-                styles.statIconBadge,
-                { backgroundColor: "rgba(129, 140, 248, 0.12)" },
-              ]}
-            >
-              <Clock size={16} color="#818CF8" />
+          <View style={[styles.statBox, styles.statBoxIndigo]}>
+            <View style={styles.statTopRow}>
+              <View
+                style={[
+                  styles.statIconBadge,
+                  { backgroundColor: "rgba(129, 140, 248, 0.14)" },
+                ]}
+              >
+                <Clock size={17} color="#818CF8" strokeWidth={2.2} />
+              </View>
+              <View style={styles.statBadgePill}>
+                <Text style={[styles.statBadgePillText, { color: "#818CF8" }]}>
+                  AVG 43M/SESS
+                </Text>
+              </View>
             </View>
             <Text style={styles.statLabel}>DURATION</Text>
             <Text style={styles.statValue}>3h 35m</Text>
-            <Text style={styles.statSub}>Avg 43m/sess</Text>
+            <Text style={styles.statSub}>Total time under tension</Text>
           </View>
 
           {/* Calories */}
-          <View style={styles.statBox}>
-            <View
-              style={[
-                styles.statIconBadge,
-                { backgroundColor: "rgba(251, 146, 60, 0.12)" },
-              ]}
-            >
-              <Flame size={16} color="#FB923C" />
+          <View style={[styles.statBox, styles.statBoxOrange]}>
+            <View style={styles.statTopRow}>
+              <View
+                style={[
+                  styles.statIconBadge,
+                  { backgroundColor: "rgba(251, 146, 60, 0.14)" },
+                ]}
+              >
+                <Flame size={17} color="#FB923C" strokeWidth={2.2} />
+              </View>
+              <View style={styles.statBadgePill}>
+                <Text style={[styles.statBadgePillText, { color: "#FB923C" }]}>
+                  BURNED
+                </Text>
+              </View>
             </View>
             <Text style={styles.statLabel}>CALORIES</Text>
             <Text style={styles.statValue}>1,980</Text>
-            <Text style={styles.statSub}>kcal burned</Text>
+            <Text style={styles.statSub}>Active energy expenditure</Text>
           </View>
 
           {/* Accuracy Score */}
-          <View style={styles.statBox}>
-            <View
-              style={[
-                styles.statIconBadge,
-                { backgroundColor: "rgba(56, 237, 216, 0.12)" },
-              ]}
-            >
-              <Activity size={16} color="#38EDD8" />
+          <View style={[styles.statBox, styles.statBoxMint]}>
+            <View style={styles.statTopRow}>
+              <View
+                style={[
+                  styles.statIconBadge,
+                  { backgroundColor: "rgba(56, 237, 216, 0.14)" },
+                ]}
+              >
+                <Activity size={17} color="#38EDD8" strokeWidth={2.2} />
+              </View>
+              <View style={styles.statBadgePill}>
+                <Text style={[styles.statBadgePillText, { color: "#38EDD8" }]}>
+                  APEX
+                </Text>
+              </View>
             </View>
             <Text style={styles.statLabel}>AI ACCURACY</Text>
             <Text style={styles.statValue}>93%</Text>
-            <Text style={styles.statSub}>Apex Velocity</Text>
+            <Text style={styles.statSub}>Biomechanical precision</Text>
           </View>
         </View>
 
@@ -870,7 +902,13 @@ export default function WeeklyProgressScreen() {
               <View style={styles.badgeIconWrapper}>
                 <Target size={20} color="#38EDD8" />
               </View>
-              <Text style={styles.badgeTitle}>CONSISTENCY</Text>
+              <Text
+                style={styles.badgeTitle}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                CONSISTENCY
+              </Text>
               <Text style={styles.badgeSub}>5/5 Routines</Text>
             </View>
 
@@ -878,7 +916,13 @@ export default function WeeklyProgressScreen() {
               <View style={styles.badgeIconWrapper}>
                 <TrendingUp size={20} color="#00f2fe" />
               </View>
-              <Text style={styles.badgeTitle}>VOLUME SPIKE</Text>
+              <Text
+                style={styles.badgeTitle}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                VOLUME SPIKE
+              </Text>
               <Text style={styles.badgeSub}>+12% Tonnage</Text>
             </View>
 
@@ -886,7 +930,13 @@ export default function WeeklyProgressScreen() {
               <View style={styles.badgeIconWrapper}>
                 <ShieldCheckIcon />
               </View>
-              <Text style={styles.badgeTitle}>REST WARRIOR</Text>
+              <Text
+                style={styles.badgeTitle}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                REST WARRIOR
+              </Text>
               <Text style={styles.badgeSub}>Optimal Reset</Text>
             </View>
           </View>
@@ -934,7 +984,7 @@ function ShieldCheckIcon() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#070A11",
+    backgroundColor: "#060810",
   },
   scrollContainer: {
     paddingHorizontal: HORIZONTAL_PADDING,
@@ -942,7 +992,7 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     marginTop: 4,
-    marginBottom: 16,
+    marginBottom: 14,
   },
   maskedTitleWrapper: {
     height: 44,
@@ -965,12 +1015,13 @@ const styles = StyleSheet.create({
     fontSize: clampFontSize(28),
     lineHeight: 34,
     fontWeight: "900",
-    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
-    letterSpacing: 1,
+    fontStyle: "italic",
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    letterSpacing: 0.5,
     textTransform: "uppercase",
   },
   subtitle: {
-    color: "#94A3B8",
+    color: "#8E9BAE",
     fontSize: clampFontSize(12),
     lineHeight: 18,
     fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
@@ -979,28 +1030,34 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
+    backgroundColor: "rgba(12, 18, 32, 0.85)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 16,
+    borderColor: "rgba(104, 123, 255, 0.22)",
+    borderRadius: 18,
     padding: 4,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   tabButton: {
     flex: 1,
     paddingVertical: 10,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 12,
+    borderRadius: 14,
   },
   tabButtonActive: {
     backgroundColor: "#0284C7",
+    shadowColor: "#0284C7",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.45,
+    shadowRadius: 6,
+    elevation: 3,
   },
   tabText: {
-    color: "#94A3B8",
+    color: "#8E9BAE",
     fontSize: clampFontSize(11),
     fontWeight: "800",
     letterSpacing: 0.8,
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   tabTextActive: {
     color: "#FFFFFF",
@@ -1009,6 +1066,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    alignSelf: "center",
+    backgroundColor: "rgba(56, 237, 216, 0.07)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 237, 216, 0.22)",
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
     marginBottom: 16,
   },
   dateBadgeText: {
@@ -1018,27 +1082,32 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   card: {
-    backgroundColor: "#11141C",
-    borderRadius: 20,
+    backgroundColor: "rgba(13, 19, 33, 0.82)",
+    borderRadius: 22,
     padding: isSmallDevice ? 16 : 20,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(104, 123, 255, 0.22)",
     marginBottom: 16,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 14,
+    elevation: 4,
   },
   aiCardBorder: {
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    backgroundColor: "rgba(15, 23, 42, 0.75)",
+    borderColor: "rgba(56, 189, 248, 0.35)",
+    backgroundColor: "rgba(12, 20, 38, 0.85)",
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 18,
   },
   verticalDivider: {
     width: 1,
-    height: 44,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    height: 42,
+    backgroundColor: "rgba(104, 123, 255, 0.2)",
   },
   streakContainer: {
     alignItems: "center",
@@ -1050,11 +1119,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   streakNumber: {
-    color: "#38EDD8",
+    color: "#FFFFFF",
     fontSize: clampFontSize(28),
     fontWeight: "900",
     lineHeight: 32,
     letterSpacing: -0.5,
+    fontFamily: "JetBrainsMono_700Bold",
   },
   streakBottomRow: {
     flexDirection: "row",
@@ -1062,11 +1132,11 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   streakLabel: {
-    color: "#94A3B8",
+    color: "#8E9BAE",
     fontSize: clampFontSize(9),
     fontWeight: "800",
     letterSpacing: 1.2,
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   xpRow: {
     flexDirection: "row",
@@ -1075,77 +1145,119 @@ const styles = StyleSheet.create({
   },
   xpText: {
     color: "#CBD5E1",
-    fontSize: clampFontSize(10),
+    fontSize: clampFontSize(11),
     fontWeight: "700",
-    letterSpacing: 1,
+    letterSpacing: 0.5,
     fontFamily: "JetBrainsMono_700Bold",
   },
   progressBarTrack: {
     height: 8,
-    backgroundColor: "#1E2230",
-    borderRadius: 4,
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    borderRadius: 999,
     marginBottom: 12,
     overflow: "hidden",
   },
   progressBarFill: {
     height: 8,
-    borderRadius: 4,
+    borderRadius: 999,
   },
   xpTargetRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(56, 237, 216, 0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 237, 216, 0.2)",
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
   xpTargetText: {
     color: "#38EDD8",
     fontSize: clampFontSize(11),
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     fontWeight: "700",
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    rowGap: 10,
+    rowGap: 12,
     marginBottom: 16,
   },
   statBox: {
     width: "48.2%",
-    backgroundColor: "#11141C",
-    borderRadius: 18,
-    padding: isSmallDevice ? 14 : 16,
+    backgroundColor: "rgba(13, 19, 33, 0.85)",
+    borderRadius: 20,
+    padding: 16,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(104, 123, 255, 0.2)",
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 3,
   },
-  statIconBadge: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    justifyContent: "center",
+  statBoxBlue: {
+    borderColor: "rgba(56, 189, 248, 0.28)",
+  },
+  statBoxIndigo: {
+    borderColor: "rgba(129, 140, 248, 0.28)",
+  },
+  statBoxOrange: {
+    borderColor: "rgba(251, 146, 60, 0.28)",
+  },
+  statBoxMint: {
+    borderColor: "rgba(56, 237, 216, 0.28)",
+  },
+  statTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 12,
+  },
+  statBadgePill: {
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 6,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+  },
+  statBadgePillText: {
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 0.6,
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   statLabel: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
-    letterSpacing: 1.2,
+    color: "#8E9BAE",
+    fontSize: clampFontSize(11),
+    fontWeight: "800",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
+    letterSpacing: 1,
     marginBottom: 4,
+    textTransform: "uppercase",
   },
   statValue: {
     color: "#FFFFFF",
-    fontSize: clampFontSize(22),
+    fontSize: clampFontSize(24),
     fontWeight: "900",
     fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: -0.5,
-    marginBottom: 2,
+    marginBottom: 3,
   },
   statSub: {
     color: "#64748B",
-    fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "600",
+    fontSize: clampFontSize(11),
+    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
+    fontWeight: "500",
+  },
+  statIconBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 11,
+    justifyContent: "center",
+    alignItems: "center",
   },
   cardHeader: {
     flexDirection: "row",
@@ -1161,9 +1273,9 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   headerIconContainer: {
-    width: 26,
-    height: 26,
-    borderRadius: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 9,
     backgroundColor: "rgba(56, 237, 216, 0.12)",
     justifyContent: "center",
     alignItems: "center",
@@ -1172,7 +1284,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: clampFontSize(12),
     fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     letterSpacing: 1,
   },
   chartLegend: {
@@ -1187,9 +1299,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#38EDD8",
   },
   legendText: {
-    color: "#94A3B8",
+    color: "#8E9BAE",
     fontSize: clampFontSize(9),
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     letterSpacing: 0.8,
   },
   chartContainer: {
@@ -1201,23 +1313,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
-    paddingHorizontal: 4,
+    paddingHorizontal: 2,
   },
   barWrap: {
     alignItems: "center",
     gap: 6,
   },
   barMinutesText: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(9),
+    color: "#8E9BAE",
+    fontSize: clampFontSize(10),
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
   },
   barBackground: {
-    width: 32,
-    height: 90,
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    borderRadius: 8,
+    width: 36,
+    height: 92,
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    borderRadius: 10,
     justifyContent: "flex-end",
     alignItems: "center",
     padding: 3,
@@ -1229,16 +1341,16 @@ const styles = StyleSheet.create({
   },
   bar: {
     width: "100%",
-    borderRadius: 6,
+    borderRadius: 7,
   },
   barRest: {
     height: 14,
     backgroundColor: "rgba(148, 163, 184, 0.25)",
   },
   dayLabelCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -1246,20 +1358,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#0284C7",
   },
   dayLabel: {
-    color: "#94A3B8",
+    color: "#8E9BAE",
     fontSize: clampFontSize(11),
     fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   dayLabelActive: {
     color: "#FFFFFF",
   },
   selectedDayCard: {
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
-    borderRadius: 14,
+    backgroundColor: "rgba(15, 23, 42, 0.75)",
+    borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
+    borderColor: "rgba(56, 237, 216, 0.2)",
   },
   selectedDayHeader: {
     flexDirection: "row",
@@ -1269,26 +1381,29 @@ const styles = StyleSheet.create({
   },
   selectedDayTitle: {
     color: "#38EDD8",
-    fontSize: clampFontSize(10),
+    fontSize: clampFontSize(11),
     fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     letterSpacing: 1,
     marginBottom: 2,
   },
   selectedDayWorkout: {
     color: "#FFFFFF",
-    fontSize: clampFontSize(13),
+    fontSize: clampFontSize(14),
     fontWeight: "700",
-    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
-    maxWidth: "70%",
+    fontFamily: Platform.select({
+      android: "sans-serif-medium",
+      ios: "System",
+    }),
+    maxWidth: "72%",
   },
   scoreBadge: {
     backgroundColor: "rgba(56, 237, 216, 0.15)",
-    paddingHorizontal: 8,
+    paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "rgba(56, 237, 216, 0.3)",
+    borderColor: "rgba(56, 237, 216, 0.35)",
   },
   scoreBadgeText: {
     color: "#38EDD8",
@@ -1298,7 +1413,7 @@ const styles = StyleSheet.create({
   },
   restBadge: {
     backgroundColor: "rgba(148, 163, 184, 0.15)",
-    paddingHorizontal: 8,
+    paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 8,
     borderWidth: 1,
@@ -1308,14 +1423,14 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: clampFontSize(10),
     fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   selectedDayStatsRow: {
     flexDirection: "row",
     gap: 16,
-    paddingTop: 8,
+    paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.05)",
+    borderTopColor: "rgba(255, 255, 255, 0.06)",
   },
   selectedDayStatItem: {
     flexDirection: "row",
@@ -1342,10 +1457,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   tonnageLabel: {
-    color: "#94A3B8",
+    color: "#8E9BAE",
     fontSize: clampFontSize(10),
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     letterSpacing: 1,
     marginBottom: 4,
   },
@@ -1367,7 +1482,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(45, 212, 191, 0.12)",
     borderWidth: 1,
     borderColor: "rgba(45, 212, 191, 0.3)",
-    paddingHorizontal: 8,
+    paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 8,
   },
@@ -1391,37 +1506,37 @@ const styles = StyleSheet.create({
     color: "#CBD5E1",
     fontSize: clampFontSize(11),
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   musclePercent: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(10),
+    color: "#8E9BAE",
+    fontSize: clampFontSize(11),
     fontWeight: "800",
     fontFamily: "JetBrainsMono_700Bold",
   },
   muscleTrack: {
-    height: 7,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 4,
+    height: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
+    borderRadius: 999,
     overflow: "hidden",
   },
   muscleFill: {
-    height: 7,
-    borderRadius: 4,
+    height: 8,
+    borderRadius: 999,
   },
   aiPill: {
     backgroundColor: "rgba(56, 189, 248, 0.15)",
     borderWidth: 1,
     borderColor: "rgba(56, 189, 248, 0.35)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   aiPillText: {
     color: "#38BDF8",
     fontSize: clampFontSize(9),
     fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     letterSpacing: 0.8,
   },
   insightsList: {
@@ -1452,9 +1567,10 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   badgesCount: {
-    color: "#94A3B8",
+    color: "#8E9BAE",
     fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "800",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   badgesRow: {
     flexDirection: "row",
@@ -1462,18 +1578,19 @@ const styles = StyleSheet.create({
   },
   badgeCard: {
     flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
-    borderRadius: 14,
-    padding: 12,
+    backgroundColor: "rgba(15, 23, 42, 0.7)",
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 6,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
+    borderColor: "rgba(104, 123, 255, 0.18)",
   },
   badgeIconWrapper: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 8,
@@ -1481,26 +1598,30 @@ const styles = StyleSheet.create({
   badgeTitle: {
     color: "#FFFFFF",
     fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
+    fontWeight: "800",
     textAlign: "center",
-    marginBottom: 2,
+    marginBottom: 3,
+    letterSpacing: 0.3,
   },
   badgeSub: {
-    color: "#64748B",
+    color: "#8E9BAE",
     fontSize: clampFontSize(9),
     fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "600",
+    textAlign: "center",
   },
   bottomButtonsRow: {
     flexDirection: "row",
-    gap: 10,
-    marginTop: 6,
+    gap: 12,
+    marginTop: 10,
+    marginBottom: 24,
   },
   shareBtn: {
     flex: 1,
-    height: 50,
+    height: 52,
     borderRadius: 16,
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: "rgba(56, 237, 216, 0.4)",
     backgroundColor: "rgba(56, 237, 216, 0.08)",
     flexDirection: "row",
@@ -1512,12 +1633,18 @@ const styles = StyleSheet.create({
     fontSize: clampFontSize(12),
     fontWeight: "800",
     letterSpacing: 1,
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   workoutBtn: {
     flex: 1,
-    height: 50,
+    height: 52,
     borderRadius: 16,
     overflow: "hidden",
+    shadowColor: "#38BDF8",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
   },
   workoutBtnGradient: {
     flex: 1,
@@ -1526,9 +1653,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   workoutBtnText: {
-    color: "#090A10",
+    color: "#050811",
     fontSize: clampFontSize(12),
     fontWeight: "900",
     letterSpacing: 1,
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
   },
 });
