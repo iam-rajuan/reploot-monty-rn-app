@@ -30,6 +30,7 @@ export const WorkoutModalityCard: React.FC<WorkoutModalityCardProps> = ({
   subtitle,
   image,
   arrowImage = defaultArrowAsset,
+  arrowBottom = 96,
   onPress,
   style,
   testID,
@@ -63,32 +64,42 @@ export const WorkoutModalityCard: React.FC<WorkoutModalityCardProps> = ({
       {/* Cyber Gradient Overlay for Text Legibility */}
       <LinearGradient
         colors={[
-          "rgba(5, 10, 20, 0.1)",
-          "rgba(5, 10, 20, 0.52)",
-          "rgba(7, 11, 21, 0.95)",
+          "rgba(5, 10, 20, 0.05)",
+          "rgba(5, 10, 20, 0.46)",
+          "#070B15",
         ]}
         locations={[0, 0.45, 1]}
         style={StyleSheet.absoluteFill}
+        pointerEvents="none"
       />
       <View style={styles.insetHighlight} pointerEvents="none" />
 
-      {/* Bottom Content Row (Text on Left, Arrow Action on Right) */}
-      <View style={styles.contentWrap} pointerEvents="none">
+      {/* Prominent Circular Action Button */}
+      <View
+        style={[
+          styles.arrowButtonWrapper,
+          arrowBottom !== undefined
+            ? { bottom: arrowBottom }
+            : { top: "50%", marginTop: -24 },
+        ]}
+        pointerEvents="none"
+      >
+        <Image
+          source={arrowImage}
+          style={styles.arrowImage}
+          contentFit="contain"
+        />
+      </View>
+
+      {/* Robust In-Flow Content Container */}
+      <View style={styles.cardContent} pointerEvents="none">
         <View style={styles.textContainer}>
           <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
-          <Text style={styles.subtitle} numberOfLines={1}>
+          <Text style={styles.subtitle} numberOfLines={2}>
             {subtitle}
           </Text>
-        </View>
-
-        <View style={styles.arrowButtonWrapper}>
-          <Image
-            source={arrowImage}
-            style={styles.arrowImage}
-            contentFit="contain"
-          />
         </View>
       </View>
     </Pressable>
@@ -98,22 +109,22 @@ export const WorkoutModalityCard: React.FC<WorkoutModalityCardProps> = ({
 const styles = StyleSheet.create({
   cardContainer: {
     width: "100%",
-    minHeight: 180,
-    borderRadius: 24,
+    height: 240,
+    minHeight: 240,
+    borderRadius: 32,
     overflow: "hidden",
     backgroundColor: "#0A101D",
     borderWidth: 1,
     borderColor: "rgba(104, 123, 255, 0.3)",
     position: "relative",
     shadowColor: "#030611",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 4,
-    justifyContent: "flex-end",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.3,
+    shadowRadius: 18,
+    elevation: 6,
   },
   cardPressed: {
-    opacity: 0.94,
+    opacity: 0.92,
   },
   backgroundImage: {
     position: "absolute",
@@ -124,61 +135,62 @@ const styles = StyleSheet.create({
   },
   insetHighlight: {
     position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    top: 1,
+    right: 1,
+    bottom: 1,
+    left: 1,
     borderWidth: 1,
     borderColor: "rgba(188, 199, 255, 0.09)",
-    borderRadius: 24,
+    borderRadius: 31,
   },
-  contentWrap: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    padding: 18,
+  cardContent: {
+    height: 240,
+    justifyContent: "flex-end",
+    paddingHorizontal: 24,
+    paddingBottom: 24,
     zIndex: 2,
-    gap: 12,
   },
   textContainer: {
-    flex: 1,
-    gap: 3,
+    paddingRight: 56,
+    gap: 4,
   },
   title: {
     color: "#FFFFFF",
-    fontSize: 24,
-    lineHeight: 28,
+    fontSize: 28,
+    lineHeight: 32,
     fontWeight: "900",
     fontStyle: "italic",
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    letterSpacing: -0.5,
+    letterSpacing: -0.75,
     textTransform: "uppercase",
   },
   subtitle: {
     color: "#B6C0D6",
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 14,
+    lineHeight: 20,
     fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "400",
   },
   arrowButtonWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    position: "absolute",
+    right: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
     borderWidth: 1,
     borderColor: "rgba(130, 151, 255, 0.35)",
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#39D7C4",
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-    flexShrink: 0,
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 5,
+    zIndex: 3,
   },
   arrowImage: {
-    width: 15,
-    height: 15,
+    width: 18,
+    height: 18,
   },
 });

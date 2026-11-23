@@ -19,13 +19,13 @@ export const TodaysMissionsCard = () => {
   const dispatch = useAppDispatch();
   const todayKey = getTodayDateKey();
   const calendarSchedules = useAppSelector(
-    (state) => state.workout.calendarSchedules || {}
+    (state) => state.workout.calendarSchedules || {},
   );
   const activeScheduleDateKey = useAppSelector(
-    (state) => state.workout.activeScheduleDateKey || todayKey
+    (state) => state.workout.activeScheduleDateKey || todayKey,
   );
   const selectedWorkoutCategory = useAppSelector(
-    (state) => state.workout.selectedWorkoutCategory || "pull"
+    (state) => state.workout.selectedWorkoutCategory || "pull",
   );
   const scheduledToday = calendarSchedules[activeScheduleDateKey];
   const splitId = scheduledToday?.splitId || selectedWorkoutCategory || "pull";
@@ -48,12 +48,17 @@ export const TodaysMissionsCard = () => {
       return;
     }
     dispatch(setSelectedWorkoutCategory(splitId));
-    const isGymRootRoute = splitId === "lower" || splitId === "fullbody" || splitId === "full";
+    const isGymRootRoute =
+      splitId === "lower" || splitId === "fullbody" || splitId === "full";
     router.push({
-      pathname: (isGymRootRoute ? "/workouts" : activeMetadata.route || `/workouts/${splitId}`) as any,
+      pathname: (isGymRootRoute
+        ? "/workouts"
+        : activeMetadata.route || `/workouts/${splitId}`) as any,
       params: {
         source: "mission",
-        ...(isGymRootRoute ? { pathId: splitId === "full" ? "fullbody" : splitId } : {}),
+        ...(isGymRootRoute
+          ? { pathId: splitId === "full" ? "fullbody" : splitId }
+          : {}),
       },
     });
   };
@@ -161,14 +166,14 @@ export const TodaysMissionsCard = () => {
 const styles = StyleSheet.create({
   pressTarget: {
     width: "100%",
-    borderRadius: 24,
+    borderRadius: 32,
     overflow: "hidden",
   },
   pressed: { opacity: 0.96 },
   card: {
     width: "100%",
     minHeight: 210,
-    borderRadius: 24,
+    borderRadius: 32,
     overflow: "hidden",
     position: "relative",
     borderWidth: 1,
@@ -270,6 +275,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderWidth: 1,
     borderColor: "rgba(188, 199, 255, 0.09)",
-    borderRadius: 24,
+    borderRadius: 31,
   },
 });

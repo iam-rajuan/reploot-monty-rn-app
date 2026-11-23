@@ -99,7 +99,7 @@ export default function HomeTabRoute() {
       >
         <Image
           source={require("../../assets/coachOnline/floatingButton.png")}
-          style={{ width: 56, height: 56 }}
+          style={{ width: 100, height: 100 }}
           resizeMode="contain"
         />
       </Pressable>
@@ -124,13 +124,8 @@ const styles = StyleSheet.create({
   },
   fabContainer: {
     position: "absolute",
-    bottom: 90,
-    right: 18,
+    bottom: 100,
+    right: 20,
     zIndex: 50,
-    shadowColor: "#2DD4BF",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 8,
   },
 });
