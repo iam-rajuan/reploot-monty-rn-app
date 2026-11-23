@@ -1,7 +1,7 @@
 import { useAppSelector } from "@/store/hooks";
 import * as Haptics from "expo-haptics";
 import { Image, ImageSource } from "expo-image";
-import { Check, Play, RefreshCw, Trash2 } from "lucide-react-native";
+import { Check, Play, RefreshCw, Sparkles, Trash2 } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import {
   Animated,
@@ -332,6 +332,7 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
 export interface PushDayExerciseListProps {
   exercises: (PushDayExercise | WorkoutExerciseItem)[];
   completedExerciseIds?: string[];
+  showRecommendationSections?: boolean;
   onExercisePress?: (exercise: PushDayExercise | WorkoutExerciseItem) => void;
   onReplaceExercise?: (exerciseId: string) => void;
   onDeleteExercise?: (exerciseId: string) => void;
@@ -341,6 +342,7 @@ export interface PushDayExerciseListProps {
 export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
   exercises,
   completedExerciseIds: propCompletedIds,
+  showRecommendationSections = false,
   onExercisePress,
   onReplaceExercise,
   onDeleteExercise,
@@ -355,9 +357,7 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
   );
   const completedIds = propCompletedIds ?? reduxCompletedIds;
 
-  return (
-    <View style={[styles.exerciseList, style]}>
-      {exercises.map((exercise) => {
+  const renderExercise = (exercise: PushDayExercise | WorkoutExerciseItem) => {
         const isCompleted = completedIds.includes(exercise.id);
         const isOpen = swipedExerciseId === exercise.id;
 
@@ -386,7 +386,44 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
             }
           />
         );
-      })}
+  };
+
+  if (!showRecommendationSections) {
+    return <View style={[styles.exerciseList, style]}>{exercises.map(renderExercise)}</View>;
+  }
+
+  const aiRecommended = exercises.filter(
+    (exercise, index) =>
+      (exercise as WorkoutExerciseItem).isAiRecommended ?? index < 8
+  );
+  const regularExercises = exercises.filter(
+    (exercise, index) =>
+      !((exercise as WorkoutExerciseItem).isAiRecommended ?? index < 8)
+  );
+
+  return (
+    <View style={[styles.exerciseList, style]}>
+      <View style={styles.recommendationHeader}>
+        <View style={styles.recommendationHeaderLead}>
+          <View style={styles.recommendationIcon}>
+            <Sparkles size={13} color="#07131B" strokeWidth={2.8} />
+          </View>
+          <Text style={styles.recommendationTitle}>AI RECOMMENDED</Text>
+        </View>
+        <Text style={styles.recommendationCount}>{aiRecommended.length} PICKS</Text>
+      </View>
+      {aiRecommended.map(renderExercise)}
+
+      {regularExercises.length > 0 ? (
+        <>
+          <View style={styles.regularHeader}>
+            <Text style={styles.regularTitle}>REGULAR EXERCISES</Text>
+            <View style={styles.regularRule} />
+            <Text style={styles.recommendationCount}>{regularExercises.length} MORE</Text>
+          </View>
+          {regularExercises.map(renderExercise)}
+        </>
+      ) : null}
     </View>
   );
 };
@@ -398,6 +435,56 @@ export const WorkoutExerciseList = PushDayExerciseList;
 const styles = StyleSheet.create({
   exerciseList: {
     gap: 12,
+  },
+  recommendationHeader: {
+    minHeight: 34,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 4,
+  },
+  recommendationHeaderLead: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  recommendationIcon: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#42E8D1",
+  },
+  recommendationTitle: {
+    color: "#42E8D1",
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 1.15,
+  },
+  recommendationCount: {
+    color: "#718096",
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+  },
+  regularHeader: {
+    minHeight: 48,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginTop: 10,
+  },
+  regularTitle: {
+    color: "#CBD5E1",
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 1.1,
+  },
+  regularRule: {
+    flex: 1,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: "rgba(148, 163, 184, 0.28)",
   },
   cardWrapper: {
     position: "relative",

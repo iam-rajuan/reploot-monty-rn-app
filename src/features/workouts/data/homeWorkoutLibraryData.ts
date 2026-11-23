@@ -21,6 +21,7 @@ export interface HomeWorkoutSessionItem {
   iconBorder?: string;
   glowAura?: string;
   targetRoute?: string;
+  workoutPathId?: string;
   image: ImageSource | number | string;
 }
 
@@ -100,6 +101,8 @@ export const HOME_WORKOUT_LIBRARY_DATA: HomeWorkoutLibraryData = {
       iconBg: "rgba(56, 237, 216, 0.16)",
       iconBorder: "rgba(56, 237, 216, 0.35)",
       glowAura: "rgba(56, 237, 216, 0.12)",
+      targetRoute: "/workouts",
+      workoutPathId: "lower",
       image: require("../../../../assets/library/l2.png"),
     },
     {
@@ -114,6 +117,8 @@ export const HOME_WORKOUT_LIBRARY_DATA: HomeWorkoutLibraryData = {
       iconBg: "rgba(108, 92, 255, 0.18)",
       iconBorder: "rgba(129, 140, 248, 0.35)",
       glowAura: "rgba(129, 140, 248, 0.12)",
+      targetRoute: "/workouts",
+      workoutPathId: "fullbody",
       image: require("../../../../assets/library/l8.png"),
     },
     {

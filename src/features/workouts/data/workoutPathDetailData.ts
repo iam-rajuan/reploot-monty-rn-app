@@ -3,6 +3,8 @@ import { ImageSource } from "expo-image";
 export interface WorkoutExerciseItem {
   id: string;
   index?: string;
+  /** The eight exercises selected for the athlete's current AI routine. */
+  isAiRecommended?: boolean;
   title: string;
   subtitle: string;
   image: ImageSource | number | string;
@@ -1376,3 +1378,66 @@ export const REPLACEMENT_EXERCISES_POOL: Record<string, WorkoutExerciseItem[]> =
     },
   ],
 };
+
+// Each path presents a complete 20-exercise library: eight AI-selected
+// movements first, followed by twelve relevant regular alternatives. Keeping
+// this derived from the existing variation and swap libraries means every
+// exercise remains category-specific and can still be replaced or regenerated.
+const REGULAR_LIBRARY_FALLBACKS: Record<string, WorkoutExerciseItem[]> = {
+  pull: [
+    {
+      id: "regular-pull-straight-arm-pulldown",
+      title: "STRAIGHT-ARM\nCABLE PULLDOWNS",
+      subtitle: "3 Sets × 12-15 Reps",
+      targetMuscle: "Lats & Serratus",
+      sets: 3,
+      reps: "12-15",
+      image: require("../../../../assets/pullDay/pld5.png"),
+    },
+  ],
+  fullbody: [
+    {
+      id: "regular-fullbody-sled-push",
+      title: "WEIGHTED SLED\nPUSHES",
+      subtitle: "4 Sets × 20 Meters",
+      targetMuscle: "Full Body Conditioning",
+      sets: 4,
+      reps: "20m",
+      image: require("../../../../assets/pullDay/pld3.png"),
+    },
+  ],
+};
+
+const buildCompleteExerciseLibrary = (pathId: string) => {
+  const workout = WORKOUT_PATH_DETAILS_MAP[pathId];
+  if (!workout) return;
+
+  const aiRecommended = workout.exercises.slice(0, 8).map((exercise) => ({
+    ...exercise,
+    isAiRecommended: true,
+  }));
+  const aiIds = new Set(aiRecommended.map((exercise) => exercise.id));
+  const regularCandidates = [
+    ...(WORKOUT_VARIATIONS_MAP[pathId] || []).slice(1).flat(),
+    ...(REPLACEMENT_EXERCISES_POOL[pathId] || []),
+    ...(REGULAR_LIBRARY_FALLBACKS[pathId] || []),
+  ];
+  const regularExercises = regularCandidates
+    .filter((exercise) => !aiIds.has(exercise.id))
+    .filter(
+      (exercise, index, collection) =>
+        collection.findIndex((candidate) => candidate.id === exercise.id) === index
+    )
+    .slice(0, 12)
+    .map((exercise) => ({ ...exercise, isAiRecommended: false }));
+
+  WORKOUT_PATH_DETAILS_MAP[pathId] = {
+    ...workout,
+    exercises: [...aiRecommended, ...regularExercises].map((exercise, index) => ({
+      ...exercise,
+      index: String(index + 1).padStart(2, "0"),
+    })),
+  };
+};
+
+Object.keys(WORKOUT_PATH_DETAILS_MAP).forEach(buildCompleteExerciseLibrary);

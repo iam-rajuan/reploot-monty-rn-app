@@ -48,12 +48,14 @@ export const TodaysMissionsCard = () => {
       return;
     }
     dispatch(setSelectedWorkoutCategory(splitId));
-    const targetRoute =
-      activeMetadata.route ||
-      (splitId === "fullbody" || splitId === "full"
-        ? "/workouts?pathId=fullbody"
-        : `/workouts/${splitId}`);
-    router.push(targetRoute as any);
+    const isGymRootRoute = splitId === "lower" || splitId === "fullbody" || splitId === "full";
+    router.push({
+      pathname: (isGymRootRoute ? "/workouts" : activeMetadata.route || `/workouts/${splitId}`) as any,
+      params: {
+        source: "mission",
+        ...(isGymRootRoute ? { pathId: splitId === "full" ? "fullbody" : splitId } : {}),
+      },
+    });
   };
 
   const handleCalendarPress = () => {

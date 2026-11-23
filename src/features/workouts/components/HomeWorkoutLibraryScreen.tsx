@@ -102,10 +102,17 @@ export const HomeWorkoutLibraryScreen: React.FC<
     if (onSelectSession) {
       onSelectSession(session);
     } else if (session.targetRoute) {
-      router.push(session.targetRoute as any);
+      const isGymPath = session.targetRoute === "/workouts";
+      router.push({
+        pathname: session.targetRoute as any,
+        params: {
+          source: "home",
+          ...(isGymPath ? { pathId: session.workoutPathId || session.id } : {}),
+        },
+      });
     } else {
       // Default fallback for session cards to Upper Body screen
-      router.push("/workouts/upper" as any);
+      router.push({ pathname: "/workouts/upper" as any, params: { source: "home" } });
     }
   };
 

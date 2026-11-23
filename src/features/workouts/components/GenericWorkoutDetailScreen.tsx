@@ -33,6 +33,8 @@ import { PushDayHeroCard } from "./PushDayHeroCard";
 export interface GenericWorkoutDetailScreenProps {
   workout?: DynamicWorkoutPathDetail;
   pathId?: string;
+  /** Gym and Home library entry points show the full 20-exercise catalog. */
+  showFullExerciseLibrary?: boolean;
   onBack?: () => void;
   onStartWorkout?: () => void;
   onSelectExercise?: (exerciseId: string) => void;
@@ -52,6 +54,7 @@ export const GenericWorkoutDetailScreen: React.FC<
 > = ({
   workout: propWorkout,
   pathId: propPathId,
+  showFullExerciseLibrary = false,
   onBack,
   onStartWorkout,
   onSelectExercise,
@@ -60,7 +63,11 @@ export const GenericWorkoutDetailScreen: React.FC<
   const bottomInset = Math.max(insets.bottom, 24);
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const params = useLocalSearchParams<{ pathId?: string; split?: string }>();
+  const params = useLocalSearchParams<{
+    pathId?: string;
+    split?: string;
+    source?: string;
+  }>();
 
   // Local override when user taps category tabs
   const [selectedCategoryOverride, setSelectedCategoryOverride] =
@@ -93,8 +100,15 @@ export const GenericWorkoutDetailScreen: React.FC<
   const completedExerciseIds = useAppSelector(
     (state) => state.workout?.completedExerciseIds || []
   );
-  const completedCount = workout.exercises.filter((ex) =>
-    completedExerciseIds.includes(ex.id)
+  const shouldShowFullLibrary =
+    showFullExerciseLibrary || params.source === "home" || params.source === "gym";
+  const visibleExercises = shouldShowFullLibrary
+    ? workout.exercises
+    : workout.exercises
+        .filter((exercise) => exercise.isAiRecommended !== false)
+        .slice(0, 8);
+  const visibleCompletedCount = visibleExercises.filter((exercise) =>
+    completedExerciseIds.includes(exercise.id)
   ).length;
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -206,7 +220,11 @@ export const GenericWorkoutDetailScreen: React.FC<
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: bottomInset + 172 },
+          {
+            paddingBottom: shouldShowFullLibrary
+              ? bottomInset + 28
+              : bottomInset + 172,
+          },
         ]}
       >
         {/* Workout Category Selector Pills */}
@@ -263,12 +281,12 @@ export const GenericWorkoutDetailScreen: React.FC<
         />
 
         {/* Completion Progress Pill (only shown when user has checked off exercises) */}
-        {completedCount > 0 ? (
+        {visibleCompletedCount > 0 ? (
           <View style={styles.completedHeaderRow}>
             <View style={styles.completedPill}>
               <Check size={12} color="#38EDD8" strokeWidth={3} />
               <Text style={styles.completedCountText}>
-                {completedCount} OF {workout.exercises.length} COMPLETED
+                {visibleCompletedCount} OF {visibleExercises.length} COMPLETED
               </Text>
             </View>
           </View>
@@ -276,7 +294,8 @@ export const GenericWorkoutDetailScreen: React.FC<
 
         {/* Exercise List with Swipe-to-Reveal Actions */}
         <PushDayExerciseList
-          exercises={workout.exercises}
+          exercises={visibleExercises}
+          showRecommendationSections={shouldShowFullLibrary}
           onExercisePress={handleExercisePress}
           onReplaceExercise={handleReplaceExercise}
           onDeleteExercise={handleDeleteExercise}
@@ -291,8 +310,8 @@ export const GenericWorkoutDetailScreen: React.FC<
         </View>
       ) : null}
 
-      {/* Bottom Action CTAs: Regenerate Workout and Start AI Workout */}
-      <View
+      {/* Today’s Mission is a focused AI routine; library views remain browse-only. */}
+      {!shouldShowFullLibrary ? <View
         style={[
           styles.bottomCtaContainer,
           { paddingBottom: bottomInset + 8 },
@@ -357,7 +376,7 @@ export const GenericWorkoutDetailScreen: React.FC<
             </LinearGradient>
           </Pressable>
         </View>
-      </View>
+      </View> : null}
     </View>
   );
 };

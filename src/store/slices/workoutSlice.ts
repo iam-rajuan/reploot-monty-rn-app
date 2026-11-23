@@ -391,8 +391,20 @@ export const workoutSlice = createSlice({
       if (variations.length > 0) {
         const variationIndex = nextCounter % variations.length;
         const selectedVariation = variations[variationIndex];
-        currentWorkout.exercises = selectedVariation.map((ex, idx) => ({
-          ...ex,
+        const regularExercises = (WORKOUT_PATH_DETAILS_MAP[key]?.exercises || [])
+          .filter((exercise) => !exercise.isAiRecommended)
+          .map((exercise) => ({ ...exercise, isAiRecommended: false }));
+
+        // Regeneration changes the eight AI picks, while the full regular
+        // exercise library remains available below them.
+        currentWorkout.exercises = [
+          ...selectedVariation.slice(0, 8).map((exercise) => ({
+            ...exercise,
+            isAiRecommended: true,
+          })),
+          ...regularExercises,
+        ].map((exercise, idx) => ({
+          ...exercise,
           index: String(idx + 1).padStart(2, '0'),
         }));
       }

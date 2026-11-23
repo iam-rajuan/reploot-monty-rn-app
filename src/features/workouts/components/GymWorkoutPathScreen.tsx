@@ -73,7 +73,11 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
   const navigation = useNavigation();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const params = useLocalSearchParams<{ pathId?: string; split?: string }>();
+  const params = useLocalSearchParams<{
+    pathId?: string;
+    split?: string;
+    source?: string;
+  }>();
   const reduxSelectedCategory = useAppSelector(
     (state) =>
       (state.workout?.selectedWorkoutCategory as WorkoutPathId) || "push"
@@ -149,6 +153,7 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
     return (
       <GenericWorkoutDetailScreen
         pathId={activePath}
+        showFullExerciseLibrary={params.source !== "mission"}
         onBack={handleDetailBack}
       />
     );
