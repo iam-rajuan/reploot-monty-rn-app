@@ -10,7 +10,6 @@ import {
   Check,
   ChevronRight,
   Clock,
-  Heart,
   Plus,
   RefreshCw,
   Sparkles,
@@ -38,7 +37,6 @@ export interface UnifiedMeal {
   carbs: number;
   fat: number;
   prepTime: string;
-  liked: boolean;
   completed: boolean;
 }
 
@@ -66,7 +64,6 @@ export default function UnifiedMealPlanScreen() {
       carbs: 34,
       fat: 16,
       prepTime: "10m",
-      liked: true,
       completed: true, // Initially completed to show log state immediately
     },
     {
@@ -80,7 +77,6 @@ export default function UnifiedMealPlanScreen() {
       carbs: 62,
       fat: 14,
       prepTime: "20m",
-      liked: false,
       completed: false,
     },
     {
@@ -94,7 +90,6 @@ export default function UnifiedMealPlanScreen() {
       carbs: 24,
       fat: 12,
       prepTime: "5m",
-      liked: false,
       completed: false,
     },
     {
@@ -108,7 +103,6 @@ export default function UnifiedMealPlanScreen() {
       carbs: 16,
       fat: 22,
       prepTime: "25m",
-      liked: true,
       completed: false,
     },
   ]);
@@ -119,13 +113,6 @@ export default function UnifiedMealPlanScreen() {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(style).catch(() => {});
     }
-  };
-
-  const toggleLike = (id: number) => {
-    triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-    setMeals((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, liked: !m.liked } : m)),
-    );
   };
 
   const toggleMealLog = (id: number) => {
@@ -263,20 +250,6 @@ export default function UnifiedMealPlanScreen() {
                     <Text style={styles.timingText}>{meal.time}</Text>
                     <Text style={styles.prepTimeText}>• {meal.prepTime}</Text>
                   </View>
-
-                  <Pressable
-                    style={styles.likeBtn}
-                    onPress={() => toggleLike(meal.id)}
-                    hitSlop={8}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Like ${meal.name}`}
-                  >
-                    <Heart
-                      color={meal.liked ? "#F43F5E" : "#475569"}
-                      fill={meal.liked ? "#F43F5E" : "transparent"}
-                      size={15}
-                    />
-                  </Pressable>
                 </View>
 
                 {/* Meal Name */}
@@ -562,14 +535,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: "monospace",
     fontWeight: "600",
-  },
-  likeBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    justifyContent: "center",
-    alignItems: "center",
   },
   mealName: {
     color: "#FFFFFF",
