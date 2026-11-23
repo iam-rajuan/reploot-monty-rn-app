@@ -49,10 +49,12 @@ export const MacroBox = ({
       </View>
 
       {/* Label */}
-      <Text style={[styles.macroLabel, { color: labelColor }]}>{label}</Text>
+      <Text style={[styles.macroLabel, { color: labelColor }]} numberOfLines={1}>
+        {label}
+      </Text>
 
       {/* Values: current / target */}
-      <Text style={styles.macroValues}>
+      <Text style={styles.macroValues} numberOfLines={1}>
         <Text
           style={[
             styles.macroCurrent,
@@ -79,60 +81,61 @@ export const MacroBox = ({
 
 const styles = StyleSheet.create({
   macroBox: {
-    width: "48%",
-    height: 106,
+    width: "48.2%",
+    minHeight: 96,
     backgroundColor: "rgba(24, 35, 55, 0.88)",
     borderRadius: 16,
-    padding: 13,
+    padding: 11,
     borderWidth: 1,
     borderColor: "rgba(152, 173, 255, 0.12)",
+    justifyContent: "space-between",
   },
   macroHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 7,
+    marginBottom: 6,
   },
   macroPercentPill: {
-    paddingHorizontal: 7,
-    paddingVertical: 3,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     borderRadius: 999,
     borderWidth: 1,
   },
   macroPercentText: {
-    fontSize: 8,
+    fontSize: 8.5,
     fontWeight: "800",
     fontFamily: "JetBrainsMono_700Bold",
   },
   macroLabel: {
-    fontSize: 9,
+    fontSize: 9.5,
     fontWeight: "800",
-    letterSpacing: 0.225,
+    letterSpacing: 0.3,
     fontFamily: "JetBrainsMono_700Bold",
     marginBottom: 2,
   },
   macroValues: {
-    marginBottom: 8,
+    marginBottom: 6,
   },
   macroCurrent: {
-    fontSize: 12,
-    fontWeight: "700",
+    fontSize: 13,
+    fontWeight: "800",
     fontFamily: "JetBrainsMono_700Bold",
   },
   macroSlash: {
-    color: "#CBD5E1",
-    fontSize: 11,
+    color: "#94A3B8",
+    fontSize: 10.5,
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
   },
   macroProgressBar: {
-    height: 6,
+    height: 5,
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 3,
     overflow: "hidden",
   },
   macroProgressFill: {
-    height: 6,
+    height: 5,
     borderRadius: 3,
   },
 });

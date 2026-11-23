@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { HORIZONTAL_PADDING } from "@/shared/utils/responsive";
 
 const bgAsset = require("../../../../assets/figma/ai-workout/hero-workout-background.jpeg");
 
@@ -37,8 +38,8 @@ export const AiWorkoutCard = () => {
       />
       <LinearGradient
         colors={[
-          "rgba(6, 10, 20, 0)",
-          "rgba(6, 10, 20, 0.44)",
+          "rgba(6, 10, 20, 0.1)",
+          "rgba(6, 10, 20, 0.6)",
           "#070B15",
         ]}
         locations={[0, 0.45, 1]}
@@ -84,7 +85,7 @@ export const AiWorkoutCard = () => {
           </View>
         </View>
 
-        {/* Gym / Home Segmented Toggle matching Figma */}
+        {/* Gym / Home Segmented Toggle */}
         <View style={styles.toggleCapsule}>
           <Pressable
             style={[
@@ -127,23 +128,21 @@ export const AiWorkoutCard = () => {
         <Pressable
           onPress={handleStartWorkout}
           accessibilityRole="button"
-          style={({ pressed }) => [pressed && styles.buttonPressed]}
+          style={({ pressed }) => [styles.actionButtonPressable, pressed && styles.buttonPressed]}
         >
-          <View style={styles.actionButton}>
-            <LinearGradient
-              colors={["#176F9F", "#338FE0"]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={styles.buttonGradient}
-            >
-              <Text style={styles.buttonText}>START WORKOUT</Text>
-              <Image
-                source={require("../../../../assets/figma/ai-workout/start-arrow.svg")}
-                style={styles.startArrow}
-                contentFit="contain"
-              />
-            </LinearGradient>
-          </View>
+          <LinearGradient
+            colors={["#176F9F", "#338FE0"]}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={styles.buttonGradient}
+          >
+            <Text style={styles.buttonText}>START WORKOUT</Text>
+            <Image
+              source={require("../../../../assets/figma/ai-workout/start-arrow.svg")}
+              style={styles.startArrow}
+              contentFit="contain"
+            />
+          </LinearGradient>
         </Pressable>
       </View>
     </View>
@@ -153,85 +152,86 @@ export const AiWorkoutCard = () => {
 const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: "#0B1120",
-    borderRadius: 32,
+    borderRadius: 24,
     overflow: "hidden",
-    marginHorizontal: 20,
-    marginBottom: 24,
+    marginHorizontal: HORIZONTAL_PADDING,
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: "rgba(130, 151, 255, 0.18)",
     position: "relative",
-    minHeight: 337,
+    minHeight: 310,
   },
   backgroundImage: {
     position: "absolute",
     top: 0,
+    left: 0,
+    right: 0,
     bottom: 0,
-    left: "-37%",
-    width: "174%",
-    opacity: 0.6,
+    opacity: 0.55,
   },
   content: {
     flex: 1,
-    padding: 25,
+    padding: 18,
     justifyContent: "space-between",
+    gap: 14,
   },
   badgesRow: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "space-between",
   },
   badgeGroup: {
     flexDirection: "row",
-    gap: 8,
+    gap: 6,
   },
   badgeSolid: {
     backgroundColor: "rgba(88, 101, 242, 0.2)",
     borderWidth: 1,
     borderColor: "rgba(128, 143, 255, 0.34)",
-    paddingHorizontal: 13,
-    paddingVertical: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 999,
   },
   badgeSolidText: {
     color: "#CAD2FF",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0,
   },
   badgeOutline: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    paddingHorizontal: 13,
-    paddingVertical: 5,
+    borderColor: "rgba(255, 255, 255, 0.15)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 999,
   },
   badgeOutlineText: {
     color: "#EAF0FF",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0,
   },
   badgeGreenOutline: {
-    backgroundColor: "rgba(46, 229, 197, 0.2)",
+    backgroundColor: "rgba(46, 229, 197, 0.16)",
     borderWidth: 1,
     borderColor: "rgba(68, 234, 195, 0.3)",
-    paddingHorizontal: 13,
-    paddingVertical: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 999,
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
   },
   xpIcon: {
-    width: 9.333,
-    height: 12.25,
+    width: 9,
+    height: 12,
   },
   badgeGreenOutlineText: {
     color: "#3FDEC9",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0,
@@ -241,57 +241,55 @@ const styles = StyleSheet.create({
   },
   workoutSubtext: {
     color: "#B6C0D6",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
-    letterSpacing: 0,
-    marginBottom: 0,
+    letterSpacing: 0.5,
+    marginBottom: 4,
     textTransform: "uppercase",
   },
   workoutTitle: {
     color: "#F4F7FF",
-    fontSize: 30,
-    lineHeight: 36,
+    fontSize: 26,
+    lineHeight: 30,
     fontWeight: "900",
     fontStyle: "italic",
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    letterSpacing: -1.5,
+    letterSpacing: -0.6,
     textTransform: "uppercase",
-    marginBottom: 0,
   },
   durationRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    marginTop: 4,
-    paddingTop: 4,
+    gap: 6,
+    marginTop: 6,
   },
   durationIcon: {
-    width: 11.667,
-    height: 11.667,
+    width: 11,
+    height: 11,
   },
   durationText: {
     color: "#B6C0D6",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0,
   },
   toggleCapsule: {
-    width: 128,
-    height: 42,
-    borderRadius: 16,
+    width: 120,
+    height: 38,
+    borderRadius: 14,
     backgroundColor: "rgba(255, 255, 255, 0.07)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.1)",
     flexDirection: "row",
     alignItems: "center",
-    padding: 5,
+    padding: 3,
   },
   toggleTab: {
     flex: 1,
-    height: 32,
-    borderRadius: 12,
+    height: 30,
+    borderRadius: 11,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -309,30 +307,34 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "800",
   },
-  actionButton: {
+  actionButtonPressable: {
     width: "100%",
-    height: 64,
     borderRadius: 999,
     overflow: "hidden",
+    shadowColor: "#338FE0",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 4,
   },
   buttonGradient: {
-    flex: 1,
+    height: 52,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 12,
-    paddingHorizontal: 20,
+    gap: 8,
+    paddingHorizontal: 16,
   },
   buttonText: {
     color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: 15,
+    fontWeight: "800",
     fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
-    letterSpacing: 3.6,
+    letterSpacing: 1.5,
   },
   startArrow: {
-    width: 16,
-    height: 16,
+    width: 14,
+    height: 14,
   },
   buttonPressed: {
     opacity: 0.88,

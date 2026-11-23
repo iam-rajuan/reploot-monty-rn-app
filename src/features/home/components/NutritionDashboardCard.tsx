@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { HORIZONTAL_PADDING } from "@/shared/utils/responsive";
 
 import { MacrosGrid } from "./MacrosGrid";
 import { NutritionRingCard } from "./NutritionRingCard";
@@ -19,7 +20,7 @@ export const NutritionDashboardCard = () => {
 
   return (
     <View style={styles.cardContainer}>
-      {/* Top-Right Glowing Flare Gradient matching Figma */}
+      {/* Top-Right Glowing Flare Gradient */}
       <LinearGradient
         colors={[
           "rgba(60, 99, 186, 0.28)",
@@ -32,7 +33,7 @@ export const NutritionDashboardCard = () => {
       />
       <View pointerEvents="none" style={styles.bottomAmbientGlow} />
 
-      {/* Header: Glowing Dot + Title on Left, Link on Right (strictly single-line) */}
+      {/* Header: Glowing Dot + Title on Left, Link on Right */}
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
           <View style={styles.cyanHalo}>
@@ -68,12 +69,12 @@ export const NutritionDashboardCard = () => {
 const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: "#101827",
-    borderRadius: 32,
-    marginHorizontal: 20,
-    marginBottom: 24,
-    paddingTop: 21,
-    paddingHorizontal: 17,
-    paddingBottom: 17,
+    borderRadius: 24,
+    marginHorizontal: HORIZONTAL_PADDING,
+    marginBottom: 20,
+    paddingTop: 18,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
     position: "relative",
     borderWidth: 1,
     borderColor: "rgba(105, 130, 255, 0.25)",
@@ -86,9 +87,9 @@ const styles = StyleSheet.create({
   },
   bottomAmbientGlow: {
     position: "absolute",
-    width: 144,
-    height: 144,
-    borderRadius: 72,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
     left: -40,
     bottom: -40,
     backgroundColor: "rgba(41, 101, 130, 0.13)",
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 14,
+    marginBottom: 12,
   },
   headerLeft: {
     flexDirection: "row",
@@ -122,10 +123,10 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: "#F0F4FF",
-    fontSize: 15,
+    fontSize: 16,
     lineHeight: 22,
-    fontWeight: "500",
-    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+    fontWeight: "700",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   headerRight: {
     height: 24,
@@ -147,7 +148,7 @@ const styles = StyleSheet.create({
   },
   headerLinkArrow: {
     color: "#3FDEC9",
-    fontSize: 18,
+    fontSize: 16,
     lineHeight: 15,
     fontWeight: "800",
   },

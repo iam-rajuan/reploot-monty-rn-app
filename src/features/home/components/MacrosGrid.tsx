@@ -3,7 +3,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { MacroBox } from "./MacroBox";
 
-const iconStyle = { width: 20, height: 20 } as const;
+const iconStyle = { width: 18, height: 18 } as const;
 
 export const MacrosGrid = () => {
   return (
@@ -13,7 +13,7 @@ export const MacrosGrid = () => {
         icon={<Image source={require("../../../../assets/figma/nutrition/nutrition-protein.svg")} style={iconStyle} contentFit="contain" />}
         percent="80%"
         label="PROTEIN"
-        labelColor="#8E94B8"
+        labelColor="#A78BFA"
         current="145g"
         currentColor="#A78BFA"
         target="180g"
@@ -30,7 +30,7 @@ export const MacrosGrid = () => {
         label="CARBS"
         labelColor="#FB923C"
         current="210g"
-        currentColor="#FFFFFF"
+        currentColor="#FB923C"
         target="250g"
         color="#FB923C"
         pillBgColor="rgba(148, 163, 184, 0.12)"
@@ -43,9 +43,9 @@ export const MacrosGrid = () => {
         icon={<Image source={require("../../../../assets/figma/nutrition/nutrition-fats.svg")} style={iconStyle} contentFit="contain" />}
         percent="74%"
         label="FATS"
-        labelColor="#8E94B8"
+        labelColor="#F87171"
         current="52g"
-        currentColor="#EF4444"
+        currentColor="#F87171"
         target="70g"
         color="#EF4444"
         pillBgColor="rgba(255, 255, 255, 0.08)"
@@ -58,7 +58,7 @@ export const MacrosGrid = () => {
         icon={<Image source={require("../../../../assets/figma/nutrition/nutrition-hydration.svg")} style={iconStyle} contentFit="contain" />}
         percent="70%"
         label="HYDRATION"
-        labelColor="#8E94B8"
+        labelColor="#38BDF8"
         current="2.1L"
         currentColor="#38BDF8"
         target="3.0L"
@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    gap: 12,
+    rowGap: 10,
+    width: "100%",
   },
 });

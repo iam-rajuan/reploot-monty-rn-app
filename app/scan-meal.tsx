@@ -23,6 +23,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { HORIZONTAL_PADDING, clampFontSize, isSmallDevice } from "@/shared/utils/responsive";
 
 const { width } = Dimensions.get("window");
 const FRAME_SIZE = width * 0.82;
@@ -311,19 +312,17 @@ const styles = StyleSheet.create({
   },
   permissionTitle: {
     color: "#FFFFFF",
-    fontSize: 18,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(18),
     fontWeight: "900",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
     textAlign: "center",
     marginBottom: 10,
   },
   permissionDesc: {
     color: "#94A3B8",
-    fontSize: 13,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(13),
     textAlign: "center",
-    lineHeight: 18,
+    lineHeight: 19,
     marginBottom: 28,
   },
   grantBtn: {
@@ -339,8 +338,7 @@ const styles = StyleSheet.create({
   },
   grantBtnText: {
     color: "#FFFFFF",
-    fontSize: 13,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(13),
     fontWeight: "800",
     letterSpacing: 1,
   },
@@ -357,8 +355,7 @@ const styles = StyleSheet.create({
   },
   demoBypassText: {
     color: "#38BDF8",
-    fontSize: 12,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(12),
     fontWeight: "700",
     letterSpacing: 0.8,
   },
@@ -367,8 +364,7 @@ const styles = StyleSheet.create({
   },
   backPlainBtnText: {
     color: "#64748B",
-    fontSize: 12,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(12),
     fontWeight: "700",
   },
   header: {
@@ -399,9 +395,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: "#FFFFFF",
-    fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(12),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
   },
   placeholderBox: {
@@ -429,9 +424,8 @@ const styles = StyleSheet.create({
   },
   instructionText: {
     color: "#E2E8F0",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.5,
   },
   frameContainer: {
@@ -501,9 +495,8 @@ const styles = StyleSheet.create({
   },
   hudText: {
     color: "rgba(56, 189, 248, 0.7)",
-    fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(9),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   hudBottomTag: {
@@ -513,9 +506,8 @@ const styles = StyleSheet.create({
   },
   hudSubText: {
     color: "rgba(45, 212, 191, 0.7)",
-    fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(9),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   bottomControls: {
     flexDirection: "row",
@@ -540,9 +532,8 @@ const styles = StyleSheet.create({
   },
   controlLabel: {
     color: "#94A3B8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   shutterWrapper: {
@@ -572,9 +563,8 @@ const styles = StyleSheet.create({
   },
   shutterLabel: {
     color: "#38BDF8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
 });

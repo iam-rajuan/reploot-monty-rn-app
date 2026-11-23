@@ -27,6 +27,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { HORIZONTAL_PADDING, clampFontSize, isSmallDevice } from "@/shared/utils/responsive";
 
 export interface UnifiedMeal {
   id: number;
@@ -758,7 +759,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#070A11",
   },
   scrollContent: {
-    paddingHorizontal: 18,
+    paddingHorizontal: HORIZONTAL_PADDING,
     paddingTop: 6,
   },
   titleSection: {
@@ -780,14 +781,13 @@ const styles = StyleSheet.create({
   },
   titleBadgeText: {
     color: "#38BDF8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1.2,
   },
   mainTitle: {
     color: "#FFFFFF",
-    fontSize: 27,
+    fontSize: clampFontSize(26),
     lineHeight: 32,
     fontWeight: "900",
     fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
@@ -795,11 +795,11 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: "#94A3B8",
-    fontSize: 12.5,
+    fontSize: clampFontSize(12.5),
     lineHeight: 18,
     fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "500",
-    marginTop: 5,
+    marginTop: 4,
   },
   tabSwitcher: {
     flexDirection: "row",
@@ -827,8 +827,7 @@ const styles = StyleSheet.create({
   },
   tabBtnText: {
     color: "#64748B",
-    fontSize: 11,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(11),
     fontWeight: "700",
     letterSpacing: 0.8,
   },
@@ -854,9 +853,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: "#CBD5E1",
-    fontSize: 11.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(11.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
     flex: 1,
   },
@@ -870,9 +868,8 @@ const styles = StyleSheet.create({
   },
   sectionCountText: {
     color: "#94A3B8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   mealList: {
     gap: 12,
@@ -890,7 +887,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.07)",
-    padding: 16,
+    padding: isSmallDevice ? 14 : 16,
   },
   mealCardCompleted: {
     borderColor: "rgba(45, 212, 191, 0.32)",
@@ -912,9 +909,8 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   typeText: {
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   timingBadge: {
@@ -924,9 +920,8 @@ const styles = StyleSheet.create({
   },
   timingText: {
     color: "#94A3B8",
-    fontSize: 10.5,
-    fontFamily: "monospace",
-    fontWeight: "600",
+    fontSize: clampFontSize(10.5),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   prepTimeDot: {
     color: "#475569",
@@ -934,9 +929,8 @@ const styles = StyleSheet.create({
   },
   prepTimeText: {
     color: "#94A3B8",
-    fontSize: 10.5,
-    fontFamily: "monospace",
-    fontWeight: "600",
+    fontSize: clampFontSize(10.5),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   completedBtn: {
     flexDirection: "row",
@@ -951,9 +945,8 @@ const styles = StyleSheet.create({
   },
   completedBtnText: {
     color: "#2DD4BF",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.6,
   },
   logBtn: {
@@ -969,20 +962,19 @@ const styles = StyleSheet.create({
   },
   logBtnText: {
     color: "#38BDF8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.6,
   },
   mealName: {
     color: "#F8FAFC",
-    fontSize: 15,
+    fontSize: clampFontSize(15),
     lineHeight: 20,
     fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
     fontWeight: "700",
     letterSpacing: 0.2,
-    marginTop: 12,
-    marginBottom: 14,
+    marginTop: 10,
+    marginBottom: 12,
   },
   mealBottomRow: {
     flexDirection: "row",
@@ -996,40 +988,35 @@ const styles = StyleSheet.create({
   },
   kcalNumber: {
     color: "#38BDF8",
-    fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: clampFontSize(13),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   kcalLabel: {
     color: "#38BDF8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(9.5),
+    fontFamily: "JetBrainsMono_700Bold",
     opacity: 0.85,
   },
   mealMacrosRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 7,
+    gap: 6,
   },
   macroVal: {
     color: "#CBD5E1",
-    fontSize: 11.5,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(11.5),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   macroDotDivider: {
     color: "#64748B",
     fontSize: 11,
     lineHeight: 14,
-    fontFamily: "monospace",
     marginHorizontal: 1,
   },
   macroKey: {
     color: "#94A3B8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(9.5),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   historyList: {
     gap: 12,
@@ -1040,7 +1027,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.07)",
-    padding: 16,
+    padding: isSmallDevice ? 14 : 16,
   },
   historyCardToday: {
     borderColor: "rgba(56, 189, 248, 0.32)",
@@ -1061,9 +1048,8 @@ const styles = StyleSheet.create({
   },
   historyDayTitle: {
     color: "#FFFFFF",
-    fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: clampFontSize(13),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   historyDayTitleToday: {
@@ -1079,16 +1065,14 @@ const styles = StyleSheet.create({
   },
   currentBadgeText: {
     color: "#38BDF8",
-    fontSize: 8.5,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: clampFontSize(8.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.5,
   },
   historyDateSubtitle: {
     color: "#94A3B8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
     marginTop: 2,
   },
   historyRightCol: {
@@ -1102,15 +1086,13 @@ const styles = StyleSheet.create({
   },
   historyCaloriesText: {
     color: "#FFFFFF",
-    fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: clampFontSize(13),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   historyTargetText: {
     color: "#94A3B8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   mealsLoggedPill: {
     flexDirection: "row",
@@ -1129,9 +1111,8 @@ const styles = StyleSheet.create({
   },
   mealsLoggedText: {
     color: "#94A3B8",
-    fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(9),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.4,
   },
   mealsLoggedTextComplete: {
@@ -1156,10 +1137,9 @@ const styles = StyleSheet.create({
   },
   historyProgressPercent: {
     color: "#38BDF8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    width: 32,
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
+    width: 34,
     textAlign: "right",
   },
   historyNutrientsRow: {
@@ -1171,7 +1151,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255, 255, 255, 0.08)",
     borderRadius: 10,
     paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: isSmallDevice ? 10 : 14,
   },
   nutrientCol: {
     flex: 1,
@@ -1179,34 +1159,31 @@ const styles = StyleSheet.create({
   },
   nutrientLabel: {
     color: "#94A3B8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(9.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
     marginBottom: 4,
   },
   nutrientValueRow: {
     flexDirection: "row",
     alignItems: "baseline",
-    gap: 3,
+    gap: 2,
   },
   nutrientValue: {
     color: "#FFFFFF",
-    fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: clampFontSize(12),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   nutrientTarget: {
     color: "#94A3B8",
-    fontSize: 10.5,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   nutrientDivider: {
     width: 1,
     height: 22,
     backgroundColor: "rgba(255, 255, 255, 0.08)",
-    marginHorizontal: 8,
+    marginHorizontal: isSmallDevice ? 4 : 8,
   },
   actionsContainer: {
     gap: 10,
@@ -1225,8 +1202,7 @@ const styles = StyleSheet.create({
   },
   scanBtnText: {
     color: "#FFFFFF",
-    fontSize: 12,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(12),
     fontWeight: "900",
     letterSpacing: 1,
   },
@@ -1247,8 +1223,7 @@ const styles = StyleSheet.create({
   },
   adjustBtnText: {
     color: "#38BDF8",
-    fontSize: 12,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(12),
     fontWeight: "900",
     letterSpacing: 1,
   },
@@ -1272,8 +1247,7 @@ const styles = StyleSheet.create({
   },
   regenerateText: {
     color: "#38BDF8",
-    fontSize: 11.5,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(11.5),
     fontWeight: "900",
     letterSpacing: 1,
   },

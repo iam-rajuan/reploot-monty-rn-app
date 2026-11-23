@@ -30,6 +30,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { HORIZONTAL_PADDING, clampFontSize, isSmallDevice } from "@/shared/utils/responsive";
 
 const { width } = Dimensions.get("window");
 
@@ -550,7 +551,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#090A10",
   },
   scrollContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: HORIZONTAL_PADDING,
     paddingTop: 4,
   },
   titleSection: {
@@ -578,9 +579,8 @@ const styles = StyleSheet.create({
   },
   metaBadgeText: {
     color: "#38BDF8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(9.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
   },
   metaBadgeDivider: {
@@ -589,9 +589,8 @@ const styles = StyleSheet.create({
   },
   metaBadgeSub: {
     color: "#2DD4BF",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(9.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.5,
   },
   maskedTitleWrapper: {
@@ -612,19 +611,19 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 38,
+    fontSize: clampFontSize(28),
+    lineHeight: 34,
     fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
+    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+    letterSpacing: 1,
     textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
-    fontSize: 12.5,
+    fontSize: clampFontSize(12.5),
     lineHeight: 18,
-    fontFamily: "monospace",
-    fontWeight: "600",
+    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
+    fontWeight: "500",
     marginTop: 4,
   },
   imageCard: {
@@ -700,9 +699,8 @@ const styles = StyleSheet.create({
   },
   hudChipText: {
     color: "#38BDF8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(9.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   verifiedBadge: {
@@ -717,9 +715,8 @@ const styles = StyleSheet.create({
   },
   verifiedText: {
     color: "#2DD4BF",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(9.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   imageBottomScrim: {
@@ -750,9 +747,8 @@ const styles = StyleSheet.create({
   },
   dishSubtitle: {
     color: "#38BDF8",
-    fontSize: 10.5,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(10.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   qualityTag: {
@@ -765,17 +761,16 @@ const styles = StyleSheet.create({
   },
   qualityTagText: {
     color: "#2DD4BF",
-    fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(9),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   card: {
     backgroundColor: "#0B0E17",
-    borderRadius: 22,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: "rgba(56, 189, 248, 0.2)",
-    padding: 18,
+    padding: isSmallDevice ? 15 : 18,
     marginBottom: 20,
     shadowColor: "#000000",
     shadowOffset: { width: 0, height: 4 },
@@ -796,9 +791,8 @@ const styles = StyleSheet.create({
   },
   headerBadgeText: {
     color: "#38BDF8",
-    fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(11),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1.2,
   },
   macroTotalPill: {
@@ -811,9 +805,8 @@ const styles = StyleSheet.create({
   },
   macroTotalPillText: {
     color: "#38BDF8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   macroRatioContainer: {
@@ -848,9 +841,8 @@ const styles = StyleSheet.create({
   },
   macroLegendText: {
     color: "#94A3B8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(9.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.5,
   },
   macrosGrid: {
@@ -860,11 +852,11 @@ const styles = StyleSheet.create({
     rowGap: 10,
   },
   macroTile: {
-    width: (width - 40 - 36 - 10) / 2,
+    width: "48.2%",
     backgroundColor: "#111827",
     borderRadius: 16,
     borderWidth: 1.5,
-    padding: 13,
+    padding: isSmallDevice ? 11 : 13,
   },
   macroTileHeader: {
     flexDirection: "row",
@@ -873,31 +865,27 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   macroTileLabel: {
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(9.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
   },
   macroTileValue: {
     color: "#FFFFFF",
-    fontSize: 24,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: clampFontSize(22),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.5,
   },
   macroTileUnit: {
     color: "#64748B",
-    fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(9),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
     marginTop: 1,
   },
   macroTileSub: {
     color: "#64748B",
-    fontSize: 8.5,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(8.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.5,
     marginTop: 4,
   },
@@ -918,9 +906,8 @@ const styles = StyleSheet.create({
   },
   adjustToggleText: {
     color: "#94A3B8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(9.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   adjustToggleTextActive: {
@@ -955,21 +942,19 @@ const styles = StyleSheet.create({
   },
   ingredientName: {
     color: "#FFFFFF",
-    fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(12),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   ingredientKcal: {
     color: "#38BDF8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   ingredientDesc: {
     color: "#64748B",
-    fontSize: 9.5,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(9.5),
+    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "600",
   },
   portionStaticPill: {
@@ -982,9 +967,8 @@ const styles = StyleSheet.create({
   },
   portionStaticText: {
     color: "#38BDF8",
-    fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(11),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   portionStepper: {
     flexDirection: "row",
@@ -1007,9 +991,8 @@ const styles = StyleSheet.create({
   },
   stepperValue: {
     color: "#FFFFFF",
-    fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(11),
+    fontFamily: "JetBrainsMono_700Bold",
     minWidth: 32,
     textAlign: "center",
   },
@@ -1034,9 +1017,8 @@ const styles = StyleSheet.create({
   },
   metricLabel: {
     color: "#38BDF8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(9.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   metricValueRow: {
@@ -1047,15 +1029,14 @@ const styles = StyleSheet.create({
   },
   metricValue: {
     color: "#FFFFFF",
-    fontSize: 22,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(20),
+    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "900",
   },
   metricUnit: {
     color: "#64748B",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   metricPill: {
     alignSelf: "flex-start",
@@ -1068,9 +1049,8 @@ const styles = StyleSheet.create({
   },
   metricPillText: {
     color: "#38BDF8",
-    fontSize: 8.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(8.5),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.5,
   },
   actionsContainer: {
@@ -1094,8 +1074,7 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: "#050811",
-    fontSize: 12.5,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(12.5),
     fontWeight: "900",
     letterSpacing: 1.2,
   },
@@ -1111,8 +1090,7 @@ const styles = StyleSheet.create({
   },
   scanAgainText: {
     color: "#38BDF8",
-    fontSize: 12,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(12),
     fontWeight: "800",
     letterSpacing: 1,
   },

@@ -84,62 +84,74 @@ export const TodaysMissionsCard = () => {
         <Image
           source={missionBackground}
           style={styles.backgroundImage}
-          contentFit="fill"
+          contentFit="cover"
           pointerEvents="none"
         />
         <LinearGradient
           colors={[
-            "rgba(6, 10, 20, 0.58)",
-            "rgba(8, 14, 27, 0.42)",
-            "rgba(6, 10, 20, 0.72)",
+            "rgba(6, 10, 20, 0.65)",
+            "rgba(8, 14, 27, 0.52)",
+            "rgba(6, 10, 20, 0.85)",
           ]}
-          locations={[0.1875, 0.5, 1]}
+          locations={[0, 0.5, 1]}
           style={styles.gradient}
           pointerEvents="none"
         />
-        <Text style={styles.heading}>TODAY'S MISSIONS</Text>
-        <View style={styles.missionCopy} pointerEvents="none">
-          <Text style={styles.missionTitle} numberOfLines={1}>
-            {missionTitle}
+
+        {/* Content Container using robust responsive Flexbox */}
+        <View style={styles.contentWrap}>
+          {/* Top Heading */}
+          <Text style={styles.heading} numberOfLines={1}>
+            TODAY'S MISSIONS
           </Text>
-          <Text style={styles.missionSubtitle} numberOfLines={1}>
-            {missionSubtitle}
-          </Text>
+
+          {/* Middle Copy */}
+          <View style={styles.missionCopy}>
+            <Text style={styles.missionTitle} numberOfLines={1}>
+              {missionTitle}
+            </Text>
+            <Text style={styles.missionSubtitle} numberOfLines={1}>
+              {missionSubtitle}
+            </Text>
+          </View>
+
+          {/* Bottom Actions */}
+          <View style={styles.actions}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Workout Calendar"
+              hitSlop={8}
+              onPress={(event) => {
+                event.stopPropagation();
+                handleCalendarPress();
+              }}
+              style={styles.actionButton}
+            >
+              <Image
+                source={calendarIcon}
+                style={styles.calendarIcon}
+                contentFit="contain"
+              />
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Settings"
+              hitSlop={8}
+              onPress={(event) => {
+                event.stopPropagation();
+                handleSettingsPress();
+              }}
+              style={styles.actionButton}
+            >
+              <Image
+                source={settingsIcon}
+                style={styles.settingsIcon}
+                contentFit="contain"
+              />
+            </Pressable>
+          </View>
         </View>
-        <View style={styles.actions}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Workout Calendar"
-            hitSlop={8}
-            onPress={(event) => {
-              event.stopPropagation();
-              handleCalendarPress();
-            }}
-            style={styles.actionButton}
-          >
-            <Image
-              source={calendarIcon}
-              style={styles.calendarIcon}
-              contentFit="contain"
-            />
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Settings"
-            hitSlop={8}
-            onPress={(event) => {
-              event.stopPropagation();
-              handleSettingsPress();
-            }}
-            style={styles.actionButton}
-          >
-            <Image
-              source={settingsIcon}
-              style={styles.settingsIcon}
-              contentFit="contain"
-            />
-          </Pressable>
-        </View>
+
         <View style={styles.insetHighlight} pointerEvents="none" />
       </View>
     </Pressable>
@@ -148,18 +160,17 @@ export const TodaysMissionsCard = () => {
 
 const styles = StyleSheet.create({
   pressTarget: {
-    height: 240,
-    minHeight: 240,
-    maxHeight: 240,
-    flexShrink: 0,
+    width: "100%",
+    borderRadius: 24,
+    overflow: "hidden",
   },
   pressed: { opacity: 0.96 },
   card: {
-    height: 240,
     width: "100%",
+    minHeight: 210,
+    borderRadius: 24,
     overflow: "hidden",
     position: "relative",
-    borderRadius: 32,
     borderWidth: 1,
     borderColor: "rgba(104, 123, 255, 0.32)",
     backgroundColor: "#0A101D",
@@ -172,51 +183,51 @@ const styles = StyleSheet.create({
   glassBase: {
     position: "absolute",
     top: 0,
+    left: 0,
     right: 0,
     bottom: 0,
-    left: 0,
     backgroundColor: "rgba(129, 151, 255, 0.05)",
   },
   backgroundImage: {
     position: "absolute",
-    top: 1.6,
-    left: "-15.6%",
-    width: "131.43%",
-    aspectRatio: 512 / 286,
-    opacity: 0.35,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.38,
   },
   gradient: {
     position: "absolute",
     top: 0,
+    left: 0,
     right: 0,
     bottom: 0,
-    left: 0,
+  },
+  contentWrap: {
+    padding: 20,
+    minHeight: 210,
+    justifyContent: "space-between",
+    zIndex: 2,
   },
   heading: {
-    position: "absolute",
-    top: 40,
-    left: 24,
-    color: "#F4F7FF",
-    fontSize: 30,
-    lineHeight: 32,
-    fontWeight: "900",
-    fontStyle: "italic",
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    letterSpacing: -0.6,
-  },
-  missionCopy: {
-    position: "absolute",
-    top: 101,
-    left: 30,
-    width: 237,
-  },
-  missionTitle: {
     color: "#F4F7FF",
     fontSize: 24,
     lineHeight: 28,
+    fontWeight: "900",
+    fontStyle: "italic",
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    letterSpacing: -0.4,
+  },
+  missionCopy: {
+    marginVertical: 10,
+  },
+  missionTitle: {
+    color: "#F4F7FF",
+    fontSize: 20,
+    lineHeight: 24,
     fontWeight: "700",
     fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
-    letterSpacing: -0.35,
+    letterSpacing: -0.2,
     marginBottom: 4,
   },
   missionSubtitle: {
@@ -227,40 +238,38 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
   actions: {
-    position: "absolute",
-    top: 187,
-    left: 0,
-    right: 0,
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "center",
-    gap: 6,
+    gap: 12,
+    marginTop: 4,
   },
   actionButton: {
-    width: 39,
-    height: 39,
-    borderRadius: 20,
-    borderWidth: 1.219,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 1.2,
     borderColor: "rgba(63, 222, 201, 0.5)",
     backgroundColor: "rgba(6, 35, 49, 0.72)",
     alignItems: "center",
     justifyContent: "center",
   },
   calendarIcon: {
-    width: 13.5,
+    width: 14,
     height: 15,
   },
   settingsIcon: {
-    width: 18,
-    height: 18,
+    width: 17,
+    height: 17,
   },
   insetHighlight: {
     position: "absolute",
-    top: 1,
-    right: 1,
-    bottom: 1,
-    left: 1,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     borderWidth: 1,
     borderColor: "rgba(188, 199, 255, 0.09)",
-    borderRadius: 31,
+    borderRadius: 24,
   },
 });

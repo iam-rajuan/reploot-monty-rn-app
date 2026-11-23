@@ -44,7 +44,6 @@ export const WorkoutModalitiesSection: React.FC<
           title="GYM WORKOUT"
           subtitle="Full equipment access"
           image={gymWorkoutAsset}
-          arrowBottom={96}
           onPress={handleSelectGym}
           testID="gym-workout-card"
         />
@@ -53,7 +52,6 @@ export const WorkoutModalitiesSection: React.FC<
           title="HOME WORKOUT"
           subtitle="Bodyweight & dumbbells"
           image={homeWorkoutAsset}
-          arrowBottom={105}
           onPress={handleSelectHome}
           testID="home-workout-card"
         />
@@ -65,13 +63,9 @@ export const WorkoutModalitiesSection: React.FC<
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    height: 752,
-    flexShrink: 0,
   },
   cardsColumn: {
     width: "100%",
-    height: 752,
-    flexShrink: 0,
-    gap: 16,
+    gap: 14,
   },
 });

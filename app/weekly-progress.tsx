@@ -34,6 +34,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
+import { HORIZONTAL_PADDING, clampFontSize, isSmallDevice } from "@/shared/utils/responsive";
 
 const { width } = Dimensions.get("window");
 
@@ -724,8 +725,8 @@ export default function WeeklyProgressScreen() {
               <View style={styles.headerIconContainer}>
                 <Dumbbell size={14} color="#38BDF8" />
               </View>
-              <Text style={styles.cardTitle}>
-                WEEKLY TONNAGE & MUSCLE SPLIT
+              <Text style={styles.cardTitle} numberOfLines={1}>
+                TONNAGE & MUSCLE SPLIT
               </Text>
             </View>
             <Text style={styles.tonnageHighlight}>+12% LOAD</Text>
@@ -936,7 +937,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#070A11",
   },
   scrollContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: HORIZONTAL_PADDING,
     paddingTop: 4,
   },
   titleSection: {
@@ -961,19 +962,19 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 38,
+    fontSize: clampFontSize(28),
+    lineHeight: 34,
     fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
+    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+    letterSpacing: 1,
     textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
-    fontSize: 12,
+    fontSize: clampFontSize(12),
     lineHeight: 18,
-    fontFamily: "monospace",
-    fontWeight: "600",
+    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
+    fontWeight: "500",
     marginTop: 4,
   },
   tabContainer: {
@@ -997,10 +998,9 @@ const styles = StyleSheet.create({
   },
   tabText: {
     color: "#94A3B8",
-    fontSize: 11,
+    fontSize: clampFontSize(11),
     fontWeight: "800",
-    fontFamily: "monospace",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
   tabTextActive: {
     color: "#FFFFFF",
@@ -1013,15 +1013,14 @@ const styles = StyleSheet.create({
   },
   dateBadgeText: {
     color: "#38EDD8",
-    fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(11),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1.2,
   },
   card: {
     backgroundColor: "#11141C",
-    borderRadius: 22,
-    padding: 20,
+    borderRadius: 20,
+    padding: isSmallDevice ? 16 : 20,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
     marginBottom: 16,
@@ -1052,7 +1051,7 @@ const styles = StyleSheet.create({
   },
   streakNumber: {
     color: "#38EDD8",
-    fontSize: 30,
+    fontSize: clampFontSize(28),
     fontWeight: "900",
     lineHeight: 32,
     letterSpacing: -0.5,
@@ -1064,10 +1063,10 @@ const styles = StyleSheet.create({
   },
   streakLabel: {
     color: "#94A3B8",
-    fontSize: 9,
+    fontSize: clampFontSize(9),
     fontWeight: "800",
     letterSpacing: 1.2,
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
   },
   xpRow: {
     flexDirection: "row",
@@ -1076,10 +1075,10 @@ const styles = StyleSheet.create({
   },
   xpText: {
     color: "#CBD5E1",
-    fontSize: 10,
+    fontSize: clampFontSize(10),
     fontWeight: "700",
     letterSpacing: 1,
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
   },
   progressBarTrack: {
     height: 8,
@@ -1099,23 +1098,23 @@ const styles = StyleSheet.create({
   },
   xpTargetText: {
     color: "#38EDD8",
-    fontSize: 11,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(11),
+    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
     letterSpacing: 0.5,
   },
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    justifyContent: "space-between",
+    rowGap: 10,
     marginBottom: 16,
   },
   statBox: {
-    flex: 1,
-    minWidth: (width - 50) / 2,
+    width: "48.2%",
     backgroundColor: "#11141C",
     borderRadius: 18,
-    padding: 16,
+    padding: isSmallDevice ? 14 : 16,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
   },
@@ -1129,24 +1128,23 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     color: "#94A3B8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1.2,
     marginBottom: 4,
   },
   statValue: {
     color: "#FFFFFF",
-    fontSize: 22,
+    fontSize: clampFontSize(22),
     fontWeight: "900",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: -0.5,
     marginBottom: 2,
   },
   statSub: {
     color: "#64748B",
-    fontSize: 10,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "600",
   },
   cardHeader: {
@@ -1159,6 +1157,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    flex: 1,
+    marginRight: 8,
   },
   headerIconContainer: {
     width: 26,
@@ -1170,9 +1170,9 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: "#FFFFFF",
-    fontSize: 12,
+    fontSize: clampFontSize(12),
     fontWeight: "800",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
   },
   chartLegend: {
@@ -1188,9 +1188,8 @@ const styles = StyleSheet.create({
   },
   legendText: {
     color: "#94A3B8",
-    fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    fontSize: clampFontSize(9),
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   chartContainer: {
@@ -1210,9 +1209,9 @@ const styles = StyleSheet.create({
   },
   barMinutesText: {
     color: "#94A3B8",
-    fontSize: 9,
+    fontSize: clampFontSize(9),
     fontWeight: "700",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
   },
   barBackground: {
     width: 32,
@@ -1248,9 +1247,9 @@ const styles = StyleSheet.create({
   },
   dayLabel: {
     color: "#94A3B8",
-    fontSize: 11,
+    fontSize: clampFontSize(11),
     fontWeight: "800",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
   },
   dayLabelActive: {
     color: "#FFFFFF",
@@ -1270,18 +1269,18 @@ const styles = StyleSheet.create({
   },
   selectedDayTitle: {
     color: "#38EDD8",
-    fontSize: 10,
+    fontSize: clampFontSize(10),
     fontWeight: "800",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
     marginBottom: 2,
   },
   selectedDayWorkout: {
     color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    fontFamily: "monospace",
-    maxWidth: width - 150,
+    fontSize: clampFontSize(13),
+    fontWeight: "700",
+    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+    maxWidth: "70%",
   },
   scoreBadge: {
     backgroundColor: "rgba(56, 237, 216, 0.15)",
@@ -1293,9 +1292,9 @@ const styles = StyleSheet.create({
   },
   scoreBadgeText: {
     color: "#38EDD8",
-    fontSize: 10,
+    fontSize: clampFontSize(10),
     fontWeight: "800",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
   },
   restBadge: {
     backgroundColor: "rgba(148, 163, 184, 0.15)",
@@ -1307,9 +1306,9 @@ const styles = StyleSheet.create({
   },
   restBadgeText: {
     color: "#94A3B8",
-    fontSize: 10,
+    fontSize: clampFontSize(10),
     fontWeight: "800",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
   },
   selectedDayStatsRow: {
     flexDirection: "row",
@@ -1325,15 +1324,15 @@ const styles = StyleSheet.create({
   },
   selectedDayStatText: {
     color: "#CBD5E1",
-    fontSize: 10,
+    fontSize: clampFontSize(10),
     fontWeight: "700",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
   },
   tonnageHighlight: {
     color: "#38EDD8",
-    fontSize: 11,
+    fontSize: clampFontSize(11),
     fontWeight: "800",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
   },
   tonnageSummaryRow: {
@@ -1344,22 +1343,22 @@ const styles = StyleSheet.create({
   },
   tonnageLabel: {
     color: "#94A3B8",
-    fontSize: 10,
+    fontSize: clampFontSize(10),
     fontWeight: "700",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
     marginBottom: 4,
   },
   tonnageValue: {
     color: "#FFFFFF",
-    fontSize: 28,
+    fontSize: clampFontSize(26),
     fontWeight: "900",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: -0.5,
   },
   tonnageUnit: {
     color: "#38EDD8",
-    fontSize: 14,
+    fontSize: clampFontSize(14),
     fontWeight: "800",
   },
   tonnageBadge: {
@@ -1374,9 +1373,9 @@ const styles = StyleSheet.create({
   },
   tonnageBadgeText: {
     color: "#2DD4BF",
-    fontSize: 10,
+    fontSize: clampFontSize(10),
     fontWeight: "800",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.5,
   },
   muscleList: {
@@ -1390,15 +1389,15 @@ const styles = StyleSheet.create({
   },
   muscleName: {
     color: "#CBD5E1",
-    fontSize: 11,
+    fontSize: clampFontSize(11),
     fontWeight: "700",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
   },
   musclePercent: {
     color: "#94A3B8",
-    fontSize: 10,
+    fontSize: clampFontSize(10),
     fontWeight: "800",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
   },
   muscleTrack: {
     height: 7,
@@ -1420,9 +1419,9 @@ const styles = StyleSheet.create({
   },
   aiPillText: {
     color: "#38BDF8",
-    fontSize: 9,
+    fontSize: clampFontSize(9),
     fontWeight: "800",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   insightsList: {
@@ -1442,9 +1441,9 @@ const styles = StyleSheet.create({
   },
   insightText: {
     color: "#CBD5E1",
-    fontSize: 12,
+    fontSize: clampFontSize(12),
     lineHeight: 18,
-    fontFamily: "monospace",
+    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "500",
     flex: 1,
   },
@@ -1454,9 +1453,8 @@ const styles = StyleSheet.create({
   },
   badgesCount: {
     color: "#94A3B8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
   },
   badgesRow: {
     flexDirection: "row",
@@ -1482,16 +1480,15 @@ const styles = StyleSheet.create({
   },
   badgeTitle: {
     color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontSize: clampFontSize(10),
+    fontFamily: "JetBrainsMono_700Bold",
     textAlign: "center",
     marginBottom: 2,
   },
   badgeSub: {
     color: "#64748B",
-    fontSize: 9,
-    fontFamily: "monospace",
+    fontSize: clampFontSize(9),
+    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "600",
   },
   bottomButtonsRow: {
@@ -1512,9 +1509,8 @@ const styles = StyleSheet.create({
   },
   shareBtnText: {
     color: "#38EDD8",
-    fontSize: 12,
+    fontSize: clampFontSize(12),
     fontWeight: "800",
-    fontFamily: "monospace",
     letterSpacing: 1,
   },
   workoutBtn: {
@@ -1531,9 +1527,8 @@ const styles = StyleSheet.create({
   },
   workoutBtnText: {
     color: "#090A10",
-    fontSize: 12,
+    fontSize: clampFontSize(12),
     fontWeight: "900",
-    fontFamily: "monospace",
     letterSpacing: 1,
   },
 });

@@ -11,10 +11,11 @@ import {
   View,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
+import { HORIZONTAL_PADDING } from "@/shared/utils/responsive";
 
-// Crisp hollow neon cyan lightning bolt matching Figma outline design exactly
+// Crisp hollow neon cyan lightning bolt matching Figma outline design
 const StreakLightningIcon = () => (
-  <Svg width={18} height={24} viewBox="0 0 24 30" fill="none">
+  <Svg width={16} height={20} viewBox="0 0 24 30" fill="none">
     <Path
       d="M13.5 2H16.5L15 12.5H23L8.5 28H6.5L8 18H1.5L13.5 2Z"
       stroke="#2EE5C5"
@@ -27,20 +28,20 @@ const StreakLightningIcon = () => (
 
 export const WeeklyProgressCard = () => {
   const WEEK_DAYS = [
-    { label: "M", height: 32, type: "blue" },
-    { label: "T", height: 48, type: "blue" },
-    { label: "W", height: 68, type: "purple" },
-    { label: "T", height: 80, type: "active" },
-    { label: "F", height: 24, type: "blue" },
-    { label: "S", height: 44, type: "blue" },
+    { label: "M", height: 28, type: "blue" },
+    { label: "T", height: 44, type: "blue" },
+    { label: "W", height: 60, type: "purple" },
+    { label: "T", height: 72, type: "active" },
+    { label: "F", height: 22, type: "blue" },
+    { label: "S", height: 40, type: "blue" },
     { label: "S", height: 16, type: "blue" },
   ];
 
   return (
     <View style={styles.cardContainer}>
-      {/* Header Row: LVL 42 Box + ELITE TIER + 12 DAY STREAK */}
+      {/* Header Row: LVL 42 Badge + ELITE TIER + 12 DAY STREAK */}
       <View style={styles.headerRow}>
-        {/* LVL 42 Gradient Badge: Left-aligned bold text matching Figma */}
+        {/* LVL 42 Gradient Badge: Proportional, responsive cyber badge */}
         <LinearGradient
           colors={["#5865F2", "#397DF6"]}
           start={{ x: 0, y: 0 }}
@@ -138,65 +139,71 @@ export const WeeklyProgressCard = () => {
 const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: "rgba(18, 25, 43, 0.88)",
-    borderRadius: 32,
-    padding: 33,
-    marginHorizontal: 24,
+    borderRadius: 24,
+    padding: 18,
+    marginHorizontal: HORIZONTAL_PADDING,
     borderWidth: 1,
     borderColor: "rgba(159, 174, 255, 0.13)",
-    marginBottom: 30,
+    marginBottom: 20,
     overflow: "hidden",
   },
   headerRow: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 24,
+    marginBottom: 16,
   },
   levelBox: {
-    width: 133,
-    minHeight: 96,
-    borderRadius: 16,
-    alignItems: "flex-start",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    alignItems: "center",
     justifyContent: "center",
-    padding: 12,
+    minWidth: 80,
+    shadowColor: "#397DF6",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 3,
   },
   levelLabel: {
-    color: "#FFFFFF",
-    fontSize: 48,
-    lineHeight: 40,
-    fontWeight: "900",
-    letterSpacing: 0,
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    textAlign: "left",
+    color: "rgba(255, 255, 255, 0.85)",
+    fontSize: 12,
+    lineHeight: 14,
+    fontWeight: "800",
+    letterSpacing: 1.2,
+    fontFamily: "JetBrainsMono_700Bold",
+    textAlign: "center",
   },
   levelNumber: {
     color: "#FFFFFF",
-    fontSize: 48,
-    lineHeight: 44,
+    fontSize: 26,
+    lineHeight: 28,
     fontWeight: "900",
     letterSpacing: 0,
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    textAlign: "left",
+    textAlign: "center",
   },
   headerRight: {
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
+    flexShrink: 1,
   },
   tierCol: {
     justifyContent: "center",
-    paddingRight: 12,
+    alignItems: "flex-start",
   },
   tierText: {
     color: "#AAB5CB",
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 11,
+    lineHeight: 15,
     fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
-    letterSpacing: 1.2,
+    letterSpacing: 1,
   },
   streakCol: {
-    alignItems: "flex-start",
+    alignItems: "flex-end",
   },
   streakTopRow: {
     flexDirection: "row",
@@ -205,66 +212,68 @@ const styles = StyleSheet.create({
   },
   streakNumber: {
     color: "#3FDEC9",
-    fontSize: 36,
+    fontSize: 28,
     fontWeight: "900",
-    lineHeight: 40,
+    lineHeight: 30,
     letterSpacing: 0,
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
   },
   streakLabel: {
     color: "#AAB5CB",
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 10,
+    lineHeight: 14,
     fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
-    letterSpacing: 0,
-    marginTop: 0,
+    letterSpacing: 0.5,
+    marginTop: 1,
   },
   xpRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 8,
-    marginBottom: 12,
+    marginTop: 12,
+    marginBottom: 8,
   },
   xpText: {
     color: "#C8C4D8",
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 11,
+    lineHeight: 16,
     fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
     letterSpacing: 0,
   },
   progressBarTrack: {
-    height: 12,
+    height: 8,
     backgroundColor: "rgba(255, 255, 255, 0.07)",
     borderRadius: 999,
     overflow: "hidden",
-    marginBottom: 24,
+    marginBottom: 18,
   },
   progressBarFill: {
-    height: 12,
+    height: 8,
     borderRadius: 999,
   },
   chartContainer: {
-    height: 116,
+    height: 96,
     justifyContent: "flex-end",
-    marginBottom: 16,
+    marginBottom: 14,
   },
   chartBars: {
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
   },
   barWrap: {
-    width: 32.7,
+    flex: 1,
+    maxWidth: 36,
     alignItems: "center",
-    gap: 8,
+    gap: 6,
   },
   bar: {
-    width: 32.7,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+    width: "100%",
+    maxWidth: 28,
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
   },
   barBlue: {
     backgroundColor: "#74A9E8",
@@ -281,11 +290,11 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   dayLabel: {
-    width: 32.7,
+    width: "100%",
     textAlign: "center",
     color: "#AAB5CB",
-    fontSize: 8,
-    lineHeight: 12,
+    fontSize: 9,
+    lineHeight: 13,
     fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
   },
@@ -297,15 +306,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 4,
+    gap: 6,
     alignSelf: "center",
+    paddingVertical: 4,
   },
   viewProgressLink: {
     color: "#3FDEC9",
     fontSize: 12,
-    lineHeight: 18,
+    lineHeight: 16,
     fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
-    letterSpacing: 0,
+    letterSpacing: 0.2,
   },
 });

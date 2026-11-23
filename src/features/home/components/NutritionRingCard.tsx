@@ -21,10 +21,10 @@ export const NutritionRingCard = () => {
         <View style={styles.ringCenterText}>
           <Text style={styles.ringSubtext}>CONSUMED</Text>
           <View style={styles.ringValueRow}>
-            <Text style={styles.ringValue}>1.8</Text>
-            <Text style={styles.ringUnit}>kcal</Text>
+            <Text style={styles.ringValue}>1,800</Text>
+            <Text style={styles.ringUnit}>KCAL</Text>
           </View>
-          <Text style={styles.ringTarget}>TARGET 2.4k</Text>
+          <Text style={styles.ringTarget}>TARGET 2,400 KCAL</Text>
         </View>
       </View>
 
@@ -42,10 +42,11 @@ export const NutritionRingCard = () => {
 const styles = StyleSheet.create({
   ringCard: {
     backgroundColor: "rgba(18, 27, 44, 0.8)",
-    borderRadius: 24,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: "rgba(152, 173, 255, 0.12)",
-    padding: 21,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
     alignItems: "center",
     marginBottom: 12,
     position: "relative",
@@ -56,16 +57,16 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   ringContainer: {
-    width: 160,
-    height: 160,
+    width: 150,
+    height: 150,
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
   },
   ringAsset: {
     position: "absolute",
-    width: 160,
-    height: 160,
+    width: 150,
+    height: 150,
   },
   ringCenterText: {
     position: "absolute",
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
   },
   ringSubtext: {
     color: "#2EE5C5",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "700",
     letterSpacing: 1,
     fontFamily: "JetBrainsMono_700Bold",
@@ -91,26 +92,26 @@ const styles = StyleSheet.create({
   },
   ringValue: {
     color: "#FFFFFF",
-    fontSize: 20,
-    lineHeight: 24,
-    fontWeight: "800",
+    fontSize: 22,
+    lineHeight: 26,
+    fontWeight: "900",
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
   },
   ringUnit: {
-    fontSize: 22,
-    lineHeight: 24,
-    fontWeight: "900",
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: "800",
     color: "#2EE5C5",
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    fontFamily: "JetBrainsMono_700Bold",
     marginLeft: 4,
   },
   ringTarget: {
-    color: "#C8C4D8",
-    fontSize: 9,
+    color: "#AAB5CB",
+    fontSize: 9.5,
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
-    marginTop: 1,
-    letterSpacing: 0.45,
+    marginTop: 2,
+    letterSpacing: 0.5,
   },
   dailyGoalPill: {
     flexDirection: "row",
@@ -118,17 +119,17 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(36, 87, 137, 0.78)",
     borderWidth: 1,
     borderColor: "rgba(91, 146, 239, 0.32)",
-    paddingHorizontal: 15,
-    paddingVertical: 7,
+    paddingHorizontal: 13,
+    paddingVertical: 5,
     borderRadius: 999,
-    gap: 8,
-    marginTop: 14,
+    gap: 7,
+    marginTop: 12,
   },
   dailyGoalHalo: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#FFFFFF",
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: "#2EE5C5",
     shadowColor: "#44EAC3",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
   },
   dailyGoalText: {
     color: "#FFFFFF",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "800",
     letterSpacing: 0.5,
     fontFamily: "JetBrainsMono_700Bold",

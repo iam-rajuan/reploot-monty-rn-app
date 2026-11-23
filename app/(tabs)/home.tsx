@@ -6,6 +6,7 @@ import { NutritionDashboardCard } from "@/features/home/components/NutritionDash
 import { WeeklyProgressCard } from "@/features/home/components/WeeklyProgressCard";
 import { WorkoutHeader } from "@/features/workouts";
 import { useAppSelector } from "@/store/hooks";
+import { HORIZONTAL_PADDING } from "@/shared/utils/responsive";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -93,10 +94,12 @@ export default function HomeTabRoute() {
       <Pressable
         style={styles.fabContainer}
         onPress={() => router.push("/coach")}
+        accessibilityRole="button"
+        accessibilityLabel="AI Coach"
       >
         <Image
           source={require("../../assets/coachOnline/floatingButton.png")}
-          style={{ width: 100, height: 100 }}
+          style={{ width: 56, height: 56 }}
           resizeMode="contain"
         />
       </Pressable>
@@ -113,18 +116,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContainer: {
-    paddingBottom: 110,
+    paddingBottom: 120,
   },
   sectionSpacing: {
-    marginHorizontal: 24,
-    marginBottom: 24,
-    height: 752,
-    flexShrink: 0,
+    marginHorizontal: HORIZONTAL_PADDING,
+    marginBottom: 20,
   },
   fabContainer: {
     position: "absolute",
-    bottom: 100,
-    right: 20,
+    bottom: 90,
+    right: 18,
     zIndex: 50,
+    shadowColor: "#2DD4BF",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8,
   },
 });
