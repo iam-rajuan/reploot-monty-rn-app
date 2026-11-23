@@ -1,5 +1,4 @@
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
-import { useNutritionPlanStore } from "@/stores/nutritionPlanStore";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -173,16 +172,9 @@ const WEEK_HISTORY_DATA: DayHistory[] = [
 
 export default function UnifiedMealPlanScreen() {
   const insets = useSafeAreaInsets();
-  const activateGeneratedPlan = useNutritionPlanStore(
-    (state) => state.activateGeneratedPlan,
-  );
-  const hasGeneratedPlan = useNutritionPlanStore(
-    (state) => state.hasGeneratedPlan,
-  );
 
   const [viewMode, setViewMode] = useState<"today" | "week">("today");
   const [isRegenerating, setIsRegenerating] = useState(false);
-  const [planApplied, setPlanApplied] = useState(hasGeneratedPlan);
 
   const [meals, setMeals] = useState<UnifiedMeal[]>([
     {
@@ -263,12 +255,6 @@ export default function UnifiedMealPlanScreen() {
         return m;
       }),
     );
-  };
-
-  const handleApplyPlan = () => {
-    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-    activateGeneratedPlan();
-    setPlanApplied(true);
   };
 
   const handleRegenerate = () => {
@@ -467,18 +453,6 @@ export default function UnifiedMealPlanScreen() {
                 );
               })}
             </View>
-
-            {/* Nutrient Timing Insight */}
-            <View style={styles.insightBox}>
-              <Calendar color="#38BDF8" size={15} style={{ marginTop: 2 }} />
-              <View style={styles.insightContent}>
-                <Text style={styles.insightTitle}>NUTRIENT TIMING</Text>
-                <Text style={styles.insightText}>
-                  Carbs are concentrated post-workout to support glycogen
-                  recovery and sustained energy.
-                </Text>
-              </View>
-            </View>
           </>
         ) : (
           <>
@@ -625,26 +599,6 @@ export default function UnifiedMealPlanScreen() {
               <Camera size={16} color="#FFFFFF" style={{ marginRight: 8 }} />
               <Text style={styles.scanBtnText}>SCAN MEAL TO LOG</Text>
             </LinearGradient>
-          </Pressable>
-
-          <Pressable
-            style={styles.applyBtn}
-            onPress={handleApplyPlan}
-            accessibilityRole="button"
-            accessibilityLabel="Apply plan to schedule"
-          >
-            <View style={styles.applyBtnContent}>
-              {planApplied ? (
-                <>
-                  <Check size={15} color="#2DD4BF" style={{ marginRight: 6 }} />
-                  <Text style={styles.applyBtnAppliedText}>
-                    PLAN ACTIVE IN DASHBOARD
-                  </Text>
-                </>
-              ) : (
-                <Text style={styles.applyBtnText}>APPLY TO DAILY SCHEDULE</Text>
-              )}
-            </View>
           </Pressable>
 
           <Pressable
@@ -1039,34 +993,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: 0.5,
   },
-  insightBox: {
-    backgroundColor: "rgba(56, 189, 248, 0.05)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.18)",
-    borderRadius: 14,
-    padding: 14,
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 20,
-    alignItems: "flex-start",
-  },
-  insightContent: {
-    flex: 1,
-  },
-  insightTitle: {
-    color: "#38BDF8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 1,
-    marginBottom: 3,
-  },
-  insightText: {
-    color: "#94A3B8",
-    fontSize: 11.5,
-    fontFamily: "monospace",
-    lineHeight: 16,
-  },
   actionsContainer: {
     gap: 10,
   },
@@ -1085,34 +1011,6 @@ const styles = StyleSheet.create({
   scanBtnText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1,
-  },
-  applyBtn: {
-    height: 46,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    backgroundColor: "#101624",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  applyBtnContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  applyBtnText: {
-    color: "#E2E8F0",
-    fontSize: 11.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 1,
-  },
-  applyBtnAppliedText: {
-    color: "#2DD4BF",
-    fontSize: 11.5,
     fontFamily: "monospace",
     fontWeight: "900",
     letterSpacing: 1,
