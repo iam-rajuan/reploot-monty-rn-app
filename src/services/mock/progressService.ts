@@ -3,7 +3,6 @@ import {
   mockRankingContexts,
   mockPersonalRecords,
   mockProgressReport,
-  mockXPProgress,
 } from "@/mocks/progress.mock";
 import {
   Achievement,
@@ -11,17 +10,12 @@ import {
   ProgressReport,
   RankingContext,
   RankingContextId,
-  XPProgress,
 } from "@/shared/types/progress";
 
 const simulateDelay = <T>(data: T, delayMs = 80): Promise<T> =>
   new Promise((resolve) => setTimeout(() => resolve(data), delayMs));
 
 export const progressService = {
-  getXPProgress: async (): Promise<XPProgress> => {
-    return simulateDelay(mockXPProgress);
-  },
-
   getAchievements: async (): Promise<Achievement[]> => {
     return simulateDelay(mockAchievements);
   },

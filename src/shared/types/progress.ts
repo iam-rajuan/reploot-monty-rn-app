@@ -2,28 +2,6 @@
  * REPLOOT Progress, Gamification & Analytics Domain Models
  */
 
-export type TierLevel = "Bronze" | "Silver" | "Gold" | "Elite" | "Master";
-
-export interface TierConfig {
-  name: TierLevel;
-  minXP: number;
-  badgeColor: string;
-  glowColor: string;
-}
-
-export interface XPProgress {
-  currentLevel: number;
-  currentXP: number;
-  nextLevelXP: number;
-  tier: TierLevel;
-  dayStreak: number;
-  totalWorkoutsCompleted: number;
-  seasonXP: number;
-  globalRank: number;
-  xpToNextTier: number;
-  tierProgressPercent: number;
-}
-
 export interface WeightEntry {
   id: string;
   weightKg: number;

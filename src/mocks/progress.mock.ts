@@ -5,21 +5,7 @@ import {
   ProgressReport,
   RankingContext,
   RankingContextId,
-  XPProgress,
 } from "@/shared/types/progress";
-
-export const mockXPProgress: XPProgress = {
-  currentLevel: 42,
-  currentXP: 2450,
-  nextLevelXP: 3000,
-  tier: "Elite",
-  dayStreak: 12,
-  totalWorkoutsCompleted: 68,
-  seasonXP: 14250,
-  globalRank: 42,
-  xpToNextTier: 550,
-  tierProgressPercent: 81.6,
-};
 
 export const mockPersonalRecords: PersonalRecord[] = [
   {
