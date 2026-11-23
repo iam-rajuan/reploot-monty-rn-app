@@ -412,10 +412,12 @@ export default function NutritionTabRoute() {
                 accessibilityRole="button"
                 accessibilityLabel="Add 250 millilitres"
               >
-                <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
-                <Text style={styles.quickAddText} numberOfLines={1}>
-                  250 ML
-                </Text>
+                <View style={styles.quickAddContent}>
+                  <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
+                  <Text style={styles.quickAddText} numberOfLines={1}>
+                    250 ML
+                  </Text>
+                </View>
               </Pressable>
             </View>
 
@@ -430,10 +432,12 @@ export default function NutritionTabRoute() {
                 accessibilityRole="button"
                 accessibilityLabel="Add 500 millilitres"
               >
-                <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
-                <Text style={styles.quickAddText} numberOfLines={1}>
-                  500 ML
-                </Text>
+                <View style={styles.quickAddContent}>
+                  <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
+                  <Text style={styles.quickAddText} numberOfLines={1}>
+                    500 ML
+                  </Text>
+                </View>
               </Pressable>
             </View>
 
@@ -448,10 +452,12 @@ export default function NutritionTabRoute() {
                 accessibilityRole="button"
                 accessibilityLabel="Add 750 millilitres"
               >
-                <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
-                <Text style={styles.quickAddText} numberOfLines={1}>
-                  750 ML
-                </Text>
+                <View style={styles.quickAddContent}>
+                  <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
+                  <Text style={styles.quickAddText} numberOfLines={1}>
+                    750 ML
+                  </Text>
+                </View>
               </Pressable>
             </View>
           </View>
@@ -577,15 +583,17 @@ export default function NutritionTabRoute() {
                       accessibilityRole="button"
                       accessibilityLabel={`${preset} liters preset`}
                     >
-                      <Text
-                        style={[
-                          styles.modalPresetText,
-                          isSelected && styles.modalPresetTextActive,
-                        ]}
-                        numberOfLines={1}
-                      >
-                        {preset.toFixed(1)}L
-                      </Text>
+                      <View style={styles.modalPresetContent}>
+                        <Text
+                          style={[
+                            styles.modalPresetText,
+                            isSelected && styles.modalPresetTextActive,
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {preset.toFixed(1)}L
+                        </Text>
+                      </View>
                     </Pressable>
                   </View>
                 );
@@ -1093,11 +1101,16 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
   },
   modalPresetBtnPressed: {
     opacity: 0.8,
+  },
+  modalPresetContent: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   modalPresetText: {
     color: "#E0F2FE",
@@ -1218,19 +1231,22 @@ const styles = StyleSheet.create({
   },
   quickAddBtnWrapper: {
     flex: 1,
-    height: 48,
-    backgroundColor: "#131F35",
+    height: 44,
+    backgroundColor: "#101A2C",
     borderWidth: 1.5,
-    borderColor: "rgba(56, 189, 248, 0.45)",
-    borderRadius: 14,
+    borderColor: "rgba(56, 189, 248, 0.4)",
+    borderRadius: 12,
     overflow: "hidden",
-    shadowColor: "#0284C7",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 3,
   },
   quickAddBtn: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+  quickAddBtnPressed: {
+    backgroundColor: "rgba(56, 189, 248, 0.2)",
+  },
+  quickAddContent: {
     flex: 1,
     width: "100%",
     height: "100%",
@@ -1240,15 +1256,13 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 4,
   },
-  quickAddBtnPressed: {
-    backgroundColor: "rgba(56, 189, 248, 0.25)",
-  },
   quickAddText: {
     color: "#FFFFFF",
-    fontSize: 12,
+    fontSize: 12.5,
     fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 0.6,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+    includeFontPadding: false,
   },
   customWaterRow: {
     backgroundColor: "#131C2E",
