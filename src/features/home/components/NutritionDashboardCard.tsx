@@ -33,8 +33,8 @@ export const NutritionDashboardCard = () => {
       {/* Top-Right Glowing Flare Gradient matching Figma */}
       <LinearGradient
         colors={[
-          "rgba(32, 68, 117, 0.82)",
-          "rgba(32, 68, 117, 0.2)",
+          "rgba(60, 99, 186, 0.28)",
+          "rgba(60, 99, 186, 0.06)",
           "transparent",
         ]}
         style={StyleSheet.absoluteFill}
@@ -79,7 +79,7 @@ export const NutritionDashboardCard = () => {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: "#14141C",
+    backgroundColor: "#101827",
     borderRadius: 32,
     marginHorizontal: 20,
     marginBottom: 24,
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     paddingBottom: 17,
     position: "relative",
     borderWidth: 1,
-    borderColor: "#225291",
+    borderColor: "rgba(105, 130, 255, 0.25)",
     overflow: "hidden",
     shadowColor: "#000000",
     shadowOffset: { width: 0, height: 4 },
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     borderRadius: 72,
     left: -40,
     bottom: -40,
-    backgroundColor: "rgba(25, 37, 53, 0.72)",
+    backgroundColor: "rgba(41, 101, 130, 0.13)",
   },
   headerRow: {
     flexDirection: "row",
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#2EE5C5",
   },
   headerTitle: {
-    color: "#E3E1E9",
+    color: "#F0F4FF",
     fontSize: 15,
     lineHeight: 22,
     fontWeight: "500",
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
   headerLink: {
-    color: "#44EAC3",
+    color: "#3FDEC9",
     fontSize: 11,
     fontWeight: "700",
     letterSpacing: 0.2,

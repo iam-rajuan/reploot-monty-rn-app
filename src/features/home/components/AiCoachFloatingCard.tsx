@@ -20,8 +20,8 @@ export const AiCoachFloatingCard = () => {
     <View style={styles.cardContainer}>
       {/* Background Gradient matching Figma: Deep Midnight Teal to Vibrant Electric Blue */}
       <LinearGradient
-        colors={["#091728", "#102F5A", "#194C96", "#2168DE"]}
-        locations={[0, 0.35, 0.72, 1.0]}
+        colors={["#0C1C32", "#12345A", "#1C5393", "#2B79CC"]}
+        locations={[0, 0.36, 0.72, 1.0]}
         start={{ x: 0, y: 0.2 }}
         end={{ x: 1, y: 0.8 }}
         style={[StyleSheet.absoluteFill, { borderRadius: 28 }]}
@@ -81,10 +81,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginBottom: 32,
     borderWidth: 1.2,
-    borderColor: "rgba(56, 189, 248, 0.4)",
+    borderColor: "rgba(93, 168, 255, 0.3)",
     position: "relative",
     overflow: "hidden",
-    shadowColor: "#1B4F92",
+    shadowColor: "#153C71",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.45,
     shadowRadius: 18,
@@ -106,12 +106,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(10, 32, 44, 0.85)",
     borderWidth: 1.2,
-    borderColor: "#2EE5C5",
+    borderColor: "rgba(63, 222, 201, 0.72)",
     paddingHorizontal: 13,
     paddingVertical: 6,
     borderRadius: 16,
     gap: 8,
-    shadowColor: "#2EE5C5",
+    shadowColor: "#3FDEC9",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.4,
     shadowRadius: 6,
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#2EE5C5",
   },
   onlineText: {
-    color: "#2EE5C5",
+    color: "#3FDEC9",
     fontSize: 11,
     fontWeight: "800",
     letterSpacing: 1.2,
@@ -142,9 +142,9 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(46, 229, 197, 0.12)",
+    backgroundColor: "rgba(63, 222, 201, 0.1)",
     borderWidth: 1.2,
-    borderColor: "rgba(46, 229, 197, 0.35)",
+    borderColor: "rgba(63, 222, 201, 0.25)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -162,11 +162,11 @@ const styles = StyleSheet.create({
     maxWidth: "80%",
   },
   highlightTextCyan: {
-    color: "#2EE5C5",
+    color: "#3FDEC9",
     fontWeight: "900",
   },
   highlightTextPurple: {
-    color: "#B490FF",
+    color: "#A7B8FF",
     fontWeight: "900",
   },
   bottomRow: {

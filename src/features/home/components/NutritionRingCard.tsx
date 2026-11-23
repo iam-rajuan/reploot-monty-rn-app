@@ -41,10 +41,10 @@ export const NutritionRingCard = () => {
 
 const styles = StyleSheet.create({
   ringCard: {
-    backgroundColor: "rgba(24, 37, 50, 0.4)",
+    backgroundColor: "rgba(18, 27, 44, 0.8)",
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: "rgba(152, 173, 255, 0.12)",
     padding: 21,
     alignItems: "center",
     marginBottom: 12,
@@ -115,9 +115,9 @@ const styles = StyleSheet.create({
   dailyGoalPill: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#20487C",
+    backgroundColor: "rgba(36, 87, 137, 0.78)",
     borderWidth: 1,
-    borderColor: "rgba(14, 19, 129, 0.4)",
+    borderColor: "rgba(91, 146, 239, 0.32)",
     paddingHorizontal: 15,
     paddingVertical: 7,
     borderRadius: 999,

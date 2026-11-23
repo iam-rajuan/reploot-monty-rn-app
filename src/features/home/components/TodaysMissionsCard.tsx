@@ -89,9 +89,9 @@ export const TodaysMissionsCard = () => {
         />
         <LinearGradient
           colors={[
-            "rgba(13, 14, 19, 0.48)",
-            "rgba(13, 14, 19, 0.36)",
-            "rgba(13, 14, 19, 0.54)",
+            "rgba(6, 10, 20, 0.58)",
+            "rgba(8, 14, 27, 0.42)",
+            "rgba(6, 10, 20, 0.72)",
           ]}
           locations={[0.1875, 0.5, 1]}
           style={styles.gradient}
@@ -161,11 +161,11 @@ const styles = StyleSheet.create({
     position: "relative",
     borderRadius: 32,
     borderWidth: 1,
-    borderColor: "rgba(108, 92, 255, 0.55)",
-    backgroundColor: "#0D0E13",
-    shadowColor: "#6C5CFF",
+    borderColor: "rgba(104, 123, 255, 0.32)",
+    backgroundColor: "#0A101D",
+    shadowColor: "#162A5C",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.28,
     shadowRadius: 12,
     elevation: 4,
   },
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: "rgba(129, 151, 255, 0.05)",
   },
   backgroundImage: {
     position: "absolute",
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 40,
     left: 24,
-    color: "#E3E1E9",
+    color: "#F4F7FF",
     fontSize: 30,
     lineHeight: 32,
     fontWeight: "900",
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     width: 237,
   },
   missionTitle: {
-    color: "#E3E1E9",
+    color: "#F4F7FF",
     fontSize: 24,
     lineHeight: 28,
     fontWeight: "700",
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   missionSubtitle: {
-    color: "#C8C4D8",
+    color: "#B0BAD0",
     fontSize: 12,
     lineHeight: 16,
     fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
@@ -240,8 +240,8 @@ const styles = StyleSheet.create({
     height: 39,
     borderRadius: 20,
     borderWidth: 1.219,
-    borderColor: "#3385C0",
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderColor: "rgba(63, 222, 201, 0.5)",
+    backgroundColor: "rgba(6, 35, 49, 0.72)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     bottom: 1,
     left: 1,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: "rgba(188, 199, 255, 0.09)",
     borderRadius: 31,
   },
 });

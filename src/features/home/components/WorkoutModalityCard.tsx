@@ -60,9 +60,9 @@ export const WorkoutModalityCard: React.FC<WorkoutModalityCardProps> = ({
       {/* Cyber Gradient Overlay for Text Legibility */}
       <LinearGradient
         colors={[
-          "rgba(0, 0, 0, 0)",
-          "rgba(0, 0, 0, 0.4)",
-          "#000000",
+          "rgba(5, 10, 20, 0.05)",
+          "rgba(5, 10, 20, 0.46)",
+          "#070B15",
         ]}
         locations={[0, 0.5, 1]}
         style={StyleSheet.absoluteFill}
@@ -101,9 +101,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "rgba(108, 92, 255, 0.55)",
+    borderColor: "rgba(104, 123, 255, 0.3)",
     position: "relative",
-    shadowColor: "#000000",
+    shadowColor: "#030611",
     shadowOffset: { width: 0, height: 25 },
     shadowOpacity: 0.25,
     shadowRadius: 25,
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     bottom: 1,
     left: 1,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: "rgba(188, 199, 255, 0.09)",
     borderRadius: 31,
   },
   pressableOverlay: {
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   cardPressed: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: "rgba(7, 15, 31, 0.74)",
   },
   textContainer: {
     position: "absolute",
@@ -149,10 +149,10 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
+    borderColor: "rgba(130, 151, 255, 0.32)",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#5FFFD7",
+    shadowColor: "#39D7C4",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   subtitle: {
-    color: "#C8C4D8",
+    color: "#B6C0D6",
     fontSize: 14,
     lineHeight: 20,
     fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),

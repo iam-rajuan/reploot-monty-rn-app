@@ -1,6 +1,7 @@
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
 import MaskedView from "@react-native-masked-view/masked-view";
 import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import {
@@ -254,6 +255,21 @@ export default function AiMealPlanScreen() {
           </View>
         </View>
 
+        <Pressable
+          style={styles.adjustPlanBtn}
+          onPress={() => {
+            triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+            router.push("/nutrition-ai?mode=adjust");
+          }}
+        >
+          <Sparkles color="#44EAC3" size={16} />
+          <View style={styles.adjustPlanCopy}>
+            <Text style={styles.adjustPlanTitle}>ADJUST PLAN WITH AI</Text>
+            <Text style={styles.adjustPlanSubtitle}>Change meals, budget, protein, or timing</Text>
+          </View>
+          <Text style={styles.adjustPlanArrow}>›</Text>
+        </Pressable>
+
         {/* Meal Schedule Section Header */}
         <View style={styles.sectionHeader}>
           <View style={styles.iconBadge}>
@@ -485,6 +501,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
   },
+  adjustPlanBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(68, 234, 195, 0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(68, 234, 195, 0.22)",
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 24,
+  },
+  adjustPlanCopy: { flex: 1, marginLeft: 10 },
+  adjustPlanTitle: { color: "#44EAC3", fontFamily: "monospace", fontSize: 11, fontWeight: "900", letterSpacing: 0.8 },
+  adjustPlanSubtitle: { color: "#94A3B8", fontSize: 12, marginTop: 3, fontWeight: "600" },
+  adjustPlanArrow: { color: "#44EAC3", fontSize: 28, lineHeight: 28, fontWeight: "300" },
   macroBox: {
     flex: 1,
     borderWidth: 1,

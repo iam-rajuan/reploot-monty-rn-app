@@ -42,7 +42,7 @@ export const WeeklyProgressCard = () => {
       <View style={styles.headerRow}>
         {/* LVL 42 Gradient Badge: Left-aligned bold text matching Figma */}
         <LinearGradient
-          colors={["#5B5CF6", "#3B82F6"]}
+          colors={["#5865F2", "#397DF6"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.levelBox}
@@ -76,7 +76,7 @@ export const WeeklyProgressCard = () => {
       </View>
       <View style={styles.progressBarTrack}>
         <LinearGradient
-          colors={["#5851FD", "#4D8DFF"]}
+          colors={["#5D68F6", "#48B8F3"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={[styles.progressBarFill, { width: "72%" }]}
@@ -137,12 +137,12 @@ export const WeeklyProgressCard = () => {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: "rgba(18, 25, 43, 0.88)",
     borderRadius: 32,
     padding: 33,
     marginHorizontal: 24,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.07)",
+    borderColor: "rgba(159, 174, 255, 0.13)",
     marginBottom: 30,
     overflow: "hidden",
   },
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   tierText: {
-    color: "#C8C4D8",
+    color: "#AAB5CB",
     fontSize: 12,
     lineHeight: 18,
     fontFamily: "JetBrainsMono_700Bold",
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   streakNumber: {
-    color: "#2EE5C5",
+    color: "#3FDEC9",
     fontSize: 36,
     fontWeight: "900",
     lineHeight: 40,
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
   },
   streakLabel: {
-    color: "#C8C4D8",
+    color: "#AAB5CB",
     fontSize: 12,
     lineHeight: 18,
     fontFamily: "JetBrainsMono_700Bold",
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   },
   progressBarTrack: {
     height: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: "rgba(255, 255, 255, 0.07)",
     borderRadius: 999,
     overflow: "hidden",
     marginBottom: 24,
@@ -267,14 +267,14 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 8,
   },
   barBlue: {
-    backgroundColor: "#71AAE8",
+    backgroundColor: "#74A9E8",
   },
   barPurple: {
-    backgroundColor: "rgba(197, 192, 255, 0.4)",
+    backgroundColor: "#76739F",
   },
   barActive: {
-    backgroundColor: "#44EAC3",
-    shadowColor: "#2EE5C5",
+    backgroundColor: "#3FDEC9",
+    shadowColor: "#3FDEC9",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 8,
@@ -283,14 +283,14 @@ const styles = StyleSheet.create({
   dayLabel: {
     width: 32.7,
     textAlign: "center",
-    color: "#C8C4D8",
+    color: "#AAB5CB",
     fontSize: 8,
     lineHeight: 12,
     fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
   },
   dayLabelActive: {
-    color: "#44EAC3",
+    color: "#3FDEC9",
     fontWeight: "900",
   },
   linkRow: {
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   viewProgressLink: {
-    color: "#44EAC3",
+    color: "#3FDEC9",
     fontSize: 12,
     lineHeight: 18,
     fontFamily: "JetBrainsMono_700Bold",

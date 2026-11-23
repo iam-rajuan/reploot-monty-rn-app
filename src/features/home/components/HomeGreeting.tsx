@@ -60,15 +60,15 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   titleLine: {
-    color: "#FFFFFF",
+    color: "#F6F8FF",
     fontSize: 34,
     lineHeight: 38,
     fontWeight: "900",
     letterSpacing: -0.8,
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    textShadowColor: "rgba(46, 229, 197, 0.4)",
+    textShadowColor: "rgba(120, 145, 255, 0.22)",
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
+    textShadowRadius: 6,
   },
   dateContainer: {
     flexDirection: "row",

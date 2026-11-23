@@ -37,9 +37,9 @@ export const AiWorkoutCard = () => {
       />
       <LinearGradient
         colors={[
-          "rgba(13, 14, 19, 0)",
-          "rgba(13, 14, 19, 0.4)",
-          "#0D0E13",
+          "rgba(6, 10, 20, 0)",
+          "rgba(6, 10, 20, 0.44)",
+          "#070B15",
         ]}
         locations={[0, 0.45, 1]}
         style={StyleSheet.absoluteFill}
@@ -131,7 +131,7 @@ export const AiWorkoutCard = () => {
         >
           <View style={styles.actionButton}>
             <LinearGradient
-              colors={["#0F4C77", "#3385C0"]}
+              colors={["#176F9F", "#338FE0"]}
               start={{ x: 0, y: 0.5 }}
               end={{ x: 1, y: 0.5 }}
               style={styles.buttonGradient}
@@ -152,13 +152,13 @@ export const AiWorkoutCard = () => {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: "#0D0E13",
+    backgroundColor: "#0B1120",
     borderRadius: 32,
     overflow: "hidden",
     marginHorizontal: 20,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: "rgba(130, 151, 255, 0.18)",
     position: "relative",
     minHeight: 337,
   },
@@ -185,15 +185,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   badgeSolid: {
-    backgroundColor: "rgba(108, 92, 255, 0.2)",
+    backgroundColor: "rgba(88, 101, 242, 0.2)",
     borderWidth: 1,
-    borderColor: "rgba(108, 92, 255, 0.3)",
+    borderColor: "rgba(128, 143, 255, 0.34)",
     paddingHorizontal: 13,
     paddingVertical: 5,
     borderRadius: 999,
   },
   badgeSolidText: {
-    color: "#C5C0FF",
+    color: "#CAD2FF",
     fontSize: 10,
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   badgeOutlineText: {
-    color: "#E3E1E9",
+    color: "#EAF0FF",
     fontSize: 10,
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     height: 12.25,
   },
   badgeGreenOutlineText: {
-    color: "#44EAC3",
+    color: "#3FDEC9",
     fontSize: 10,
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   workoutSubtext: {
-    color: "#C8C4D8",
+    color: "#B6C0D6",
     fontSize: 12,
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   workoutTitle: {
-    color: "#E3E1E9",
+    color: "#F4F7FF",
     fontSize: 30,
     lineHeight: 36,
     fontWeight: "900",
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     height: 11.667,
   },
   durationText: {
-    color: "#C8C4D8",
+    color: "#B6C0D6",
     fontSize: 12,
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     width: 128,
     height: 42,
     borderRadius: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: "rgba(255, 255, 255, 0.07)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.1)",
     flexDirection: "row",
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   toggleTabActive: {
-    backgroundColor: "#6C5CFF",
+    backgroundColor: "#5865F2",
   },
   toggleTabText: {
     color: "#C8C4D8",
