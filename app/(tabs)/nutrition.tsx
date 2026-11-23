@@ -1228,7 +1228,7 @@ const styles = StyleSheet.create({
   planHeroBtn: {
     borderRadius: 14,
     overflow: "hidden",
-    shadowColor: "#00f2fe",
+    shadowColor: "#0284C7",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -1450,7 +1450,7 @@ const styles = StyleSheet.create({
   modalSaveBtn: {
     borderRadius: 14,
     overflow: "hidden",
-    shadowColor: "#00f2fe",
+    shadowColor: "#0284C7",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
