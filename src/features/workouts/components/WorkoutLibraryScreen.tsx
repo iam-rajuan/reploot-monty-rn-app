@@ -131,7 +131,6 @@ export const WorkoutLibraryScreen: React.FC<WorkoutLibraryScreenProps> = ({
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>{subtitle}</Text>
         </View>
 
         {/* 2-Column Categories Grid */}

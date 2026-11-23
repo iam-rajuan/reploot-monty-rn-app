@@ -269,7 +269,6 @@ export const GenericWorkoutDetailScreen: React.FC<
         {/* Title Section matching clean Figma design */}
         <View style={styles.titleSection}>
           <Text style={styles.mainTitle}>{workout.title}</Text>
-          <Text style={styles.subtitle}>{workout.subtitle}</Text>
         </View>
 
         {/* Hero Card with Stats */}

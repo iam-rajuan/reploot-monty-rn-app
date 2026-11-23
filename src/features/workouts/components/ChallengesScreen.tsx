@@ -132,10 +132,6 @@ export const ChallengesScreen: React.FC<ChallengesScreenProps> = ({
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Compete in time-limited neural challenges to earn bonus XP, unlock
-            badges, and test your physical limits.
-          </Text>
         </View>
 
         <TouchableOpacity activeOpacity={0.85} style={styles.rankingLink} onPress={() => router.push({ pathname: "/profile/global-rankings" as any, params: { context: "home" } })}>

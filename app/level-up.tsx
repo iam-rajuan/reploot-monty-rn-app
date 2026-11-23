@@ -20,7 +20,6 @@ export default function LevelUpRoute() {
     <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]} showsVerticalScrollIndicator={false}>
       <View style={styles.kickerRow}><Award size={15} color="#38EDD8" /><Text style={styles.kicker}>FITNESS PROGRESSION</Text></View>
       <Text style={styles.title}>LEVEL UP</Text>
-      <Text style={styles.subtitle}>Daily workout XP advances levels. Completing the final level in a tier starts Level 1 in the next tier.</Text>
 
       <LinearGradient colors={["rgba(56,237,216,0.14)", "rgba(79,172,254,0.08)", "rgba(15,23,42,0.9)"]} style={styles.heroCard}>
         <View style={styles.metrics}><CurrentLevelDisplay level={progression.currentLevel} /><CurrentTierDisplay name={progression.tier.displayName} color={progression.tier.color} /></View>
