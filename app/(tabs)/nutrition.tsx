@@ -1092,6 +1092,8 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: "rgba(56, 189, 248, 0.45)",
     overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
   },
   modalPresetBtnWrapperActive: {
     backgroundColor: "#0284C7",
@@ -1101,12 +1103,13 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   modalPresetBtnPressed: {
     opacity: 0.8,
   },
   modalPresetContent: {
-    flex: 1,
     width: "100%",
     height: "100%",
     alignItems: "center",
@@ -1117,6 +1120,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "monospace",
     fontWeight: "800",
+    textAlign: "center",
+    textAlignVertical: "center",
+    includeFontPadding: false,
   },
   modalPresetTextActive: {
     color: "#FFFFFF",
@@ -1237,17 +1243,20 @@ const styles = StyleSheet.create({
     borderColor: "rgba(56, 189, 248, 0.4)",
     borderRadius: 12,
     overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
   },
   quickAddBtn: {
     flex: 1,
     width: "100%",
     height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   quickAddBtnPressed: {
     backgroundColor: "rgba(56, 189, 248, 0.2)",
   },
   quickAddContent: {
-    flex: 1,
     width: "100%",
     height: "100%",
     flexDirection: "row",
@@ -1262,6 +1271,8 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 0.8,
+    textAlign: "center",
+    textAlignVertical: "center",
     includeFontPadding: false,
   },
   customWaterRow: {
