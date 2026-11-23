@@ -191,10 +191,10 @@ export default function AchievementsScreen() {
                 <Zap size={12} color="#2DD4BF" style={{ marginRight: 5 }} />
                 <Text style={styles.nextUnlockLabel}>NEXT UNLOCK</Text>
               </View>
-              <Text style={styles.nextUnlockTitle}>30 Workouts</Text>
+              <Text style={styles.nextUnlockTitle}>25 Workouts</Text>
             </View>
             <View style={{ alignItems: "flex-end" }}>
-              <Text style={styles.sessionsNumber}>25 / 30</Text>
+              <Text style={styles.sessionsNumber}>25 / 25</Text>
               <Text style={styles.sessionsLabel}>SESSIONS</Text>
             </View>
           </View>
@@ -205,7 +205,7 @@ export default function AchievementsScreen() {
               colors={["#00f2fe", "#4facfe", "#2DD4BF"]}
               start={{ x: 0, y: 0.5 }}
               end={{ x: 1, y: 0.5 }}
-              style={[styles.progressBarFill, { width: `${(25 / 30) * 100}%` }]}
+              style={[styles.progressBarFill, { width: "100%" }]}
             />
           </View>
 
@@ -213,7 +213,7 @@ export default function AchievementsScreen() {
           <View style={styles.infoRow}>
             <Info size={12} color="#38BDF8" style={{ marginRight: 6 }} />
             <Text style={styles.infoText}>
-              ONLY 5 WORKOUTS LEFT TO TIER ADVANCEMENT!
+              MONTHLY WORKOUT MILESTONE COMPLETE!
             </Text>
           </View>
         </View>
