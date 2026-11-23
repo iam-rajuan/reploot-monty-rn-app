@@ -101,32 +101,38 @@ export function CustomBottomTabBar({
                   accessibilityRole="button"
                   accessibilityLabel="Start Workout"
                   onPress={() => handleTabPress(route, isFocused)}
-                  style={({ pressed }) => [
-                    styles.centerButtonPressable,
-                    pressed && styles.centerButtonPressed,
-                  ]}
+                  style={styles.centerButtonPressable}
                 >
-                  {/* Outer Cyber Glow Ambient */}
-                  <View style={styles.centerOuterAura} />
-
-                  {/* Concentric Bezel Ring with metallic highlight */}
-                  <View
-                    style={[
-                      styles.centerBezelRing,
-                      isFocused && styles.centerBezelRingActive,
-                    ]}
-                  >
-                    {/* Multi-Stop Linear Gradient Power Capsule */}
-                    <LinearGradient
-                      colors={["#4F46E5", "#0284C7", "#0EA5E9", "#2DD4BF"]}
-                      locations={[0, 0.35, 0.7, 1]}
-                      start={{ x: 0.1, y: 0.05 }}
-                      end={{ x: 0.9, y: 0.95 }}
-                      style={styles.centerGradientCircle}
+                  {({ pressed }) => (
+                    <View
+                      style={[
+                        styles.centerButtonInner,
+                        pressed && styles.centerButtonPressed,
+                      ]}
                     >
-                      <CenterDumbbellIcon />
-                    </LinearGradient>
-                  </View>
+                      {/* Outer Cyber Glow Ambient */}
+                      <View style={styles.centerOuterAura} />
+
+                      {/* Concentric Bezel Ring with metallic highlight */}
+                      <View
+                        style={[
+                          styles.centerBezelRing,
+                          isFocused && styles.centerBezelRingActive,
+                        ]}
+                      >
+                        {/* Multi-Stop Linear Gradient Power Capsule */}
+                        <LinearGradient
+                          colors={["#4F46E5", "#0284C7", "#0EA5E9", "#2DD4BF"]}
+                          locations={[0, 0.35, 0.7, 1]}
+                          start={{ x: 0.1, y: 0.05 }}
+                          end={{ x: 0.9, y: 0.95 }}
+                          style={styles.centerGradientCircle}
+                        >
+                          <CenterDumbbellIcon />
+                        </LinearGradient>
+                      </View>
+                    </View>
+                  )}
                 </Pressable>
               </View>
             );
@@ -172,39 +178,31 @@ export function CustomBottomTabBar({
               accessibilityState={isFocused ? { selected: true } : {}}
               accessibilityLabel={String(rawLabel)}
               onPress={() => handleTabPress(route, isFocused)}
-              style={({ pressed }) => [
-                styles.tabItem,
-                pressed && { opacity: 0.8 },
-              ]}
+              style={styles.tabPressable}
             >
-              {/* Active Top Laser Indicator Capsule */}
-              {isFocused && (
-                <View style={styles.activeTopIndicator}>
-                  <LinearGradient
-                    colors={["#38BDF8", "#2DD4BF"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.activeTopIndicatorBar}
-                  />
-                  <View style={styles.activeTopIndicatorGlow} />
+              {({ pressed }) => (
+                <View
+                  style={[
+                    styles.tabItem,
+                    pressed && styles.tabItemPressed,
+                  ]}
+                >
+                  <View style={styles.iconContainer}>
+                    {renderIcon()}
+                  </View>
+
+                  <Text
+                    style={[
+                      styles.tabLabel,
+                      { color: tintColor },
+                      isFocused && styles.activeTabLabel,
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {String(rawLabel).toUpperCase()}
+                  </Text>
                 </View>
               )}
-
-              <View style={styles.iconContainer}>
-                {isFocused && <View style={styles.activeIconBackdrop} />}
-                {renderIcon()}
-              </View>
-
-              <Text
-                style={[
-                  styles.tabLabel,
-                  { color: tintColor },
-                  isFocused && styles.activeTabLabel,
-                ]}
-                numberOfLines={1}
-              >
-                {String(rawLabel).toUpperCase()}
-              </Text>
             </Pressable>
           );
         })}
@@ -401,18 +399,9 @@ function ProgressTabIcon({
         <Circle
           cx={21}
           cy={6}
-          r={isFocused ? 2.6 : 2}
+          r={isFocused ? 2.4 : 2}
           fill={isFocused ? "#38BDF8" : color}
-          stroke={isFocused ? "#FFFFFF" : "none"}
-          strokeWidth={isFocused ? 1 : 0}
         />
-        {/* Micro 4-point XP Star above apex */}
-        {isFocused && (
-          <Path
-            d="M21 1L21.5 2.2L22.7 2.7L21.5 3.2L21 4.4L20.5 3.2L19.3 2.7L20.5 2.2L21 1Z"
-            fill="#38BDF8"
-          />
-        )}
       </Svg>
     </View>
   );
@@ -518,71 +507,56 @@ const styles = StyleSheet.create({
   tabsRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-around",
-    paddingHorizontal: 8,
+    justifyContent: "space-between",
+    paddingHorizontal: 0,
     height: 60,
     marginTop: 14,
   },
-  tabItem: {
+  tabPressable: {
     flex: 1,
+    height: 60,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 4,
-    position: "relative",
   },
-  activeTopIndicator: {
-    position: "absolute",
-    top: -4,
+  tabItem: {
+    width: "100%",
+    height: "100%",
     alignItems: "center",
     justifyContent: "center",
-    width: 28,
-    height: 3,
   },
-  activeTopIndicatorBar: {
-    width: 22,
-    height: 3,
-    borderRadius: 1.5,
-  },
-  activeTopIndicatorGlow: {
-    position: "absolute",
-    top: 0,
-    width: 26,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "rgba(56, 189, 248, 0.3)",
+  tabItemPressed: {
+    opacity: 0.75,
   },
   iconContainer: {
-    width: 32,
-    height: 30,
+    width: 28,
+    height: 26,
     alignItems: "center",
     justifyContent: "center",
-    position: "relative",
-    marginTop: 2,
-    marginBottom: 3,
+    marginBottom: 4,
   },
   iconWrapper: {
+    width: 22,
+    height: 22,
     alignItems: "center",
     justifyContent: "center",
-  },
-  activeIconBackdrop: {
-    position: "absolute",
-    width: 36,
-    height: 32,
-    borderRadius: 10,
-    backgroundColor: "rgba(56, 189, 248, 0.08)",
   },
   tabLabel: {
     fontSize: 9.5,
+    lineHeight: 12,
+    textAlign: "center",
+    alignSelf: "center",
     fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
     fontWeight: "700",
-    letterSpacing: 0.6,
+    letterSpacing: 0.5,
+    includeFontPadding: false,
   },
   activeTabLabel: {
-    fontWeight: "900",
+    fontWeight: "800",
     color: "#38BDF8",
   },
   centerButtonOuterContainer: {
-    width: 68,
+    flex: 1,
+    height: 60,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -593,6 +567,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     zIndex: 50,
+  },
+  centerButtonInner: {
+    width: 66,
+    height: 66,
+    alignItems: "center",
+    justifyContent: "center",
   },
   centerButtonPressed: {
     transform: [{ scale: 0.94 }],
