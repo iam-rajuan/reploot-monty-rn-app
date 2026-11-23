@@ -6,11 +6,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import {
   Calendar,
+  Camera,
   Check,
   ChevronRight,
   Clock,
   Flame,
   Heart,
+  Plus,
   RefreshCw,
   Sparkles,
   Target,
@@ -27,7 +29,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-interface PlannedMeal {
+export interface UnifiedMeal {
   id: number;
   time: string;
   type: string;
@@ -39,9 +41,10 @@ interface PlannedMeal {
   fat: number;
   prepTime: string;
   liked: boolean;
+  completed: boolean;
 }
 
-export default function AiMealPlanScreen() {
+export default function UnifiedMealPlanScreen() {
   const insets = useSafeAreaInsets();
   const activateGeneratedPlan = useNutritionPlanStore(
     (state) => state.activateGeneratedPlan,
@@ -53,7 +56,7 @@ export default function AiMealPlanScreen() {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [planApplied, setPlanApplied] = useState(hasGeneratedPlan);
 
-  const [meals, setMeals] = useState<PlannedMeal[]>([
+  const [meals, setMeals] = useState<UnifiedMeal[]>([
     {
       id: 1,
       time: "08:30 AM",
@@ -66,6 +69,7 @@ export default function AiMealPlanScreen() {
       fat: 16,
       prepTime: "10m",
       liked: true,
+      completed: true, // Initially completed to show log state immediately
     },
     {
       id: 2,
@@ -79,6 +83,7 @@ export default function AiMealPlanScreen() {
       fat: 14,
       prepTime: "20m",
       liked: false,
+      completed: false,
     },
     {
       id: 3,
@@ -92,6 +97,7 @@ export default function AiMealPlanScreen() {
       fat: 12,
       prepTime: "5m",
       liked: false,
+      completed: false,
     },
     {
       id: 4,
@@ -105,6 +111,7 @@ export default function AiMealPlanScreen() {
       fat: 22,
       prepTime: "25m",
       liked: true,
+      completed: false,
     },
   ]);
 
@@ -120,6 +127,24 @@ export default function AiMealPlanScreen() {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
     setMeals((prev) =>
       prev.map((m) => (m.id === id ? { ...m, liked: !m.liked } : m)),
+    );
+  };
+
+  const toggleMealLog = (id: number) => {
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+    setMeals((prev) =>
+      prev.map((m) => {
+        if (m.id === id) {
+          const nextCompleted = !m.completed;
+          if (nextCompleted && Platform.OS !== "web") {
+            Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Success,
+            ).catch(() => {});
+          }
+          return { ...m, completed: nextCompleted };
+        }
+        return m;
+      }),
     );
   };
 
@@ -143,27 +168,47 @@ export default function AiMealPlanScreen() {
     }, 1000);
   };
 
-  const totalCalories = useMemo(
+  // Planned totals
+  const targetCalories = useMemo(
     () => meals.reduce((sum, m) => sum + m.calories, 0),
     [meals],
   );
-  const totalProtein = useMemo(
+  const targetProtein = useMemo(
     () => meals.reduce((sum, m) => sum + m.protein, 0),
     [meals],
   );
-  const totalCarbs = useMemo(
+  const targetCarbs = useMemo(
     () => meals.reduce((sum, m) => sum + m.carbs, 0),
     [meals],
   );
-  const totalFat = useMemo(
+  const targetFat = useMemo(
     () => meals.reduce((sum, m) => sum + m.fat, 0),
     [meals],
   );
 
-  const totalMacroGrams = totalProtein + totalCarbs + totalFat || 1;
-  const proteinPct = Math.round((totalProtein / totalMacroGrams) * 100);
-  const carbsPct = Math.round((totalCarbs / totalMacroGrams) * 100);
-  const fatPct = Math.max(0, 100 - proteinPct - carbsPct);
+  // Logged totals
+  const loggedMeals = useMemo(() => meals.filter((m) => m.completed), [meals]);
+  const consumedCalories = useMemo(
+    () => loggedMeals.reduce((sum, m) => sum + m.calories, 0),
+    [loggedMeals],
+  );
+  const consumedProtein = useMemo(
+    () => loggedMeals.reduce((sum, m) => sum + m.protein, 0),
+    [loggedMeals],
+  );
+  const consumedCarbs = useMemo(
+    () => loggedMeals.reduce((sum, m) => sum + m.carbs, 0),
+    [loggedMeals],
+  );
+  const consumedFat = useMemo(
+    () => loggedMeals.reduce((sum, m) => sum + m.fat, 0),
+    [loggedMeals],
+  );
+
+  const caloriesProgress = Math.min(
+    100,
+    Math.round((consumedCalories / (targetCalories || 1)) * 100),
+  );
 
   return (
     <View style={styles.container}>
@@ -189,58 +234,53 @@ export default function AiMealPlanScreen() {
         <View style={styles.titleSection}>
           <View style={styles.titleBadge}>
             <Sparkles size={11} color="#38BDF8" />
-            <Text style={styles.titleBadgeText}>AI NUTRITION</Text>
+            <Text style={styles.titleBadgeText}>AI NUTRITION MATRIX</Text>
           </View>
-          <Text style={styles.mainTitle}>MEAL PLAN</Text>
+          <Text style={styles.mainTitle}>MEALS & LOGS</Text>
           <Text style={styles.subtitle}>
-            Calibrated daily targets and meal timing.
+            Daily meal schedule, macro targets & log telemetry.
           </Text>
         </View>
 
-        {/* Daily Target Hero Card */}
+        {/* Daily Energy & Macro Dashboard Card */}
         <View style={styles.targetCard}>
           <View style={styles.targetHeader}>
             <View style={styles.targetBadge}>
               <Target size={12} color="#38BDF8" />
-              <Text style={styles.targetBadgeText}>DAILY TARGET</Text>
+              <Text style={styles.targetBadgeText}>ENERGY & MACROS</Text>
             </View>
             <View style={styles.targetStatusPill}>
-              <Text style={styles.targetStatusText}>{meals.length} MEALS</Text>
+              <Text style={styles.targetStatusText}>
+                {loggedMeals.length} OF {meals.length} LOGGED
+              </Text>
             </View>
           </View>
 
-          {/* Hero Calorie Count */}
+          {/* Consumed vs Target Calories */}
           <View style={styles.caloriesRow}>
             <Flame size={20} color="#38BDF8" style={{ marginRight: 6 }} />
             <Text style={styles.caloriesNumber}>
-              {totalCalories.toLocaleString()}
+              {consumedCalories.toLocaleString()}
             </Text>
-            <Text style={styles.caloriesUnit}>KCAL</Text>
+            <Text style={styles.caloriesTarget}>
+              / {targetCalories.toLocaleString()} KCAL
+            </Text>
           </View>
 
-          {/* Segmented Macro Distribution Bar */}
-          <View style={styles.macroRatioBar}>
-            <View
+          {/* Progress Bar */}
+          <View style={styles.progressBarTrack}>
+            <LinearGradient
+              colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
               style={[
-                styles.ratioSegment,
-                { width: `${proteinPct}%`, backgroundColor: "#38BDF8" },
-              ]}
-            />
-            <View
-              style={[
-                styles.ratioSegment,
-                { width: `${carbsPct}%`, backgroundColor: "#FFB68C" },
-              ]}
-            />
-            <View
-              style={[
-                styles.ratioSegment,
-                { width: `${fatPct}%`, backgroundColor: "#F43F5E" },
+                styles.progressBarFill,
+                { width: `${caloriesProgress}%` },
               ]}
             />
           </View>
 
-          {/* Macro KPI Cards */}
+          {/* Macro KPI Cards (Consumed / Target) */}
           <View style={styles.macroCardsRow}>
             {/* Protein */}
             <View
@@ -257,8 +297,8 @@ export default function AiMealPlanScreen() {
                   PROTEIN
                 </Text>
               </View>
-              <Text style={styles.macroCardValue}>{totalProtein}g</Text>
-              <Text style={styles.macroCardPct}>{proteinPct}%</Text>
+              <Text style={styles.macroCardValue}>{consumedProtein}g</Text>
+              <Text style={styles.macroCardTarget}>/ {targetProtein}g</Text>
             </View>
 
             {/* Carbs */}
@@ -276,8 +316,8 @@ export default function AiMealPlanScreen() {
                   CARBS
                 </Text>
               </View>
-              <Text style={styles.macroCardValue}>{totalCarbs}g</Text>
-              <Text style={styles.macroCardPct}>{carbsPct}%</Text>
+              <Text style={styles.macroCardValue}>{consumedCarbs}g</Text>
+              <Text style={styles.macroCardTarget}>/ {targetCarbs}g</Text>
             </View>
 
             {/* Fat */}
@@ -295,8 +335,8 @@ export default function AiMealPlanScreen() {
                   FAT
                 </Text>
               </View>
-              <Text style={styles.macroCardValue}>{totalFat}g</Text>
-              <Text style={styles.macroCardPct}>{fatPct}%</Text>
+              <Text style={styles.macroCardValue}>{consumedFat}g</Text>
+              <Text style={styles.macroCardTarget}>/ {targetFat}g</Text>
             </View>
           </View>
         </View>
@@ -325,64 +365,102 @@ export default function AiMealPlanScreen() {
           <View style={styles.sectionIconBadge}>
             <Utensils size={12} color="#38BDF8" />
           </View>
-          <Text style={styles.sectionTitle}>TODAY'S SCHEDULE</Text>
-          <Text style={styles.sectionCount}>{meals.length} MEALS</Text>
+          <Text style={styles.sectionTitle}>DAILY SCHEDULE & LOGS</Text>
+          <Text style={styles.sectionCount}>
+            {loggedMeals.length}/{meals.length} LOGGED
+          </Text>
         </View>
 
         {/* Meals List */}
         <View style={styles.mealList}>
-          {meals.map((meal) => (
-            <View key={meal.id} style={styles.mealCard}>
-              <View style={styles.mealTopRow}>
-                <View
-                  style={[
-                    styles.typeBadge,
-                    {
-                      backgroundColor: `${meal.typeColor}15`,
-                      borderColor: `${meal.typeColor}40`,
-                    },
-                  ]}
-                >
-                  <Text style={[styles.typeText, { color: meal.typeColor }]}>
-                    {meal.type}
-                  </Text>
+          {meals.map((meal) => {
+            return (
+              <View
+                key={meal.id}
+                style={[
+                  styles.mealCard,
+                  meal.completed && styles.mealCardCompleted,
+                ]}
+              >
+                {/* Meal Header Row */}
+                <View style={styles.mealTopRow}>
+                  <View
+                    style={[
+                      styles.typeBadge,
+                      {
+                        backgroundColor: `${meal.typeColor}15`,
+                        borderColor: `${meal.typeColor}40`,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.typeText, { color: meal.typeColor }]}>
+                      {meal.type}
+                    </Text>
+                  </View>
+
+                  <View style={styles.timingBadge}>
+                    <Clock size={11} color="#64748B" />
+                    <Text style={styles.timingText}>{meal.time}</Text>
+                    <Text style={styles.prepTimeText}>• {meal.prepTime}</Text>
+                  </View>
+
+                  <Pressable
+                    style={styles.likeBtn}
+                    onPress={() => toggleLike(meal.id)}
+                    hitSlop={8}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Like ${meal.name}`}
+                  >
+                    <Heart
+                      color={meal.liked ? "#F43F5E" : "#475569"}
+                      fill={meal.liked ? "#F43F5E" : "transparent"}
+                      size={15}
+                    />
+                  </Pressable>
                 </View>
 
-                <View style={styles.timingBadge}>
-                  <Clock size={11} color="#64748B" />
-                  <Text style={styles.timingText}>{meal.time}</Text>
-                  <Text style={styles.prepTimeText}>• {meal.prepTime}</Text>
-                </View>
+                {/* Meal Name */}
+                <Text style={styles.mealName}>{meal.name}</Text>
 
-                <Pressable
-                  style={styles.likeBtn}
-                  onPress={() => toggleLike(meal.id)}
-                  hitSlop={8}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Like ${meal.name}`}
-                >
-                  <Heart
-                    color={meal.liked ? "#F43F5E" : "#475569"}
-                    fill={meal.liked ? "#F43F5E" : "transparent"}
-                    size={16}
-                  />
-                </Pressable>
+                {/* Macro Details & Action Button Row */}
+                <View style={styles.mealBottomRow}>
+                  <View style={styles.mealMacrosRow}>
+                    <View style={styles.kcalBadge}>
+                      <Text style={styles.kcalText}>{meal.calories} KCAL</Text>
+                    </View>
+                    <Text style={styles.macroPillText}>{meal.protein}g P</Text>
+                    <Text style={styles.dot}>•</Text>
+                    <Text style={styles.macroPillText}>{meal.carbs}g C</Text>
+                    <Text style={styles.dot}>•</Text>
+                    <Text style={styles.macroPillText}>{meal.fat}g F</Text>
+                  </View>
+
+                  {/* Log / Completed Action Button */}
+                  {meal.completed ? (
+                    <Pressable
+                      style={styles.completedBtn}
+                      onPress={() => toggleMealLog(meal.id)}
+                      accessibilityRole="button"
+                      accessibilityLabel="Meal logged, tap to unmark"
+                    >
+                      <Check size={12} color="#2DD4BF" strokeWidth={2.5} />
+                      <Text style={styles.completedBtnText}>COMPLETED</Text>
+                    </Pressable>
+                  ) : (
+                    <Pressable
+                      style={styles.logBtn}
+                      onPress={() => toggleMealLog(meal.id)}
+                      accessibilityRole="button"
+                      accessibilityLabel="Log meal"
+                    >
+                      <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
+                      <Text style={styles.logBtnText}>LOG MEAL</Text>
+                    </Pressable>
+                  )}
+                </View>
               </View>
-
-              <Text style={styles.mealName}>{meal.name}</Text>
-
-              <View style={styles.mealMacrosRow}>
-                <View style={styles.kcalBadge}>
-                  <Text style={styles.kcalText}>{meal.calories} KCAL</Text>
-                </View>
-                <Text style={styles.macroPillText}>{meal.protein}g P</Text>
-                <Text style={styles.dot}>•</Text>
-                <Text style={styles.macroPillText}>{meal.carbs}g C</Text>
-                <Text style={styles.dot}>•</Text>
-                <Text style={styles.macroPillText}>{meal.fat}g F</Text>
-              </View>
-            </View>
-          ))}
+            );
+          })}
         </View>
 
         {/* Nutrient Timing Insight */}
@@ -399,24 +477,44 @@ export default function AiMealPlanScreen() {
 
         {/* Bottom Actions */}
         <View style={styles.actionsContainer}>
-          <Pressable style={styles.applyBtn} onPress={handleApplyPlan}>
+          <Pressable
+            style={styles.scanBtn}
+            onPress={() => {
+              triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+              router.push("/scan-meal");
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Scan food to log"
+          >
             <LinearGradient
               colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
               start={{ x: 0, y: 0.5 }}
               end={{ x: 1, y: 0.5 }}
-              style={styles.applyBtnGradient}
+              style={styles.scanBtnGradient}
             >
+              <Camera size={16} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <Text style={styles.scanBtnText}>SCAN MEAL TO LOG</Text>
+            </LinearGradient>
+          </Pressable>
+
+          <Pressable
+            style={styles.applyBtn}
+            onPress={handleApplyPlan}
+            accessibilityRole="button"
+            accessibilityLabel="Apply plan to schedule"
+          >
+            <View style={styles.applyBtnContent}>
               {planApplied ? (
                 <>
-                  <Check size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-                  <Text style={styles.applyBtnText}>
-                    PLAN APPLIED TO SCHEDULE
+                  <Check size={15} color="#2DD4BF" style={{ marginRight: 6 }} />
+                  <Text style={styles.applyBtnAppliedText}>
+                    PLAN ACTIVE IN DASHBOARD
                   </Text>
                 </>
               ) : (
                 <Text style={styles.applyBtnText}>APPLY TO DAILY SCHEDULE</Text>
               )}
-            </LinearGradient>
+            </View>
           </Pressable>
 
           <Pressable
@@ -432,7 +530,7 @@ export default function AiMealPlanScreen() {
             <View style={styles.regenerateBtnContent}>
               <RefreshCw
                 color="#38BDF8"
-                size={14}
+                size={13}
                 style={[
                   { marginRight: 8 },
                   isRegenerating && { transform: [{ rotate: "180deg" }] },
@@ -525,15 +623,15 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   targetStatusPill: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: "rgba(45, 212, 191, 0.1)",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: "rgba(45, 212, 191, 0.3)",
   },
   targetStatusText: {
-    color: "#94A3B8",
+    color: "#2DD4BF",
     fontSize: 10,
     fontFamily: "monospace",
     fontWeight: "700",
@@ -543,36 +641,33 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "baseline",
     justifyContent: "center",
-    marginBottom: 14,
+    marginBottom: 12,
   },
   caloriesNumber: {
     color: "#FFFFFF",
-    fontSize: 38,
-    lineHeight: 42,
+    fontSize: 36,
+    lineHeight: 40,
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
     fontWeight: "900",
     letterSpacing: -0.5,
   },
-  caloriesUnit: {
-    color: "#38BDF8",
-    fontSize: 14,
+  caloriesTarget: {
+    color: "#64748B",
+    fontSize: 13,
     fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     marginLeft: 6,
-    letterSpacing: 1,
   },
-  macroRatioBar: {
-    height: 7,
+  progressBarTrack: {
+    height: 8,
     borderRadius: 4,
     backgroundColor: "rgba(255, 255, 255, 0.06)",
-    flexDirection: "row",
     overflow: "hidden",
     marginBottom: 16,
-    gap: 2,
   },
-  ratioSegment: {
+  progressBarFill: {
     height: "100%",
-    borderRadius: 2,
+    borderRadius: 4,
   },
   macroCardsRow: {
     flexDirection: "row",
@@ -606,14 +701,14 @@ const styles = StyleSheet.create({
   },
   macroCardValue: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: "monospace",
     fontWeight: "900",
     marginBottom: 1,
   },
-  macroCardPct: {
+  macroCardTarget: {
     color: "#64748B",
-    fontSize: 10,
+    fontSize: 9.5,
     fontFamily: "monospace",
     fontWeight: "700",
   },
@@ -678,9 +773,13 @@ const styles = StyleSheet.create({
   mealCard: {
     backgroundColor: "#0D131F",
     borderRadius: 16,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: "rgba(255, 255, 255, 0.07)",
     padding: 14,
+  },
+  mealCardCompleted: {
+    borderColor: "rgba(45, 212, 191, 0.4)",
+    backgroundColor: "#0D171E",
   },
   mealTopRow: {
     flexDirection: "row",
@@ -733,12 +832,20 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
     fontWeight: "800",
     letterSpacing: 0.2,
-    marginBottom: 8,
+    marginBottom: 10,
+  },
+  mealBottomRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
   },
   mealMacrosRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
+    flexWrap: "wrap",
+    flex: 1,
   },
   kcalBadge: {
     backgroundColor: "rgba(56, 189, 248, 0.12)",
@@ -761,6 +868,42 @@ const styles = StyleSheet.create({
   dot: {
     color: "#475569",
     fontSize: 9,
+  },
+  completedBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(45, 212, 191, 0.14)",
+    borderWidth: 1.5,
+    borderColor: "#2DD4BF",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    gap: 4,
+  },
+  completedBtnText: {
+    color: "#2DD4BF",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "900",
+    letterSpacing: 0.6,
+  },
+  logBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(56, 189, 248, 0.08)",
+    borderWidth: 1.5,
+    borderColor: "rgba(56, 189, 248, 0.4)",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    gap: 4,
+  },
+  logBtnText: {
+    color: "#38BDF8",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "900",
+    letterSpacing: 0.6,
   },
   insightBox: {
     backgroundColor: "rgba(56, 189, 248, 0.05)",
@@ -793,11 +936,11 @@ const styles = StyleSheet.create({
   actionsContainer: {
     gap: 10,
   },
-  applyBtn: {
+  scanBtn: {
     borderRadius: 14,
     overflow: "hidden",
   },
-  applyBtnGradient: {
+  scanBtnGradient: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -805,9 +948,37 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     overflow: "hidden",
   },
-  applyBtnText: {
+  scanBtnText: {
     color: "#FFFFFF",
     fontSize: 12,
+    fontFamily: "monospace",
+    fontWeight: "900",
+    letterSpacing: 1,
+  },
+  applyBtn: {
+    height: 46,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "#101624",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  applyBtnContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  applyBtnText: {
+    color: "#E2E8F0",
+    fontSize: 11.5,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 1,
+  },
+  applyBtnAppliedText: {
+    color: "#2DD4BF",
+    fontSize: 11.5,
     fontFamily: "monospace",
     fontWeight: "900",
     letterSpacing: 1,
