@@ -147,9 +147,9 @@ export default function GlobalRankingsRoute() {
           </View>
         ) : (
           <>
-            <StandingCard entry={currentUser} scoreUnit={data?.scoreUnit ?? "PTS"} />
+            <StandingCard entry={currentUser} scoreUnit={data?.scoreUnit ?? "XP"} />
             <SearchInput value={search} onChangeText={setSearch} />
-            {isLoading ? <Text style={styles.loading}>SYNCING RANKING...</Text> : <LeaderboardList entries={visibleEntries} scoreUnit={data?.scoreUnit ?? "PTS"} showPodium={!search.trim()} onSelectEntry={handleProfilePress} />}
+            {isLoading ? <Text style={styles.loading}>SYNCING RANKING...</Text> : <LeaderboardList entries={visibleEntries} scoreUnit={data?.scoreUnit ?? "XP"} showPodium={!search.trim()} onSelectEntry={handleProfilePress} />}
           </>
         )}
       </ScrollView>
