@@ -64,10 +64,14 @@ interface GymPathCardConfig {
 
 export interface GymWorkoutPathScreenProps {
   onSelectPath?: (pathId: WorkoutPathId) => void;
+  onBack?: () => void;
+  showBackButton?: boolean;
 }
 
 export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
   onSelectPath,
+  onBack,
+  showBackButton = true,
 }) => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
@@ -90,6 +94,19 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
 
   const [activePath, setActivePath] = useState<WorkoutPathId | null>(initialPath);
   const lastParamRef = React.useRef<WorkoutPathId | null>(initialPath);
+
+  const handleBack = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    }
+    if (onBack) {
+      onBack();
+    } else if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)/home");
+    }
+  };
 
   React.useEffect(() => {
     const target =
@@ -257,7 +274,11 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
     <View style={styles.screen}>
       <StatusBar style="light" />
 
-      <CustomHeader transparent={true} />
+      <CustomHeader
+        transparent={true}
+        showBackButton={showBackButton}
+        onPressBack={handleBack}
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
