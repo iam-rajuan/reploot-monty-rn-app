@@ -708,6 +708,24 @@ export default function UnifiedMealPlanScreen() {
 
           <Pressable
             style={({ pressed }) => [
+              styles.adjustBtn,
+              pressed && styles.adjustBtnPressed,
+            ]}
+            onPress={() => {
+              triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+              router.push("/nutrition-ai?mode=adjust");
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Adjust meal plan with AI"
+          >
+            <View style={styles.adjustBtnContent}>
+              <Sparkles size={14} color="#38BDF8" />
+              <Text style={styles.adjustBtnText}>ADJUST MEAL PLAN WITH AI</Text>
+            </View>
+          </Pressable>
+
+          <Pressable
+            style={({ pressed }) => [
               styles.regenerateBtn,
               pressed && styles.regenerateBtnPressed,
             ]}
@@ -1209,6 +1227,33 @@ const styles = StyleSheet.create({
   },
   scanBtnText: {
     color: "#FFFFFF",
+    fontSize: 12,
+    fontFamily: "monospace",
+    fontWeight: "900",
+    letterSpacing: 1,
+  },
+  adjustBtn: {
+    height: 48,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.35)",
+    backgroundColor: "#0F172A",
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  adjustBtnPressed: {
+    backgroundColor: "rgba(56, 189, 248, 0.16)",
+    borderColor: "rgba(56, 189, 248, 0.55)",
+  },
+  adjustBtnContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  adjustBtnText: {
+    color: "#38BDF8",
     fontSize: 12,
     fontFamily: "monospace",
     fontWeight: "900",
