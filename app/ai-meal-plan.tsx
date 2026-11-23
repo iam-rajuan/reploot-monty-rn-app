@@ -1,5 +1,5 @@
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
-import MaskedView from "@react-native-masked-view/masked-view";
+import { useNutritionPlanStore } from "@/stores/nutritionPlanStore";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -7,15 +7,16 @@ import { StatusBar } from "expo-status-bar";
 import {
   Calendar,
   Check,
+  ChevronRight,
+  Clock,
   Flame,
   Heart,
-  Plus,
   RefreshCw,
   Sparkles,
   Target,
   Utensils,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Platform,
   Pressable,
@@ -25,7 +26,6 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Line as SvgLine } from "react-native-svg";
 
 interface PlannedMeal {
   id: number;
@@ -43,8 +43,15 @@ interface PlannedMeal {
 
 export default function AiMealPlanScreen() {
   const insets = useSafeAreaInsets();
+  const activateGeneratedPlan = useNutritionPlanStore(
+    (state) => state.activateGeneratedPlan,
+  );
+  const hasGeneratedPlan = useNutritionPlanStore(
+    (state) => state.hasGeneratedPlan,
+  );
+
   const [isRegenerating, setIsRegenerating] = useState(false);
-  const [planApplied, setPlanApplied] = useState(false);
+  const [planApplied, setPlanApplied] = useState(hasGeneratedPlan);
 
   const [meals, setMeals] = useState<PlannedMeal[]>([
     {
@@ -52,12 +59,12 @@ export default function AiMealPlanScreen() {
       time: "08:30 AM",
       type: "BREAKFAST",
       typeColor: "#38BDF8",
-      name: "Avocado & Organic Poached Egg Toast",
+      name: "Avocado & Poached Egg Toast",
       calories: 420,
       protein: 22,
       carbs: 34,
       fat: 16,
-      prepTime: "10 MIN",
+      prepTime: "10m",
       liked: true,
     },
     {
@@ -65,12 +72,12 @@ export default function AiMealPlanScreen() {
       time: "01:00 PM",
       type: "LUNCH",
       typeColor: "#2DD4BF",
-      name: "Flame-Grilled Chicken Quinoa Bowl",
+      name: "Grilled Chicken Quinoa Bowl",
       calories: 680,
       protein: 48,
       carbs: 62,
       fat: 14,
-      prepTime: "20 MIN",
+      prepTime: "20m",
       liked: false,
     },
     {
@@ -78,12 +85,12 @@ export default function AiMealPlanScreen() {
       time: "04:30 PM",
       type: "SNACK",
       typeColor: "#FFB68C",
-      name: "Raw Almond & Whey Cacao Crunch",
+      name: "Almond & Whey Cacao Crunch",
       calories: 310,
       protein: 18,
       carbs: 24,
       fat: 12,
-      prepTime: "5 MIN",
+      prepTime: "5m",
       liked: false,
     },
     {
@@ -91,12 +98,12 @@ export default function AiMealPlanScreen() {
       time: "07:45 PM",
       type: "DINNER",
       typeColor: "#C084FC",
-      name: "Wild Atlantic Salmon with Grilled Asparagus",
+      name: "Atlantic Salmon & Grilled Greens",
       calories: 540,
       protein: 42,
       carbs: 16,
       fat: 22,
-      prepTime: "25 MIN",
+      prepTime: "25m",
       liked: true,
     },
   ]);
@@ -118,6 +125,7 @@ export default function AiMealPlanScreen() {
 
   const handleApplyPlan = () => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+    activateGeneratedPlan();
     setPlanApplied(true);
   };
 
@@ -132,13 +140,30 @@ export default function AiMealPlanScreen() {
           calories: m.calories + Math.floor(Math.random() * 20) - 10,
         })),
       );
-    }, 1200);
+    }, 1000);
   };
 
-  const totalCalories = meals.reduce((sum, m) => sum + m.calories, 0);
-  const totalProtein = meals.reduce((sum, m) => sum + m.protein, 0);
-  const totalCarbs = meals.reduce((sum, m) => sum + m.carbs, 0);
-  const totalFat = meals.reduce((sum, m) => sum + m.fat, 0);
+  const totalCalories = useMemo(
+    () => meals.reduce((sum, m) => sum + m.calories, 0),
+    [meals],
+  );
+  const totalProtein = useMemo(
+    () => meals.reduce((sum, m) => sum + m.protein, 0),
+    [meals],
+  );
+  const totalCarbs = useMemo(
+    () => meals.reduce((sum, m) => sum + m.carbs, 0),
+    [meals],
+  );
+  const totalFat = useMemo(
+    () => meals.reduce((sum, m) => sum + m.fat, 0),
+    [meals],
+  );
+
+  const totalMacroGrams = totalProtein + totalCarbs + totalFat || 1;
+  const proteinPct = Math.round((totalProtein / totalMacroGrams) * 100);
+  const carbsPct = Math.round((totalCarbs / totalMacroGrams) * 100);
+  const fatPct = Math.max(0, 100 - proteinPct - carbsPct);
 
   return (
     <View style={styles.container}>
@@ -156,191 +181,223 @@ export default function AiMealPlanScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: Math.max(insets.bottom + 60, 80) },
+          { paddingBottom: Math.max(insets.bottom + 40, 60) },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title Section with Masked Gradient Title & Description */}
+        {/* Title Header */}
         <View style={styles.titleSection}>
-          <View style={styles.maskedTitleWrapper}>
-            <MaskedView
-              style={styles.maskedTitleView}
-              maskElement={
-                <View style={styles.maskWrapper}>
-                  <Text style={styles.mainTitle} numberOfLines={1}>
-                    AI MEAL PLAN
-                  </Text>
-                </View>
-              }
-            >
-              <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradient}
-              />
-            </MaskedView>
+          <View style={styles.titleBadge}>
+            <Sparkles size={11} color="#38BDF8" />
+            <Text style={styles.titleBadgeText}>AI NUTRITION</Text>
           </View>
+          <Text style={styles.mainTitle}>MEAL PLAN</Text>
           <Text style={styles.subtitle}>
-            Precision bio-calibrated nutrition matrix generated for peak
-            performance
+            Calibrated daily targets and meal timing.
           </Text>
         </View>
 
-        {/* Daily Calibrated Target Card */}
-        <View style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <View style={styles.headerBadge}>
-              <Target size={13} color="#38BDF8" />
-              <Text style={styles.headerBadgeText}>AI MACRO CALIBRATION</Text>
+        {/* Daily Target Hero Card */}
+        <View style={styles.targetCard}>
+          <View style={styles.targetHeader}>
+            <View style={styles.targetBadge}>
+              <Target size={12} color="#38BDF8" />
+              <Text style={styles.targetBadgeText}>DAILY TARGET</Text>
+            </View>
+            <View style={styles.targetStatusPill}>
+              <Text style={styles.targetStatusText}>{meals.length} MEALS</Text>
             </View>
           </View>
 
-          {/* Calories Row */}
+          {/* Hero Calorie Count */}
           <View style={styles.caloriesRow}>
-            <Text style={styles.caloriesMain}>
+            <Flame size={20} color="#38BDF8" style={{ marginRight: 6 }} />
+            <Text style={styles.caloriesNumber}>
               {totalCalories.toLocaleString()}
             </Text>
-            <Text style={styles.caloriesTotal}> KCAL / DAY</Text>
+            <Text style={styles.caloriesUnit}>KCAL</Text>
           </View>
 
-          {/* Calorie Progress Bar */}
-          <View style={styles.progressBarBg}>
-            <LinearGradient
-              colors={["#00f2fe", "#4facfe"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={[StyleSheet.absoluteFill, { width: "100%" }]}
+          {/* Segmented Macro Distribution Bar */}
+          <View style={styles.macroRatioBar}>
+            <View
+              style={[
+                styles.ratioSegment,
+                { width: `${proteinPct}%`, backgroundColor: "#38BDF8" },
+              ]}
+            />
+            <View
+              style={[
+                styles.ratioSegment,
+                { width: `${carbsPct}%`, backgroundColor: "#FFB68C" },
+              ]}
+            />
+            <View
+              style={[
+                styles.ratioSegment,
+                { width: `${fatPct}%`, backgroundColor: "#F43F5E" },
+              ]}
             />
           </View>
 
-          {/* Macros Row */}
-          <View style={styles.macrosRow}>
+          {/* Macro KPI Cards */}
+          <View style={styles.macroCardsRow}>
             {/* Protein */}
             <View
               style={[
-                styles.macroBox,
-                { borderColor: "rgba(56, 189, 248, 0.35)" },
+                styles.macroCard,
+                { borderColor: "rgba(56, 189, 248, 0.25)" },
               ]}
             >
-              <Text style={[styles.macroLabel, { color: "#38BDF8" }]}>
-                PROTEIN
-              </Text>
-              <Text style={styles.macroValue}>{totalProtein}g</Text>
+              <View style={styles.macroCardHeader}>
+                <View
+                  style={[styles.macroDot, { backgroundColor: "#38BDF8" }]}
+                />
+                <Text style={[styles.macroCardLabel, { color: "#38BDF8" }]}>
+                  PROTEIN
+                </Text>
+              </View>
+              <Text style={styles.macroCardValue}>{totalProtein}g</Text>
+              <Text style={styles.macroCardPct}>{proteinPct}%</Text>
             </View>
 
             {/* Carbs */}
             <View
               style={[
-                styles.macroBox,
-                { borderColor: "rgba(255, 182, 140, 0.35)" },
+                styles.macroCard,
+                { borderColor: "rgba(255, 182, 140, 0.25)" },
               ]}
             >
-              <Text style={[styles.macroLabel, { color: "#FFB68C" }]}>
-                CARBS
-              </Text>
-              <Text style={styles.macroValue}>{totalCarbs}g</Text>
+              <View style={styles.macroCardHeader}>
+                <View
+                  style={[styles.macroDot, { backgroundColor: "#FFB68C" }]}
+                />
+                <Text style={[styles.macroCardLabel, { color: "#FFB68C" }]}>
+                  CARBS
+                </Text>
+              </View>
+              <Text style={styles.macroCardValue}>{totalCarbs}g</Text>
+              <Text style={styles.macroCardPct}>{carbsPct}%</Text>
             </View>
 
             {/* Fat */}
             <View
               style={[
-                styles.macroBox,
-                { borderColor: "rgba(244, 63, 94, 0.35)" },
+                styles.macroCard,
+                { borderColor: "rgba(244, 63, 94, 0.25)" },
               ]}
             >
-              <Text style={[styles.macroLabel, { color: "#F43F5E" }]}>FAT</Text>
-              <Text style={styles.macroValue}>{totalFat}g</Text>
+              <View style={styles.macroCardHeader}>
+                <View
+                  style={[styles.macroDot, { backgroundColor: "#F43F5E" }]}
+                />
+                <Text style={[styles.macroCardLabel, { color: "#F43F5E" }]}>
+                  FAT
+                </Text>
+              </View>
+              <Text style={styles.macroCardValue}>{totalFat}g</Text>
+              <Text style={styles.macroCardPct}>{fatPct}%</Text>
             </View>
           </View>
         </View>
 
+        {/* Adjust Plan Quick Action */}
         <Pressable
-          style={styles.adjustPlanBtn}
+          style={styles.adjustPill}
           onPress={() => {
             triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
             router.push("/nutrition-ai?mode=adjust");
           }}
+          accessibilityRole="button"
+          accessibilityLabel="Adjust plan with AI"
         >
-          <Sparkles color="#44EAC3" size={16} />
-          <View style={styles.adjustPlanCopy}>
-            <Text style={styles.adjustPlanTitle}>ADJUST PLAN WITH AI</Text>
-            <Text style={styles.adjustPlanSubtitle}>Change meals, budget, protein, or timing</Text>
+          <View style={styles.adjustLeft}>
+            <Sparkles color="#44EAC3" size={14} />
+            <Text style={styles.adjustText}>
+              Adjust calories, meals, or budget
+            </Text>
           </View>
-          <Text style={styles.adjustPlanArrow}>›</Text>
+          <ChevronRight size={16} color="#44EAC3" />
         </Pressable>
 
         {/* Meal Schedule Section Header */}
         <View style={styles.sectionHeader}>
-          <View style={styles.iconBadge}>
-            <Utensils size={13} color="#38BDF8" />
+          <View style={styles.sectionIconBadge}>
+            <Utensils size={12} color="#38BDF8" />
           </View>
-          <Text style={styles.sectionTitle}>RECOMMENDED DAILY TIMING</Text>
-          <Text style={styles.counterText}>4 COURSES</Text>
+          <Text style={styles.sectionTitle}>TODAY'S SCHEDULE</Text>
+          <Text style={styles.sectionCount}>{meals.length} MEALS</Text>
         </View>
 
-        {/* Meals Schedule List */}
+        {/* Meals List */}
         <View style={styles.mealList}>
           {meals.map((meal) => (
             <View key={meal.id} style={styles.mealCard}>
-              <View style={styles.mealInfo}>
-                <View style={styles.mealTypeRow}>
-                  <View
-                    style={[
-                      styles.typePill,
-                      {
-                        backgroundColor: `${meal.typeColor}18`,
-                        borderColor: `${meal.typeColor}40`,
-                      },
-                    ]}
-                  >
-                    <Text style={[styles.typeText, { color: meal.typeColor }]}>
-                      {meal.type}
-                    </Text>
-                  </View>
-                  <Text style={styles.timingText}>{meal.time}</Text>
-                </View>
-
-                <Text style={styles.mealName}>{meal.name}</Text>
-
-                <View style={styles.mealStatsRow}>
-                  <Text style={styles.mealCalories}>{meal.calories} KCAL</Text>
-                  <Text style={styles.dotSeparator}>•</Text>
-                  <Text style={styles.mealMacros}>
-                    {meal.protein}g P • {meal.carbs}g C • {meal.fat}g F
+              <View style={styles.mealTopRow}>
+                <View
+                  style={[
+                    styles.typeBadge,
+                    {
+                      backgroundColor: `${meal.typeColor}15`,
+                      borderColor: `${meal.typeColor}40`,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.typeText, { color: meal.typeColor }]}>
+                    {meal.type}
                   </Text>
                 </View>
+
+                <View style={styles.timingBadge}>
+                  <Clock size={11} color="#64748B" />
+                  <Text style={styles.timingText}>{meal.time}</Text>
+                  <Text style={styles.prepTimeText}>• {meal.prepTime}</Text>
+                </View>
+
+                <Pressable
+                  style={styles.likeBtn}
+                  onPress={() => toggleLike(meal.id)}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Like ${meal.name}`}
+                >
+                  <Heart
+                    color={meal.liked ? "#F43F5E" : "#475569"}
+                    fill={meal.liked ? "#F43F5E" : "transparent"}
+                    size={16}
+                  />
+                </Pressable>
               </View>
 
-              <Pressable
-                style={styles.likeBtn}
-                onPress={() => toggleLike(meal.id)}
-              >
-                <Heart
-                  color={meal.liked ? "#F43F5E" : "#64748B"}
-                  fill={meal.liked ? "#F43F5E" : "transparent"}
-                  size={18}
-                />
-              </Pressable>
+              <Text style={styles.mealName}>{meal.name}</Text>
+
+              <View style={styles.mealMacrosRow}>
+                <View style={styles.kcalBadge}>
+                  <Text style={styles.kcalText}>{meal.calories} KCAL</Text>
+                </View>
+                <Text style={styles.macroPillText}>{meal.protein}g P</Text>
+                <Text style={styles.dot}>•</Text>
+                <Text style={styles.macroPillText}>{meal.carbs}g C</Text>
+                <Text style={styles.dot}>•</Text>
+                <Text style={styles.macroPillText}>{meal.fat}g F</Text>
+              </View>
             </View>
           ))}
         </View>
 
-        {/* Metabolic Insight */}
+        {/* Nutrient Timing Insight */}
         <View style={styles.insightBox}>
-          <View style={styles.insightIconWrapper}>
-            <Calendar color="#38BDF8" size={16} />
-          </View>
+          <Calendar color="#38BDF8" size={15} style={{ marginTop: 2 }} />
           <View style={styles.insightContent}>
-            <Text style={styles.insightTitle}>METABOLIC STRATEGY</Text>
+            <Text style={styles.insightTitle}>NUTRIENT TIMING</Text>
             <Text style={styles.insightText}>
-              Carbohydrate loads are timed around your post-workout window to
-              drive optimal glycogen replenishment without insulin spikes.
+              Carbs are concentrated post-workout to support glycogen recovery
+              and sustained energy.
             </Text>
           </View>
         </View>
 
-        {/* Action Buttons */}
+        {/* Bottom Actions */}
         <View style={styles.actionsContainer}>
           <Pressable style={styles.applyBtn} onPress={handleApplyPlan}>
             <LinearGradient
@@ -351,29 +408,40 @@ export default function AiMealPlanScreen() {
             >
               {planApplied ? (
                 <>
-                  <Check size={16} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Check size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
                   <Text style={styles.applyBtnText}>
                     PLAN APPLIED TO SCHEDULE
                   </Text>
                 </>
               ) : (
-                <Text style={styles.applyBtnText}>ACTIVATE AI MEAL PLAN</Text>
+                <Text style={styles.applyBtnText}>APPLY TO DAILY SCHEDULE</Text>
               )}
             </LinearGradient>
           </Pressable>
 
-          <Pressable style={styles.regenerateBtn} onPress={handleRegenerate}>
-            <RefreshCw
-              color="#38BDF8"
-              size={14}
-              style={[
-                { marginRight: 8 },
-                isRegenerating && { transform: [{ rotate: "180deg" }] },
-              ]}
-            />
-            <Text style={styles.regenerateText}>
-              {isRegenerating ? "SYNTHESIZING..." : "RE-SYNTHESIZE MEAL MATRIX"}
-            </Text>
+          <Pressable
+            style={({ pressed }) => [
+              styles.regenerateBtn,
+              pressed && styles.regenerateBtnPressed,
+            ]}
+            onPress={handleRegenerate}
+            disabled={isRegenerating}
+            accessibilityRole="button"
+            accessibilityLabel="Regenerate plan"
+          >
+            <View style={styles.regenerateBtnContent}>
+              <RefreshCw
+                color="#38BDF8"
+                size={14}
+                style={[
+                  { marginRight: 8 },
+                  isRegenerating && { transform: [{ rotate: "180deg" }] },
+                ]}
+              />
+              <Text style={styles.regenerateText}>
+                {isRegenerating ? "GENERATING..." : "REGENERATE PLAN"}
+              </Text>
+            </View>
           </Pressable>
         </View>
       </ScrollView>
@@ -384,7 +452,7 @@ export default function AiMealPlanScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#090A10",
+    backgroundColor: "#070A12",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -392,173 +460,196 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     marginTop: 4,
-    marginBottom: 20,
+    marginBottom: 18,
   },
-  maskedTitleWrapper: {
-    height: 48,
-    width: "100%",
+  titleBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(56, 189, 248, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.25)",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    gap: 5,
+    marginBottom: 6,
   },
-  maskedTitleView: {
-    flex: 1,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-  },
-  gradient: {
-    flex: 1,
+  titleBadgeText: {
+    color: "#38BDF8",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 1.2,
   },
   mainTitle: {
     color: "#FFFFFF",
-    fontSize: 34,
-    lineHeight: 40,
+    fontSize: 28,
+    lineHeight: 32,
     fontWeight: "900",
     fontFamily: "monospace",
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
+    letterSpacing: 1.2,
   },
   subtitle: {
     color: "#94A3B8",
-    fontSize: 13,
+    fontSize: 12.5,
     lineHeight: 18,
     fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
   },
-  card: {
-    backgroundColor: "#14141C",
+  targetCard: {
+    backgroundColor: "#0D131F",
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 20,
-    marginBottom: 24,
+    borderWidth: 1.5,
+    borderColor: "rgba(56, 189, 248, 0.25)",
+    padding: 18,
+    marginBottom: 14,
   },
-  cardHeaderRow: {
+  targetHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 14,
+    marginBottom: 12,
   },
-  headerBadge: {
+  targetBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
   },
-  headerBadgeText: {
+  targetBadgeText: {
     color: "#38BDF8",
     fontSize: 11,
     fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 1.2,
   },
-  statusPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(45, 212, 191, 0.12)",
+  targetStatusPill: {
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.3)",
+    borderColor: "rgba(255, 255, 255, 0.1)",
   },
-  statusPillText: {
-    color: "#2DD4BF",
-    fontSize: 9,
+  targetStatusText: {
+    color: "#94A3B8",
+    fontSize: 10,
     fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   caloriesRow: {
     flexDirection: "row",
     alignItems: "baseline",
     justifyContent: "center",
-    marginBottom: 12,
+    marginBottom: 14,
   },
-  caloriesMain: {
+  caloriesNumber: {
     color: "#FFFFFF",
-    fontSize: 44,
-    fontFamily: "monospace",
+    fontSize: 38,
+    lineHeight: 42,
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
     fontWeight: "900",
-    letterSpacing: 1,
+    letterSpacing: -0.5,
   },
-  caloriesTotal: {
-    color: "#64748B",
+  caloriesUnit: {
+    color: "#38BDF8",
     fontSize: 14,
     fontFamily: "monospace",
-    fontWeight: "700",
+    fontWeight: "800",
     marginLeft: 6,
+    letterSpacing: 1,
   },
-  progressBarBg: {
-    height: 8,
+  macroRatioBar: {
+    height: 7,
     borderRadius: 4,
     backgroundColor: "rgba(255, 255, 255, 0.06)",
+    flexDirection: "row",
     overflow: "hidden",
-    marginBottom: 20,
+    marginBottom: 16,
+    gap: 2,
   },
-  macrosRow: {
+  ratioSegment: {
+    height: "100%",
+    borderRadius: 2,
+  },
+  macroCardsRow: {
     flexDirection: "row",
     gap: 8,
   },
-  adjustPlanBtn: {
+  macroCard: {
+    flex: 1,
+    backgroundColor: "#121A2B",
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    alignItems: "center",
+  },
+  macroCardHeader: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 4,
+    marginBottom: 4,
+  },
+  macroDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+  },
+  macroCardLabel: {
+    fontSize: 9.5,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.8,
+  },
+  macroCardValue: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontFamily: "monospace",
+    fontWeight: "900",
+    marginBottom: 1,
+  },
+  macroCardPct: {
+    color: "#64748B",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "700",
+  },
+  adjustPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: "rgba(68, 234, 195, 0.08)",
     borderWidth: 1,
     borderColor: "rgba(68, 234, 195, 0.22)",
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 24,
-  },
-  adjustPlanCopy: { flex: 1, marginLeft: 10 },
-  adjustPlanTitle: { color: "#44EAC3", fontFamily: "monospace", fontSize: 11, fontWeight: "900", letterSpacing: 0.8 },
-  adjustPlanSubtitle: { color: "#94A3B8", fontSize: 12, marginTop: 3, fontWeight: "600" },
-  adjustPlanArrow: { color: "#44EAC3", fontSize: 28, lineHeight: 28, fontWeight: "300" },
-  macroBox: {
-    flex: 1,
-    borderWidth: 1,
     borderRadius: 14,
     paddingVertical: 12,
-    paddingHorizontal: 8,
+    paddingHorizontal: 14,
+    marginBottom: 20,
+  },
+  adjustLeft: {
+    flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1A1A24",
+    gap: 8,
   },
-  macroDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginBottom: 4,
-  },
-  macroLabel: {
-    fontSize: 10,
+  adjustText: {
+    color: "#44EAC3",
     fontFamily: "monospace",
+    fontSize: 11.5,
     fontWeight: "800",
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-  macroValue: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    marginBottom: 2,
-  },
-  macroSub: {
-    color: "#64748B",
-    fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "700",
+    letterSpacing: 0.5,
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 14,
+    marginBottom: 12,
   },
-  iconBadge: {
-    width: 26,
-    height: 26,
-    borderRadius: 7,
+  sectionIconBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
     backgroundColor: "rgba(56, 189, 248, 0.12)",
     borderWidth: 1,
     borderColor: "rgba(56, 189, 248, 0.25)",
@@ -571,40 +662,33 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: "monospace",
     fontWeight: "800",
-    letterSpacing: 1.5,
+    letterSpacing: 1.2,
     flex: 1,
   },
-  counterText: {
+  sectionCount: {
     color: "#64748B",
     fontSize: 10,
     fontFamily: "monospace",
     fontWeight: "700",
   },
   mealList: {
-    gap: 12,
-    marginBottom: 24,
+    gap: 10,
+    marginBottom: 20,
   },
   mealCard: {
-    backgroundColor: "#14141C",
+    backgroundColor: "#0D131F",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 16,
+    borderColor: "rgba(255, 255, 255, 0.07)",
+    padding: 14,
+  },
+  mealTopRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    marginBottom: 6,
   },
-  mealInfo: {
-    flex: 1,
-    marginRight: 12,
-  },
-  mealTypeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 4,
-    gap: 8,
-  },
-  typePill: {
+  typeBadge: {
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 5,
@@ -616,125 +700,143 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: 0.8,
   },
+  timingBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    flex: 1,
+    marginLeft: 8,
+  },
   timingText: {
-    color: "#38BDF8",
+    color: "#94A3B8",
     fontSize: 10,
     fontFamily: "monospace",
     fontWeight: "700",
   },
-  prepBadge: {
-    color: "#64748B",
-    fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "600",
-  },
-  mealName: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 0.5,
-    marginBottom: 4,
-  },
-  mealStatsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  mealCalories: {
-    color: "#38BDF8",
-    fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
-  },
-  dotSeparator: {
-    color: "#475569",
-    fontSize: 10,
-  },
-  mealMacros: {
+  prepTimeText: {
     color: "#64748B",
     fontSize: 10,
     fontFamily: "monospace",
     fontWeight: "600",
   },
   likeBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: "rgba(255, 255, 255, 0.04)",
     justifyContent: "center",
     alignItems: "center",
   },
-  insightBox: {
-    backgroundColor: "rgba(56, 189, 248, 0.06)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.2)",
-    borderRadius: 18,
-    padding: 16,
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 24,
+  mealName: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+    fontWeight: "800",
+    letterSpacing: 0.2,
+    marginBottom: 8,
   },
-  insightIconWrapper: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    backgroundColor: "rgba(56, 189, 248, 0.15)",
+  mealMacrosRow: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    gap: 6,
+  },
+  kcalBadge: {
+    backgroundColor: "rgba(56, 189, 248, 0.12)",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  kcalText: {
+    color: "#38BDF8",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "800",
+  },
+  macroPillText: {
+    color: "#94A3B8",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "600",
+  },
+  dot: {
+    color: "#475569",
+    fontSize: 9,
+  },
+  insightBox: {
+    backgroundColor: "rgba(56, 189, 248, 0.05)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.18)",
+    borderRadius: 14,
+    padding: 14,
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 20,
+    alignItems: "flex-start",
   },
   insightContent: {
     flex: 1,
   },
   insightTitle: {
     color: "#38BDF8",
-    fontSize: 10,
+    fontSize: 9.5,
     fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 1,
-    marginBottom: 4,
+    marginBottom: 3,
   },
   insightText: {
-    color: "#CBD5E1",
-    fontSize: 12,
+    color: "#94A3B8",
+    fontSize: 11.5,
     fontFamily: "monospace",
-    lineHeight: 17,
+    lineHeight: 16,
   },
   actionsContainer: {
-    gap: 12,
+    gap: 10,
   },
   applyBtn: {
-    borderRadius: 16,
+    borderRadius: 14,
     overflow: "hidden",
   },
   applyBtnGradient: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 15,
+    height: 48,
+    borderRadius: 14,
+    overflow: "hidden",
   },
   applyBtnText: {
     color: "#FFFFFF",
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 1.2,
+    fontWeight: "900",
+    letterSpacing: 1,
   },
   regenerateBtn: {
+    height: 46,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: "rgba(56, 189, 248, 0.35)",
+    backgroundColor: "#101A2C",
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  regenerateBtnPressed: {
+    backgroundColor: "rgba(56, 189, 248, 0.18)",
+  },
+  regenerateBtnContent: {
+    width: "100%",
+    height: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    backgroundColor: "rgba(56, 189, 248, 0.08)",
   },
   regenerateText: {
     color: "#38BDF8",
-    fontSize: 12,
+    fontSize: 11.5,
     fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "900",
     letterSpacing: 1,
   },
 });
