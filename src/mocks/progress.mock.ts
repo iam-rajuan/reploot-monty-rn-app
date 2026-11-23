@@ -236,6 +236,51 @@ export const mockLeaderboardEntries: LeaderboardEntry[] = assignCompetitionRanks
   },
 ]);
 
+export const mockHomeLeaderboardEntries: LeaderboardEntry[] = assignCompetitionRanks([
+  {
+    userId: "home_201",
+    fullName: "Maya Moves",
+    avatarUrl: "https://i.pravatar.cc/100?img=49",
+    score: 46800,
+    isCurrentUser: false,
+  },
+  {
+    userId: "home_202",
+    fullName: "CoreByNadia",
+    avatarUrl: "https://i.pravatar.cc/100?img=45",
+    score: 42100,
+    isCurrentUser: false,
+  },
+  {
+    userId: "home_203",
+    fullName: "NoGymNeeded",
+    avatarUrl: "https://i.pravatar.cc/100?img=15",
+    score: 42100,
+    isCurrentUser: false,
+  },
+  {
+    userId: "home_204",
+    fullName: "LivingRoomLift",
+    avatarUrl: "https://i.pravatar.cc/100?img=32",
+    score: 36650,
+    isCurrentUser: false,
+  },
+  {
+    userId: "1",
+    fullName: "Alex",
+    avatarUrl: "https://i.pravatar.cc/100?img=68",
+    score: 31900,
+    isCurrentUser: true,
+  },
+  {
+    userId: "home_206",
+    fullName: "BodyweightBen",
+    avatarUrl: "https://i.pravatar.cc/100?img=11",
+    score: 29400,
+    isCurrentUser: false,
+  },
+]);
+
 // Backend integration point: each challenge type owns its scoring metadata and data set.
 export const mockRankingContexts: Record<RankingContextId, RankingContext> = {
   gym: {
@@ -252,9 +297,9 @@ export const mockRankingContexts: Record<RankingContextId, RankingContext> = {
     title: "Home challenge ranking",
     scoreLabel: "Challenge score",
     scoreUnit: "PTS",
-    scoringStatus: "pending",
+    scoringStatus: "configured",
     developmentData: true,
-    entries: [],
+    entries: mockHomeLeaderboardEntries,
   },
 };
 
