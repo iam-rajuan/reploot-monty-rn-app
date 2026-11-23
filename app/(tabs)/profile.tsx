@@ -213,9 +213,9 @@ const styles = StyleSheet.create({
   listItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    backgroundColor: "#111A25",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(56, 189, 248, 0.18)",
     borderRadius: 18,
     padding: 16,
     marginBottom: 12,

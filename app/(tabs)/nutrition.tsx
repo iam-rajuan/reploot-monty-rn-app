@@ -433,7 +433,7 @@ export default function NutritionTabRoute() {
 
         {/* Water Intake Card (Hydration Telemetry) */}
         <LinearGradient
-          colors={["rgba(18, 28, 48, 0.88)", "rgba(10, 15, 27, 0.88)"]}
+          colors={["#111A25", "#0D141E"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.hydrationCard}
@@ -659,7 +659,7 @@ export default function NutritionTabRoute() {
         </LinearGradient>
 
         <LinearGradient
-          colors={["rgba(15, 22, 38, 0.88)", "rgba(11, 16, 29, 0.88)", "rgba(7, 10, 18, 0.88)"]}
+          colors={["#111A25", "#0F1721", "#0D141E"]}
           locations={[0, 0.6, 1]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -905,15 +905,15 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "rgba(13, 19, 31, 0.85)",
     borderRadius: 24,
-    borderWidth: 1.2,
-    borderColor: "rgba(56, 189, 248, 0.16)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.18)",
     padding: 18,
     marginBottom: 18,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 14,
-    elevation: 4,
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 2,
   },
   cardHeaderRow: {
     flexDirection: "row",
@@ -1154,7 +1154,7 @@ const styles = StyleSheet.create({
   planHeroCard: {
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.22)",
+    borderColor: "rgba(56, 189, 248, 0.18)",
     padding: 18,
     marginBottom: 18,
     shadowColor: "#000000",
@@ -1236,15 +1236,15 @@ const styles = StyleSheet.create({
   },
   hydrationCard: {
     borderRadius: 24,
-    borderWidth: 1.2,
-    borderColor: "rgba(56, 189, 248, 0.16)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.18)",
     padding: 18,
     marginBottom: 18,
     shadowColor: "#000000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 14,
-    elevation: 4,
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 2,
   },
   hydrationBadge: {
     flexDirection: "row",
@@ -1583,14 +1583,14 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.22)",
+    borderColor: "rgba(56, 189, 248, 0.18)",
     padding: 16,
     gap: 12,
     overflow: "hidden",
-    shadowColor: "#0284C7",
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 3,
+    shadowColor: "#000000",
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 2,
   },
   nutritionCoachTop: {
     flexDirection: "row",
@@ -1654,10 +1654,10 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
   nutritionLunch: {
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    backgroundColor: "rgba(7, 12, 19, 0.42)",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
+    borderColor: "rgba(148, 163, 184, 0.12)",
     paddingVertical: 10,
     paddingHorizontal: 12,
     gap: 4,

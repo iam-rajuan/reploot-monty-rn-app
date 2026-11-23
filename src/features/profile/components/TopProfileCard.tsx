@@ -161,9 +161,9 @@ export const TopProfileCard = () => {
 };
 
 const styles = StyleSheet.create({
-  card: { overflow: "hidden", borderRadius: 24, borderWidth: 1, borderColor: "rgba(56,189,248,0.24)", backgroundColor: "rgba(15,20,34,0.96)", padding: 20, marginBottom: 20 },
+  card: { overflow: "hidden", borderRadius: 24, borderWidth: 1, borderColor: "rgba(56,189,248,0.18)", backgroundColor: "#111A25", padding: 20, marginBottom: 20 },
   identityRow: { flexDirection: "row", alignItems: "center" },
-  avatarFrame: { width: 78, height: 78, marginRight: 16, borderRadius: 24, alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "#141A29", borderWidth: 2, borderColor: "#22D3EE", shadowColor: "#22D3EE", shadowOpacity: 0.26, shadowRadius: 12, elevation: 4 },
+  avatarFrame: { width: 78, height: 78, marginRight: 16, borderRadius: 24, alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "#0D141E", borderWidth: 1, borderColor: "rgba(34,211,238,0.55)", shadowColor: "#22D3EE", shadowOpacity: 0.16, shadowRadius: 10, elevation: 3 },
   avatar: { width: "100%", height: "100%" },
   identity: { flex: 1, minWidth: 0 },
   name: { color: "#FFFFFF", fontSize: 20, lineHeight: 24, fontWeight: "900", fontFamily: "monospace", letterSpacing: 0.3 },

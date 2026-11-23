@@ -361,7 +361,7 @@ export default function UnifiedMealPlanScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: Math.max(insets.bottom + 40, 60) },
+          { paddingBottom: Math.max(insets.bottom + 90, 110) },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -1183,7 +1183,9 @@ const styles = StyleSheet.create({
     marginHorizontal: isSmallDevice ? 4 : 8,
   },
   actionsContainer: {
-    gap: 10,
+    gap: 12,
+    marginTop: 14,
+    marginBottom: 8,
   },
   scanBtn: {
     borderRadius: 14,
@@ -1204,7 +1206,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   adjustBtn: {
-    height: 50,
+    minHeight: 50,
     borderRadius: 14,
     borderWidth: 1.5,
     borderColor: "rgba(56, 189, 248, 0.45)",
@@ -1212,11 +1214,13 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   adjustBtnGradient: {
-    height: 47,
+    minHeight: 47,
     borderRadius: 13,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   adjustBtnText: {
     color: "#38BDF8",

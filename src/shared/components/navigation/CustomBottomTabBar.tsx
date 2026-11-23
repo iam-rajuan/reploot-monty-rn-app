@@ -1,5 +1,11 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable, Platform } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Platform,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
@@ -24,10 +30,16 @@ export function CustomBottomTabBar({
     });
 
     if (!isFocused && !event.defaultPrevented) {
-      try {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      } catch {
-        // ignore
+      if (Platform.OS !== "web") {
+        try {
+          Haptics.impactAsync(
+            route.name === "action"
+              ? Haptics.ImpactFeedbackStyle.Medium
+              : Haptics.ImpactFeedbackStyle.Light
+          );
+        } catch {
+          // ignore
+        }
       }
       navigation.navigate(route.name);
     }
@@ -41,28 +53,35 @@ export function CustomBottomTabBar({
     return null;
   }
 
-  // Safe bottom padding for navigation bar/gesture pill
+  // Safe bottom padding for navigation gesture pill
   const bottomInset =
-    Platform.OS === "web" ? 12 : Math.max(insets.bottom + 4, 18);
+    Platform.OS === "web" ? 12 : Math.max(insets.bottom + 4, 16);
 
   return (
     <View
       pointerEvents="box-none"
       style={[styles.rootWrapper, { paddingBottom: bottomInset }]}
     >
-      {/* Background Tab Bar Surface as sibling to avoid clipping elevated center button */}
+      {/* Background Tab Bar Surface */}
       <View style={styles.barSurface} pointerEvents="none">
         <LinearGradient
-          colors={["#161B2E", "#0D101C"]}
+          colors={["#11172A", "#0B0E1B", "#060810"]}
+          locations={[0, 0.45, 1]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={styles.barSurfaceGradient}
+        />
+        {/* Subtle Specular Ambient Top Beam */}
+        <LinearGradient
+          colors={["rgba(56, 189, 248, 0.12)", "transparent"]}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 0.6 }}
+          style={styles.barTopAmbientLight}
         />
       </View>
 
       <View style={styles.tabsRow}>
         {state.routes.map((route, index) => {
-          // Hide internal or hidden routes if any
           const { options } = descriptors[route.key];
           if (
             (options.tabBarItemStyle as any)?.display === "none" ||
@@ -74,6 +93,7 @@ export function CustomBottomTabBar({
           const isFocused = state.index === index;
           const isCenterAction = route.name === "action";
 
+          // 1. Center Action: Kinetic Workout Launcher
           if (isCenterAction) {
             return (
               <View key={route.key} style={styles.centerButtonOuterContainer}>
@@ -86,21 +106,24 @@ export function CustomBottomTabBar({
                     pressed && styles.centerButtonPressed,
                   ]}
                 >
-                  {/* Concentric Dark Rim Bezel with active highlight */}
+                  {/* Outer Cyber Glow Ambient */}
+                  <View style={styles.centerOuterAura} />
+
+                  {/* Concentric Bezel Ring with metallic highlight */}
                   <View
                     style={[
                       styles.centerBezelRing,
                       isFocused && styles.centerBezelRingActive,
                     ]}
                   >
-                    {/* Vibrant Luminous Multi-Stop Linear Gradient */}
+                    {/* Multi-Stop Linear Gradient Power Capsule */}
                     <LinearGradient
-                      colors={["#6366F1", "#38BDF8", "#2DD4BF"]}
-                      start={{ x: 0.15, y: 0.05 }}
-                      end={{ x: 0.85, y: 0.95 }}
+                      colors={["#4F46E5", "#0284C7", "#0EA5E9", "#2DD4BF"]}
+                      locations={[0, 0.35, 0.7, 1]}
+                      start={{ x: 0.1, y: 0.05 }}
+                      end={{ x: 0.9, y: 0.95 }}
                       style={styles.centerGradientCircle}
                     >
-                      {/* Solid White Dumbbell Silhouette tilted at 45° */}
                       <CenterDumbbellIcon />
                     </LinearGradient>
                   </View>
@@ -109,8 +132,9 @@ export function CustomBottomTabBar({
             );
           }
 
-          const activeColor = "#2DD4BF";
-          const inactiveColor = "#94A3B8";
+          // 2. Standard Tab Items: Home, Nutrition, Progress, Profile
+          const activeColor = "#38BDF8";
+          const inactiveColor = "#64748B";
           const tintColor = isFocused ? activeColor : inactiveColor;
 
           const renderIcon = () => {
@@ -134,7 +158,7 @@ export function CustomBottomTabBar({
             }
           };
 
-          const label =
+          const rawLabel =
             options.tabBarLabel !== undefined
               ? options.tabBarLabel
               : options.title !== undefined
@@ -146,22 +170,40 @@ export function CustomBottomTabBar({
               key={route.key}
               accessibilityRole="button"
               accessibilityState={isFocused ? { selected: true } : {}}
-              accessibilityLabel={String(label)}
+              accessibilityLabel={String(rawLabel)}
               onPress={() => handleTabPress(route, isFocused)}
-              style={styles.tabItem}
+              style={({ pressed }) => [
+                styles.tabItem,
+                pressed && { opacity: 0.8 },
+              ]}
             >
+              {/* Active Top Laser Indicator Capsule */}
+              {isFocused && (
+                <View style={styles.activeTopIndicator}>
+                  <LinearGradient
+                    colors={["#38BDF8", "#2DD4BF"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.activeTopIndicatorBar}
+                  />
+                  <View style={styles.activeTopIndicatorGlow} />
+                </View>
+              )}
+
               <View style={styles.iconContainer}>
-                {isFocused && <View style={styles.activeGlowAura} />}
+                {isFocused && <View style={styles.activeIconBackdrop} />}
                 {renderIcon()}
               </View>
+
               <Text
                 style={[
                   styles.tabLabel,
                   { color: tintColor },
                   isFocused && styles.activeTabLabel,
                 ]}
+                numberOfLines={1}
               >
-                {String(label)}
+                {String(rawLabel).toUpperCase()}
               </Text>
             </Pressable>
           );
@@ -171,9 +213,11 @@ export function CustomBottomTabBar({
   );
 }
 
-// --- TAB ICONS MATCHING FIGMA SPECIFICATION ---
+// ==========================================
+// CRAFTED VECTOR ICONOGRAPHY (24x24 Optical Grid)
+// ==========================================
 
-/** Home tab icon with peaked roof, flat walls and doorway cutout */
+/** 1. Home Icon: Architectural Kinetic Base */
 function HomeTabIcon({
   color,
   isFocused,
@@ -183,141 +227,250 @@ function HomeTabIcon({
 }) {
   return (
     <View style={styles.iconWrapper}>
-      <Svg
-        width={24}
-        height={24}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke={color}
-        strokeWidth={2.2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <Path d="M3 10.5L12 3L21 10.5V20C21 20.5523 20.5523 21 20 21H15C14.4477 21 14 20.5523 13 20V15C13 14.4477 12.5523 14 11 14H9C8.44772 14 8 14.4477 8 15V20C8 20.5523 7.55228 21 7 21H4C3.44772 21 3 20.5523 3 20V10.5Z" />
+      <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+        {isFocused && (
+          <Path
+            d="M3 9.5L12 2.5L21 9.5V20C21 20.6 20.6 21 20 21H15V14.5C15 14.2 14.8 14 14.5 14H9.5C9.2 14 9 14.2 9 14.5V21H4C3.4 21 3 20.6 3 20V9.5Z"
+            fill="rgba(56, 189, 248, 0.14)"
+          />
+        )}
+        <Path
+          d="M3 9.5L12 2.5L21 9.5V20C21 20.6 20.6 21 20 21H15V14.5C15 14.2 14.8 14 14.5 14H9.5C9.2 14 9 14.2 9 14.5V21H4C3.4 21 3 20.6 3 20V9.5Z"
+          stroke={color}
+          strokeWidth={isFocused ? 2.1 : 1.8}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <Path
+          d="M17.5 5.5V3H15.5V4"
+          stroke={color}
+          strokeWidth={isFocused ? 1.8 : 1.5}
+          strokeLinecap="round"
+        />
       </Svg>
     </View>
   );
 }
 
-/** Nutrition tab icon: fork with 3 tines on left, knife with curved blade on right */
-function NutritionTabIcon({ color }: { color: string; isFocused: boolean }) {
+/** 2. Nutrition Icon: Precision Chef Cutlery Pair */
+function NutritionTabIcon({
+  color,
+  isFocused,
+}: {
+  color: string;
+  isFocused: boolean;
+}) {
   return (
     <View style={styles.iconWrapper}>
-      <Svg
-        width={24}
-        height={24}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke={color}
-        strokeWidth={2.2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {/* Knife on the right */}
-        <Path d="M18 2V22" />
-        <Path d="M18 2C16 2 15 4 15 7V13H18" />
-        {/* Fork on the left */}
-        <Path d="M6 2V7C6 8.65685 7.34315 10 9 10C10.6569 10 12 8.65685 12 7V2" />
-        <Path d="M9 2V7" />
-        <Path d="M9 10V22" />
+      <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+        {isFocused && (
+          <>
+            <Path
+              d="M6 3V8C6 9.7 7.3 11 9 11C10.7 11 12 9.7 12 8V3H6Z"
+              fill="rgba(56, 189, 248, 0.14)"
+            />
+            <Path
+              d="M18 3C15.8 3 14.5 4.8 14.5 8V12H18V3Z"
+              fill="rgba(56, 189, 248, 0.14)"
+            />
+          </>
+        )}
+        {/* Fork */}
+        <Path
+          d="M6 3V8C6 9.7 7.3 11 9 11C10.7 11 12 9.7 12 8V3"
+          stroke={color}
+          strokeWidth={isFocused ? 2.1 : 1.8}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <Path
+          d="M9 3V7"
+          stroke={color}
+          strokeWidth={isFocused ? 2.1 : 1.8}
+          strokeLinecap="round"
+        />
+        <Path
+          d="M9 11V21"
+          stroke={color}
+          strokeWidth={isFocused ? 2.1 : 1.8}
+          strokeLinecap="round"
+        />
+        {/* Knife */}
+        <Path
+          d="M18 3C15.8 3 14.5 4.8 14.5 8V12H18V21"
+          stroke={color}
+          strokeWidth={isFocused ? 2.1 : 1.8}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </Svg>
     </View>
   );
 }
 
-/** Center Elevated Dumbbell Icon: tilted at 45° with solid white plates */
+/** 3. Center Elevated Dumbbell: Titanium Isometric Silhouette */
 function CenterDumbbellIcon() {
   return (
-    <Svg width={30} height={30} viewBox="0 0 28 28" fill="none">
+    <Svg width={28} height={28} viewBox="0 0 28 28" fill="none">
       <G transform="rotate(-45 14 14)">
-        {/* Center Handle Bar */}
-        <Rect x={12.5} y={5} width={3} height={18} rx={1.5} fill="#FFFFFF" />
-        {/* Top Weight Plates */}
-        <Rect x={7.5} y={7.2} width={13} height={3.4} rx={1.4} fill="#FFFFFF" />
+        {/* Steel Handle Bar */}
+        <Rect x={12.5} y={3.8} width={3} height={20.4} rx={1.5} fill="#FFFFFF" />
+        {/* Grip Accent Lines */}
         <Rect
-          x={9.2}
-          y={4.2}
-          width={9.6}
-          height={2.6}
-          rx={1.2}
-          fill="#FFFFFF"
-        />
-        {/* Bottom Weight Plates */}
-        <Rect
-          x={7.5}
-          y={17.4}
-          width={13}
-          height={3.4}
-          rx={1.4}
-          fill="#FFFFFF"
+          x={12.5}
+          y={11.5}
+          width={3}
+          height={1.2}
+          fill="rgba(2, 132, 199, 0.7)"
         />
         <Rect
-          x={9.2}
-          y={21.2}
-          width={9.6}
-          height={2.6}
-          rx={1.2}
-          fill="#FFFFFF"
+          x={12.5}
+          y={13.9}
+          width={3}
+          height={1.2}
+          fill="rgba(2, 132, 199, 0.7)"
         />
+        <Rect
+          x={12.5}
+          y={16.3}
+          width={3}
+          height={1.2}
+          fill="rgba(2, 132, 199, 0.7)"
+        />
+
+        {/* Top Heavy Outer Plate */}
+        <Rect x={7} y={6.5} width={14} height={3.6} rx={1.6} fill="#FFFFFF" />
+        {/* Top Outer Plate Highlight */}
+        <Rect
+          x={8.5}
+          y={7.1}
+          width={11}
+          height={0.9}
+          rx={0.45}
+          fill="rgba(255, 255, 255, 0.85)"
+        />
+        {/* Top Outer End Cap */}
+        <Rect x={9} y={3.5} width={10} height={2.5} rx={1.2} fill="#FFFFFF" />
+
+        {/* Bottom Heavy Outer Plate */}
+        <Rect x={7} y={17.9} width={14} height={3.6} rx={1.6} fill="#FFFFFF" />
+        {/* Bottom Outer Plate Highlight */}
+        <Rect
+          x={8.5}
+          y={18.5}
+          width={11}
+          height={0.9}
+          rx={0.45}
+          fill="rgba(255, 255, 255, 0.85)"
+        />
+        {/* Bottom Outer End Cap */}
+        <Rect x={9} y={22} width={10} height={2.5} rx={1.2} fill="#FFFFFF" />
       </G>
     </Svg>
   );
 }
 
-/** Progress tab icon: zigzag node trend line with sparkles above */
-function ProgressTabIcon({ color }: { color: string; isFocused: boolean }) {
+/** 4. Progress Icon: Athletic Telemetry Spline with XP Apex */
+function ProgressTabIcon({
+  color,
+  isFocused,
+}: {
+  color: string;
+  isFocused: boolean;
+}) {
   return (
     <View style={styles.iconWrapper}>
-      <Svg
-        width={25}
-        height={25}
-        viewBox="0 0 26 26"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {/* Left Sparkle (4-point star) */}
+      <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+        {isFocused && (
+          <Path
+            d="M3 18L8.5 11.5L13.5 15.5L21 6V18H3Z"
+            fill="rgba(56, 189, 248, 0.14)"
+          />
+        )}
         <Path
-          d="M7 4C7 5 7.5 5.5 8.5 5.5C7.5 5.5 7 6 7 7C7 6 6.5 5.5 5.5 5.5C6.5 5.5 7 5 7 4Z"
-          fill={color}
+          d="M3 18L8.5 11.5L13.5 15.5L21 6"
+          stroke={color}
+          strokeWidth={isFocused ? 2.3 : 1.9}
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
-        {/* Upper Right Sparkle (slightly larger) */}
-        <Path
-          d="M17 1C17 2.3 17.7 3 19 3C17.7 3 17 3.7 17 5C17 3.7 16.3 3 15 3C16.3 3 17 2.3 17 1Z"
-          fill={color}
+        {/* Nodes */}
+        <Circle cx={3} cy={18} r={1.6} fill={color} />
+        <Circle cx={8.5} cy={11.5} r={1.6} fill={color} />
+        <Circle cx={13.5} cy={15.5} r={1.6} fill={color} />
+        <Circle
+          cx={21}
+          cy={6}
+          r={isFocused ? 2.6 : 2}
+          fill={isFocused ? "#38BDF8" : color}
+          stroke={isFocused ? "#FFFFFF" : "none"}
+          strokeWidth={isFocused ? 1 : 0}
         />
-        {/* Zigzag Trend Line */}
-        <Path d="M4 17L9.5 9.5L15 15L21.5 7" stroke={color} strokeWidth={2.2} />
-        {/* Trend Nodes */}
-        <Circle cx={4} cy={17} r={2.2} fill={color} />
-        <Circle cx={9.5} cy={9.5} r={2.2} fill={color} />
-        <Circle cx={15} cy={15} r={2.2} fill={color} />
-        <Circle cx={21.5} cy={7} r={2.2} fill={color} />
+        {/* Micro 4-point XP Star above apex */}
+        {isFocused && (
+          <Path
+            d="M21 1L21.5 2.2L22.7 2.7L21.5 3.2L21 4.4L20.5 3.2L19.3 2.7L20.5 2.2L21 1Z"
+            fill="#38BDF8"
+          />
+        )}
       </Svg>
     </View>
   );
 }
 
-/** Profile tab icon: user outline silhouette */
-function ProfileTabIcon({ color }: { color: string; isFocused: boolean }) {
+/** 5. Profile Icon: Biometric Athlete Pass Silhouette */
+function ProfileTabIcon({
+  color,
+  isFocused,
+}: {
+  color: string;
+  isFocused: boolean;
+}) {
   return (
     <View style={styles.iconWrapper}>
-      <Svg
-        width={24}
-        height={24}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke={color}
-        strokeWidth={2.2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <Circle cx={12} cy={8} r={4.5} />
-        <Path d="M4 20.5C4 17 7.5 15 12 15C16.5 15 20 17 20 20.5" />
+      <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+        {isFocused && (
+          <>
+            <Circle cx={12} cy={8} r={4} fill="rgba(56, 189, 248, 0.14)" />
+            <Path
+              d="M4.5 20.5C4.5 16.8 7.8 15 12 15C16.2 15 19.5 16.8 19.5 20.5H4.5Z"
+              fill="rgba(56, 189, 248, 0.14)"
+            />
+          </>
+        )}
+        <Circle
+          cx={12}
+          cy={8}
+          r={4}
+          stroke={color}
+          strokeWidth={isFocused ? 2.1 : 1.8}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <Path
+          d="M4.5 20.5C4.5 16.8 7.8 15 12 15C16.2 15 19.5 16.8 19.5 20.5"
+          stroke={color}
+          strokeWidth={isFocused ? 2.1 : 1.8}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        {isFocused && (
+          <Path
+            d="M10.5 15L12 16.8L13.5 15"
+            stroke="#38BDF8"
+            strokeWidth={1.6}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        )}
       </Svg>
     </View>
   );
 }
+
+// ==========================================
+// STYLES
+// ==========================================
 
 const styles = StyleSheet.create({
   rootWrapper: {
@@ -326,80 +479,107 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     width: "100%",
-    maxWidth: "100%",
     zIndex: 100,
   },
   barSurface: {
     position: "absolute",
-    top: 18,
+    top: 14,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "#111524",
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    backgroundColor: "#080B14",
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
+    borderTopWidth: 1.2,
+    borderLeftWidth: 0.5,
+    borderRightWidth: 0.5,
+    borderColor: "rgba(56, 189, 248, 0.18)",
     shadowColor: "#000000",
-    shadowOffset: { width: 0, height: -6 },
-    shadowOpacity: 0.65,
-    shadowRadius: 18,
-    elevation: 10,
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 0.7,
+    shadowRadius: 20,
+    elevation: 20,
     overflow: "hidden",
   },
   barSurfaceGradient: {
     position: "absolute",
+    top: 0,
     left: 0,
     right: 0,
-    top: 0,
     bottom: 0,
+  },
+  barTopAmbientLight: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 30,
   },
   tabsRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
-    paddingTop: 8,
-    paddingHorizontal: 6,
-    height: 62,
-    marginTop: 18,
+    paddingHorizontal: 8,
+    height: 60,
+    marginTop: 14,
   },
   tabItem: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 4,
+    position: "relative",
+  },
+  activeTopIndicator: {
+    position: "absolute",
+    top: -4,
+    alignItems: "center",
+    justifyContent: "center",
+    width: 28,
+    height: 3,
+  },
+  activeTopIndicatorBar: {
+    width: 22,
+    height: 3,
+    borderRadius: 1.5,
+  },
+  activeTopIndicatorGlow: {
+    position: "absolute",
+    top: 0,
+    width: 26,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "rgba(56, 189, 248, 0.3)",
   },
   iconContainer: {
     width: 32,
-    height: 32,
+    height: 30,
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
-    marginBottom: 4,
+    marginTop: 2,
+    marginBottom: 3,
   },
   iconWrapper: {
     alignItems: "center",
     justifyContent: "center",
   },
-  activeGlowAura: {
+  activeIconBackdrop: {
     position: "absolute",
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "rgba(45, 212, 191, 0.12)",
-    shadowColor: "#2DD4BF",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 8,
+    width: 36,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: "rgba(56, 189, 248, 0.08)",
   },
   tabLabel: {
-    fontSize: 11,
-    fontWeight: "600",
-    letterSpacing: 0.3,
+    fontSize: 9.5,
+    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
+    fontWeight: "700",
+    letterSpacing: 0.6,
   },
   activeTabLabel: {
-    fontWeight: "700",
-    textShadowColor: "rgba(45, 212, 191, 0.6)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 6,
+    fontWeight: "900",
+    color: "#38BDF8",
   },
   centerButtonOuterContainer: {
     width: 68,
@@ -418,32 +598,44 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.94 }],
     opacity: 0.92,
   },
-  centerBezelRing: {
+  centerOuterAura: {
+    position: "absolute",
     width: 66,
     height: 66,
     borderRadius: 33,
-    backgroundColor: "#0B0E14",
-    borderWidth: 4.5,
-    borderColor: "#0B0E14",
+    backgroundColor: "rgba(2, 132, 199, 0.22)",
+    shadowColor: "#0284C7",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
+  },
+  centerBezelRing: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#070A12",
+    borderWidth: 3.5,
+    borderColor: "rgba(56, 189, 248, 0.35)",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#6366F1",
+    shadowColor: "#0284C7",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.65,
-    shadowRadius: 14,
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
     elevation: 16,
   },
   centerBezelRingActive: {
+    borderColor: "#38BDF8",
     shadowColor: "#38BDF8",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.9,
-    shadowRadius: 16,
+    shadowOpacity: 0.85,
+    shadowRadius: 18,
     elevation: 20,
   },
   centerGradientCircle: {
-    width: 53,
-    height: 53,
-    borderRadius: 26.5,
+    width: 51,
+    height: 51,
+    borderRadius: 25.5,
     alignItems: "center",
     justifyContent: "center",
   },
