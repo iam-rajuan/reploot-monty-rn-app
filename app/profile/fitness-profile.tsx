@@ -93,9 +93,6 @@ export default function FitnessProfileRoute() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Biometric targets, training goals & athletic conditioning
-          </Text>
         </View>
 
         <PhysicalMetrics />

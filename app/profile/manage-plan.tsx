@@ -159,9 +159,6 @@ export default function ManagePlanRoute() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Select your training protocol & upgrade your athletic performance
-          </Text>
         </View>
 
         {/* Billing Cycle Switcher */}

@@ -86,9 +86,6 @@ export default function PrivacyPolicyRoute() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Zero-knowledge biometric encryption & athlete data governance
-          </Text>
         </View>
 
         {/* Policy Cards */}

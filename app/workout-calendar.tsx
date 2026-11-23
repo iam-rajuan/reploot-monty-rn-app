@@ -1090,9 +1090,6 @@ export default function WorkoutCalendarScreen() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Training telemetry, schedule cycles & session history.
-          </Text>
         </View>
 
         {/* WORKOUT SPLITS TRAY: REANIMATED & GESTURE HANDLER DRAG & DROP */}

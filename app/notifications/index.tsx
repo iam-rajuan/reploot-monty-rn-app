@@ -238,9 +238,6 @@ export default function NotificationsRoute() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Activity logs, training reminders & system notifications
-          </Text>
         </View>
 
         {/* Notifications List */}

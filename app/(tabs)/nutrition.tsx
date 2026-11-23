@@ -238,9 +238,6 @@ export default function NutritionTabRoute() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.heroSubtitle}>
-            AI-powered metabolic intake, macro telemetry & hydration
-          </Text>
         </View>
 
         {hasGeneratedPlan ? (

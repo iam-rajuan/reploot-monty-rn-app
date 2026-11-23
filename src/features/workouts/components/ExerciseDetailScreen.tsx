@@ -275,9 +275,6 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Biomechanical breakdown, progressive sets & execution cues
-          </Text>
         </View>
 
         {/* Hero Poster Card: Big glowing image with Focus Tag & Exercise Title */}

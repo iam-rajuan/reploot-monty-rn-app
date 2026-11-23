@@ -220,9 +220,6 @@ export default function MealAnalysisScreen() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Computer vision macro breakdown & volumetric portion telemetry
-          </Text>
         </View>
 
         {/* Meal Image with Cyber Viewfinder & HUD */}

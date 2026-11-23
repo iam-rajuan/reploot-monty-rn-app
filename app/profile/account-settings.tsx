@@ -79,9 +79,6 @@ export default function AccountSettingsRoute() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Security credentials, legal protocols & authentication controls
-          </Text>
         </View>
 
         <CredentialsCard onPasswordUpdated={handlePasswordUpdated} />

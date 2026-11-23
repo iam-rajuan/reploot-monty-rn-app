@@ -85,9 +85,6 @@ export default function TermsRoute() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Platform compliance, athletic integrity & usage policies
-          </Text>
         </View>
 
         {/* Terms Cards */}

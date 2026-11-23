@@ -64,7 +64,6 @@ export const PullDayScreen: React.FC<PullDayScreenProps> = ({
       >
         <View style={styles.titleSection}>
           <Text style={styles.mainTitle}>{PULL_DAY_DATA.title}</Text>
-          <Text style={styles.subtitle}>{PULL_DAY_DATA.subtitle}</Text>
         </View>
 
         <PullDayHeroCard />

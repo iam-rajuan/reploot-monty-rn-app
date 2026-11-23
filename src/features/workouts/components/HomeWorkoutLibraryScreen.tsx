@@ -156,9 +156,6 @@ export const HomeWorkoutLibraryScreen: React.FC<
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Choose your athletic focus & telemetry for today's session
-          </Text>
         </View>
 
         {/* Current XP Progress Box with Neon Aura & Level Status */}

@@ -394,9 +394,6 @@ export default function SearchRoute() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Query training routines, nutrition targets, exercises & AI systems
-          </Text>
         </View>
 
         {/* Search Bar Input */}

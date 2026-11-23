@@ -1,5 +1,3 @@
-import { CommunityRankCard } from "@/features/profile/components/CommunityRankCard";
-import { ProgressionSummaryCard } from "@/features/progression";
 import { FitnessSummaryCard } from "@/features/profile/components/FitnessSummaryCard";
 import { PlanCard } from "@/features/profile/components/PlanCard";
 import { QRCodeCard } from "@/features/profile/components/QRCodeCard";
@@ -78,14 +76,9 @@ export default function ProfileTabRoute() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Athlete telemetry, biometric credentials & account protocols
-          </Text>
         </View>
-        <ProgressionSummaryCard compact onPress={() => router.push("/level-up" as any)} />
         <TopProfileCard />
         <QRCodeCard />
-        <CommunityRankCard />
         <FitnessSummaryCard />
         <PlanCard />
 

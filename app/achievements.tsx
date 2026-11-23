@@ -178,9 +178,6 @@ export default function AchievementsScreen() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Milestones, unlocked badges & athletic season progression
-          </Text>
         </View>
 
         {/* Next Unlock Card (styles.card from progress.tsx) */}

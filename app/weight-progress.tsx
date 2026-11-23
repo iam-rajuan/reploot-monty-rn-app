@@ -188,9 +188,6 @@ export default function WeightProgressScreen() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Body weight telemetry, metabolic curves & goal trajectory
-          </Text>
         </View>
 
         {/* Current Weight Card (Exact progress.tsx styles.card pattern) */}

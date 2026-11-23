@@ -372,9 +372,6 @@ export default function UnifiedMealPlanScreen() {
             <Text style={styles.titleBadgeText}>AI NUTRITION MATRIX</Text>
           </View>
           <Text style={styles.mainTitle}>MEALS & LOGS</Text>
-          <Text style={styles.subtitle}>
-            Daily meal schedule, macro targets & log telemetry.
-          </Text>
         </View>
 
         {/* View Mode Switcher: Today's Schedule vs Week History */}

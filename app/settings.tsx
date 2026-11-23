@@ -271,9 +271,6 @@ export default function SettingsScreen() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Training parameters & monthly calendar sync
-          </Text>
         </View>
 
         {/* 1. WEEKLY FREQUENCY */}

@@ -150,9 +150,6 @@ export default function PaymentHistoryRoute() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Invoice records & subscription payment receipts
-          </Text>
         </View>
 
         {/* Section Header */}

@@ -255,9 +255,6 @@ export default function CoachRoute() {
                 />
               </MaskedView>
             </View>
-            <Text style={styles.subtitle}>
-              Adaptive intelligence for training, nutrition & daily protocols
-            </Text>
           </View>
 
           {/* Coach Status Card */}

@@ -93,9 +93,6 @@ export default function EditProfileRoute() {
                 />
               </MaskedView>
             </View>
-            <Text style={styles.subtitle}>
-              Update your athlete credentials, biometric data & profile
-            </Text>
           </View>
 
           <EditProfileBanner />

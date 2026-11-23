@@ -310,9 +310,6 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Choose your athletic focus & telemetry for today's session
-          </Text>
         </View>
 
         <Pressable style={styles.rankingLink} onPress={() => router.push({ pathname: "/profile/global-rankings" as any, params: { context: "gym" } })}>

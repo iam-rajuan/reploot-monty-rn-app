@@ -262,9 +262,6 @@ export default function YourWorkoutsScreen() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Session telemetry, historical curves & volume logs
-          </Text>
         </View>
 
         {/* Tab Selection Filter (Pills matching progress.tsx pattern) */}

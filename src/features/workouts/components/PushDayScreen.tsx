@@ -79,7 +79,6 @@ export const PushDayScreen: React.FC<PushDayScreenProps> = ({
       >
         <View style={styles.titleSection}>
           <Text style={styles.mainTitle}>{PUSH_DAY_DATA.title}</Text>
-          <Text style={styles.subtitle}>{PUSH_DAY_DATA.subtitle}</Text>
         </View>
         <PushDayHeroCard />
         <PushDayExerciseList

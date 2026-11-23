@@ -145,7 +145,6 @@ export const UpperBodySessionScreen: React.FC<UpperBodySessionScreenProps> = ({
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>{data.subtitle}</Text>
         </View>
 
         {/* Upper Body Session Hero Card */}

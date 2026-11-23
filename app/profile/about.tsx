@@ -86,9 +86,6 @@ export default function AboutRoute() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Athletic engineering, neural biomechanics & release architecture
-          </Text>
         </View>
 
         {/* Specs Cards */}

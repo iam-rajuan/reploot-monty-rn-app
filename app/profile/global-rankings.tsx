@@ -131,9 +131,6 @@ export default function GlobalRankingsRoute() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Compete on challenge performance. Personal progression XP stays separate.
-          </Text>
         </View>
 
         <WorkoutTabs activeTab={activeTab} setActiveTab={handleTabChange} />

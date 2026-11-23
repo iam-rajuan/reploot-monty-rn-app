@@ -118,9 +118,6 @@ export default function DrinkWaterScreen() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Metabolic cellular replenishment & athletic hydration protocol
-          </Text>
         </View>
 
         {/* Main Hydration Telemetry Card */}
