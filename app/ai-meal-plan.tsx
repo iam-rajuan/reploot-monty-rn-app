@@ -388,18 +388,10 @@ export default function UnifiedMealPlanScreen() {
                       meal.completed && styles.mealCardCompleted,
                     ]}
                   >
-                    {/* Top Row: Type Pill + Time + Action Button */}
+                    {/* Top Row: Type Label + Time + Action Button */}
                     <View style={styles.mealTopRow}>
                       <View style={styles.mealBadgeGroup}>
-                        <View
-                          style={[
-                            styles.typeBadge,
-                            {
-                              backgroundColor: `${meal.typeColor}15`,
-                              borderColor: `${meal.typeColor}35`,
-                            },
-                          ]}
-                        >
+                        <View style={styles.typeBadge}>
                           <Text
                             style={[styles.typeText, { color: meal.typeColor }]}
                           >
@@ -893,15 +885,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   typeBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    borderWidth: 1,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
   typeText: {
-    fontSize: 9,
+    fontSize: 10,
     fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "900",
     letterSpacing: 0.8,
   },
   timingBadge: {
@@ -979,23 +969,17 @@ const styles = StyleSheet.create({
   kcalBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(56, 189, 248, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.2)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    gap: 4,
+    gap: 5,
   },
   kcalNumber: {
     color: "#38BDF8",
-    fontSize: 11.5,
+    fontSize: 12,
     fontFamily: "monospace",
     fontWeight: "900",
   },
   kcalLabel: {
     color: "#38BDF8",
-    fontSize: 9,
+    fontSize: 9.5,
     fontFamily: "monospace",
     fontWeight: "800",
     opacity: 0.85,
