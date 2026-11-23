@@ -17,7 +17,6 @@ import {
   RotateCcw,
   Sparkles,
   Utensils,
-  Clock,
   ArrowRight,
   X,
 } from "lucide-react-native";
@@ -495,7 +494,7 @@ export default function NutritionTabRoute() {
           end={{ x: 1, y: 1 }}
           style={styles.nutritionCoachCard}
         >
-          {/* Header Row: Avatar + Copilot Badge + Speech */}
+          {/* Header Row: Avatar + Coach Badge + Punchy Insight */}
           <View style={styles.nutritionCoachTop}>
             <View style={styles.nutritionAvatarShell}>
               <View style={styles.nutritionAvatarPanel}>
@@ -511,62 +510,33 @@ export default function NutritionTabRoute() {
             <View style={styles.nutritionCoachCopy}>
               <View style={styles.coachBadgeRow}>
                 <Sparkles size={11} color="#38BDF8" />
-                <Text style={styles.nutritionCoachLabel}>AI NUTRITION COACH</Text>
+                <Text style={styles.nutritionCoachLabel}>AI COACH</Text>
               </View>
               <Text style={styles.nutritionCoachText}>
-                You still need{" "}
-                <Text style={styles.nutritionProtein}>24g of protein</Text> today
-                to hit recovery targets.
+                Need <Text style={styles.nutritionProtein}>24g protein</Text> today
               </Text>
             </View>
           </View>
 
           {/* Recommended Next Meal Card */}
           <View style={styles.nutritionLunch}>
-            <View style={styles.nutritionLunchHeader}>
-              <View style={styles.nutritionLunchLabelRow}>
-                <Utensils size={12} color="#2DD4BF" />
-                <Text style={styles.nutritionLunchLabel}>
-                  RECOMMENDED NEXT LUNCH
-                </Text>
-              </View>
-              <View style={styles.nutritionLunchTimeBadge}>
-                <Clock size={11} color="#64748B" />
-                <Text style={styles.nutritionLunchTimeText}>15m prep</Text>
-              </View>
+            <View style={styles.nutritionLunchLabelRow}>
+              <Utensils size={12} color="#2DD4BF" />
+              <Text style={styles.nutritionLunchLabel}>
+                RECOMMENDED LUNCH
+              </Text>
             </View>
 
             <Text style={styles.nutritionLunchText}>
-              Grilled Chicken with Brown Rice
+              Grilled Chicken & Brown Rice
             </Text>
 
             {/* Meal Macro & Calorie Telemetry */}
             <View style={styles.nutritionLunchMacrosRow}>
-              <View style={styles.lunchKcalBadge}>
-                <Flame size={12} color="#38BDF8" />
-                <Text style={styles.lunchKcalText}>580 KCAL</Text>
-              </View>
-
-              <View style={styles.lunchMacrosGroup}>
-                <View style={styles.lunchMacroPill}>
-                  <View
-                    style={[styles.lunchMacroDot, { backgroundColor: "#38BDF8" }]}
-                  />
-                  <Text style={styles.lunchMacroVal}>48g P</Text>
-                </View>
-                <View style={styles.lunchMacroPill}>
-                  <View
-                    style={[styles.lunchMacroDot, { backgroundColor: "#FFB68C" }]}
-                  />
-                  <Text style={styles.lunchMacroVal}>52g C</Text>
-                </View>
-                <View style={styles.lunchMacroPill}>
-                  <View
-                    style={[styles.lunchMacroDot, { backgroundColor: "#F43F5E" }]}
-                  />
-                  <Text style={styles.lunchMacroVal}>12g F</Text>
-                </View>
-              </View>
+              <Flame size={12} color="#38BDF8" />
+              <Text style={styles.lunchKcalText}>580 KCAL</Text>
+              <Text style={styles.lunchDivider}>•</Text>
+              <Text style={styles.lunchProteinHighlight}>48g PROTEIN</Text>
             </View>
           </View>
 
@@ -584,7 +554,7 @@ export default function NutritionTabRoute() {
             ]}
           >
             <View style={styles.nutritionPlanContent}>
-              <Sparkles size={14} color="#38BDF8" />
+              <Sparkles size={13} color="#38BDF8" />
               <Text style={styles.nutritionPlanText}>ADJUST PLAN WITH AI</Text>
               <ChevronRight size={14} color="#38BDF8" strokeWidth={2.5} />
             </View>
@@ -1581,8 +1551,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "rgba(56, 189, 248, 0.22)",
-    padding: 18,
-    gap: 14,
+    padding: 16,
+    gap: 12,
     overflow: "hidden",
     shadowColor: "#0284C7",
     shadowOpacity: 0.15,
@@ -1591,41 +1561,41 @@ const styles = StyleSheet.create({
   },
   nutritionCoachTop: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 14,
+    alignItems: "center",
+    gap: 12,
   },
   nutritionAvatarShell: {
-    width: 52,
-    height: 52,
+    width: 46,
+    height: 46,
     position: "relative",
   },
   nutritionAvatarPanel: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
+    width: 46,
+    height: 46,
+    borderRadius: 13,
     overflow: "hidden",
     backgroundColor: "#131E33",
     borderWidth: 1,
     borderColor: "rgba(56, 189, 248, 0.3)",
   },
   nutritionAvatar: {
-    width: 52,
-    height: 52,
+    width: 46,
+    height: 46,
   },
   coachActiveDot: {
     position: "absolute",
     right: -2,
     bottom: -2,
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 11,
+    height: 11,
+    borderRadius: 5.5,
     backgroundColor: "#2DD4BF",
     borderWidth: 2,
     borderColor: "#0F1626",
   },
   nutritionCoachCopy: {
     flex: 1,
-    gap: 4,
+    gap: 3,
   },
   coachBadgeRow: {
     flexDirection: "row",
@@ -1635,130 +1605,98 @@ const styles = StyleSheet.create({
   nutritionCoachLabel: {
     color: "#38BDF8",
     fontFamily: "monospace",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "800",
     letterSpacing: 1.2,
   },
   nutritionCoachText: {
     color: "#E2E8F0",
-    fontSize: 14,
+    fontSize: 15.5,
     lineHeight: 20,
-    fontWeight: "600",
+    fontWeight: "800",
     fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
   },
   nutritionProtein: {
     color: "#2DD4BF",
-    fontWeight: "800",
+    fontWeight: "900",
   },
   nutritionLunch: {
     backgroundColor: "rgba(255, 255, 255, 0.03)",
-    borderRadius: 14,
+    borderRadius: 13,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.07)",
-    padding: 14,
-    gap: 8,
-  },
-  nutritionLunchHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    borderColor: "rgba(255, 255, 255, 0.06)",
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    gap: 6,
   },
   nutritionLunchLabelRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
   },
   nutritionLunchLabel: {
     color: "#2DD4BF",
     fontFamily: "monospace",
-    fontSize: 9.5,
+    fontSize: 9,
     fontWeight: "800",
     letterSpacing: 0.8,
-  },
-  nutritionLunchTimeBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  nutritionLunchTimeText: {
-    color: "#64748B",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "600",
   },
   nutritionLunchText: {
     color: "#F8FAFC",
     fontSize: 15,
-    lineHeight: 21,
+    lineHeight: 20,
     fontWeight: "700",
     fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
   },
   nutritionLunchMacrosRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: 6,
     marginTop: 2,
-  },
-  lunchKcalBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
   },
   lunchKcalText: {
     color: "#38BDF8",
-    fontSize: 11.5,
-    fontFamily: "monospace",
-    fontWeight: "900",
-  },
-  lunchMacrosGroup: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  lunchMacroPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  lunchMacroDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-  },
-  lunchMacroVal: {
-    color: "#94A3B8",
     fontSize: 11,
     fontFamily: "monospace",
-    fontWeight: "700",
+    fontWeight: "800",
+  },
+  lunchDivider: {
+    color: "#475569",
+    fontSize: 10,
+  },
+  lunchProteinHighlight: {
+    color: "#2DD4BF",
+    fontSize: 11,
+    fontFamily: "monospace",
+    fontWeight: "800",
   },
   nutritionPlan: {
     width: "100%",
-    height: 46,
-    borderRadius: 12,
+    height: 42,
+    borderRadius: 11,
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.35)",
-    backgroundColor: "rgba(56, 189, 248, 0.08)",
+    borderColor: "rgba(56, 189, 248, 0.3)",
+    backgroundColor: "#101827",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
   },
   nutritionPlanPressed: {
-    backgroundColor: "rgba(56, 189, 248, 0.18)",
-    borderColor: "rgba(56, 189, 248, 0.55)",
+    backgroundColor: "#162238",
+    borderColor: "rgba(56, 189, 248, 0.5)",
   },
   nutritionPlanContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+    gap: 7,
   },
   nutritionPlanText: {
     color: "#38BDF8",
     fontFamily: "monospace",
-    fontSize: 11.5,
-    lineHeight: 16,
+    fontSize: 11,
     fontWeight: "900",
-    letterSpacing: 1.2,
+    letterSpacing: 1,
   },
 });
