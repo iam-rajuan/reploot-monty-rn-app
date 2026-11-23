@@ -649,7 +649,7 @@ export default function UnifiedMealPlanScreen() {
           <Pressable
             style={({ pressed }) => [
               styles.adjustBtn,
-              pressed && styles.adjustBtnPressed,
+              pressed && { opacity: 0.88, transform: [{ scale: 0.99 }] },
             ]}
             onPress={() => {
               triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
@@ -658,10 +658,15 @@ export default function UnifiedMealPlanScreen() {
             accessibilityRole="button"
             accessibilityLabel="Adjust meal plan with AI"
           >
-            <View style={styles.adjustBtnContent}>
-              <Sparkles size={14} color="#38BDF8" />
+            <LinearGradient
+              colors={["rgba(56, 189, 248, 0.16)", "rgba(2, 132, 199, 0.08)"]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.adjustBtnGradient}
+            >
+              <Sparkles size={15} color="#38BDF8" />
               <Text style={styles.adjustBtnText}>ADJUST MEAL PLAN WITH AI</Text>
-            </View>
+            </LinearGradient>
           </Pressable>
 
           <Pressable
@@ -1166,20 +1171,16 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   adjustBtn: {
-    height: 48,
+    height: 50,
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.35)",
-    backgroundColor: "#0F172A",
-    overflow: "hidden",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  adjustBtnPressed: {
-    backgroundColor: "rgba(56, 189, 248, 0.16)",
+    borderWidth: 1.5,
     borderColor: "rgba(56, 189, 248, 0.55)",
+    backgroundColor: "#0D172A",
+    overflow: "hidden",
   },
-  adjustBtnContent: {
+  adjustBtnGradient: {
+    width: "100%",
+    height: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
