@@ -515,12 +515,13 @@ export default function NutritionTabRoute() {
           </View>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="View AI meal plan"
-            onPress={() => { triggerHaptic(); router.push("/ai-meal-plan"); }}
+            accessibilityLabel="Adjust plan with AI"
+            onPress={() => { triggerHaptic(); router.push("/nutrition-ai?mode=adjust"); }}
             style={styles.nutritionPlan}
           >
             <View style={styles.nutritionPlanContent}>
-              <Text style={styles.nutritionPlanText}>VIEW AI MEAL PLAN</Text>
+              <Sparkles size={14} color="#38BDF8" style={{ marginRight: 4 }} />
+              <Text style={styles.nutritionPlanText}>ADJUST PLAN WITH AI</Text>
               <Image source={nutritionChevronRight} contentFit="contain" style={styles.nutritionPlanChevron} />
             </View>
           </Pressable>
