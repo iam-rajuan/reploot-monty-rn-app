@@ -62,11 +62,20 @@ export interface LeaderboardEntry {
   userId: string;
   fullName: string;
   avatarUrl?: string;
-  tier: string;
-  statusLabel?: string;
-  weeklyXP: number;
-  seasonXP?: number;
+  score: number;
   isCurrentUser: boolean;
+}
+
+export type RankingContextId = "gym" | "home";
+
+export interface RankingContext {
+  id: RankingContextId;
+  title: string;
+  scoreLabel: string;
+  scoreUnit: string;
+  scoringStatus: "configured" | "pending";
+  developmentData: boolean;
+  entries: LeaderboardEntry[];
 }
 
 export interface PersonalRecord {

@@ -3,6 +3,8 @@ import {
   LeaderboardEntry,
   PersonalRecord,
   ProgressReport,
+  RankingContext,
+  RankingContextId,
   XPProgress,
 } from "@/shared/types/progress";
 
@@ -173,74 +175,88 @@ export const mockAchievements: Achievement[] = [
   },
 ];
 
-export const mockLeaderboardEntries: LeaderboardEntry[] = [
+type UnrankedLeaderboardEntry = Omit<LeaderboardEntry, "rank">;
+
+// Competition ranking: equal scores share a rank and the next rank skips ahead (1, 2, 2, 4).
+export const assignCompetitionRanks = (
+  entries: UnrankedLeaderboardEntry[],
+): LeaderboardEntry[] =>
+  [...entries]
+    .sort((a, b) => b.score - a.score || a.userId.localeCompare(b.userId))
+    .map((entry, index, sorted) => ({
+      ...entry,
+      rank:
+        index > 0 && entry.score === sorted[index - 1].score
+          ? sorted.slice(0, index).filter((item) => item.score > entry.score).length + 1
+          : index + 1,
+    }));
+
+export const mockLeaderboardEntries: LeaderboardEntry[] = assignCompetitionRanks([
   {
-    rank: 1,
     userId: "usr_101",
     fullName: "Marcus Thuram",
     avatarUrl: "https://i.pravatar.cc/100?img=33",
-    tier: "Gold",
-    statusLabel: "Dominating",
-    weeklyXP: 54200,
-    seasonXP: 54200,
+    score: 54200,
     isCurrentUser: false,
   },
   {
-    rank: 2,
     userId: "usr_102",
     fullName: "Sarah_Strong",
     avatarUrl: "https://i.pravatar.cc/100?img=12",
-    tier: "Silver",
-    statusLabel: "Master",
-    weeklyXP: 48150,
-    seasonXP: 48150,
+    score: 48150,
     isCurrentUser: false,
   },
   {
-    rank: 3,
     userId: "usr_103",
     fullName: "J-Train",
     avatarUrl: "https://i.pravatar.cc/100?img=60",
-    tier: "Bronze",
-    statusLabel: "Elite",
-    weeklyXP: 42900,
-    seasonXP: 42900,
+    score: 48150,
     isCurrentUser: false,
   },
   {
-    rank: 4,
     userId: "usr_104",
     fullName: "Elena Rostova",
     avatarUrl: "https://i.pravatar.cc/100?img=47",
-    tier: "Elite",
-    statusLabel: "Pro Athlete",
-    weeklyXP: 38400,
-    seasonXP: 38400,
+    score: 38400,
     isCurrentUser: false,
   },
   {
-    rank: 5,
     userId: "usr_105",
     fullName: "David Kim",
     avatarUrl: "https://i.pravatar.cc/100?img=53",
-    tier: "Elite",
-    statusLabel: "Consistent",
-    weeklyXP: 35100,
-    seasonXP: 35100,
+    score: 35100,
     isCurrentUser: false,
   },
   {
-    rank: 42,
     userId: "1",
     fullName: "Alex",
     avatarUrl: "https://i.pravatar.cc/100?img=68",
-    tier: "Elite",
-    statusLabel: "Top 5% Athlete",
-    weeklyXP: 2450,
-    seasonXP: 14250,
+    score: 28750,
     isCurrentUser: true,
   },
-];
+]);
+
+// Backend integration point: each challenge type owns its scoring metadata and data set.
+export const mockRankingContexts: Record<RankingContextId, RankingContext> = {
+  gym: {
+    id: "gym",
+    title: "Gym challenge ranking",
+    scoreLabel: "Challenge score",
+    scoreUnit: "PTS",
+    scoringStatus: "configured",
+    developmentData: true,
+    entries: mockLeaderboardEntries,
+  },
+  home: {
+    id: "home",
+    title: "Home challenge ranking",
+    scoreLabel: "Challenge score",
+    scoreUnit: "PTS",
+    scoringStatus: "pending",
+    developmentData: true,
+    entries: [],
+  },
+};
 
 export const mockProgressReport: ProgressReport = {
   period: "weekly",

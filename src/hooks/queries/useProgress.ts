@@ -16,10 +16,10 @@ export function useAchievements() {
   });
 }
 
-export function useLeaderboard() {
+export function useLeaderboard(context: "gym" | "home" = "gym") {
   return useQuery({
-    queryKey: queryKeys.leaderboard.global(),
-    queryFn: () => progressService.getLeaderboard(),
+    queryKey: queryKeys.leaderboard.global(context),
+    queryFn: () => progressService.getLeaderboard(context),
   });
 }
 

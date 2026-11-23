@@ -1,207 +1,51 @@
+import { LeaderboardEntry } from "@/shared/types/progress";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
+import { Crosshair, Sparkles } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-export function StandingCard() {
+export function StandingCard({ entry, scoreUnit }: { entry?: LeaderboardEntry; scoreUnit: string }) {
   return (
-    <View style={styles.standingCard}>
-      {/* Header */}
-      <View style={styles.cardHeader}>
-        <View style={styles.headerLeft}>
-          <View style={styles.iconBadge}>
-            <Image
-              source={require("../../../assets/trophy.svg")}
-              style={{ width: 14, height: 14 }}
-              contentFit="contain"
-            />
-          </View>
-          <Text style={styles.cardTitle}>YOUR STANDING</Text>
-        </View>
-        <View style={styles.tierPill}>
-          <View style={styles.tierDot} />
-          <Text style={styles.tierText}>TOP 5% ATHLETE</Text>
-        </View>
+    <LinearGradient colors={["rgba(68,234,195,0.15)", "rgba(79,172,254,0.08)", "rgba(18,22,36,0.92)"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.card}>
+      <View style={styles.eyebrowRow}>
+        <View style={styles.liveDot} />
+        <Text style={styles.eyebrow}>YOUR POSITION</Text>
+        <Sparkles size={14} color="#38EDD8" />
       </View>
-
-      {/* Main Rank Highlight */}
-      <View style={styles.rankContent}>
-        <View style={styles.rankRow}>
-          <Text style={styles.rankNumber}>#42</Text>
-          <Text style={styles.rankGlobal}>GLOBAL</Text>
-        </View>
-        <View style={styles.percentileBadge}>
-          <Text style={styles.rankSub}>TOP 5% OF GLOBAL ATHLETES</Text>
-        </View>
-      </View>
-
-      {/* Telemetry Metrics */}
-      <View style={styles.telemetryContainer}>
-        <View style={styles.telemetryRow}>
-          <View>
-            <Text style={styles.telemetryLabel}>SEASON XP</Text>
-            <Text style={styles.telemetryValue}>14,250 XP</Text>
+      {entry ? (
+        <View style={styles.content}>
+          <View style={styles.avatarWrap}>
+            <Image source={{ uri: entry.avatarUrl }} style={styles.avatar} />
+            <View style={styles.youBadge}><Text style={styles.youText}>YOU</Text></View>
           </View>
-          <View style={{ alignItems: "flex-end" }}>
-            <Text style={styles.telemetryLabel}>NEXT MILESTONE</Text>
-            <Text style={styles.telemetryTarget}>350 XP TO NEXT TIER</Text>
+          <View style={styles.identity}>
+            <Text style={styles.name} numberOfLines={1}>{entry.fullName}</Text>
+            <Text style={styles.score}>{entry.score.toLocaleString()} {scoreUnit}</Text>
+          </View>
+          <View style={styles.rankBlock}>
+            <Text style={styles.rankLabel}>RANK</Text>
+            <Text style={styles.rank}>#{entry.rank}</Text>
           </View>
         </View>
-
-        {/* Progress Track */}
-        <View style={styles.progressTrack}>
-          <LinearGradient
-            colors={["#00f2fe", "#4facfe"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={[StyleSheet.absoluteFill, { width: "78%" }]}
-          />
+      ) : (
+        <View style={styles.unrankedRow}>
+          <View style={styles.crosshair}><Crosshair size={22} color="#38EDD8" /></View>
+          <View style={styles.identity}><Text style={styles.name}>NOT RANKED YET</Text><Text style={styles.unrankedCopy}>Complete an eligible challenge to enter.</Text></View>
         </View>
-      </View>
-    </View>
+      )}
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  standingCard: {
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 20,
-    marginBottom: 20,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  iconBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    backgroundColor: "rgba(245, 158, 11, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(245, 158, 11, 0.3)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
-  },
-  cardTitle: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    fontFamily: "monospace",
-    letterSpacing: 1,
-  },
-  tierPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(45, 212, 191, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.3)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  tierDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#2DD4BF",
-    marginRight: 5,
-  },
-  tierText: {
-    color: "#2DD4BF",
-    fontSize: 10,
-    fontWeight: "800",
-    fontFamily: "monospace",
-    letterSpacing: 0.8,
-  },
-  rankContent: {
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  rankRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    marginBottom: 6,
-  },
-  rankNumber: {
-    color: "#FFB68C",
-    fontSize: 48,
-    fontWeight: "800",
-    fontFamily: "monospace",
-    letterSpacing: -1,
-    textShadowColor: "rgba(249, 115, 22, 0.35)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
-  },
-  rankGlobal: {
-    color: "#FFB68C",
-    fontSize: 20,
-    fontWeight: "800",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
-    marginLeft: 10,
-  },
-  percentileBadge: {
-    backgroundColor: "rgba(45, 212, 191, 0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.25)",
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 10,
-  },
-  rankSub: {
-    color: "#2DD4BF",
-    fontSize: 11,
-    fontWeight: "800",
-    fontFamily: "monospace",
-    letterSpacing: 0.8,
-  },
-  telemetryContainer: {
-    backgroundColor: "rgba(15, 23, 42, 0.5)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 16,
-    padding: 14,
-  },
-  telemetryRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  telemetryLabel: {
-    color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "700",
-    fontFamily: "monospace",
-    letterSpacing: 0.8,
-    marginBottom: 2,
-  },
-  telemetryValue: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    fontFamily: "monospace",
-  },
-  telemetryTarget: {
-    color: "#38EDD8",
-    fontSize: 12,
-    fontWeight: "800",
-    fontFamily: "monospace",
-  },
-  progressTrack: {
-    height: 6,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    borderRadius: 3,
-    overflow: "hidden",
-  },
+  card: { borderRadius: 22, borderWidth: 1, borderColor: "rgba(56,237,216,0.24)", padding: 16, marginBottom: 18, overflow: "hidden" },
+  eyebrowRow: { flexDirection: "row", alignItems: "center", marginBottom: 14 }, liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#38EDD8", marginRight: 7 },
+  eyebrow: { flex: 1, color: "#A7F3E8", fontSize: 10, fontWeight: "900", fontFamily: "monospace", letterSpacing: 1.3 }, content: { flexDirection: "row", alignItems: "center" },
+  avatarWrap: { position: "relative", marginRight: 12 }, avatar: { width: 52, height: 52, borderRadius: 17, borderWidth: 1, borderColor: "rgba(56,237,216,0.55)", backgroundColor: "#161B26" },
+  youBadge: { position: "absolute", right: -5, bottom: -5, borderRadius: 7, backgroundColor: "#38EDD8", paddingHorizontal: 5, paddingVertical: 2, borderWidth: 2, borderColor: "#111827" },
+  youText: { color: "#061018", fontSize: 7, fontWeight: "900", fontFamily: "monospace" }, identity: { flex: 1, minWidth: 0 }, name: { color: "#FFFFFF", fontSize: 15, lineHeight: 20, fontWeight: "900", fontFamily: "monospace" },
+  score: { color: "#94A3B8", fontSize: 11, fontWeight: "700", fontFamily: "monospace", marginTop: 3 }, rankBlock: { alignItems: "flex-end", paddingLeft: 10 }, rankLabel: { color: "#64748B", fontSize: 9, fontWeight: "800", fontFamily: "monospace", letterSpacing: 1 },
+  rank: { color: "#FFFFFF", fontSize: 26, lineHeight: 31, fontWeight: "900", fontFamily: "monospace" }, unrankedRow: { flexDirection: "row", alignItems: "center" },
+  crosshair: { width: 48, height: 48, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(56,237,216,0.1)", marginRight: 12 }, unrankedCopy: { color: "#94A3B8", fontSize: 11, lineHeight: 16, fontFamily: "monospace", marginTop: 3 },
 });

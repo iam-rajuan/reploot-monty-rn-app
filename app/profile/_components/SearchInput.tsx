@@ -2,11 +2,13 @@ import { Search } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 
-export function SearchInput() {
+export function SearchInput({ value, onChangeText }: { value: string; onChangeText: (value: string) => void }) {
   return (
     <View style={styles.searchContainer}>
       <Search size={18} color="#38BDF8" style={styles.searchIcon} />
       <TextInput
+        value={value}
+        onChangeText={onChangeText}
         style={styles.searchInput}
         placeholder="Find athlete..."
         placeholderTextColor="#64748B"

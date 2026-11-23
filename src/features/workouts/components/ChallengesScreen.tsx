@@ -11,6 +11,7 @@ import {
   Flame,
   RotateCcw,
   Sparkles,
+  Trophy,
   Zap,
 } from "lucide-react-native";
 import React from "react";
@@ -137,6 +138,11 @@ export const ChallengesScreen: React.FC<ChallengesScreenProps> = ({
           </Text>
         </View>
 
+        <TouchableOpacity activeOpacity={0.85} style={styles.rankingLink} onPress={() => router.push({ pathname: "/profile/global-rankings" as any, params: { context: "home" } })}>
+          <View><Text style={styles.rankingLinkTitle}>HOME CHALLENGE RANKING</Text><Text style={styles.rankingLinkBody}>Ranking context ready; scoring rule pending</Text></View>
+          <Trophy size={20} color="#38EDD8" />
+        </TouchableOpacity>
+
         {/* Challenges List */}
         <View style={styles.challengesContainer}>
           {challengesList.map((challenge, index) => (
@@ -259,6 +265,9 @@ const styles = StyleSheet.create({
   challengesContainer: {
     gap: 16,
   },
+  rankingLink: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderRadius: 18, borderWidth: 1, borderColor: "rgba(56,237,216,0.25)", backgroundColor: "rgba(56,237,216,0.07)", padding: 16, marginBottom: 20 },
+  rankingLinkTitle: { color: "#FFFFFF", fontSize: 13, fontWeight: "900", fontFamily: "monospace", marginBottom: 4 },
+  rankingLinkBody: { color: "#94A3B8", fontSize: 11, fontFamily: "monospace" },
   challengeCard: {
     width: "100%",
     height: 180,

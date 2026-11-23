@@ -315,6 +315,11 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
           </Text>
         </View>
 
+        <Pressable style={styles.rankingLink} onPress={() => router.push({ pathname: "/profile/global-rankings" as any, params: { context: "gym" } })}>
+          <View><Text style={styles.rankingLinkTitle}>GYM CHALLENGE RANKING</Text><Text style={styles.rankingLinkBody}>See challenge scores and your position</Text></View>
+          <TrendingUp size={20} color="#38EDD8" />
+        </Pressable>
+
         {/* 2-Column Workout Path Cards Grid matching screenshot */}
         <View style={styles.cardsGrid}>
           {PATH_CARDS.map((item) => (
@@ -427,6 +432,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     rowGap: 16,
   },
+  rankingLink: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderRadius: 18, borderWidth: 1, borderColor: "rgba(56,237,216,0.25)", backgroundColor: "rgba(56,237,216,0.07)", padding: 16, marginBottom: 20 },
+  rankingLinkTitle: { color: "#FFFFFF", fontSize: 13, fontWeight: "900", fontFamily: "monospace", marginBottom: 4 },
+  rankingLinkBody: { color: "#94A3B8", fontSize: 11, fontFamily: "monospace" },
   card: {
     width: (width - 54) / 2,
     height: 194,

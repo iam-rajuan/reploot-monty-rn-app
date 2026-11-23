@@ -1,261 +1,86 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { LeaderboardEntry } from "@/shared/types/progress";
 import { Image } from "expo-image";
+import { Crown, Medal } from "lucide-react-native";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export function LeaderboardList() {
+interface Props {
+  entries: LeaderboardEntry[];
+  scoreUnit: string;
+  showPodium?: boolean;
+  onSelectEntry: (entry: LeaderboardEntry) => void;
+}
+
+export function LeaderboardList({ entries, scoreUnit, showPodium = true, onSelectEntry }: Props) {
+  if (entries.length === 0) {
+    return <View style={styles.empty}><Medal size={28} color="#64748B" /><Text style={styles.emptyTitle}>NO RANKING DATA</Text><Text style={styles.emptyBody}>Rankings will appear here when eligible challenge results are available.</Text></View>;
+  }
+
+  const podium = showPodium ? entries.slice(0, 3) : [];
+  const remaining = showPodium ? entries.slice(3) : entries;
+
   return (
-    <View style={styles.leaderboard}>
-      {/* Top 1 */}
-      <View style={[styles.rankItem, styles.rankItemGold]}>
-        <Text style={[styles.rankPosition, { color: "#FFB68C" }]}>1</Text>
-        <Image
-          source={{ uri: "https://i.pravatar.cc/100?img=33" }}
-          style={styles.avatar}
-        />
-        <View style={styles.athleteInfo}>
-          <Text style={styles.athleteName}>Marcus Thuram</Text>
-          <Text style={styles.athleteStatus}>🏅 Dominating</Text>
-        </View>
-        <View style={styles.athleteScore}>
-          <Text style={[styles.xpValue, { color: "#FFB68C" }]}>54,200</Text>
-          <Text style={[styles.xpUnit, { color: "#FFB68C" }]}>XP</Text>
-        </View>
-      </View>
-
-      {/* Top 2 */}
-      <View style={[styles.rankItem, styles.rankItemSilver]}>
-        <Text style={[styles.rankPosition, { color: "#E2E8F0" }]}>2</Text>
-        <Image
-          source={{ uri: "https://i.pravatar.cc/100?img=12" }}
-          style={styles.avatar}
-        />
-        <View style={styles.athleteInfo}>
-          <Text style={styles.athleteName}>Sarah_Strong</Text>
-          <Text style={styles.athleteStatus}>🔥 Master</Text>
-        </View>
-        <View style={styles.athleteScore}>
-          <Text style={styles.xpValue}>48,150</Text>
-          <Text style={styles.xpUnit}>XP</Text>
-        </View>
-      </View>
-
-      {/* Top 3 */}
-      <View style={[styles.rankItem, styles.rankItemBronze]}>
-        <Text style={[styles.rankPosition, { color: "#38EDD8" }]}>3</Text>
-        <Image
-          source={{ uri: "https://i.pravatar.cc/100?img=60" }}
-          style={styles.avatar}
-        />
-        <View style={styles.athleteInfo}>
-          <Text style={styles.athleteName}>J-Train</Text>
-          <Text style={styles.athleteStatus}>⚡ Elite</Text>
-        </View>
-        <View style={styles.athleteScore}>
-          <Text style={[styles.xpValue, { color: "#38EDD8" }]}>42,900</Text>
-          <Text style={[styles.xpUnit, { color: "#38EDD8" }]}>XP</Text>
-        </View>
-      </View>
-
-      {/* Top 4 */}
-      <View style={[styles.rankItem, styles.rankItemStandard]}>
-        <Text style={styles.rankPositionSub}>4</Text>
-        <Image
-          source={{ uri: "https://i.pravatar.cc/100?img=11" }}
-          style={[styles.avatar, styles.avatarSmall]}
-        />
-        <View style={styles.athleteInfo}>
-          <Text style={styles.athleteNameSub}>Iron_Mike</Text>
-        </View>
-        <View style={styles.athleteScore}>
-          <Text style={styles.xpValueSub}>40,100</Text>
-          <Text style={styles.xpUnitSub}>XP</Text>
-        </View>
-      </View>
-
-      {/* Top 5 */}
-      <View style={[styles.rankItem, styles.rankItemStandard]}>
-        <Text style={styles.rankPositionSub}>5</Text>
-        <Image
-          source={{ uri: "https://i.pravatar.cc/100?img=44" }}
-          style={[styles.avatar, styles.avatarSmall]}
-        />
-        <View style={styles.athleteInfo}>
-          <Text style={styles.athleteNameSub}>Lift_Queen</Text>
-        </View>
-        <View style={styles.athleteScore}>
-          <Text style={styles.xpValueSub}>39,500</Text>
-          <Text style={styles.xpUnitSub}>XP</Text>
-        </View>
-      </View>
-
-      <Text style={styles.dots}>•••</Text>
-
-      {/* Current User */}
-      <View style={[styles.rankItem, styles.rankItemUser]}>
-        <Text style={[styles.rankPosition, { color: "#38BDF8" }]}>42</Text>
-        <Image
-          source={{ uri: "https://i.pravatar.cc/100?img=50" }}
-          style={[styles.avatar, { borderColor: "#38BDF8", borderWidth: 1.5 }]}
-        />
-        <View style={styles.athleteInfo}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-            <Text style={[styles.athleteName, { color: "#FFFFFF" }]}>
-              Alex Rivers
-            </Text>
-            <View style={styles.youBadge}>
-              <Text style={styles.youText}>YOU</Text>
-            </View>
+    <View style={styles.container}>
+      {podium.length > 0 && <Podium entries={podium} scoreUnit={scoreUnit} onPress={onSelectEntry} />}
+      {remaining.length > 0 && (
+        <View style={styles.boardSection}>
+          <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>{showPodium ? "LEADERBOARD" : "SEARCH RESULTS"}</Text><Text style={styles.sectionMeta}>RANK  •  PLAYER  •  SCORE</Text></View>
+          <View style={styles.listCard}>
+            {remaining.map((entry, index) => (
+              <TouchableOpacity key={entry.userId} activeOpacity={0.75} accessibilityRole="button" accessibilityLabel={`View ${entry.fullName}'s profile`} onPress={() => onSelectEntry(entry)} style={[styles.row, index < remaining.length - 1 && styles.rowDivider, entry.isCurrentUser && styles.currentRow]}>
+                <Text style={[styles.rowRank, entry.isCurrentUser && styles.accentText]}>{entry.rank}</Text>
+                <Image source={{ uri: entry.avatarUrl }} style={[styles.rowAvatar, entry.isCurrentUser && styles.currentAvatar]} />
+                <View style={styles.rowIdentity}><View style={styles.rowNameLine}><Text style={styles.rowName} numberOfLines={1}>{entry.fullName}</Text>{entry.isCurrentUser && <Text style={styles.you}>YOU</Text>}</View></View>
+                <View style={styles.rowScore}><Text style={[styles.rowScoreValue, entry.isCurrentUser && styles.accentText]}>{entry.score.toLocaleString()}</Text><Text style={styles.rowScoreUnit}>{scoreUnit}</Text></View>
+              </TouchableOpacity>
+            ))}
           </View>
-          <Text style={styles.athleteStatus}>Top 5% Global</Text>
         </View>
-        <View style={styles.athleteScore}>
-          <Text style={[styles.xpValue, { color: "#38EDD8" }]}>14,250</Text>
-          <Text style={[styles.xpUnit, { color: "#38EDD8" }]}>XP</Text>
-        </View>
+      )}
+    </View>
+  );
+}
+
+function Podium({ entries, scoreUnit, onPress }: { entries: LeaderboardEntry[]; scoreUnit: string; onPress: (entry: LeaderboardEntry) => void }) {
+  const ordered = entries.length >= 3 ? [entries[1], entries[0], entries[2]] : entries;
+  return (
+    <View style={styles.podiumSection}>
+      <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>TOP PLAYERS</Text><Text style={styles.sectionMeta}>CURRENT CHALLENGE</Text></View>
+      <View style={styles.podiumCard}>
+        {ordered.map((entry, index) => {
+          const isWinner = entry.rank === 1;
+          return (
+            <TouchableOpacity key={entry.userId} activeOpacity={0.78} onPress={() => onPress(entry)} style={[styles.podiumPlayer, isWinner && styles.winnerPlayer]}>
+              <View style={[styles.podiumAvatarWrap, isWinner && styles.winnerAvatarWrap]}>
+                {isWinner && <View style={styles.crown}><Crown size={16} color="#FFD166" fill="#FFD166" /></View>}
+                <Image source={{ uri: entry.avatarUrl }} style={[styles.podiumAvatar, isWinner && styles.winnerAvatar]} />
+                <View style={[styles.podiumRank, isWinner && styles.winnerRank]}><Text style={[styles.podiumRankText, isWinner && styles.winnerRankText]}>{entry.rank}</Text></View>
+              </View>
+              <Text style={styles.podiumName} numberOfLines={1}>{entry.fullName}</Text>
+              <Text style={[styles.podiumScore, isWinner && styles.winnerScore]}>{entry.score.toLocaleString()}</Text>
+              <Text style={styles.podiumUnit}>{scoreUnit}</Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  leaderboard: {
-    gap: 10,
-    marginBottom: 20,
-  },
-  rankItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(15, 23, 42, 0.45)",
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
-  },
-  rankItemGold: {
-    borderColor: "rgba(245, 158, 11, 0.3)",
-    borderLeftWidth: 3,
-    borderLeftColor: "#FFB68C",
-    backgroundColor: "rgba(245, 158, 11, 0.05)",
-  },
-  rankItemSilver: {
-    borderColor: "rgba(226, 232, 240, 0.3)",
-    borderLeftWidth: 3,
-    borderLeftColor: "#E2E8F0",
-    backgroundColor: "rgba(226, 232, 240, 0.03)",
-  },
-  rankItemBronze: {
-    borderColor: "rgba(56, 237, 216, 0.3)",
-    borderLeftWidth: 3,
-    borderLeftColor: "#38EDD8",
-    backgroundColor: "rgba(56, 237, 216, 0.03)",
-  },
-  rankItemUser: {
-    borderColor: "rgba(56, 189, 248, 0.35)",
-    borderLeftWidth: 3,
-    borderLeftColor: "#38BDF8",
-    backgroundColor: "rgba(56, 189, 248, 0.08)",
-  },
-  rankItemStandard: {
-    backgroundColor: "rgba(255, 255, 255, 0.02)",
-    paddingVertical: 12,
-  },
-  rankPosition: {
-    color: "#FFFFFF",
-    fontSize: 20,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    width: 28,
-    textAlign: "center",
-    marginRight: 10,
-  },
-  rankPositionSub: {
-    color: "#64748B",
-    fontSize: 14,
-    fontWeight: "800",
-    fontFamily: "monospace",
-    width: 28,
-    textAlign: "center",
-    marginRight: 10,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    marginRight: 14,
-    backgroundColor: "#161B26",
-  },
-  avatarSmall: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-  },
-  athleteInfo: {
-    flex: 1,
-  },
-  athleteName: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontWeight: "800",
-    fontFamily: "monospace",
-    letterSpacing: 0.5,
-  },
-  athleteNameSub: {
-    color: "#CBD5E1",
-    fontSize: 13,
-    fontWeight: "700",
-    fontFamily: "monospace",
-  },
-  athleteStatus: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontFamily: "monospace",
-    marginTop: 2,
-  },
-  youBadge: {
-    backgroundColor: "rgba(56, 189, 248, 0.2)",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  youText: {
-    color: "#38BDF8",
-    fontSize: 9,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 0.5,
-  },
-  athleteScore: {
-    alignItems: "flex-end",
-  },
-  xpValue: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "900",
-    fontFamily: "monospace",
-  },
-  xpUnit: {
-    color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "800",
-    fontFamily: "monospace",
-  },
-  xpValueSub: {
-    color: "#94A3B8",
-    fontSize: 13,
-    fontWeight: "800",
-    fontFamily: "monospace",
-  },
-  xpUnitSub: {
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "800",
-    fontFamily: "monospace",
-  },
-  dots: {
-    color: "#64748B",
-    fontSize: 20,
-    textAlign: "center",
-    letterSpacing: 4,
-    marginVertical: 4,
-  },
+  container: { width: "100%", paddingBottom: 20 }, sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10, paddingHorizontal: 2 },
+  sectionTitle: { color: "#FFFFFF", fontSize: 12, fontWeight: "900", fontFamily: "monospace", letterSpacing: 1.1 }, sectionMeta: { color: "#64748B", fontSize: 8, fontWeight: "800", fontFamily: "monospace", letterSpacing: 0.6 },
+  podiumSection: { marginBottom: 20 }, podiumCard: { minHeight: 190, flexDirection: "row", alignItems: "flex-end", justifyContent: "center", borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,0.08)", backgroundColor: "rgba(11,17,30,0.76)", paddingHorizontal: 8, paddingTop: 24, paddingBottom: 18, overflow: "hidden" },
+  podiumPlayer: { flex: 1, maxWidth: 106, alignItems: "center", paddingTop: 22 }, winnerPlayer: { alignSelf: "stretch", paddingTop: 0, justifyContent: "flex-start" },
+  podiumAvatarWrap: { position: "relative", marginBottom: 9 }, winnerAvatarWrap: { marginTop: 0 }, podiumAvatar: { width: 50, height: 50, borderRadius: 18, borderWidth: 2, borderColor: "#A7B0C0", backgroundColor: "#161B26" },
+  winnerAvatar: { width: 66, height: 66, borderRadius: 22, borderColor: "#FFD166" }, crown: { position: "absolute", top: -20, left: 25, zIndex: 2 },
+  podiumRank: { position: "absolute", bottom: -5, alignSelf: "center", minWidth: 22, height: 22, borderRadius: 11, alignItems: "center", justifyContent: "center", backgroundColor: "#D5D9E2", borderWidth: 2, borderColor: "#111827" },
+  winnerRank: { backgroundColor: "#FFD166" }, podiumRankText: { color: "#111827", fontSize: 10, fontWeight: "900", fontFamily: "monospace" }, winnerRankText: { color: "#392600" },
+  podiumName: { width: "94%", color: "#E5E7EB", fontSize: 10, fontWeight: "800", fontFamily: "monospace", textAlign: "center", marginTop: 3 }, podiumScore: { color: "#CBD5E1", fontSize: 11, fontWeight: "900", fontFamily: "monospace", marginTop: 5 }, winnerScore: { color: "#FFD166" },
+  podiumUnit: { color: "#64748B", fontSize: 7, fontWeight: "800", fontFamily: "monospace", marginTop: 1 }, boardSection: { width: "100%" }, listCard: { borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,255,255,0.08)", backgroundColor: "rgba(11,17,30,0.76)", overflow: "hidden" },
+  row: { width: "100%", height: 68, flexDirection: "row", alignItems: "center", paddingHorizontal: 12 }, rowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "rgba(255,255,255,0.08)" }, currentRow: { backgroundColor: "rgba(56,189,248,0.1)", borderLeftWidth: 3, borderLeftColor: "#38BDF8", paddingLeft: 9 },
+  rowRank: { width: 30, color: "#94A3B8", fontSize: 15, fontWeight: "900", fontFamily: "monospace", textAlign: "center", marginRight: 9 }, rowAvatar: { width: 40, height: 40, borderRadius: 13, backgroundColor: "#161B26", marginRight: 11 }, currentAvatar: { borderWidth: 1, borderColor: "#38BDF8" },
+  rowIdentity: { flex: 1, minWidth: 0 }, rowNameLine: { flexDirection: "row", alignItems: "center" }, rowName: { flexShrink: 1, color: "#F8FAFC", fontSize: 12, fontWeight: "800", fontFamily: "monospace" }, you: { color: "#38BDF8", fontSize: 7, fontWeight: "900", fontFamily: "monospace", marginLeft: 6, paddingHorizontal: 5, paddingVertical: 2, borderRadius: 5, backgroundColor: "rgba(56,189,248,0.16)" },
+  rowScore: { minWidth: 62, alignItems: "flex-end", marginLeft: 6 }, rowScoreValue: { color: "#FFFFFF", fontSize: 12, fontWeight: "900", fontFamily: "monospace" }, rowScoreUnit: { color: "#64748B", fontSize: 8, fontWeight: "800", fontFamily: "monospace", marginTop: 1 }, accentText: { color: "#38EDD8" },
+  empty: { width: "100%", minHeight: 190, alignItems: "center", justifyContent: "center", padding: 28, marginBottom: 20, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,255,255,0.08)", backgroundColor: "rgba(11,17,30,0.76)" }, emptyTitle: { color: "#FFFFFF", fontSize: 13, fontWeight: "900", fontFamily: "monospace", letterSpacing: 1, marginTop: 12 }, emptyBody: { maxWidth: 250, color: "#94A3B8", fontSize: 11, lineHeight: 17, textAlign: "center", fontFamily: "monospace", marginTop: 7 },
 });

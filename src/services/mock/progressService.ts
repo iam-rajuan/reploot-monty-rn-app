@@ -1,15 +1,16 @@
 import {
   mockAchievements,
-  mockLeaderboardEntries,
+  mockRankingContexts,
   mockPersonalRecords,
   mockProgressReport,
   mockXPProgress,
 } from "@/mocks/progress.mock";
 import {
   Achievement,
-  LeaderboardEntry,
   PersonalRecord,
   ProgressReport,
+  RankingContext,
+  RankingContextId,
   XPProgress,
 } from "@/shared/types/progress";
 
@@ -25,8 +26,8 @@ export const progressService = {
     return simulateDelay(mockAchievements);
   },
 
-  getLeaderboard: async (): Promise<LeaderboardEntry[]> => {
-    return simulateDelay(mockLeaderboardEntries);
+  getLeaderboard: async (context: RankingContextId = "gym"): Promise<RankingContext> => {
+    return simulateDelay(mockRankingContexts[context]);
   },
 
   getPersonalRecords: async (): Promise<PersonalRecord[]> => {
