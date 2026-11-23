@@ -8,7 +8,6 @@ import {
   Calendar,
   Camera,
   Check,
-  ChevronRight,
   Clock,
   Plus,
   RefreshCw,
@@ -40,6 +39,138 @@ export interface UnifiedMeal {
   completed: boolean;
 }
 
+export interface DayHistory {
+  id: string;
+  dayName: string;
+  dateStr: string;
+  isToday: boolean;
+  caloriesTaken: number;
+  caloriesTarget: number;
+  proteinTaken: number;
+  proteinTarget: number;
+  carbsTaken: number;
+  carbsTarget: number;
+  fatTaken: number;
+  fatTarget: number;
+  mealsLogged: number;
+  totalMeals: number;
+}
+
+const WEEK_HISTORY_DATA: DayHistory[] = [
+  {
+    id: "sun",
+    dayName: "TODAY",
+    dateStr: "SUN • NOV 23",
+    isToday: true,
+    caloriesTaken: 1950,
+    caloriesTarget: 2200,
+    proteinTaken: 130,
+    proteinTarget: 140,
+    carbsTaken: 136,
+    carbsTarget: 180,
+    fatTaken: 64,
+    fatTarget: 65,
+    mealsLogged: 3,
+    totalMeals: 4,
+  },
+  {
+    id: "sat",
+    dayName: "YESTERDAY",
+    dateStr: "SAT • NOV 22",
+    isToday: false,
+    caloriesTaken: 2180,
+    caloriesTarget: 2200,
+    proteinTaken: 142,
+    proteinTarget: 140,
+    carbsTaken: 185,
+    carbsTarget: 180,
+    fatTaken: 62,
+    fatTarget: 65,
+    mealsLogged: 4,
+    totalMeals: 4,
+  },
+  {
+    id: "fri",
+    dayName: "FRIDAY",
+    dateStr: "FRI • NOV 21",
+    isToday: false,
+    caloriesTaken: 2250,
+    caloriesTarget: 2200,
+    proteinTaken: 148,
+    proteinTarget: 140,
+    carbsTaken: 192,
+    carbsTarget: 180,
+    fatTaken: 66,
+    fatTarget: 65,
+    mealsLogged: 4,
+    totalMeals: 4,
+  },
+  {
+    id: "thu",
+    dayName: "THURSDAY",
+    dateStr: "THU • NOV 20",
+    isToday: false,
+    caloriesTaken: 2040,
+    caloriesTarget: 2200,
+    proteinTaken: 135,
+    proteinTarget: 140,
+    carbsTaken: 170,
+    carbsTarget: 180,
+    fatTaken: 60,
+    fatTarget: 65,
+    mealsLogged: 4,
+    totalMeals: 4,
+  },
+  {
+    id: "wed",
+    dayName: "WEDNESDAY",
+    dateStr: "WED • NOV 19",
+    isToday: false,
+    caloriesTaken: 2190,
+    caloriesTarget: 2200,
+    proteinTaken: 144,
+    proteinTarget: 140,
+    carbsTaken: 182,
+    carbsTarget: 180,
+    fatTaken: 63,
+    fatTarget: 65,
+    mealsLogged: 4,
+    totalMeals: 4,
+  },
+  {
+    id: "tue",
+    dayName: "TUESDAY",
+    dateStr: "TUE • NOV 18",
+    isToday: false,
+    caloriesTaken: 1980,
+    caloriesTarget: 2200,
+    proteinTaken: 128,
+    proteinTarget: 140,
+    carbsTaken: 165,
+    carbsTarget: 180,
+    fatTaken: 58,
+    fatTarget: 65,
+    mealsLogged: 3,
+    totalMeals: 4,
+  },
+  {
+    id: "mon",
+    dayName: "MONDAY",
+    dateStr: "MON • NOV 17",
+    isToday: false,
+    caloriesTaken: 2150,
+    caloriesTarget: 2200,
+    proteinTaken: 140,
+    proteinTarget: 140,
+    carbsTaken: 178,
+    carbsTarget: 180,
+    fatTaken: 62,
+    fatTarget: 65,
+    mealsLogged: 4,
+    totalMeals: 4,
+  },
+];
+
 export default function UnifiedMealPlanScreen() {
   const insets = useSafeAreaInsets();
   const activateGeneratedPlan = useNutritionPlanStore(
@@ -49,6 +180,7 @@ export default function UnifiedMealPlanScreen() {
     (state) => state.hasGeneratedPlan,
   );
 
+  const [viewMode, setViewMode] = useState<"today" | "week">("today");
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [planApplied, setPlanApplied] = useState(hasGeneratedPlan);
 
@@ -64,7 +196,7 @@ export default function UnifiedMealPlanScreen() {
       carbs: 34,
       fat: 16,
       prepTime: "10m",
-      completed: true, // Initially completed to show log state immediately
+      completed: true,
     },
     {
       id: 2,
@@ -153,7 +285,6 @@ export default function UnifiedMealPlanScreen() {
     }, 1000);
   };
 
-  // Logged totals
   const loggedMeals = useMemo(() => meals.filter((m) => m.completed), [meals]);
 
   return (
@@ -188,125 +319,291 @@ export default function UnifiedMealPlanScreen() {
           </Text>
         </View>
 
-        {/* Adjust Plan Quick Action */}
-        <Pressable
-          style={styles.adjustPill}
-          onPress={() => {
-            triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-            router.push("/nutrition-ai?mode=adjust");
-          }}
-          accessibilityRole="button"
-          accessibilityLabel="Adjust plan with AI"
-        >
-          <View style={styles.adjustLeft}>
-            <Sparkles color="#44EAC3" size={14} />
-            <Text style={styles.adjustText}>
-              Adjust calories, meals, or budget
+        {/* View Mode Switcher: Today's Schedule vs Week History */}
+        <View style={styles.tabSwitcher}>
+          <Pressable
+            style={[
+              styles.tabBtn,
+              viewMode === "today" && styles.tabBtnActive,
+            ]}
+            onPress={() => {
+              triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+              setViewMode("today");
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="View today's schedule"
+          >
+            <Utensils
+              size={12}
+              color={viewMode === "today" ? "#38BDF8" : "#64748B"}
+            />
+            <Text
+              style={[
+                styles.tabBtnText,
+                viewMode === "today" && styles.tabBtnTextActive,
+              ]}
+            >
+              TODAY'S SCHEDULE
             </Text>
-          </View>
-          <ChevronRight size={16} color="#44EAC3" />
-        </Pressable>
+          </Pressable>
 
-        {/* Meal Schedule Section Header */}
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionIconBadge}>
-            <Utensils size={12} color="#38BDF8" />
-          </View>
-          <Text style={styles.sectionTitle}>DAILY SCHEDULE & LOGS</Text>
-          <Text style={styles.sectionCount}>
-            {loggedMeals.length}/{meals.length} LOGGED
-          </Text>
+          <Pressable
+            style={[
+              styles.tabBtn,
+              viewMode === "week" && styles.tabBtnActive,
+            ]}
+            onPress={() => {
+              triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+              setViewMode("week");
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="View weekly history"
+          >
+            <Calendar
+              size={12}
+              color={viewMode === "week" ? "#38BDF8" : "#64748B"}
+            />
+            <Text
+              style={[
+                styles.tabBtnText,
+                viewMode === "week" && styles.tabBtnTextActive,
+              ]}
+            >
+              WEEK HISTORY
+            </Text>
+          </Pressable>
         </View>
 
-        {/* Meals List */}
-        <View style={styles.mealList}>
-          {meals.map((meal) => {
-            return (
-              <View
-                key={meal.id}
-                style={[
-                  styles.mealCard,
-                  meal.completed && styles.mealCardCompleted,
-                ]}
-              >
-                {/* Meal Header Row */}
-                <View style={styles.mealTopRow}>
+        {/* Dynamic Section Content */}
+        {viewMode === "today" ? (
+          <>
+            {/* Meal Schedule Section Header */}
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionIconBadge}>
+                <Utensils size={12} color="#38BDF8" />
+              </View>
+              <Text style={styles.sectionTitle}>TODAY'S SCHEDULE & LOGS</Text>
+              <Text style={styles.sectionCount}>
+                {loggedMeals.length}/{meals.length} LOGGED
+              </Text>
+            </View>
+
+            {/* Meals List */}
+            <View style={styles.mealList}>
+              {meals.map((meal) => {
+                return (
                   <View
+                    key={meal.id}
                     style={[
-                      styles.typeBadge,
-                      {
-                        backgroundColor: `${meal.typeColor}15`,
-                        borderColor: `${meal.typeColor}40`,
-                      },
+                      styles.mealCard,
+                      meal.completed && styles.mealCardCompleted,
                     ]}
                   >
-                    <Text style={[styles.typeText, { color: meal.typeColor }]}>
-                      {meal.type}
-                    </Text>
-                  </View>
+                    {/* Meal Header Row */}
+                    <View style={styles.mealTopRow}>
+                      <View
+                        style={[
+                          styles.typeBadge,
+                          {
+                            backgroundColor: `${meal.typeColor}15`,
+                            borderColor: `${meal.typeColor}40`,
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[styles.typeText, { color: meal.typeColor }]}
+                        >
+                          {meal.type}
+                        </Text>
+                      </View>
 
-                  <View style={styles.timingBadge}>
-                    <Clock size={11} color="#64748B" />
-                    <Text style={styles.timingText}>{meal.time}</Text>
-                    <Text style={styles.prepTimeText}>• {meal.prepTime}</Text>
-                  </View>
-                </View>
-
-                {/* Meal Name */}
-                <Text style={styles.mealName}>{meal.name}</Text>
-
-                {/* Macro Details & Action Button Row */}
-                <View style={styles.mealBottomRow}>
-                  <View style={styles.mealMacrosRow}>
-                    <View style={styles.kcalBadge}>
-                      <Text style={styles.kcalText}>{meal.calories} KCAL</Text>
+                      <View style={styles.timingBadge}>
+                        <Clock size={11} color="#64748B" />
+                        <Text style={styles.timingText}>{meal.time}</Text>
+                        <Text style={styles.prepTimeText}>• {meal.prepTime}</Text>
+                      </View>
                     </View>
-                    <Text style={styles.macroPillText}>{meal.protein}g P</Text>
-                    <Text style={styles.dot}>•</Text>
-                    <Text style={styles.macroPillText}>{meal.carbs}g C</Text>
-                    <Text style={styles.dot}>•</Text>
-                    <Text style={styles.macroPillText}>{meal.fat}g F</Text>
+
+                    {/* Meal Name */}
+                    <Text style={styles.mealName}>{meal.name}</Text>
+
+                    {/* Macro Details & Action Button Row */}
+                    <View style={styles.mealBottomRow}>
+                      <View style={styles.mealMacrosRow}>
+                        <View style={styles.kcalBadge}>
+                          <Text style={styles.kcalText}>{meal.calories} KCAL</Text>
+                        </View>
+                        <Text style={styles.macroPillText}>{meal.protein}g P</Text>
+                        <Text style={styles.dot}>•</Text>
+                        <Text style={styles.macroPillText}>{meal.carbs}g C</Text>
+                        <Text style={styles.dot}>•</Text>
+                        <Text style={styles.macroPillText}>{meal.fat}g F</Text>
+                      </View>
+
+                      {/* Log / Completed Action Button */}
+                      {meal.completed ? (
+                        <Pressable
+                          style={styles.completedBtn}
+                          onPress={() => toggleMealLog(meal.id)}
+                          accessibilityRole="button"
+                          accessibilityLabel="Meal logged, tap to unmark"
+                        >
+                          <Check size={12} color="#2DD4BF" strokeWidth={2.5} />
+                          <Text style={styles.completedBtnText}>COMPLETED</Text>
+                        </Pressable>
+                      ) : (
+                        <Pressable
+                          style={styles.logBtn}
+                          onPress={() => toggleMealLog(meal.id)}
+                          accessibilityRole="button"
+                          accessibilityLabel="Log meal"
+                        >
+                          <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
+                          <Text style={styles.logBtnText}>LOG MEAL</Text>
+                        </Pressable>
+                      )}
+                    </View>
                   </View>
+                );
+              })}
+            </View>
 
-                  {/* Log / Completed Action Button */}
-                  {meal.completed ? (
-                    <Pressable
-                      style={styles.completedBtn}
-                      onPress={() => toggleMealLog(meal.id)}
-                      accessibilityRole="button"
-                      accessibilityLabel="Meal logged, tap to unmark"
-                    >
-                      <Check size={12} color="#2DD4BF" strokeWidth={2.5} />
-                      <Text style={styles.completedBtnText}>COMPLETED</Text>
-                    </Pressable>
-                  ) : (
-                    <Pressable
-                      style={styles.logBtn}
-                      onPress={() => toggleMealLog(meal.id)}
-                      accessibilityRole="button"
-                      accessibilityLabel="Log meal"
-                    >
-                      <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
-                      <Text style={styles.logBtnText}>LOG MEAL</Text>
-                    </Pressable>
-                  )}
-                </View>
+            {/* Nutrient Timing Insight */}
+            <View style={styles.insightBox}>
+              <Calendar color="#38BDF8" size={15} style={{ marginTop: 2 }} />
+              <View style={styles.insightContent}>
+                <Text style={styles.insightTitle}>NUTRIENT TIMING</Text>
+                <Text style={styles.insightText}>
+                  Carbs are concentrated post-workout to support glycogen
+                  recovery and sustained energy.
+                </Text>
               </View>
-            );
-          })}
-        </View>
+            </View>
+          </>
+        ) : (
+          <>
+            {/* Week History Section Header */}
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionIconBadge}>
+                <Calendar size={12} color="#38BDF8" />
+              </View>
+              <Text style={styles.sectionTitle}>7-DAY NUTRITION HISTORY</Text>
+              <Text style={styles.sectionCount}>PAST 7 DAYS</Text>
+            </View>
 
-        {/* Nutrient Timing Insight */}
-        <View style={styles.insightBox}>
-          <Calendar color="#38BDF8" size={15} style={{ marginTop: 2 }} />
-          <View style={styles.insightContent}>
-            <Text style={styles.insightTitle}>NUTRIENT TIMING</Text>
-            <Text style={styles.insightText}>
-              Carbs are concentrated post-workout to support glycogen recovery
-              and sustained energy.
-            </Text>
-          </View>
-        </View>
+            {/* Week History Cards List */}
+            <View style={styles.historyList}>
+              {WEEK_HISTORY_DATA.map((day) => {
+                const progressPct = Math.min(
+                  100,
+                  Math.round((day.caloriesTaken / day.caloriesTarget) * 100),
+                );
+                return (
+                  <View
+                    key={day.id}
+                    style={[
+                      styles.historyCard,
+                      day.isToday && styles.historyCardToday,
+                    ]}
+                  >
+                    {/* Header Row: Day, Date & Calories */}
+                    <View style={styles.historyCardHeader}>
+                      <View style={styles.historyDateCol}>
+                        <Text
+                          style={[
+                            styles.historyDayTitle,
+                            day.isToday && styles.historyDayTitleToday,
+                          ]}
+                        >
+                          {day.dayName}
+                        </Text>
+                        <Text style={styles.historyDateSubtitle}>
+                          {day.dateStr}
+                        </Text>
+                      </View>
+                      <View style={styles.historyCalorieBadge}>
+                        <Text style={styles.historyCaloriesText}>
+                          {day.caloriesTaken.toLocaleString()} KCAL
+                        </Text>
+                        <Text style={styles.historyTargetText}>
+                          / {day.caloriesTarget.toLocaleString()} target
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Progress Bar */}
+                    <View style={styles.historyBarTrack}>
+                      <LinearGradient
+                        colors={
+                          progressPct >= 95
+                            ? ["#0284C7", "#2DD4BF"]
+                            : ["#0284C7", "#38BDF8"]}
+                        start={{ x: 0, y: 0.5 }}
+                        end={{ x: 1, y: 0.5 }}
+                        style={[
+                          styles.historyBarFill,
+                          { width: `${progressPct}%` },
+                        ]}
+                      />
+                    </View>
+
+                    {/* Nutrients Taken Row */}
+                    <View style={styles.historyNutrientsRow}>
+                      <View style={styles.nutrientChip}>
+                        <Text
+                          style={[
+                            styles.nutrientLabel,
+                            { color: "#38BDF8" },
+                          ]}
+                        >
+                          PROTEIN
+                        </Text>
+                        <Text style={styles.nutrientValue}>
+                          {day.proteinTaken}g
+                        </Text>
+                      </View>
+
+                      <View style={styles.nutrientChip}>
+                        <Text
+                          style={[
+                            styles.nutrientLabel,
+                            { color: "#FFB68C" },
+                          ]}
+                        >
+                          CARBS
+                        </Text>
+                        <Text style={styles.nutrientValue}>
+                          {day.carbsTaken}g
+                        </Text>
+                      </View>
+
+                      <View style={styles.nutrientChip}>
+                        <Text
+                          style={[
+                            styles.nutrientLabel,
+                            { color: "#F43F5E" },
+                          ]}
+                        >
+                          FAT
+                        </Text>
+                        <Text style={styles.nutrientValue}>
+                          {day.fatTaken}g
+                        </Text>
+                      </View>
+
+                      <View style={styles.mealsLoggedPill}>
+                        <Check size={11} color="#2DD4BF" />
+                        <Text style={styles.mealsLoggedText}>
+                          {day.mealsLogged}/{day.totalMeals} LOGGED
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </>
+        )}
 
         {/* Bottom Actions */}
         <View style={styles.actionsContainer}>
@@ -391,7 +688,7 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     marginTop: 4,
-    marginBottom: 18,
+    marginBottom: 16,
   },
   titleBadge: {
     flexDirection: "row",
@@ -428,31 +725,41 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
-    marginBottom: 16,
   },
-  adjustPill: {
+  tabSwitcher: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "rgba(68, 234, 195, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(68, 234, 195, 0.22)",
+    backgroundColor: "#0D131F",
     borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    borderWidth: 1.5,
+    borderColor: "rgba(56, 189, 248, 0.2)",
+    padding: 4,
     marginBottom: 20,
+    gap: 4,
   },
-  adjustLeft: {
+  tabBtn: {
+    flex: 1,
+    height: 40,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    justifyContent: "center",
+    borderRadius: 10,
+    gap: 6,
   },
-  adjustText: {
-    color: "#44EAC3",
+  tabBtnActive: {
+    backgroundColor: "#16233B",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.4)",
+  },
+  tabBtnText: {
+    color: "#64748B",
+    fontSize: 11,
     fontFamily: "monospace",
-    fontSize: 11.5,
     fontWeight: "800",
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
+  },
+  tabBtnTextActive: {
+    color: "#38BDF8",
+    fontWeight: "900",
   },
   sectionHeader: {
     flexDirection: "row",
@@ -614,6 +921,123 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
     fontWeight: "900",
     letterSpacing: 0.6,
+  },
+  historyList: {
+    gap: 10,
+    marginBottom: 20,
+  },
+  historyCard: {
+    backgroundColor: "#0D131F",
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 255, 255, 0.07)",
+    padding: 14,
+  },
+  historyCardToday: {
+    borderColor: "rgba(56, 189, 248, 0.35)",
+    backgroundColor: "#0D1524",
+  },
+  historyCardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  historyDateCol: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 8,
+  },
+  historyDayTitle: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontFamily: "monospace",
+    fontWeight: "900",
+    letterSpacing: 0.8,
+  },
+  historyDayTitleToday: {
+    color: "#38BDF8",
+  },
+  historyDateSubtitle: {
+    color: "#64748B",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "700",
+  },
+  historyCalorieBadge: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 4,
+  },
+  historyCaloriesText: {
+    color: "#FFFFFF",
+    fontSize: 12.5,
+    fontFamily: "monospace",
+    fontWeight: "900",
+  },
+  historyTargetText: {
+    color: "#64748B",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "700",
+  },
+  historyBarTrack: {
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
+    overflow: "hidden",
+    marginBottom: 12,
+  },
+  historyBarFill: {
+    height: "100%",
+    borderRadius: 4,
+  },
+  historyNutrientsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 6,
+  },
+  nutrientChip: {
+    flex: 1,
+    backgroundColor: "#111A29",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.05)",
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+    alignItems: "center",
+  },
+  nutrientLabel: {
+    fontSize: 8,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.6,
+    marginBottom: 2,
+  },
+  nutrientValue: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontFamily: "monospace",
+    fontWeight: "800",
+  },
+  mealsLoggedPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(45, 212, 191, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(45, 212, 191, 0.25)",
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    gap: 4,
+  },
+  mealsLoggedText: {
+    color: "#2DD4BF",
+    fontSize: 9,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.5,
   },
   insightBox: {
     backgroundColor: "rgba(56, 189, 248, 0.05)",
