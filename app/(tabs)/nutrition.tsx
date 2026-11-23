@@ -56,9 +56,6 @@ interface LoggedMeal {
 }
 
 const nutritionCoachArtwork = require("../../assets/figma/nutrition/ai-nutrition-coach-figma.jpeg");
-const nutritionCoachSparkles = require("../../assets/figma/nutrition/coach-sparkles.svg");
-const nutritionMealUtensils = require("../../assets/figma/nutrition/meal-utensils.svg");
-const nutritionChevronRight = require("../../assets/figma/nutrition/chevron-right.svg");
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -492,37 +489,104 @@ export default function NutritionTabRoute() {
         </View>
 
         <LinearGradient
-          colors={["#191725", "#14141C", "#101015"]}
-          locations={[0, 0.5, 1]}
+          colors={["#0F1626", "#0B101D", "#070A12"]}
+          locations={[0, 0.6, 1]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.nutritionCoachCard}
         >
-          <Image source={nutritionCoachSparkles} contentFit="contain" style={styles.nutritionCoachDecor} />
+          {/* Header Row: Avatar + Copilot Badge + Speech */}
           <View style={styles.nutritionCoachTop}>
             <View style={styles.nutritionAvatarShell}>
-              <View style={styles.nutritionAvatarGlow} />
-              <View style={styles.nutritionAvatarPanel}><Image source={nutritionCoachArtwork} contentFit="cover" style={styles.nutritionAvatar} /></View>
+              <View style={styles.nutritionAvatarPanel}>
+                <Image
+                  source={nutritionCoachArtwork}
+                  contentFit="cover"
+                  style={styles.nutritionAvatar}
+                />
+              </View>
+              <View style={styles.coachActiveDot} />
             </View>
+
             <View style={styles.nutritionCoachCopy}>
-              <Text style={styles.nutritionCoachLabel}>AI NUTRITION COACH</Text>
-              <Text style={styles.nutritionCoachText}>"You still need <Text style={styles.nutritionProtein}>24g of{"\n"}protein</Text> today."</Text>
+              <View style={styles.coachBadgeRow}>
+                <Sparkles size={11} color="#38BDF8" />
+                <Text style={styles.nutritionCoachLabel}>AI NUTRITION COACH</Text>
+              </View>
+              <Text style={styles.nutritionCoachText}>
+                You still need{" "}
+                <Text style={styles.nutritionProtein}>24g of protein</Text> today
+                to hit recovery targets.
+              </Text>
             </View>
           </View>
+
+          {/* Recommended Next Meal Card */}
           <View style={styles.nutritionLunch}>
-            <View style={styles.nutritionLunchLabelRow}><Image source={nutritionMealUtensils} contentFit="contain" style={styles.nutritionMealIcon} /><Text style={styles.nutritionLunchLabel}>RECOMMENDED NEXT LUNCH</Text></View>
-            <Text style={styles.nutritionLunchText}>Grilled Chicken with Brown Rice</Text>
+            <View style={styles.nutritionLunchHeader}>
+              <View style={styles.nutritionLunchLabelRow}>
+                <Utensils size={12} color="#2DD4BF" />
+                <Text style={styles.nutritionLunchLabel}>
+                  RECOMMENDED NEXT LUNCH
+                </Text>
+              </View>
+              <View style={styles.nutritionLunchTimeBadge}>
+                <Clock size={11} color="#64748B" />
+                <Text style={styles.nutritionLunchTimeText}>15m prep</Text>
+              </View>
+            </View>
+
+            <Text style={styles.nutritionLunchText}>
+              Grilled Chicken with Brown Rice
+            </Text>
+
+            {/* Meal Macro & Calorie Telemetry */}
+            <View style={styles.nutritionLunchMacrosRow}>
+              <View style={styles.lunchKcalBadge}>
+                <Flame size={12} color="#38BDF8" />
+                <Text style={styles.lunchKcalText}>580 KCAL</Text>
+              </View>
+
+              <View style={styles.lunchMacrosGroup}>
+                <View style={styles.lunchMacroPill}>
+                  <View
+                    style={[styles.lunchMacroDot, { backgroundColor: "#38BDF8" }]}
+                  />
+                  <Text style={styles.lunchMacroVal}>48g P</Text>
+                </View>
+                <View style={styles.lunchMacroPill}>
+                  <View
+                    style={[styles.lunchMacroDot, { backgroundColor: "#FFB68C" }]}
+                  />
+                  <Text style={styles.lunchMacroVal}>52g C</Text>
+                </View>
+                <View style={styles.lunchMacroPill}>
+                  <View
+                    style={[styles.lunchMacroDot, { backgroundColor: "#F43F5E" }]}
+                  />
+                  <Text style={styles.lunchMacroVal}>12g F</Text>
+                </View>
+              </View>
+            </View>
           </View>
+
+          {/* Action Button */}
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Adjust plan with AI"
-            onPress={() => { triggerHaptic(); router.push("/nutrition-ai?mode=adjust"); }}
-            style={styles.nutritionPlan}
+            onPress={() => {
+              triggerHaptic();
+              router.push("/nutrition-ai?mode=adjust");
+            }}
+            style={({ pressed }) => [
+              styles.nutritionPlan,
+              pressed && styles.nutritionPlanPressed,
+            ]}
           >
             <View style={styles.nutritionPlanContent}>
-              <Sparkles size={14} color="#38BDF8" style={{ marginRight: 4 }} />
+              <Sparkles size={14} color="#38BDF8" />
               <Text style={styles.nutritionPlanText}>ADJUST PLAN WITH AI</Text>
-              <Image source={nutritionChevronRight} contentFit="contain" style={styles.nutritionPlanChevron} />
+              <ChevronRight size={14} color="#38BDF8" strokeWidth={2.5} />
             </View>
           </Pressable>
         </LinearGradient>
@@ -1512,24 +1576,189 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
     fontWeight: "600",
   },
-  nutritionCoachCard: { width: "100%", borderRadius: 24, borderWidth: 1, borderColor: "rgba(108,92,255,.42)", padding: 25, gap: 16, overflow: "hidden", shadowColor: "#6C5CFF", shadowOpacity: 0.1, shadowRadius: 16, elevation: 0 },
-  nutritionCoachDecor: { position: "absolute", width: 22, height: 28, right: -16, top: -16, opacity: 0.1 },
-  nutritionCoachTop: { flexDirection: "row", alignItems: "center", gap: 16 },
-  nutritionAvatarShell: { width: 64, height: 64, position: "relative", alignItems: "center", justifyContent: "center" },
-  nutritionAvatarGlow: { position: "absolute", inset: 0, borderRadius: 32, backgroundColor: "rgba(197,192,255,.3)", opacity: 0.65 },
-  nutritionAvatarPanel: { width: 64, height: 64, borderRadius: 16, padding: 1, alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "rgba(30,31,37,.6)", borderWidth: 1, borderColor: "rgba(255,255,255,.1)" },
-  nutritionAvatar: { width: 48, height: 48 },
-  nutritionCoachCopy: { flex: 1 },
-  nutritionCoachLabel: { color: "#C5C0FF", fontFamily: "JetBrainsMono_700Bold", fontSize: 10, lineHeight: 15, letterSpacing: 2 },
-  nutritionCoachText: { color: "#E3E1E9", fontSize: 16, fontWeight: "800", fontStyle: "italic", lineHeight: 20 },
-  nutritionProtein: { color: "#44EAC3", fontWeight: "400" },
-  nutritionLunch: { backgroundColor: "#0D0E13", borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,255,255,.08)", padding: 17 },
-  nutritionLunchLabelRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 },
-  nutritionMealIcon: { width: 15, height: 20 },
-  nutritionLunchLabel: { color: "#C8C4D8", fontFamily: "JetBrainsMono_700Bold", fontSize: 10, lineHeight: 15, letterSpacing: 0.5 },
-  nutritionLunchText: { color: "#E3E1E9", fontSize: 16, lineHeight: 24, fontWeight: "700" },
-  nutritionPlan: { width: "100%", height: 44, borderRadius: 12, borderWidth: 1, borderColor: "rgba(255,255,255,.08)", backgroundColor: "#1A1A24", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, overflow: "hidden" },
-  nutritionPlanContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
-  nutritionPlanText: { color: "#E3E1E9", fontFamily: "JetBrainsMono_700Bold", fontSize: 12, lineHeight: 16, letterSpacing: 1.2 },
-  nutritionPlanChevron: { width: 7.4, height: 12 },
+  nutritionCoachCard: {
+    width: "100%",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.22)",
+    padding: 18,
+    gap: 14,
+    overflow: "hidden",
+    shadowColor: "#0284C7",
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 3,
+  },
+  nutritionCoachTop: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 14,
+  },
+  nutritionAvatarShell: {
+    width: 52,
+    height: 52,
+    position: "relative",
+  },
+  nutritionAvatarPanel: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    overflow: "hidden",
+    backgroundColor: "#131E33",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.3)",
+  },
+  nutritionAvatar: {
+    width: 52,
+    height: 52,
+  },
+  coachActiveDot: {
+    position: "absolute",
+    right: -2,
+    bottom: -2,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "#2DD4BF",
+    borderWidth: 2,
+    borderColor: "#0F1626",
+  },
+  nutritionCoachCopy: {
+    flex: 1,
+    gap: 4,
+  },
+  coachBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  nutritionCoachLabel: {
+    color: "#38BDF8",
+    fontFamily: "monospace",
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1.2,
+  },
+  nutritionCoachText: {
+    color: "#E2E8F0",
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "600",
+    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+  },
+  nutritionProtein: {
+    color: "#2DD4BF",
+    fontWeight: "800",
+  },
+  nutritionLunch: {
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.07)",
+    padding: 14,
+    gap: 8,
+  },
+  nutritionLunchHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  nutritionLunchLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  nutritionLunchLabel: {
+    color: "#2DD4BF",
+    fontFamily: "monospace",
+    fontSize: 9.5,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+  },
+  nutritionLunchTimeBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  nutritionLunchTimeText: {
+    color: "#64748B",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "600",
+  },
+  nutritionLunchText: {
+    color: "#F8FAFC",
+    fontSize: 15,
+    lineHeight: 21,
+    fontWeight: "700",
+    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+  },
+  nutritionLunchMacrosRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 2,
+  },
+  lunchKcalBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  lunchKcalText: {
+    color: "#38BDF8",
+    fontSize: 11.5,
+    fontFamily: "monospace",
+    fontWeight: "900",
+  },
+  lunchMacrosGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  lunchMacroPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  lunchMacroDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+  },
+  lunchMacroVal: {
+    color: "#94A3B8",
+    fontSize: 11,
+    fontFamily: "monospace",
+    fontWeight: "700",
+  },
+  nutritionPlan: {
+    width: "100%",
+    height: 46,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.35)",
+    backgroundColor: "rgba(56, 189, 248, 0.08)",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  nutritionPlanPressed: {
+    backgroundColor: "rgba(56, 189, 248, 0.18)",
+    borderColor: "rgba(56, 189, 248, 0.55)",
+  },
+  nutritionPlanContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  nutritionPlanText: {
+    color: "#38BDF8",
+    fontFamily: "monospace",
+    fontSize: 11.5,
+    lineHeight: 16,
+    fontWeight: "900",
+    letterSpacing: 1.2,
+  },
 });
