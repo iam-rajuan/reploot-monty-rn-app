@@ -8,6 +8,7 @@ import {
   Camera,
   Check,
   Clock,
+  Flame,
   Plus,
   RefreshCw,
   Sparkles,
@@ -320,7 +321,7 @@ export default function UnifiedMealPlanScreen() {
             accessibilityLabel="View today's schedule"
           >
             <Utensils
-              size={12}
+              size={13}
               color={viewMode === "today" ? "#38BDF8" : "#64748B"}
             />
             <Text
@@ -346,7 +347,7 @@ export default function UnifiedMealPlanScreen() {
             accessibilityLabel="View weekly history"
           >
             <Calendar
-              size={12}
+              size={13}
               color={viewMode === "week" ? "#38BDF8" : "#64748B"}
             />
             <Text
@@ -368,10 +369,12 @@ export default function UnifiedMealPlanScreen() {
               <View style={styles.sectionIconBadge}>
                 <Utensils size={12} color="#38BDF8" />
               </View>
-              <Text style={styles.sectionTitle}>TODAY'S SCHEDULE & LOGS</Text>
-              <Text style={styles.sectionCount}>
-                {loggedMeals.length}/{meals.length} LOGGED
-              </Text>
+              <Text style={styles.sectionTitle}>TODAY'S SCHEDULE</Text>
+              <View style={styles.sectionCountBadge}>
+                <Text style={styles.sectionCountText}>
+                  {loggedMeals.length}/{meals.length} LOGGED
+                </Text>
+              </View>
             </View>
 
             {/* Meals List */}
@@ -385,45 +388,31 @@ export default function UnifiedMealPlanScreen() {
                       meal.completed && styles.mealCardCompleted,
                     ]}
                   >
-                    {/* Meal Header Row */}
+                    {/* Top Row: Type Pill + Time + Action Button */}
                     <View style={styles.mealTopRow}>
-                      <View
-                        style={[
-                          styles.typeBadge,
-                          {
-                            backgroundColor: `${meal.typeColor}15`,
-                            borderColor: `${meal.typeColor}40`,
-                          },
-                        ]}
-                      >
-                        <Text
-                          style={[styles.typeText, { color: meal.typeColor }]}
+                      <View style={styles.mealBadgeGroup}>
+                        <View
+                          style={[
+                            styles.typeBadge,
+                            {
+                              backgroundColor: `${meal.typeColor}15`,
+                              borderColor: `${meal.typeColor}35`,
+                            },
+                          ]}
                         >
-                          {meal.type}
-                        </Text>
-                      </View>
-
-                      <View style={styles.timingBadge}>
-                        <Clock size={11} color="#64748B" />
-                        <Text style={styles.timingText}>{meal.time}</Text>
-                        <Text style={styles.prepTimeText}>• {meal.prepTime}</Text>
-                      </View>
-                    </View>
-
-                    {/* Meal Name */}
-                    <Text style={styles.mealName}>{meal.name}</Text>
-
-                    {/* Macro Details & Action Button Row */}
-                    <View style={styles.mealBottomRow}>
-                      <View style={styles.mealMacrosRow}>
-                        <View style={styles.kcalBadge}>
-                          <Text style={styles.kcalText}>{meal.calories} KCAL</Text>
+                          <Text
+                            style={[styles.typeText, { color: meal.typeColor }]}
+                          >
+                            {meal.type}
+                          </Text>
                         </View>
-                        <Text style={styles.macroPillText}>{meal.protein}g P</Text>
-                        <Text style={styles.dot}>•</Text>
-                        <Text style={styles.macroPillText}>{meal.carbs}g C</Text>
-                        <Text style={styles.dot}>•</Text>
-                        <Text style={styles.macroPillText}>{meal.fat}g F</Text>
+
+                        <View style={styles.timingBadge}>
+                          <Clock size={11} color="#64748B" />
+                          <Text style={styles.timingText}>{meal.time}</Text>
+                          <Text style={styles.prepTimeDot}>•</Text>
+                          <Text style={styles.prepTimeText}>{meal.prepTime}</Text>
+                        </View>
                       </View>
 
                       {/* Log / Completed Action Button */}
@@ -449,6 +438,55 @@ export default function UnifiedMealPlanScreen() {
                         </Pressable>
                       )}
                     </View>
+
+                    {/* Meal Name */}
+                    <Text style={styles.mealName}>{meal.name}</Text>
+
+                    {/* Macro Details & Calories Row */}
+                    <View style={styles.mealBottomRow}>
+                      {/* Calories badge */}
+                      <View style={styles.kcalBadge}>
+                        <Flame size={12} color="#38BDF8" />
+                        <Text style={styles.kcalNumber}>{meal.calories}</Text>
+                        <Text style={styles.kcalLabel}>KCAL</Text>
+                      </View>
+
+                      {/* Clean Macro Telemetry */}
+                      <View style={styles.mealMacrosRow}>
+                        <View style={styles.macroItem}>
+                          <View
+                            style={[
+                              styles.macroDot,
+                              { backgroundColor: "#38BDF8" },
+                            ]}
+                          />
+                          <Text style={styles.macroVal}>{meal.protein}g</Text>
+                          <Text style={styles.macroKey}>P</Text>
+                        </View>
+
+                        <View style={styles.macroItem}>
+                          <View
+                            style={[
+                              styles.macroDot,
+                              { backgroundColor: "#FFB68C" },
+                            ]}
+                          />
+                          <Text style={styles.macroVal}>{meal.carbs}g</Text>
+                          <Text style={styles.macroKey}>C</Text>
+                        </View>
+
+                        <View style={styles.macroItem}>
+                          <View
+                            style={[
+                              styles.macroDot,
+                              { backgroundColor: "#F43F5E" },
+                            ]}
+                          />
+                          <Text style={styles.macroVal}>{meal.fat}g</Text>
+                          <Text style={styles.macroKey}>F</Text>
+                        </View>
+                      </View>
+                    </View>
                   </View>
                 );
               })}
@@ -462,7 +500,9 @@ export default function UnifiedMealPlanScreen() {
                 <Calendar size={12} color="#38BDF8" />
               </View>
               <Text style={styles.sectionTitle}>7-DAY NUTRITION HISTORY</Text>
-              <Text style={styles.sectionCount}>PAST 7 DAYS</Text>
+              <View style={styles.sectionCountBadge}>
+                <Text style={styles.sectionCountText}>PAST 7 DAYS</Text>
+              </View>
             </View>
 
             {/* Week History Cards List */}
@@ -472,6 +512,8 @@ export default function UnifiedMealPlanScreen() {
                   100,
                   Math.round((day.caloriesTaken / day.caloriesTarget) * 100),
                 );
+                const isFullyLogged = day.mealsLogged === day.totalMeals;
+
                 return (
                   <View
                     key={day.id}
@@ -480,50 +522,88 @@ export default function UnifiedMealPlanScreen() {
                       day.isToday && styles.historyCardToday,
                     ]}
                   >
-                    {/* Header Row: Day, Date & Calories */}
+                    {/* Header Row: Day Info on Left, Calories & Status on Right */}
                     <View style={styles.historyCardHeader}>
                       <View style={styles.historyDateCol}>
-                        <Text
-                          style={[
-                            styles.historyDayTitle,
-                            day.isToday && styles.historyDayTitleToday,
-                          ]}
-                        >
-                          {day.dayName}
-                        </Text>
+                        <View style={styles.historyDayTitleRow}>
+                          <Text
+                            style={[
+                              styles.historyDayTitle,
+                              day.isToday && styles.historyDayTitleToday,
+                            ]}
+                          >
+                            {day.dayName}
+                          </Text>
+                          {day.isToday && (
+                            <View style={styles.currentBadge}>
+                              <Text style={styles.currentBadgeText}>
+                                CURRENT
+                              </Text>
+                            </View>
+                          )}
+                        </View>
                         <Text style={styles.historyDateSubtitle}>
                           {day.dateStr}
                         </Text>
                       </View>
-                      <View style={styles.historyCalorieBadge}>
-                        <Text style={styles.historyCaloriesText}>
-                          {day.caloriesTaken.toLocaleString()} KCAL
-                        </Text>
-                        <Text style={styles.historyTargetText}>
-                          / {day.caloriesTarget.toLocaleString()} target
-                        </Text>
+
+                      <View style={styles.historyRightCol}>
+                        <View style={styles.historyCalorieBadge}>
+                          <Text style={styles.historyCaloriesText}>
+                            {day.caloriesTaken.toLocaleString()}
+                          </Text>
+                          <Text style={styles.historyTargetText}>
+                            /{day.caloriesTarget.toLocaleString()} kcal
+                          </Text>
+                        </View>
+
+                        <View
+                          style={[
+                            styles.mealsLoggedPill,
+                            isFullyLogged && styles.mealsLoggedPillComplete,
+                          ]}
+                        >
+                          <Check
+                            size={10}
+                            color={isFullyLogged ? "#2DD4BF" : "#94A3B8"}
+                          />
+                          <Text
+                            style={[
+                              styles.mealsLoggedText,
+                              isFullyLogged && styles.mealsLoggedTextComplete,
+                            ]}
+                          >
+                            {day.mealsLogged}/{day.totalMeals} LOGGED
+                          </Text>
+                        </View>
                       </View>
                     </View>
 
-                    {/* Progress Bar */}
-                    <View style={styles.historyBarTrack}>
-                      <LinearGradient
-                        colors={
-                          progressPct >= 95
-                            ? ["#0284C7", "#2DD4BF"]
-                            : ["#0284C7", "#38BDF8"]}
-                        start={{ x: 0, y: 0.5 }}
-                        end={{ x: 1, y: 0.5 }}
-                        style={[
-                          styles.historyBarFill,
-                          { width: `${progressPct}%` },
-                        ]}
-                      />
+                    {/* Progress Bar with Percentage */}
+                    <View style={styles.historyBarContainer}>
+                      <View style={styles.historyBarTrack}>
+                        <LinearGradient
+                          colors={
+                            progressPct >= 95
+                              ? ["#0284C7", "#2DD4BF"]
+                              : ["#0284C7", "#38BDF8"]
+                          }
+                          start={{ x: 0, y: 0.5 }}
+                          end={{ x: 1, y: 0.5 }}
+                          style={[
+                            styles.historyBarFill,
+                            { width: `${progressPct}%` },
+                          ]}
+                        />
+                      </View>
+                      <Text style={styles.historyProgressPercent}>
+                        {progressPct}%
+                      </Text>
                     </View>
 
-                    {/* Nutrients Taken Row */}
+                    {/* Unified Macro Telemetry Bar */}
                     <View style={styles.historyNutrientsRow}>
-                      <View style={styles.nutrientChip}>
+                      <View style={styles.nutrientCol}>
                         <Text
                           style={[
                             styles.nutrientLabel,
@@ -532,12 +612,25 @@ export default function UnifiedMealPlanScreen() {
                         >
                           PROTEIN
                         </Text>
-                        <Text style={styles.nutrientValue}>
-                          {day.proteinTaken}g
-                        </Text>
+                        <View style={styles.nutrientValueRow}>
+                          <View
+                            style={[
+                              styles.macroDotMicro,
+                              { backgroundColor: "#38BDF8" },
+                            ]}
+                          />
+                          <Text style={styles.nutrientValue}>
+                            {day.proteinTaken}g
+                          </Text>
+                          <Text style={styles.nutrientTarget}>
+                            /{day.proteinTarget}g
+                          </Text>
+                        </View>
                       </View>
 
-                      <View style={styles.nutrientChip}>
+                      <View style={styles.nutrientDivider} />
+
+                      <View style={styles.nutrientCol}>
                         <Text
                           style={[
                             styles.nutrientLabel,
@@ -546,12 +639,25 @@ export default function UnifiedMealPlanScreen() {
                         >
                           CARBS
                         </Text>
-                        <Text style={styles.nutrientValue}>
-                          {day.carbsTaken}g
-                        </Text>
+                        <View style={styles.nutrientValueRow}>
+                          <View
+                            style={[
+                              styles.macroDotMicro,
+                              { backgroundColor: "#FFB68C" },
+                            ]}
+                          />
+                          <Text style={styles.nutrientValue}>
+                            {day.carbsTaken}g
+                          </Text>
+                          <Text style={styles.nutrientTarget}>
+                            /{day.carbsTarget}g
+                          </Text>
+                        </View>
                       </View>
 
-                      <View style={styles.nutrientChip}>
+                      <View style={styles.nutrientDivider} />
+
+                      <View style={styles.nutrientCol}>
                         <Text
                           style={[
                             styles.nutrientLabel,
@@ -560,16 +666,20 @@ export default function UnifiedMealPlanScreen() {
                         >
                           FAT
                         </Text>
-                        <Text style={styles.nutrientValue}>
-                          {day.fatTaken}g
-                        </Text>
-                      </View>
-
-                      <View style={styles.mealsLoggedPill}>
-                        <Check size={11} color="#2DD4BF" />
-                        <Text style={styles.mealsLoggedText}>
-                          {day.mealsLogged}/{day.totalMeals} LOGGED
-                        </Text>
+                        <View style={styles.nutrientValueRow}>
+                          <View
+                            style={[
+                              styles.macroDotMicro,
+                              { backgroundColor: "#F43F5E" },
+                            ]}
+                          />
+                          <Text style={styles.nutrientValue}>
+                            {day.fatTaken}g
+                          </Text>
+                          <Text style={styles.nutrientTarget}>
+                            /{day.fatTarget}g
+                          </Text>
+                        </View>
                       </View>
                     </View>
                   </View>
@@ -582,7 +692,10 @@ export default function UnifiedMealPlanScreen() {
         {/* Bottom Actions */}
         <View style={styles.actionsContainer}>
           <Pressable
-            style={styles.scanBtn}
+            style={({ pressed }) => [
+              styles.scanBtn,
+              pressed && { opacity: 0.92, transform: [{ scale: 0.99 }] },
+            ]}
             onPress={() => {
               triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
               router.push("/scan-meal");
@@ -634,15 +747,15 @@ export default function UnifiedMealPlanScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#070A12",
+    backgroundColor: "#070A11",
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 4,
+    paddingHorizontal: 18,
+    paddingTop: 6,
   },
   titleSection: {
-    marginTop: 4,
-    marginBottom: 16,
+    marginTop: 6,
+    marginBottom: 18,
   },
   titleBadge: {
     flexDirection: "row",
@@ -655,38 +768,38 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 6,
     gap: 5,
-    marginBottom: 6,
+    marginBottom: 8,
   },
   titleBadgeText: {
     color: "#38BDF8",
-    fontSize: 10,
+    fontSize: 9.5,
     fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 1.2,
   },
   mainTitle: {
     color: "#FFFFFF",
-    fontSize: 28,
+    fontSize: 27,
     lineHeight: 32,
     fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.2,
+    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+    letterSpacing: 0.5,
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 12.5,
     lineHeight: 18,
-    fontFamily: "monospace",
-    fontWeight: "600",
-    marginTop: 4,
+    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
+    fontWeight: "500",
+    marginTop: 5,
   },
   tabSwitcher: {
     flexDirection: "row",
-    backgroundColor: "#0D131F",
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: "rgba(56, 189, 248, 0.2)",
-    padding: 4,
+    backgroundColor: "#0B101D",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
+    padding: 3,
     marginBottom: 20,
     gap: 4,
   },
@@ -696,19 +809,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 10,
+    borderRadius: 9,
     gap: 6,
   },
   tabBtnActive: {
-    backgroundColor: "#16233B",
+    backgroundColor: "#162035",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.4)",
+    borderColor: "rgba(56, 189, 248, 0.35)",
   },
   tabBtnText: {
     color: "#64748B",
     fontSize: 11,
     fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   tabBtnTextActive: {
@@ -718,13 +831,13 @@ const styles = StyleSheet.create({
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 14,
   },
   sectionIconBadge: {
     width: 24,
     height: 24,
     borderRadius: 6,
-    backgroundColor: "rgba(56, 189, 248, 0.12)",
+    backgroundColor: "rgba(56, 189, 248, 0.1)",
     borderWidth: 1,
     borderColor: "rgba(56, 189, 248, 0.25)",
     justifyContent: "center",
@@ -732,44 +845,57 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   sectionTitle: {
-    color: "#94A3B8",
-    fontSize: 11,
+    color: "#CBD5E1",
+    fontSize: 11.5,
     fontFamily: "monospace",
     fontWeight: "800",
-    letterSpacing: 1.2,
+    letterSpacing: 1,
     flex: 1,
   },
-  sectionCount: {
-    color: "#64748B",
+  sectionCountBadge: {
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  sectionCountText: {
+    color: "#94A3B8",
     fontSize: 10,
     fontFamily: "monospace",
     fontWeight: "700",
   },
   mealList: {
-    gap: 10,
-    marginBottom: 20,
+    gap: 12,
+    marginBottom: 22,
   },
   mealCard: {
-    backgroundColor: "#0D131F",
+    backgroundColor: "#0D1322",
     borderRadius: 16,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.07)",
-    padding: 14,
+    padding: 16,
   },
   mealCardCompleted: {
-    borderColor: "rgba(45, 212, 191, 0.4)",
-    backgroundColor: "#0D171E",
+    borderColor: "rgba(45, 212, 191, 0.32)",
+    backgroundColor: "#0C171F",
   },
   mealTopRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 6,
+  },
+  mealBadgeGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flex: 1,
   },
   typeBadge: {
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
     borderWidth: 1,
   },
   typeText: {
@@ -782,70 +908,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    flex: 1,
-    marginLeft: 8,
   },
   timingText: {
     color: "#94A3B8",
-    fontSize: 10,
+    fontSize: 10.5,
     fontFamily: "monospace",
-    fontWeight: "700",
+    fontWeight: "600",
+  },
+  prepTimeDot: {
+    color: "#475569",
+    fontSize: 9,
   },
   prepTimeText: {
     color: "#64748B",
-    fontSize: 10,
+    fontSize: 10.5,
     fontFamily: "monospace",
     fontWeight: "600",
-  },
-  mealName: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
-    fontWeight: "800",
-    letterSpacing: 0.2,
-    marginBottom: 10,
-  },
-  mealBottomRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 8,
-  },
-  mealMacrosRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    flexWrap: "wrap",
-    flex: 1,
-  },
-  kcalBadge: {
-    backgroundColor: "rgba(56, 189, 248, 0.12)",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  kcalText: {
-    color: "#38BDF8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
-  },
-  macroPillText: {
-    color: "#94A3B8",
-    fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "600",
-  },
-  dot: {
-    color: "#475569",
-    fontSize: 9,
   },
   completedBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(45, 212, 191, 0.14)",
-    borderWidth: 1.5,
-    borderColor: "#2DD4BF",
+    backgroundColor: "rgba(45, 212, 191, 0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(45, 212, 191, 0.45)",
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -862,8 +947,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(56, 189, 248, 0.08)",
-    borderWidth: 1.5,
-    borderColor: "rgba(56, 189, 248, 0.4)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.35)",
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -876,31 +961,99 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     letterSpacing: 0.6,
   },
+  mealName: {
+    color: "#F8FAFC",
+    fontSize: 15,
+    lineHeight: 20,
+    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+    fontWeight: "700",
+    letterSpacing: 0.2,
+    marginTop: 12,
+    marginBottom: 14,
+  },
+  mealBottomRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  kcalBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(56, 189, 248, 0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.2)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    gap: 4,
+  },
+  kcalNumber: {
+    color: "#38BDF8",
+    fontSize: 11.5,
+    fontFamily: "monospace",
+    fontWeight: "900",
+  },
+  kcalLabel: {
+    color: "#38BDF8",
+    fontSize: 9,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    opacity: 0.85,
+  },
+  mealMacrosRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  macroItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  macroDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+  },
+  macroVal: {
+    color: "#E2E8F0",
+    fontSize: 11,
+    fontFamily: "monospace",
+    fontWeight: "700",
+  },
+  macroKey: {
+    color: "#64748B",
+    fontSize: 9.5,
+    fontFamily: "monospace",
+    fontWeight: "800",
+  },
   historyList: {
-    gap: 10,
-    marginBottom: 20,
+    gap: 12,
+    marginBottom: 22,
   },
   historyCard: {
-    backgroundColor: "#0D131F",
+    backgroundColor: "#0D1322",
     borderRadius: 16,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.07)",
-    padding: 14,
+    padding: 16,
   },
   historyCardToday: {
-    borderColor: "rgba(56, 189, 248, 0.35)",
-    backgroundColor: "#0D1524",
+    borderColor: "rgba(56, 189, 248, 0.32)",
+    backgroundColor: "#0D1829",
   },
   historyCardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
+    alignItems: "flex-start",
   },
   historyDateCol: {
+    flex: 1,
+  },
+  historyDayTitleRow: {
     flexDirection: "row",
-    alignItems: "baseline",
-    gap: 8,
+    alignItems: "center",
+    gap: 6,
   },
   historyDayTitle: {
     color: "#FFFFFF",
@@ -912,20 +1065,40 @@ const styles = StyleSheet.create({
   historyDayTitleToday: {
     color: "#38BDF8",
   },
+  currentBadge: {
+    backgroundColor: "rgba(56, 189, 248, 0.15)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.3)",
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 4,
+  },
+  currentBadgeText: {
+    color: "#38BDF8",
+    fontSize: 8.5,
+    fontFamily: "monospace",
+    fontWeight: "900",
+    letterSpacing: 0.5,
+  },
   historyDateSubtitle: {
     color: "#64748B",
     fontSize: 10,
     fontFamily: "monospace",
     fontWeight: "700",
+    marginTop: 2,
+  },
+  historyRightCol: {
+    alignItems: "flex-end",
+    gap: 4,
   },
   historyCalorieBadge: {
     flexDirection: "row",
     alignItems: "baseline",
-    gap: 4,
+    gap: 2,
   },
   historyCaloriesText: {
     color: "#FFFFFF",
-    fontSize: 12.5,
+    fontSize: 13,
     fontFamily: "monospace",
     fontWeight: "900",
   },
@@ -933,65 +1106,107 @@ const styles = StyleSheet.create({
     color: "#64748B",
     fontSize: 10,
     fontFamily: "monospace",
-    fontWeight: "700",
+    fontWeight: "600",
+  },
+  mealsLoggedPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.07)",
+    borderRadius: 6,
+    paddingVertical: 3,
+    paddingHorizontal: 6,
+    gap: 4,
+  },
+  mealsLoggedPillComplete: {
+    backgroundColor: "rgba(45, 212, 191, 0.1)",
+    borderColor: "rgba(45, 212, 191, 0.3)",
+  },
+  mealsLoggedText: {
+    color: "#94A3B8",
+    fontSize: 9,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.4,
+  },
+  mealsLoggedTextComplete: {
+    color: "#2DD4BF",
+  },
+  historyBarContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginVertical: 12,
   },
   historyBarTrack: {
-    height: 7,
-    borderRadius: 4,
+    flex: 1,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: "rgba(255, 255, 255, 0.06)",
     overflow: "hidden",
-    marginBottom: 12,
   },
   historyBarFill: {
     height: "100%",
-    borderRadius: 4,
+    borderRadius: 3,
+  },
+  historyProgressPercent: {
+    color: "#94A3B8",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    width: 32,
+    textAlign: "right",
   },
   historyNutrientsRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 6,
-  },
-  nutrientChip: {
-    flex: 1,
-    backgroundColor: "#111A29",
-    borderRadius: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.025)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.05)",
-    paddingVertical: 6,
-    paddingHorizontal: 4,
-    alignItems: "center",
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  nutrientCol: {
+    flex: 1,
+    alignItems: "flex-start",
   },
   nutrientLabel: {
-    fontSize: 8,
+    fontSize: 8.5,
     fontFamily: "monospace",
     fontWeight: "800",
-    letterSpacing: 0.6,
-    marginBottom: 2,
+    letterSpacing: 0.8,
+    marginBottom: 3,
+  },
+  nutrientValueRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  macroDotMicro: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
   },
   nutrientValue: {
     color: "#FFFFFF",
-    fontSize: 11,
+    fontSize: 11.5,
     fontFamily: "monospace",
     fontWeight: "800",
   },
-  mealsLoggedPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(45, 212, 191, 0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.25)",
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    gap: 4,
-  },
-  mealsLoggedText: {
-    color: "#2DD4BF",
-    fontSize: 9,
+  nutrientTarget: {
+    color: "#64748B",
+    fontSize: 9.5,
     fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 0.5,
+    fontWeight: "600",
+  },
+  nutrientDivider: {
+    width: 1,
+    height: 22,
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
+    marginHorizontal: 8,
   },
   actionsContainer: {
     gap: 10,
@@ -1004,7 +1219,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    height: 48,
+    height: 50,
     borderRadius: 14,
     overflow: "hidden",
   },
@@ -1018,15 +1233,15 @@ const styles = StyleSheet.create({
   regenerateBtn: {
     height: 46,
     borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: "rgba(56, 189, 248, 0.35)",
-    backgroundColor: "#101A2C",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.3)",
+    backgroundColor: "#0D1527",
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
   },
   regenerateBtnPressed: {
-    backgroundColor: "rgba(56, 189, 248, 0.18)",
+    backgroundColor: "rgba(56, 189, 248, 0.15)",
   },
   regenerateBtnContent: {
     width: "100%",
