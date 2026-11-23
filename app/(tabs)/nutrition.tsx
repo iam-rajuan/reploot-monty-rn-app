@@ -434,11 +434,16 @@ export default function NutritionTabRoute() {
         )}
 
         {/* Water Intake Card (Hydration Telemetry) */}
-        <View style={styles.hydrationCard}>
+        <LinearGradient
+          colors={["rgba(18, 28, 48, 0.88)", "rgba(10, 15, 27, 0.88)"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.hydrationCard}
+        >
           <View style={styles.cardHeaderRow}>
-            <View style={styles.headerBadge}>
-              <Droplet size={14} color="#2DD4BF" />
-              <Text style={styles.hydrationTitle}>
+            <View style={styles.hydrationBadge}>
+              <Droplet size={13} color="#38BDF8" />
+              <Text style={styles.hydrationBadgeText}>
                 HYDRATION TELEMETRY
               </Text>
             </View>
@@ -508,8 +513,9 @@ export default function NutritionTabRoute() {
                   x2="100%"
                   y2="100%"
                 >
-                  <Stop offset="0%" stopColor="#5FFFD7" />
-                  <Stop offset="100%" stopColor="#00A3FF" />
+                  <Stop offset="0%" stopColor="#38BDF8" />
+                  <Stop offset="50%" stopColor="#0EA5E9" />
+                  <Stop offset="100%" stopColor="#2DD4BF" />
                 </SvgLinearGradient>
               </Defs>
               {/* Background Circular Track */}
@@ -517,9 +523,9 @@ export default function NutritionTabRoute() {
                 cx={WATER_RING_SIZE / 2}
                 cy={WATER_RING_SIZE / 2}
                 r={WATER_RADIUS}
-                stroke="rgba(255, 255, 255, 0.04)"
+                stroke="rgba(255, 255, 255, 0.06)"
                 strokeWidth={WATER_STROKE_WIDTH}
-                fill="rgba(11, 14, 23, 0.9)"
+                fill="rgba(14, 22, 38, 0.65)"
               />
               {/* Calculating Animated Arc */}
               <AnimatedCircle
@@ -538,7 +544,7 @@ export default function NutritionTabRoute() {
 
             {/* Centered Telemetry Stats */}
             <View style={styles.ringCenterContent} pointerEvents="none">
-              <Droplet color="#38BDF8" size={26} style={{ marginBottom: 6 }} />
+              <Droplet color="#38BDF8" size={24} style={{ marginBottom: 4 }} />
               <View style={styles.ringTextRow}>
                 <Text style={styles.ringMain}>{waterTotal.toFixed(1)}</Text>
                 <Text style={styles.ringUnit}>L</Text>
@@ -561,7 +567,7 @@ export default function NutritionTabRoute() {
                 accessibilityLabel="Add 250 millilitres"
               >
                 <View style={styles.quickAddContent}>
-                  <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
+                  <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
                   <Text style={styles.quickAddText} numberOfLines={1}>
                     250 ML
                   </Text>
@@ -581,7 +587,7 @@ export default function NutritionTabRoute() {
                 accessibilityLabel="Add 500 millilitres"
               >
                 <View style={styles.quickAddContent}>
-                  <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
+                  <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
                   <Text style={styles.quickAddText} numberOfLines={1}>
                     500 ML
                   </Text>
@@ -601,7 +607,7 @@ export default function NutritionTabRoute() {
                 accessibilityLabel="Add 750 millilitres"
               >
                 <View style={styles.quickAddContent}>
-                  <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
+                  <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
                   <Text style={styles.quickAddText} numberOfLines={1}>
                     750 ML
                   </Text>
@@ -612,7 +618,7 @@ export default function NutritionTabRoute() {
 
           {/* Custom Water Input & Add Button */}
           <View style={styles.customWaterRow}>
-            <Droplet color="#38BDF8" size={17} />
+            <Droplet color="#38BDF8" size={16} />
             <TextInput
               style={styles.waterInput}
               placeholder="0"
@@ -628,16 +634,23 @@ export default function NutritionTabRoute() {
             <Pressable
               style={({ pressed }) => [
                 styles.saveInlineBtn,
-                pressed && styles.saveInlineBtnPressed,
+                pressed && { opacity: 0.88, transform: [{ scale: 0.98 }] },
               ]}
               onPress={handleSaveCustomWater}
               accessibilityRole="button"
               accessibilityLabel="Add water"
             >
-              <Text style={styles.saveInlineText}>ADD</Text>
+              <LinearGradient
+                colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.saveInlineBtnGradient}
+              >
+                <Text style={styles.saveInlineText}>ADD</Text>
+              </LinearGradient>
             </Pressable>
           </View>
-        </View>
+        </LinearGradient>
 
         <LinearGradient
           colors={["rgba(15, 22, 38, 0.88)", "rgba(11, 16, 29, 0.88)", "rgba(7, 10, 18, 0.88)"]}
@@ -1266,24 +1279,34 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   hydrationCard: {
-    backgroundColor: "rgba(11, 14, 23, 0.85)",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.16)",
-    padding: 22,
+    borderRadius: 22,
+    borderWidth: 1.2,
+    borderColor: "rgba(56, 189, 248, 0.16)",
+    padding: 20,
     marginBottom: 20,
     shadowColor: "#000000",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
-    shadowRadius: 16,
+    shadowRadius: 14,
     elevation: 4,
   },
-  hydrationTitle: {
-    color: "#2DD4BF",
-    fontSize: 11.5,
+  hydrationBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "rgba(56, 189, 248, 0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.2)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 7,
+  },
+  hydrationBadgeText: {
+    color: "#38BDF8",
+    fontSize: 10,
     fontFamily: "monospace",
     fontWeight: "800",
-    letterSpacing: 1.2,
+    letterSpacing: 1,
   },
   hydrationHeaderActions: {
     flexDirection: "row",
@@ -1504,7 +1527,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   ringUnit: {
-    color: "#00A3FF",
+    color: "#38BDF8",
     fontSize: 20,
     lineHeight: 24,
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
@@ -1530,9 +1553,9 @@ const styles = StyleSheet.create({
   quickAddBtnWrapper: {
     flex: 1,
     height: 44,
-    backgroundColor: "#101A2C",
-    borderWidth: 1.5,
-    borderColor: "rgba(56, 189, 248, 0.4)",
+    backgroundColor: "rgba(255, 255, 255, 0.035)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.22)",
     borderRadius: 12,
     overflow: "hidden",
     alignItems: "center",
@@ -1546,7 +1569,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   quickAddBtnPressed: {
-    backgroundColor: "rgba(56, 189, 248, 0.2)",
+    backgroundColor: "rgba(56, 189, 248, 0.15)",
   },
   quickAddContent: {
     width: "100%",
@@ -1554,12 +1577,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
+    gap: 5,
     paddingHorizontal: 4,
   },
   quickAddText: {
     color: "#FFFFFF",
-    fontSize: 12.5,
+    fontSize: 12,
     fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 0.8,
@@ -1568,15 +1591,15 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   customWaterRow: {
-    backgroundColor: "#131C2E",
-    borderWidth: 1.5,
-    borderColor: "rgba(56, 189, 248, 0.35)",
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.22)",
     flexDirection: "row",
     alignItems: "center",
-    paddingLeft: 16,
-    paddingRight: 8,
-    height: 52,
-    borderRadius: 16,
+    paddingLeft: 14,
+    paddingRight: 6,
+    height: 48,
+    borderRadius: 14,
   },
   waterInput: {
     flex: 1,
@@ -1584,36 +1607,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "monospace",
     fontWeight: "700",
-    marginLeft: 12,
+    marginLeft: 10,
     paddingVertical: 0,
   },
   waterInputUnit: {
     color: "#64748B",
-    fontSize: 12,
+    fontSize: 11.5,
     fontFamily: "monospace",
     fontWeight: "700",
-    marginRight: 12,
+    marginRight: 10,
   },
   saveInlineBtn: {
-    backgroundColor: "#0284C7",
-    paddingHorizontal: 16,
-    height: 36,
     borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
+    overflow: "hidden",
     shadowColor: "#0284C7",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.35,
     shadowRadius: 6,
     elevation: 3,
   },
-  saveInlineBtnPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.96 }],
+  saveInlineBtnGradient: {
+    height: 36,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
   saveInlineText: {
     color: "#FFFFFF",
-    fontSize: 12,
+    fontSize: 11.5,
     fontFamily: "monospace",
     fontWeight: "900",
     letterSpacing: 0.8,

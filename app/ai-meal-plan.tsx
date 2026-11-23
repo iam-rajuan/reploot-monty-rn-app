@@ -3,6 +3,9 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
+import ReanimatedSwipeable, {
+  type SwipeableMethods,
+} from "react-native-gesture-handler/ReanimatedSwipeable";
 import {
   Calendar,
   Camera,
@@ -11,10 +14,10 @@ import {
   Flame,
   Plus,
   RefreshCw,
-  Sparkles,
+  Sparkles, Trash2,
   Utensils,
 } from "lucide-react-native";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   Platform,
   Pressable,
@@ -55,6 +58,60 @@ export interface DayHistory {
   mealsLogged: number;
   totalMeals: number;
 }
+
+const MEAL_ACTION_DRAWER_WIDTH = 144;
+const MealSwipeShell = ({
+  mealName,
+  onSwipeStart,
+  onSwipeOpen,
+  onSwipeClose,
+  onRegenerate,
+  onDelete,
+  children,
+}: {
+  mealName: string;
+  onSwipeStart: () => void;
+  onSwipeOpen: (closeActiveRow: () => void) => void;
+  onSwipeClose: () => void;
+  onRegenerate: () => void;
+  onDelete: () => void;
+  children: React.ReactNode;
+}) => {
+  const swipeableRef = useRef<SwipeableMethods | null>(null);
+
+  const runAction = (callback: () => void) => {
+    swipeableRef.current?.close();
+    callback();
+  };
+
+  return (
+    <ReanimatedSwipeable
+      ref={swipeableRef}
+      friction={1.5}
+      rightThreshold={MEAL_ACTION_DRAWER_WIDTH * 0.32}
+      dragOffsetFromRightEdge={8}
+      overshootRight={false}
+      containerStyle={styles.mealSwipeShell}
+      renderRightActions={() => (
+        <View style={styles.mealSwipeActions}>
+          <Pressable onPress={() => runAction(onRegenerate)} style={styles.mealSwipeAction} accessibilityRole="button" accessibilityLabel={`Regenerate ${mealName}`}><View style={styles.mealRegenerateCircle}><RefreshCw size={18} color="#FFF" /></View><Text style={styles.mealRegenerateLabel}>Regenerate</Text></Pressable>
+          <Pressable onPress={() => runAction(onDelete)} style={styles.mealSwipeAction} accessibilityRole="button" accessibilityLabel={`Delete ${mealName}`}><View style={styles.mealDeleteCircle}><Trash2 size={18} color="#FFF" /></View><Text style={styles.mealDeleteLabel}>Delete</Text></Pressable>
+        </View>
+      )}
+      onSwipeableOpenStartDrag={(direction) => {
+        if (direction === "right") onSwipeStart();
+      }}
+      onSwipeableWillOpen={(direction) => {
+        if (direction === "right") {
+          onSwipeOpen(() => swipeableRef.current?.close());
+        }
+      }}
+      onSwipeableClose={onSwipeClose}
+    >
+      {children}
+    </ReanimatedSwipeable>
+  );
+};
 
 const WEEK_HISTORY_DATA: DayHistory[] = [
   {
@@ -176,6 +233,7 @@ export default function UnifiedMealPlanScreen() {
 
   const [viewMode, setViewMode] = useState<"today" | "week">("today");
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const activeSwipeCloserRef = useRef<(() => void) | null>(null);
 
   const [meals, setMeals] = useState<UnifiedMeal[]>([
     {
@@ -256,6 +314,16 @@ export default function UnifiedMealPlanScreen() {
         return m;
       }),
     );
+  };
+
+  const regenerateMeal = (id: number) => {
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+    setMeals((prev) => prev.map((meal) => meal.id === id ? { ...meal, completed: false, calories: Math.max(100, meal.calories + Math.floor(Math.random() * 81) - 40) } : meal));
+  };
+
+  const deleteMeal = (id: number) => {
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+    setMeals((prev) => prev.filter((meal) => meal.id !== id));
   };
 
   const handleRegenerate = () => {
@@ -381,13 +449,20 @@ export default function UnifiedMealPlanScreen() {
             <View style={styles.mealList}>
               {meals.map((meal) => {
                 return (
-                  <View
+                  <MealSwipeShell
                     key={meal.id}
-                    style={[
-                      styles.mealCard,
-                      meal.completed && styles.mealCardCompleted,
-                    ]}
+                    mealName={meal.name}
+                    onSwipeStart={() => activeSwipeCloserRef.current?.()}
+                    onSwipeOpen={(closeRow) => {
+                      activeSwipeCloserRef.current = closeRow;
+                    }}
+                    onSwipeClose={() => {
+                      activeSwipeCloserRef.current = null;
+                    }}
+                    onRegenerate={() => regenerateMeal(meal.id)}
+                    onDelete={() => deleteMeal(meal.id)}
                   >
+                  <View style={[styles.mealCard, meal.completed && styles.mealCardCompleted]}>
                     {/* Top Row: Type Label + Time + Action Button */}
                     <View style={styles.mealTopRow}>
                       <View style={styles.mealBadgeGroup}>
@@ -416,7 +491,7 @@ export default function UnifiedMealPlanScreen() {
                           accessibilityLabel="Meal logged, tap to unmark"
                         >
                           <Check size={12} color="#2DD4BF" strokeWidth={2.5} />
-                          <Text style={styles.completedBtnText}>COMPLETED</Text>
+                          <Text style={styles.completedBtnText}>LOGGED</Text>
                         </Pressable>
                       ) : (
                         <Pressable
@@ -426,7 +501,7 @@ export default function UnifiedMealPlanScreen() {
                           accessibilityLabel="Log meal"
                         >
                           <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
-                          <Text style={styles.logBtnText}>LOG MEAL</Text>
+                          <Text style={styles.logBtnText}>LOG</Text>
                         </Pressable>
                       )}
                     </View>
@@ -459,6 +534,7 @@ export default function UnifiedMealPlanScreen() {
                       </View>
                     </View>
                   </View>
+                  </MealSwipeShell>
                 );
               })}
             </View>
@@ -668,31 +744,6 @@ export default function UnifiedMealPlanScreen() {
               <Text style={styles.adjustBtnText}>ADJUST MEAL PLAN WITH AI</Text>
             </LinearGradient>
           </Pressable>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.regenerateBtn,
-              pressed && styles.regenerateBtnPressed,
-            ]}
-            onPress={handleRegenerate}
-            disabled={isRegenerating}
-            accessibilityRole="button"
-            accessibilityLabel="Regenerate plan"
-          >
-            <View style={styles.regenerateBtnContent}>
-              <RefreshCw
-                color="#38BDF8"
-                size={13}
-                style={[
-                  { marginRight: 8 },
-                  isRegenerating && { transform: [{ rotate: "180deg" }] },
-                ]}
-              />
-              <Text style={styles.regenerateText}>
-                {isRegenerating ? "GENERATING..." : "REGENERATE PLAN"}
-              </Text>
-            </View>
-          </Pressable>
         </View>
       </ScrollView>
     </View>
@@ -825,6 +876,13 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 22,
   },
+  mealSwipeShell: { width: "100%" },
+  mealSwipeActions: { width: MEAL_ACTION_DRAWER_WIDTH, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 8, paddingRight: 4 },
+  mealSwipeAction: { width: 64, alignItems: "center", justifyContent: "center" },
+  mealRegenerateCircle: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "#222736", borderWidth: 1, borderColor: "rgba(255,255,255,0.16)" },
+  mealDeleteCircle: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "#EF4444", borderWidth: 1, borderColor: "#DC2626" },
+  mealRegenerateLabel: { color: "#CBD5E1", fontSize: 9, fontWeight: "700", marginTop: 4 },
+  mealDeleteLabel: { color: "#EF4444", fontSize: 9, fontWeight: "700", marginTop: 4 },
   mealCard: {
     backgroundColor: "#0D1322",
     borderRadius: 16,
@@ -1180,6 +1238,7 @@ const styles = StyleSheet.create({
   },
   adjustBtnGradient: {
     height: 47,
+    borderRadius: 13,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

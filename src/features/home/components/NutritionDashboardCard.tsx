@@ -3,20 +3,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
-import Svg, { Path } from "react-native-svg";
 
 import { MacrosGrid } from "./MacrosGrid";
 import { NutritionRingCard } from "./NutritionRingCard";
-
-// Figma-exact arrow SVG matching #44EAC3 neon cyan path
-const NutritionArrow = () => (
-  <Svg width={14} height={14} viewBox="0 0 16 16" fill="none">
-    <Path
-      d="M12.175 9H0V7H12.175L6.575 1.4L8 0L16 8L8 16L6.575 14.6L12.175 9V9"
-      fill="#44EAC3"
-    />
-  </Svg>
-);
 
 export const NutritionDashboardCard = () => {
   const router = useRouter();
@@ -65,9 +54,8 @@ export const NutritionDashboardCard = () => {
           hitSlop={8}
         >
           <Text style={styles.headerLink} numberOfLines={1}>
-            View Nutrition
+            View Nutrition <Text style={styles.headerLinkArrow}>›</Text>
           </Text>
-          <NutritionArrow />
         </Pressable>
       </View>
 
@@ -140,9 +128,8 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
   },
   headerRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
+    height: 24,
+    justifyContent: "center",
     flexShrink: 0,
   },
   pressed: {
@@ -151,9 +138,17 @@ const styles = StyleSheet.create({
   headerLink: {
     color: "#3FDEC9",
     fontSize: 11,
+    lineHeight: 15,
     fontWeight: "700",
     letterSpacing: 0.2,
     fontFamily: "JetBrainsMono_700Bold",
     includeFontPadding: false,
+    textAlign: "right",
+  },
+  headerLinkArrow: {
+    color: "#3FDEC9",
+    fontSize: 18,
+    lineHeight: 15,
+    fontWeight: "800",
   },
 });

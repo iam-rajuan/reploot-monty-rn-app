@@ -2,10 +2,11 @@ import { useAppSelector } from "@/store/hooks";
 import * as Haptics from "expo-haptics";
 import { Image, ImageSource } from "expo-image";
 import { Check, Play, RefreshCw, Sparkles, Trash2 } from "lucide-react-native";
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
+import ReanimatedSwipeable, {
+  type SwipeableMethods,
+} from "react-native-gesture-handler/ReanimatedSwipeable";
 import {
-  Animated,
-  PanResponder,
   Platform,
   Pressable,
   StyleProp,
@@ -25,9 +26,9 @@ export interface PushDayExerciseCardProps {
   targetMuscle?: string;
   image?: ImageSource | number | string;
   isCompleted?: boolean;
-  isOpen?: boolean;
-  onOpen?: () => void;
-  onClose?: () => void;
+  onSwipeStart?: () => void;
+  onSwipeOpen?: (closeActiveRow: () => void) => void;
+  onSwipeClose?: () => void;
   onPress?: () => void;
   onReplace?: () => void;
   onDelete?: () => void;
@@ -43,9 +44,9 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
   targetMuscle = (exercise as WorkoutExerciseItem)?.targetMuscle,
   image = exercise?.image,
   isCompleted = false,
-  isOpen,
-  onOpen,
-  onClose,
+  onSwipeStart,
+  onSwipeOpen,
+  onSwipeClose,
   onPress,
   onReplace,
   onDelete,
@@ -55,104 +56,16 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
   const hasActions = Boolean(onReplace || onDelete);
   const actionDrawerWidth = (onReplace ? 68 : 0) + (onDelete ? 68 : 0) + 8;
 
-  const translateX = useRef(new Animated.Value(0)).current;
-  const isLocallyOpenRef = useRef(false);
+  const swipeableRef = useRef<SwipeableMethods | null>(null);
+  const isOpenRef = useRef(false);
 
   const closeRow = (callback?: () => void) => {
-    Animated.spring(translateX, {
-      toValue: 0,
-      useNativeDriver: true,
-      tension: 65,
-      friction: 10,
-    }).start(() => {
-      isLocallyOpenRef.current = false;
-      onClose?.();
-      callback?.();
-    });
+    swipeableRef.current?.close();
+    callback?.();
   };
-
-  const openRow = () => {
-    Animated.spring(translateX, {
-      toValue: -actionDrawerWidth,
-      useNativeDriver: true,
-      tension: 65,
-      friction: 10,
-    }).start(() => {
-      isLocallyOpenRef.current = true;
-      onOpen?.();
-    });
-  };
-
-  // Sync external open state if provided by parent list
-  useEffect(() => {
-    if (isOpen === false && isLocallyOpenRef.current) {
-      closeRow();
-    } else if (isOpen === true && !isLocallyOpenRef.current) {
-      openRow();
-    }
-  }, [isOpen]);
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponderCapture: () => isLocallyOpenRef.current,
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        if (!hasActions) return false;
-        // Only claim gesture if motion is decisively horizontal and past threshold
-        return (
-          Math.abs(gestureState.dx) > 10 &&
-          Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.4
-        );
-      },
-      onPanResponderGrant: () => {
-        translateX.stopAnimation();
-      },
-      onPanResponderMove: (_, gestureState) => {
-        if (!hasActions) return;
-        const currentOffset = isLocallyOpenRef.current
-          ? -actionDrawerWidth
-          : 0;
-        let newX = currentOffset + gestureState.dx;
-        // Prevent swiping right beyond 0
-        if (newX > 0) newX = 0;
-        // Limit left over-drag
-        if (newX < -actionDrawerWidth - 24) {
-          newX = -actionDrawerWidth - 24;
-        }
-        translateX.setValue(newX);
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (!hasActions) return;
-
-        // If currently open and user tapped without dragging, close it
-        if (isLocallyOpenRef.current && Math.abs(gestureState.dx) < 6) {
-          closeRow();
-          return;
-        }
-
-        // Swipe left threshold or fast flick
-        if (
-          gestureState.dx < -36 ||
-          gestureState.vx < -0.35 ||
-          (isLocallyOpenRef.current && gestureState.dx < 20)
-        ) {
-          openRow();
-          if (Platform.OS !== "web") {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
-              () => {}
-            );
-          }
-        } else {
-          closeRow();
-        }
-      },
-      onPanResponderTerminate: () => {
-        closeRow();
-      },
-    })
-  ).current;
 
   const handleCardPress = () => {
-    if (isLocallyOpenRef.current) {
+    if (isOpenRef.current) {
       closeRow();
       return;
     }
@@ -181,15 +94,16 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
   };
 
   return (
-    <View style={[styles.cardWrapper, style]} testID={testID}>
-      {/* Revealed Swipe Action Buttons (Hidden behind card until swiped left) */}
-      {hasActions && (
-        <View
-          style={[
-            styles.revealedActionsBackground,
-            { width: actionDrawerWidth },
-          ]}
-        >
+    <ReanimatedSwipeable
+      ref={swipeableRef}
+      enabled={hasActions}
+      friction={1.5}
+      rightThreshold={actionDrawerWidth * 0.32}
+      dragOffsetFromRightEdge={8}
+      overshootRight={false}
+      containerStyle={[styles.cardWrapper, style]}
+      renderRightActions={() => (
+        <View style={[styles.revealedActionsBackground, { width: actionDrawerWidth }]}>
           {onReplace ? (
             <Pressable
               onPress={handleReplacePress}
@@ -227,15 +141,24 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
           ) : null}
         </View>
       )}
-
-      {/* Front Exercise Card: Slides left on swipe */}
-      <Animated.View
-        {...(hasActions ? panResponder.panHandlers : {})}
-        style={[
-          styles.animatedCardContainer,
-          { transform: [{ translateX }] },
-        ]}
-      >
+      onSwipeableOpenStartDrag={(direction) => {
+        if (direction === "right") onSwipeStart?.();
+      }}
+      onSwipeableWillOpen={(direction) => {
+        if (direction !== "right") return;
+        isOpenRef.current = true;
+        onSwipeOpen?.(() => swipeableRef.current?.close());
+        if (Platform.OS !== "web") {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+        }
+      }}
+      onSwipeableWillClose={() => {
+        isOpenRef.current = false;
+        onSwipeClose?.();
+      }}
+      testID={testID}
+    >
+      <View style={styles.animatedCardContainer}>
         <Pressable
           onPress={handleCardPress}
           style={[
@@ -324,8 +247,8 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
             )}
           </View>
         </Pressable>
-      </Animated.View>
-    </View>
+      </View>
+    </ReanimatedSwipeable>
   );
 };
 
@@ -348,9 +271,7 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
   onDeleteExercise,
   style,
 }) => {
-  const [swipedExerciseId, setSwipedExerciseId] = React.useState<string | null>(
-    null
-  );
+  const activeSwipeCloserRef = useRef<(() => void) | null>(null);
 
   const reduxCompletedIds = useAppSelector(
     (state) => state.workout?.completedExerciseIds || []
@@ -359,20 +280,19 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
 
   const renderExercise = (exercise: PushDayExercise | WorkoutExerciseItem) => {
         const isCompleted = completedIds.includes(exercise.id);
-        const isOpen = swipedExerciseId === exercise.id;
 
         return (
           <PushDayExerciseCard
             key={exercise.id}
             exercise={exercise}
             isCompleted={isCompleted}
-            isOpen={isOpen}
-            onOpen={() => setSwipedExerciseId(exercise.id)}
-            onClose={() =>
-              setSwipedExerciseId((prev) =>
-                prev === exercise.id ? null : prev
-              )
-            }
+            onSwipeStart={() => activeSwipeCloserRef.current?.()}
+            onSwipeOpen={(closeRow) => {
+              activeSwipeCloserRef.current = closeRow;
+            }}
+            onSwipeClose={() => {
+              activeSwipeCloserRef.current = null;
+            }}
             onPress={() => onExercisePress?.(exercise)}
             onReplace={
               onReplaceExercise
@@ -491,10 +411,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   revealedActionsBackground: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    right: 0,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",
