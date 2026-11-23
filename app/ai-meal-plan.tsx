@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   card: {
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
+    backgroundColor: "#14141C",
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 8,
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    backgroundColor: "#1A1A24",
   },
   macroDot: {
     width: 6,
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   mealCard: {
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
+    backgroundColor: "#14141C",
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",

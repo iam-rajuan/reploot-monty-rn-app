@@ -305,7 +305,7 @@ function DraggableSplitChip({
 }) {
   const panGesture = useMemo(() => {
     return Gesture.Pan()
-      .minDistance(4)
+      .activateAfterLongPress(260)
       .onStart((e) => {
         "worklet";
         runOnJS(onDragStart)(split, e.absoluteX, e.absoluteY);
@@ -410,7 +410,7 @@ const DraggableCalendarCell = React.memo(function DraggableCalendarCell({
   const panGesture = useMemo(() => {
     return Gesture.Pan()
       .enabled(hasWorkout)
-      .minDistance(6)
+      .activateAfterLongPress(260)
       .onStart((e) => {
         "worklet";
         runOnJS(onDragStart)(item, e.absoluteX, e.absoluteY);
