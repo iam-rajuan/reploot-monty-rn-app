@@ -1,14 +1,23 @@
 import { WorkoutHeader } from "@/features/workouts";
-import * as Haptics from "expo-haptics";
+import MaskedView from "@react-native-masked-view/masked-view";
 import { Image } from "expo-image";
+import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Camera } from "lucide-react-native";
-import React, { useEffect, useRef, useState } from "react";
 import {
-  Animated,
-  Easing,
+  Camera,
+  ChevronRight,
+  Droplet,
+  Flame,
+  Plus,
+  Sparkles,
+  Utensils,
+  Clock,
+  ArrowRight,
+} from "lucide-react-native";
+import React, { useState } from "react";
+import {
   Platform,
   Pressable,
   ScrollView,
@@ -18,769 +27,955 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, {
-  Circle,
-  Defs,
-  LinearGradient as SvgLinearGradient,
-  Path,
-  Stop,
-} from "react-native-svg";
+import Svg, { Line as SvgLine } from "react-native-svg";
 
-const coachArtwork = require("../../assets/figma/nutrition/ai-nutrition-coach-figma.jpeg");
-const coachSparkles = require("../../assets/figma/nutrition/coach-sparkles.svg");
-const mealUtensils = require("../../assets/figma/nutrition/meal-utensils.svg");
-const chevronRight = require("../../assets/figma/nutrition/chevron-right.svg");
-
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-
-const macros = [
-  ["PROTEIN", "120g", "#A983FF", "rgba(197,192,255,0.3)"],
-  ["CARBS", "180g", "#EA9744", "#EA9744"],
-  ["FAT", "55g", "#F93E3E", "rgba(249,62,62,0.3)"],
-] as const;
-
-const GOAL = 3.0;
-const RING_SIZE = 240;
-const STROKE_WIDTH = 15;
-const RADIUS = (RING_SIZE - STROKE_WIDTH) / 2;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-
-// Crisp vector droplet for the center with glowing cyber fill
-const WaterDropletIcon = ({
-  size = 26,
-  color = "#44CCEA",
-}: {
-  size?: number;
-  color?: string;
-}) => (
-  <Svg width={size} height={(size * 20) / 16} viewBox="0 0 16 20" fill="none">
-    <Path
-      d="M15 12.6482C15 16.5462 12.2958 19 8 19C3.70424 19 1 16.5462 1 12.6482C1 8.46532 6.01813 2.81842 7.55715 1.18504C7.61192 1.12701 7.67987 1.08042 7.75636 1.04848C7.83285 1.01654 7.91605 1 8.00024 1C8.08444 1 8.16764 1.01654 8.24413 1.04848C8.32061 1.08042 8.38857 1.12701 8.44333 1.18504C9.98187 2.81842 15 8.46532 15 12.6482Z"
-      strokeWidth={2}
-      strokeMiterlimit={10}
-      stroke={color}
-      fill="rgba(68, 204, 234, 0.22)"
-    />
-    <Path
-      d="M12.2773 13.001C12.2773 13.8433 11.9086 14.6511 11.2522 15.2466C10.5958 15.8422 9.7056 16.1768 8.77734 16.1768"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      stroke={color}
-    />
-  </Svg>
-);
+interface LoggedMeal {
+  id: number;
+  type: string;
+  typeColor: string;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  time: string;
+}
 
 export default function NutritionTabRoute() {
   const insets = useSafeAreaInsets();
-  const [water, setWater] = useState(1.8);
-  const [input, setInput] = useState("");
+  const [waterInput, setWaterInput] = useState("");
+  const [waterTotal, setWaterTotal] = useState(1.8);
 
-  const animatedProgress = useRef(new Animated.Value(1.8 / GOAL)).current;
+  const [recentMeals] = useState<LoggedMeal[]>([
+    {
+      id: 1,
+      type: "BREAKFAST",
+      typeColor: "#38BDF8",
+      name: "Avocado & Poached Egg Toast",
+      calories: 420,
+      protein: 18,
+      carbs: 34,
+      fat: 16,
+      time: "08:30 AM",
+    },
+    {
+      id: 2,
+      type: "LUNCH",
+      typeColor: "#2DD4BF",
+      name: "Grilled Chicken & Quinoa Bowl",
+      calories: 650,
+      protein: 45,
+      carbs: 58,
+      fat: 14,
+      time: "01:15 PM",
+    },
+    {
+      id: 3,
+      type: "SNACK",
+      typeColor: "#FFB68C",
+      name: "Almond & Cacao Protein Crunch",
+      calories: 280,
+      protein: 12,
+      carbs: 22,
+      fat: 11,
+      time: "04:45 PM",
+    },
+  ]);
 
-  useEffect(() => {
-    Animated.timing(animatedProgress, {
-      toValue: Math.min(1, Math.max(0, water / GOAL)),
-      duration: 550,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: false,
-    }).start();
-  }, [water]);
-
-  const strokeDashoffset = animatedProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [CIRCUMFERENCE, 0],
-  });
-
-  const tap = (strength = Haptics.ImpactFeedbackStyle.Light) => {
-    if (Platform.OS !== "web") Haptics.impactAsync(strength).catch(() => {});
-  };
-
-  const addWater = (amount: number) => {
-    tap(Haptics.ImpactFeedbackStyle.Medium);
-    setWater((prev) => +(prev + amount / 1000).toFixed(2));
-  };
-
-  const saveWater = () => {
-    const value = Number.parseFloat(input);
-    if (value > 0) {
-      addWater(value);
-      setInput("");
+  const triggerHaptic = (
+    style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light,
+  ) => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(style).catch(() => {});
     }
   };
 
-  const percent = Math.round((water / GOAL) * 100);
-
-  const getStatus = () => {
-    if (percent >= 100) {
-      return {
-        label: "GOAL REACHED 🎉",
-        color: "#2EE5C5",
-        border: "rgba(46, 229, 197, 0.4)",
-        bg: "rgba(46, 229, 197, 0.15)",
-      };
-    }
-    if (percent >= 60) {
-      return {
-        label: "HYDRATED",
-        color: "#44CCEA",
-        border: "rgba(68, 204, 234, 0.35)",
-        bg: "rgba(68, 204, 234, 0.12)",
-      };
-    }
-    if (percent >= 30) {
-      return {
-        label: "HYDRATING",
-        color: "#38BDF8",
-        border: "rgba(56, 189, 248, 0.3)",
-        bg: "rgba(56, 189, 248, 0.1)",
-      };
-    }
-    return {
-      label: "NEEDS WATER",
-      color: "#F87171",
-      border: "rgba(248, 113, 113, 0.35)",
-      bg: "rgba(248, 113, 113, 0.12)",
-    };
+  const handleQuickAddWater = (ml: number) => {
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+    setWaterTotal((prev) => Math.min(+(prev + ml / 1000).toFixed(2), 5.0));
   };
 
-  const status = getStatus();
+  const handleSaveCustomWater = () => {
+    const val = parseFloat(waterInput);
+    if (!isNaN(val) && val > 0) {
+      triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+      setWaterTotal((prev) => Math.min(+(prev + val / 1000).toFixed(2), 5.0));
+      setWaterInput("");
+    }
+  };
 
   return (
-    <View style={s.screen}>
+    <View style={styles.screen}>
       <StatusBar style="light" />
-      <WorkoutHeader showBorderBottom />
+      <WorkoutHeader transparent={true} />
+
       <ScrollView
-        showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
         contentContainerStyle={[
-          s.content,
-          { paddingBottom: Math.max(insets.bottom + 128, 150) },
+          styles.scrollContainer,
+          { paddingBottom: Math.max(insets.bottom + 140, 160) },
         ]}
+        showsVerticalScrollIndicator={false}
       >
-        <View style={s.hero}>
-          <Text style={s.heroTitle} numberOfLines={1}>
-            FUEL YOURSELF
-          </Text>
-          <Text style={s.subtitle}>
-            Eat smarter with AI-powered{"\n"}nutrition tracking.
+        {/* Hero Section with Masked Gradient Title */}
+        <View style={styles.heroSection}>
+          <View style={styles.maskedTitleWrapper}>
+            <MaskedView
+              style={styles.maskedTitleView}
+              maskElement={
+                <View style={styles.maskWrapper}>
+                  <Text style={styles.mainTitle} numberOfLines={1}>
+                    FUEL YOURSELF
+                  </Text>
+                </View>
+              }
+            >
+              <LinearGradient
+                colors={["#00f2fe", "#4facfe"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.gradient}
+              />
+            </MaskedView>
+          </View>
+          <Text style={styles.heroSubtitle}>
+            AI-powered metabolic intake, macro telemetry & hydration
           </Text>
         </View>
 
-        <View style={s.macroCard}>
-          <Text style={s.budgetLabel}>DAILY BUDGET</Text>
-          <View style={s.budgetRow}>
-            <Text style={s.budget}>1,850</Text>
-            <Text style={s.total}>/ 2,300</Text>
-          </View>
-          <Text style={s.remaining}>KCAL REMAINING</Text>
-          <View style={s.macroRow}>
-            {macros.map(([label, value, color, border]) => (
-              <View key={label} style={[s.macro, { borderColor: border }]}>
-                <Text style={[s.macroLabel, { color }]}>{label}</Text>
-                <Text style={s.macroValue}>{value}</Text>
-              </View>
-            ))}
-          </View>
-          <LinearGradient
-            colors={["#0F4C77", "#3385C0"]}
-            start={{ x: 0, y: 0.5 }}
-            end={{ x: 1, y: 0.5 }}
-            style={s.roundButton}
-          >
-            <View pointerEvents="none" style={s.buttonContent}>
-              <Camera color="#fff" size={20} />
-              <Text style={s.buttonText}>SCAN TODAY'S MEAL</Text>
+        {/* Daily Energy Budget Card */}
+        <View style={styles.card}>
+          <View style={styles.cardHeaderRow}>
+            <View style={styles.headerBadge}>
+              <Flame size={14} color="#38BDF8" />
+              <Text style={styles.headerBadgeText}>DAILY ENERGY BUDGET</Text>
             </View>
             <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Scan today's meal"
               onPress={() => {
-                tap(Haptics.ImpactFeedbackStyle.Medium);
-                router.push("/scan-meal");
+                triggerHaptic();
+                router.push("/meal-history");
               }}
-              style={({ pressed }) => [s.buttonOverlay, pressed && s.pressed]}
-            />
-          </LinearGradient>
-        </View>
+              style={styles.headerLink}
+            >
+              <Text style={styles.headerLinkText}>LOGS</Text>
+              <ChevronRight size={12} color="#38BDF8" />
+            </Pressable>
+          </View>
 
-        {/* WATER INTAKE CARD */}
-        <View style={s.waterCard}>
-          <View style={s.waterHeader}>
-            <Text style={s.waterTitle}>WATER INTAKE</Text>
+          {/* Budget Main Calories */}
+          <View style={styles.budgetRow}>
+            <Text style={styles.budgetMain}>1,850</Text>
+            <Text style={styles.budgetTotal}> / 2,300 KCAL</Text>
+          </View>
+
+          {/* Calorie Progress Bar */}
+          <View style={styles.progressContainer}>
+            <View style={styles.progressBarBg}>
+              <LinearGradient
+                colors={["#00f2fe", "#4facfe"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[StyleSheet.absoluteFill, { width: "80%" }]}
+              />
+            </View>
+            <View style={styles.progressMeta}>
+              <Text style={styles.progressRemaining}>450 KCAL REMAINING</Text>
+              <Text style={styles.progressPercent}>80% CONSUMED</Text>
+            </View>
+          </View>
+
+          {/* Macro Breakdown Matrix */}
+          <View style={styles.macrosRow}>
+            {/* Protein */}
             <View
               style={[
-                s.status,
-                { borderColor: status.border, backgroundColor: status.bg },
+                styles.macroBox,
+                { borderColor: "rgba(56, 189, 248, 0.35)" },
               ]}
             >
-              <Text style={[s.statusText, { color: status.color }]}>
-                {status.label}
+              <Text style={[styles.macroLabel, { color: "#38BDF8" }]}>
+                PROTEIN
+              </Text>
+              <Text style={styles.macroValue}>120g</Text>
+              <Text style={styles.macroTarget}>/ 180g</Text>
+            </View>
+
+            {/* Carbs */}
+            <View
+              style={[
+                styles.macroBox,
+                { borderColor: "rgba(255, 182, 140, 0.35)" },
+              ]}
+            >
+              <Text style={[styles.macroLabel, { color: "#FFB68C" }]}>
+                CARBS
+              </Text>
+              <Text style={styles.macroValue}>180g</Text>
+              <Text style={styles.macroTarget}>/ 250g</Text>
+            </View>
+
+            {/* Fat */}
+            <View
+              style={[
+                styles.macroBox,
+                { borderColor: "rgba(244, 63, 94, 0.35)" },
+              ]}
+            >
+              <Text style={[styles.macroLabel, { color: "#F43F5E" }]}>FAT</Text>
+              <Text style={styles.macroValue}>55g</Text>
+              <Text style={styles.macroTarget}>/ 70g</Text>
+            </View>
+          </View>
+
+          {/* Scan Meal Button */}
+          <Pressable
+            style={styles.scanBtn}
+            onPress={() => {
+              triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+              router.push("/scan-meal");
+            }}
+          >
+            <LinearGradient
+              colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.scanBtnGradient}
+            >
+              <Camera color="#FFFFFF" size={17} style={{ marginRight: 8 }} />
+              <Text style={styles.scanBtnText}>SCAN TODAY'S MEAL</Text>
+            </LinearGradient>
+          </Pressable>
+        </View>
+
+        {/* Water Intake Card */}
+        <View style={styles.card}>
+          <View style={styles.cardHeaderRow}>
+            <View style={styles.headerBadge}>
+              <Droplet size={14} color="#2DD4BF" />
+              <Text style={[styles.headerBadgeText, { color: "#2DD4BF" }]}>
+                HYDRATION TELEMETRY
               </Text>
             </View>
-          </View>
-
-          {/* Centered Dynamic Progress Ring with Prominent Icon */}
-          <View style={s.ringWrap}>
-            <Svg width={RING_SIZE} height={RING_SIZE} viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}>
-              <Defs>
-                <SvgLinearGradient
-                  id="waterGradient"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="100%"
-                >
-                  <Stop offset="0%" stopColor="#5FFFD7" />
-                  <Stop offset="100%" stopColor="#30BAFF" />
-                </SvgLinearGradient>
-              </Defs>
-
-              {/* Background Circular Track */}
-              <Circle
-                cx={RING_SIZE / 2}
-                cy={RING_SIZE / 2}
-                r={RADIUS}
-                stroke="rgba(255, 255, 255, 0.05)"
-                strokeWidth={STROKE_WIDTH}
-                fill="none"
-              />
-
-              {/* Dynamic Animated Arc */}
-              <AnimatedCircle
-                cx={RING_SIZE / 2}
-                cy={RING_SIZE / 2}
-                r={RADIUS}
-                stroke="url(#waterGradient)"
-                strokeWidth={STROKE_WIDTH}
-                strokeLinecap="round"
-                strokeDasharray={CIRCUMFERENCE}
-                strokeDashoffset={strokeDashoffset as any}
-                fill="none"
-                transform={`rotate(-90 ${RING_SIZE / 2} ${RING_SIZE / 2})`}
-              />
-            </Svg>
-
-            {/* Centered Telemetry Content */}
-            <View style={s.ringCopy} pointerEvents="none">
-              <WaterDropletIcon size={26} color="#44CCEA" />
-              <View style={s.litres}>
-                <Text style={s.litresValue}>{water.toFixed(1)}</Text>
-                <Text style={s.litresUnit}>L</Text>
-              </View>
-              <Text style={s.goal}>GOAL: {GOAL.toFixed(1)} L</Text>
-              <View style={s.percentBadge}>
-                <Text style={s.percentBadgeText}>{percent}% COMPLETED</Text>
-              </View>
+            <View style={styles.statusPill}>
+              <Text style={styles.statusPillText}>HYDRATED</Text>
             </View>
           </View>
 
-          {/* Quick-Add Interactive Buttons */}
-          <View style={s.quickRow}>
-            {[250, 500, 750].map((amount) => (
-              <Pressable
-                key={amount}
-                accessibilityRole="button"
-                accessibilityLabel={`Add ${amount} millilitres of water`}
-                onPress={() => addWater(amount)}
-                style={({ pressed }) => [s.quick, pressed && s.quickPressed]}
-              >
-                <WaterDropletIcon size={16} color="#44CCEA" />
-                <Text style={s.quickText}>+{amount}ML</Text>
-              </Pressable>
+          {/* Ring Gauge Center */}
+          <Pressable
+            style={styles.ringContainer}
+            onPress={() => {
+              triggerHaptic();
+              router.push("/drink-water");
+            }}
+          >
+            <LinearGradient
+              colors={["#2DD4BF", "#0284C7"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.ringOuter}
+            >
+              <View style={styles.ringInner}>
+                <Droplet
+                  color="#38BDF8"
+                  size={24}
+                  style={{ marginBottom: 4 }}
+                />
+                <View style={styles.ringTextRow}>
+                  <Text style={styles.ringMain}>{waterTotal.toFixed(1)}</Text>
+                  <Text style={styles.ringUnit}>L</Text>
+                </View>
+                <Text style={styles.ringGoal}>GOAL: 3.0 L</Text>
+              </View>
+            </LinearGradient>
+          </Pressable>
+
+          {/* Quick Add Water Buttons (Wrap in View to prevent CSS-Interop collapse on Android) */}
+          <View style={styles.quickAddRow}>
+            {[
+              { label: "+250 ML", amount: 250 },
+              { label: "+500 ML", amount: 500 },
+              { label: "+750 ML", amount: 750 },
+            ].map((btn, idx) => (
+              <View key={idx} style={styles.quickAddBtnWrapper}>
+                <Pressable
+                  style={styles.quickAddBtn}
+                  onPress={() => handleQuickAddWater(btn.amount)}
+                >
+                  <Plus size={11} color="#38BDF8" style={{ marginRight: 4 }} />
+                  <Text style={styles.quickAddText}>{btn.label}</Text>
+                </Pressable>
+              </View>
             ))}
           </View>
 
-          {/* Custom Millilitres Input Row */}
-          <View style={s.inputRow}>
-            <View style={s.inputDropWrap}>
-              <WaterDropletIcon size={18} color="#44CCEA" />
-            </View>
+          {/* Custom Water Input & Save */}
+          <View style={styles.customWaterRow}>
+            <Droplet color="#38BDF8" size={16} />
             <TextInput
-              style={s.input}
-              value={input}
-              onChangeText={(value) =>
-                setInput(value.replace(/[^0-9]/g, ""))
-              }
+              style={styles.waterInput}
               placeholder="0"
               placeholderTextColor="#64748B"
               keyboardType="number-pad"
+              value={waterInput}
+              onChangeText={(text) =>
+                setWaterInput(text.replace(/[^0-9]/g, ""))
+              }
               maxLength={5}
             />
-            <Text style={s.ml}>ML</Text>
-          </View>
-
-          {/* Save Water Button */}
-          <LinearGradient
-            colors={["#0F4C77", "#3385C0"]}
-            start={{ x: 0, y: 0.5 }}
-            end={{ x: 1, y: 0.5 }}
-            style={s.save}
-          >
-            <View pointerEvents="none" style={s.buttonContent}>
-              <Text style={s.buttonText}>SAVE WATER</Text>
-            </View>
+            <Text style={styles.waterInputUnit}>ML</Text>
             <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Save water intake"
-              onPress={saveWater}
-              style={({ pressed }) => [s.buttonOverlay, pressed && s.pressed]}
-            />
-          </LinearGradient>
+              style={styles.saveInlineBtn}
+              onPress={handleSaveCustomWater}
+            >
+              <Text style={styles.saveInlineText}>ADD</Text>
+            </Pressable>
+          </View>
         </View>
 
-        {/* AI NUTRITION COACH */}
-        <LinearGradient
-          colors={["rgba(108,92,255,0.3)", "#34343A", "#121318"]}
-          locations={[0, 0.5, 1]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={s.coachCard}
-        >
-          <Image
-            source={coachSparkles}
-            contentFit="contain"
-            style={s.coachDecor}
-          />
-          <View style={s.coachTop}>
-            <View style={s.avatarShell}>
-              <View style={s.avatarGlow} />
-              <View style={s.avatarPanel}>
-                <Image
-                  source={coachArtwork}
-                  contentFit="cover"
-                  style={s.avatar}
-                />
-              </View>
+        {/* AI Nutrition Coach Card */}
+        <View style={styles.coachCard}>
+          <View style={styles.coachHeader}>
+            <View style={styles.coachAvatarWrapper}>
+              <Image
+                source={require("../../assets/coach/coach.png")}
+                style={styles.coachAvatar}
+                contentFit="cover"
+              />
             </View>
-            <View style={s.coachCopy}>
-              <View style={s.coachLabelRow}>
-                <Text style={s.coachLabel}>AI NUTRITION COACH</Text>
+
+            <View style={styles.coachTextCol}>
+              <View style={styles.coachLabelRow}>
+                <Sparkles
+                  size={11}
+                  color="#38BDF8"
+                  style={{ marginRight: 4 }}
+                />
+                <Text style={styles.coachLabel}>AI METABOLIC COACH</Text>
               </View>
-              <Text style={s.coachText}>
-                "You still need{" "}
-                <Text style={s.protein}>
-                  24g of{"\n"}protein
+              <Text style={styles.coachQuote}>
+                You still require{" "}
+                <Text style={{ color: "#38BDF8", fontWeight: "900" }}>
+                  24g of protein
                 </Text>{" "}
-                today."
+                to hit optimal hypertrophy target.
               </Text>
             </View>
           </View>
-          <View style={s.lunch}>
-            <View style={s.lunchLabelRow}>
-              <Image
-                source={mealUtensils}
-                contentFit="contain"
-                style={s.mealIcon}
-              />
-              <Text style={s.lunchLabel}>RECOMMENDED NEXT LUNCH</Text>
+
+          {/* Recommended Meal */}
+          <View style={styles.recommendedBox}>
+            <View style={styles.recommendedHeader}>
+              <Utensils color="#38BDF8" size={13} />
+              <Text style={styles.recommendedLabel}>
+                RECOMMENDED NEXT PROTOCOL
+              </Text>
             </View>
-            <Text style={s.lunchText}>Grilled Chicken with Brown Rice</Text>
+            <View style={styles.mealDetailsRow}>
+              <Text style={styles.recommendedMeal}>
+                Grilled Chicken with Quinoa & Asparagus
+              </Text>
+              <View style={styles.mealMacroPill}>
+                <Text style={styles.mealMacroText}>+38g PRO</Text>
+              </View>
+            </View>
           </View>
-          <View style={s.plan}>
-            <View pointerEvents="none" style={s.planContent}>
-              <Text style={s.planText}>VIEW AI MEAL PLAN</Text>
-              <Image
-                source={chevronRight}
-                contentFit="contain"
-                style={s.planChevron}
-              />
+
+          {/* View Plan Button */}
+          <Pressable
+            style={styles.viewPlanBtn}
+            onPress={() => {
+              triggerHaptic();
+              router.push("/ai-meal-plan");
+            }}
+          >
+            <View style={styles.viewPlanInner}>
+              <Text style={styles.viewPlanText}>ACCESS FULL AI MEAL PLAN</Text>
+              <ChevronRight color="#38BDF8" size={16} />
+            </View>
+          </Pressable>
+        </View>
+
+        {/* Logged Protocols Today Card */}
+        <View style={styles.card}>
+          <View style={styles.cardHeaderRow}>
+            <View style={styles.headerBadge}>
+              <Utensils size={14} color="#38BDF8" />
+              <Text style={styles.headerBadgeText}>
+                TODAY'S LOGGED PROTOCOLS
+              </Text>
             </View>
             <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="View AI meal plan"
               onPress={() => {
-                tap();
-                router.push("/ai-meal-plan");
+                triggerHaptic();
+                router.push("/meal-history");
               }}
-              style={({ pressed }) => [s.buttonOverlay, pressed && s.pressed]}
-            />
+              style={styles.headerLink}
+            >
+              <Text style={styles.headerLinkText}>VIEW ALL</Text>
+              <ArrowRight size={12} color="#38BDF8" />
+            </Pressable>
           </View>
-        </LinearGradient>
+
+          <View style={styles.mealsList}>
+            {recentMeals.map((meal, index) => (
+              <View
+                key={meal.id}
+                style={[
+                  styles.mealItemRow,
+                  index === recentMeals.length - 1 && styles.mealItemRowLast,
+                ]}
+              >
+                <View style={styles.mealLeftCol}>
+                  <View style={styles.mealTypeTimeRow}>
+                    <View
+                      style={[
+                        styles.mealTypeBadge,
+                        {
+                          backgroundColor: `${meal.typeColor}18`,
+                          borderColor: `${meal.typeColor}40`,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.mealTypeBadgeText,
+                          { color: meal.typeColor },
+                        ]}
+                      >
+                        {meal.type}
+                      </Text>
+                    </View>
+                    <View style={styles.mealTimeRow}>
+                      <Clock
+                        size={10}
+                        color="#64748B"
+                        style={{ marginRight: 3 }}
+                      />
+                      <Text style={styles.mealTimeText}>{meal.time}</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.mealItemName} numberOfLines={1}>
+                    {meal.name}
+                  </Text>
+                </View>
+
+                <View style={styles.mealRightCol}>
+                  <Text style={styles.mealCaloriesText}>
+                    {meal.calories} KCAL
+                  </Text>
+                  <Text style={styles.mealMacrosText}>
+                    {meal.protein}P • {meal.carbs}C • {meal.fat}F
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
 }
 
-const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#1E2731" },
-  content: { paddingHorizontal: 24, paddingTop: 34, gap: 32 },
-  hero: { gap: 0 },
-  heroTitle: {
-    color: "#fff",
-    fontSize: 32,
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#090A10",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 4,
+  },
+  heroSection: {
+    marginTop: 4,
+    marginBottom: 20,
+  },
+  maskedTitleWrapper: {
+    height: 48,
+    width: "100%",
+  },
+  maskedTitleView: {
+    height: 48,
+    width: "100%",
+  },
+  maskWrapper: {
+    backgroundColor: "transparent",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "flex-start",
+  },
+  gradient: {
+    flex: 1,
+  },
+  mainTitle: {
+    color: "#FFFFFF",
+    fontSize: 30,
     lineHeight: 38,
     fontWeight: "900",
-    letterSpacing: -1.1,
-    textShadowColor: "rgba(95,255,215,.42)",
-    textShadowRadius: 14,
+    fontFamily: "monospace",
+    letterSpacing: 0.5,
+    textAlign: "left",
+    textTransform: "uppercase",
   },
-  subtitle: { color: "#C8C4D8", fontSize: 16, lineHeight: 24, marginTop: 10 },
-  macroCard: {
-    borderRadius: 36,
+  heroSubtitle: {
+    color: "#94A3B8",
+    fontSize: 13,
+    lineHeight: 18,
+    fontFamily: "monospace",
+    fontWeight: "600",
+    marginTop: 4,
+  },
+  card: {
+    backgroundColor: "rgba(15, 23, 42, 0.65)",
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,.1)",
-    backgroundColor: "#252B35",
-    padding: 32,
-    gap: 12,
-    shadowColor: "#6C5CFF",
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
-    elevation: 0,
+    borderColor: "rgba(255, 255, 255, 0.08)",
+    padding: 20,
+    marginBottom: 20,
   },
-  budgetLabel: {
-    color: "#C8C4D8",
-    fontFamily: "JetBrainsMono_700Bold",
-    fontSize: 12,
+  cardHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  headerBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  headerBadgeText: {
+    color: "#38BDF8",
+    fontSize: 11,
+    fontFamily: "monospace",
+    fontWeight: "800",
     letterSpacing: 1.2,
-    textAlign: "center",
+  },
+  headerLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingVertical: 2,
+    paddingHorizontal: 4,
+  },
+  headerLinkText: {
+    color: "#38BDF8",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 1,
+  },
+  statusPill: {
+    backgroundColor: "rgba(45, 212, 191, 0.12)",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "rgba(45, 212, 191, 0.3)",
+  },
+  statusPillText: {
+    color: "#2DD4BF",
+    fontSize: 9,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.8,
   },
   budgetRow: {
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "baseline",
-  },
-  budget: {
-    color: "#fff",
-    fontSize: 48,
-    lineHeight: 52,
-    fontWeight: "900",
-    letterSpacing: -1.2,
-  },
-  total: { color: "#918EA1", fontSize: 24, fontWeight: "700", marginLeft: 5 },
-  remaining: {
-    color: "#44EAC3",
-    fontSize: 14,
-    fontWeight: "800",
-    letterSpacing: 0.35,
-    textAlign: "center",
-    marginBottom: 12,
-  },
-  macroRow: {
-    flexDirection: "row",
-    gap: 12,
-    paddingTop: 8,
-    marginBottom: 12,
-  },
-  macro: {
-    flex: 1,
-    minHeight: 78,
-    borderWidth: 1,
-    borderRadius: 16,
-    backgroundColor: "rgba(255,255,255,.05)",
-    alignItems: "center",
     justifyContent: "center",
-    padding: 8,
+    marginBottom: 14,
+  },
+  budgetMain: {
+    color: "#FFFFFF",
+    fontSize: 44,
+    fontFamily: "monospace",
+    fontWeight: "900",
+    letterSpacing: 1,
+  },
+  budgetTotal: {
+    color: "#64748B",
+    fontSize: 16,
+    fontFamily: "monospace",
+    fontWeight: "700",
+    marginLeft: 6,
+  },
+  progressContainer: {
+    marginBottom: 20,
+  },
+  progressBarBg: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
+    overflow: "hidden",
+    marginBottom: 8,
+  },
+  progressMeta: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  progressRemaining: {
+    color: "#38BDF8",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.5,
+  },
+  progressPercent: {
+    color: "#64748B",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "700",
+  },
+  macrosRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 20,
+  },
+  macroBox: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
   },
   macroLabel: {
-    fontFamily: "JetBrainsMono_700Bold",
-    fontSize: 9,
-    letterSpacing: 0.45,
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 1,
     marginBottom: 4,
   },
   macroValue: {
-    color: "#E3E1E9",
-    fontSize: 23,
-    lineHeight: 28,
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontFamily: "monospace",
     fontWeight: "900",
+    marginBottom: 2,
   },
-  roundButton: {
-    width: "100%",
-    alignSelf: "stretch",
-    height: 64,
-    borderRadius: 32,
+  macroTarget: {
+    color: "#64748B",
+    fontSize: 9,
+    fontFamily: "monospace",
+    fontWeight: "700",
+  },
+  scanBtn: {
+    borderRadius: 16,
     overflow: "hidden",
-    shadowColor: "#6C5CFF",
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 10 },
-    shadowRadius: 15,
-    elevation: 0,
   },
-  buttonContent: {
-    position: "absolute",
-    inset: 0,
+  scanBtnGradient: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 12,
+    paddingVertical: 14,
   },
-  buttonOverlay: { position: "absolute", inset: 0 },
-  buttonText: {
-    color: "#fff",
-    fontFamily: "JetBrainsMono_700Bold",
-    fontSize: 18,
-    lineHeight: 28,
-    letterSpacing: 0,
+  scanBtnText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 1.2,
   },
-  waterCard: {
-    borderRadius: 24,
+  ringContainer: {
+    alignItems: "center",
+    marginVertical: 10,
+    marginBottom: 24,
+  },
+  ringOuter: {
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    padding: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  ringInner: {
+    width: 154,
+    height: 154,
+    backgroundColor: "#0B0E17",
+    borderRadius: 77,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
+  },
+  ringTextRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    marginBottom: 2,
+  },
+  ringMain: {
+    color: "#FFFFFF",
+    fontSize: 34,
+    fontFamily: "monospace",
+    fontWeight: "900",
+  },
+  ringUnit: {
+    color: "#38BDF8",
+    fontSize: 14,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    marginLeft: 3,
+  },
+  ringGoal: {
+    color: "#64748B",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  quickAddRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 16,
+  },
+  quickAddBtnWrapper: {
+    flex: 1,
+  },
+  quickAddBtn: {
+    backgroundColor: "rgba(56, 189, 248, 0.1)",
     borderWidth: 1,
-    borderColor: "#6C5CFF",
-    backgroundColor: "rgba(255,255,255,.03)",
-    padding: 24,
-    gap: 18,
+    borderColor: "rgba(56, 189, 248, 0.25)",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 11,
+    paddingHorizontal: 4,
+    borderRadius: 12,
   },
-  waterHeader: {
+  quickAddText: {
+    color: "#38BDF8",
+    fontSize: 11,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.5,
+  },
+  customWaterRow: {
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    height: 48,
+    borderRadius: 14,
+  },
+  waterInput: {
+    flex: 1,
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontFamily: "monospace",
+    marginLeft: 10,
+    paddingVertical: 0,
+  },
+  waterInputUnit: {
+    color: "#64748B",
+    fontSize: 11,
+    fontFamily: "monospace",
+    fontWeight: "700",
+    marginRight: 10,
+  },
+  saveInlineBtn: {
+    backgroundColor: "#0284C7",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  saveInlineText: {
+    color: "#FFFFFF",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.8,
+  },
+  coachCard: {
+    backgroundColor: "rgba(15, 23, 42, 0.75)",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.35)",
+    padding: 20,
+    marginBottom: 20,
+  },
+  coachHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  coachAvatarWrapper: {
+    position: "relative",
+    marginRight: 14,
+  },
+  coachAvatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.35)",
+  },
+  coachTextCol: {
+    flex: 1,
+  },
+  coachLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  coachLabel: {
+    color: "#94A3B8",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 1.2,
+  },
+  coachQuote: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontFamily: "monospace",
+    lineHeight: 17,
+  },
+  recommendedBox: {
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.06)",
+    padding: 14,
+    marginBottom: 16,
+  },
+  recommendedHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 6,
+  },
+  recommendedLabel: {
+    color: "#94A3B8",
+    fontSize: 10,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.8,
+  },
+  mealDetailsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  recommendedMeal: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontFamily: "monospace",
+    fontWeight: "700",
+    flex: 1,
+  },
+  mealMacroPill: {
+    backgroundColor: "rgba(56, 189, 248, 0.12)",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.25)",
+  },
+  mealMacroText: {
+    color: "#38BDF8",
+    fontSize: 9,
+    fontFamily: "monospace",
+    fontWeight: "800",
+  },
+  viewPlanBtn: {
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
+    overflow: "hidden",
+  },
+  viewPlanInner: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingBottom: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    width: "100%",
   },
-  waterTitle: {
-    color: "#44CCEA",
-    fontSize: 16,
-    lineHeight: 24,
-    fontStyle: "italic",
-    fontWeight: "700",
-    letterSpacing: 0.5,
+  viewPlanText: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 1,
   },
-  status: {
-    borderRadius: 20,
+  mealsList: {
+    gap: 12,
+  },
+  mealItemRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.06)",
+  },
+  mealItemRowLast: {
+    borderBottomWidth: 0,
+    paddingBottom: 0,
+  },
+  mealLeftCol: {
+    flex: 1,
+    marginRight: 12,
+  },
+  mealTypeTimeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 4,
+  },
+  mealTypeBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
     borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingTop: 6,
-    paddingBottom: 6,
   },
-  statusText: {
-    fontFamily: "JetBrainsMono_700Bold",
-    fontSize: 10,
-    lineHeight: 14,
+  mealTypeBadgeText: {
+    fontSize: 8,
+    fontFamily: "monospace",
+    fontWeight: "800",
     letterSpacing: 0.8,
   },
-  ringWrap: {
-    height: RING_SIZE,
-    width: RING_SIZE,
-    alignSelf: "center",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-    marginVertical: 4,
-  },
-  ringCopy: {
-    position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  litres: {
+  mealTimeRow: {
     flexDirection: "row",
-    alignItems: "baseline",
-    marginTop: 8,
+    alignItems: "center",
   },
-  litresValue: {
+  mealTimeText: {
+    color: "#64748B",
+    fontSize: 9,
+    fontFamily: "monospace",
+    fontWeight: "600",
+  },
+  mealItemName: {
     color: "#FFFFFF",
-    fontSize: 40,
-    lineHeight: 44,
-    fontWeight: "900",
-    letterSpacing: -0.5,
-  },
-  litresUnit: {
-    color: "#918EA1",
-    fontSize: 20,
-    lineHeight: 26,
-    marginLeft: 4,
+    fontSize: 12,
+    fontFamily: "monospace",
     fontWeight: "700",
   },
-  goal: {
-    color: "#918EA1",
-    fontFamily: "JetBrainsMono_700Bold",
+  mealRightCol: {
+    alignItems: "flex-end",
+  },
+  mealCaloriesText: {
+    color: "#38BDF8",
     fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 1.2,
-    marginTop: 3,
-  },
-  percentBadge: {
-    marginTop: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    backgroundColor: "rgba(46, 229, 197, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(46, 229, 197, 0.25)",
-  },
-  percentBadgeText: {
-    color: "#2EE5C5",
-    fontSize: 9,
-    fontFamily: "JetBrainsMono_700Bold",
-    letterSpacing: 0.6,
-  },
-  quickRow: {
-    width: "100%",
-    flexDirection: "row",
-    gap: 12,
-    paddingTop: 8,
-  },
-  quick: {
-    flex: 1,
-    height: 68,
-    borderRadius: 16,
-    borderWidth: 1.2,
-    borderColor: "#46505C",
-    backgroundColor: "#2B333D",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-  },
-  quickPressed: {
-    opacity: 0.75,
-    transform: [{ scale: 0.96 }],
-    borderColor: "#44CCEA",
-    backgroundColor: "rgba(68, 204, 234, 0.15)",
-  },
-  quickText: {
-    color: "#C8C4D8",
-    fontFamily: "JetBrainsMono_700Bold",
-    fontSize: 11,
-    lineHeight: 15,
-  },
-  inputRow: {
-    height: 58,
-    borderRadius: 16,
-    backgroundColor: "rgba(255,255,255,.05)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,.1)",
-    paddingHorizontal: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 6,
-  },
-  inputDropWrap: {
-    marginRight: 10,
-  },
-  input: {
-    color: "#E3E1E9",
-    fontSize: 22,
-    flex: 1,
-    paddingVertical: 0,
-    fontFamily: "JetBrainsMono_700Bold",
-  },
-  ml: {
-    color: "#44CCEA",
-    fontFamily: "JetBrainsMono_700Bold",
-    fontSize: 16,
-    letterSpacing: 1.6,
-    paddingRight: 12,
-  },
-  save: {
-    width: "100%",
-    height: 60,
-    borderRadius: 30,
-    overflow: "hidden",
-    marginTop: 4,
-  },
-  coachCard: {
-    width: "100%",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "#6C5CFF",
-    padding: 25,
-    gap: 16,
-    overflow: "hidden",
-    shadowColor: "#6C5CFF",
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 0,
-  },
-  coachDecor: {
-    position: "absolute",
-    width: 22,
-    height: 28,
-    right: -16,
-    top: -16,
-    opacity: 0.1,
-  },
-  coachTop: { flexDirection: "row", alignItems: "center", gap: 16 },
-  avatarShell: {
-    width: 64,
-    height: 64,
-    position: "relative",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarGlow: {
-    position: "absolute",
-    inset: 0,
-    borderRadius: 32,
-    backgroundColor: "rgba(197,192,255,.3)",
-    opacity: 0.65,
-  },
-  avatarPanel: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    padding: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    backgroundColor: "rgba(30,31,37,.6)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,.1)",
-  },
-  avatar: { width: 48, height: 48, borderRadius: 0 },
-  coachCopy: { flex: 1 },
-  coachLabelRow: { flexDirection: "row", alignItems: "center" },
-  coachLabel: {
-    color: "#C5C0FF",
-    fontFamily: "JetBrainsMono_700Bold",
-    fontSize: 10,
-    lineHeight: 15,
-    letterSpacing: 2,
-  },
-  coachText: {
-    color: "#E3E1E9",
-    fontSize: 16,
+    fontFamily: "monospace",
     fontWeight: "800",
-    fontStyle: "italic",
-    lineHeight: 20,
-    marginTop: 0,
+    marginBottom: 2,
   },
-  protein: { color: "#44EAC3", fontWeight: "400" },
-  lunch: {
-    backgroundColor: "rgba(0,0,0,.4)",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,.1)",
-    padding: 17,
+  mealMacrosText: {
+    color: "#64748B",
+    fontSize: 9,
+    fontFamily: "monospace",
+    fontWeight: "600",
   },
-  lunchLabelRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 8,
-  },
-  mealIcon: { width: 15, height: 20 },
-  lunchLabel: {
-    color: "#C8C4D8",
-    fontFamily: "JetBrainsMono_700Bold",
-    fontSize: 10,
-    lineHeight: 15,
-    letterSpacing: 0.5,
-  },
-  lunchText: { color: "#E3E1E9", fontSize: 16, lineHeight: 24, fontWeight: "700" },
-  plan: {
-    position: "relative",
-    width: "100%",
-    alignSelf: "stretch",
-    height: 44,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,.1)",
-    backgroundColor: "rgba(255,255,255,.05)",
-    overflow: "hidden",
-  },
-  planContent: {
-    position: "absolute",
-    inset: 0,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-  },
-  planText: {
-    color: "#E3E1E9",
-    fontFamily: "JetBrainsMono_700Bold",
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 1.2,
-  },
-  planChevron: { width: 7.4, height: 12 },
-  pressed: { opacity: 0.82, transform: [{ scale: 0.985 }] },
 });
