@@ -34,7 +34,11 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
-import { HORIZONTAL_PADDING, clampFontSize, isSmallDevice } from "@/shared/utils/responsive";
+import {
+  HORIZONTAL_PADDING,
+  clampFontSize,
+  isSmallDevice,
+} from "@/shared/utils/responsive";
 
 const { width } = Dimensions.get("window");
 
@@ -367,7 +371,7 @@ export default function WeeklyProgressScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title Section with Masked Gradient Title */}
+        {/* Title Section */}
         <View style={styles.titleSection}>
           <View style={styles.maskedTitleWrapper}>
             <MaskedView
@@ -388,9 +392,10 @@ export default function WeeklyProgressScreen() {
               />
             </MaskedView>
           </View>
-          <Text style={styles.subtitle}>
-            Kinetic telemetry, training load & AI biomechanical analysis
-          </Text>
+          <View style={styles.titleDateRow}>
+            <Calendar size={13} color="#38EDD8" style={{ marginRight: 6 }} />
+            <Text style={styles.subtitle}>{currentWeek.dateRange}</Text>
+          </View>
         </View>
 
         {/* Week Switcher Tabs */}
@@ -450,67 +455,48 @@ export default function WeeklyProgressScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Date Range Badge */}
-        <View style={styles.dateBadgeRow}>
-          <Calendar size={13} color="#38EDD8" style={{ marginRight: 6 }} />
-          <Text style={styles.dateBadgeText}>{currentWeek.dateRange}</Text>
-        </View>
-
-        {/* Hero Athlete Status & XP Card (matching WeeklyProgressCard) */}
+        {/* Hero Athlete Status & XP Card */}
         <View style={styles.card}>
           <View style={styles.headerRow}>
             {/* Level 42 Box */}
-            <View style={{ alignItems: "center" }}>
+            <View style={styles.heroStatCol}>
               <View style={styles.streakTopRow}>
-                <Star size={26} color="#38EDD8" strokeWidth={2.5} />
+                <Star size={18} color="#38EDD8" strokeWidth={2.5} />
                 <Text style={[styles.streakNumber, { color: "#38EDD8" }]}>
                   42
                 </Text>
               </View>
-              <View style={styles.streakBottomRow}>
-                <Text style={styles.streakLabel}>ELITE</Text>
-                <Text style={styles.streakLabel}>TIER</Text>
-              </View>
+              <Text style={styles.streakLabel}>LEVEL</Text>
             </View>
 
             {/* Middle Divider */}
             <View style={styles.verticalDivider} />
 
             {/* Streak Box */}
-            <View style={styles.streakContainer}>
+            <View style={styles.heroStatCol}>
               <View style={styles.streakTopRow}>
-                <Zap size={26} color="#38EDD8" strokeWidth={2.5} />
+                <Zap size={18} color="#38EDD8" strokeWidth={2.5} />
                 <Text style={styles.streakNumber}>12</Text>
               </View>
-              <View style={styles.streakBottomRow}>
-                <Text style={styles.streakLabel}>DAY</Text>
-                <Text style={styles.streakLabel}>STREAK</Text>
-              </View>
+              <Text style={styles.streakLabel}>DAY STREAK</Text>
             </View>
 
             {/* Middle Divider */}
             <View style={styles.verticalDivider} />
 
             {/* Weekly XP Badge */}
-            <View style={{ alignItems: "center" }}>
+            <View style={styles.heroStatCol}>
               <View style={styles.streakTopRow}>
-                <TrendingUp size={24} color="#00f2fe" strokeWidth={2.5} />
+                <TrendingUp size={18} color="#00f2fe" strokeWidth={2.5} />
                 <Text style={[styles.streakNumber, { color: "#00f2fe" }]}>
                   +{currentWeek.totalXp}
                 </Text>
               </View>
-              <View style={styles.streakBottomRow}>
-                <Text style={styles.streakLabel}>WEEKLY</Text>
-                <Text style={styles.streakLabel}>XP GAIN</Text>
-              </View>
+              <Text style={styles.streakLabel}>XP GAINED</Text>
             </View>
           </View>
 
           {/* XP Progress Bar to next level */}
-          <View style={styles.xpRow}>
-            <Text style={styles.xpText}>2,450 XP (LVL 42)</Text>
-            <Text style={styles.xpText}>3,000 XP (LVL 43)</Text>
-          </View>
           <View style={styles.progressBarTrack}>
             <LinearGradient
               colors={["#707BFF", "#5260FF", "#38EDD8"]}
@@ -519,76 +505,65 @@ export default function WeeklyProgressScreen() {
               end={{ x: 1, y: 0 }}
             />
           </View>
-
-          {/* Target Progress Callout */}
-          <View style={styles.xpTargetRow}>
-            <Sparkles size={13} color="#38EDD8" style={{ marginRight: 6 }} />
-            <Text style={styles.xpTargetText}>
-              550 XP remaining to unlock APEX TIER LEVEL 43
-            </Text>
+          <View style={styles.xpRow}>
+            <Text style={styles.xpText}>2,450 / 3,000 XP</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+              <Sparkles size={11} color="#38EDD8" />
+              <Text style={styles.xpTargetText}>550 XP to LVL 43</Text>
+            </View>
           </View>
         </View>
 
-        {/* 4 Core Weekly Metrics Grid */}
-        <View style={styles.statsGrid}>
-          {/* Workouts */}
-          <View style={styles.statBox}>
-            <View
-              style={[
-                styles.statIconBadge,
-                { backgroundColor: "rgba(56, 189, 248, 0.12)" },
-              ]}
-            >
-              <Dumbbell size={16} color="#38BDF8" />
+        {/* 4 Core Weekly Metrics - Unified Instrument Card */}
+        <View style={[styles.card, styles.metricsUnifiedCard]}>
+          <View style={styles.metricsRow}>
+            {/* Workouts */}
+            <View style={styles.metricCell}>
+              <View style={styles.metricCellHeader}>
+                <Dumbbell size={14} color="#38BDF8" strokeWidth={2.2} />
+                <Text style={styles.metricLabel}>WORKOUTS</Text>
+              </View>
+              <Text style={styles.metricValue}>5 / 5</Text>
+              <Text style={styles.metricSub}>100% target</Text>
             </View>
-            <Text style={styles.statLabel}>WORKOUTS</Text>
-            <Text style={styles.statValue}>5 / 5</Text>
-            <Text style={styles.statSub}>100% Target</Text>
+
+            <View style={styles.metricVerticalDivider} />
+
+            {/* Time Duration */}
+            <View style={styles.metricCell}>
+              <View style={styles.metricCellHeader}>
+                <Clock size={14} color="#818CF8" strokeWidth={2.2} />
+                <Text style={styles.metricLabel}>DURATION</Text>
+              </View>
+              <Text style={styles.metricValue}>3h 35m</Text>
+              <Text style={styles.metricSub}>43m avg</Text>
+            </View>
           </View>
 
-          {/* Time Duration */}
-          <View style={styles.statBox}>
-            <View
-              style={[
-                styles.statIconBadge,
-                { backgroundColor: "rgba(129, 140, 248, 0.12)" },
-              ]}
-            >
-              <Clock size={16} color="#818CF8" />
-            </View>
-            <Text style={styles.statLabel}>DURATION</Text>
-            <Text style={styles.statValue}>3h 35m</Text>
-            <Text style={styles.statSub}>Avg 43m/sess</Text>
-          </View>
+          <View style={styles.metricHorizontalDivider} />
 
-          {/* Calories */}
-          <View style={styles.statBox}>
-            <View
-              style={[
-                styles.statIconBadge,
-                { backgroundColor: "rgba(251, 146, 60, 0.12)" },
-              ]}
-            >
-              <Flame size={16} color="#FB923C" />
+          <View style={styles.metricsRow}>
+            {/* Calories */}
+            <View style={styles.metricCell}>
+              <View style={styles.metricCellHeader}>
+                <Flame size={14} color="#FB923C" strokeWidth={2.2} />
+                <Text style={styles.metricLabel}>ACTIVE BURN</Text>
+              </View>
+              <Text style={styles.metricValue}>1,980</Text>
+              <Text style={styles.metricSub}>kcal</Text>
             </View>
-            <Text style={styles.statLabel}>CALORIES</Text>
-            <Text style={styles.statValue}>1,980</Text>
-            <Text style={styles.statSub}>kcal burned</Text>
-          </View>
 
-          {/* Accuracy Score */}
-          <View style={styles.statBox}>
-            <View
-              style={[
-                styles.statIconBadge,
-                { backgroundColor: "rgba(56, 237, 216, 0.12)" },
-              ]}
-            >
-              <Activity size={16} color="#38EDD8" />
+            <View style={styles.metricVerticalDivider} />
+
+            {/* Accuracy Score */}
+            <View style={styles.metricCell}>
+              <View style={styles.metricCellHeader}>
+                <Activity size={14} color="#38EDD8" strokeWidth={2.2} />
+                <Text style={styles.metricLabel}>ACCURACY</Text>
+              </View>
+              <Text style={styles.metricValue}>93%</Text>
+              <Text style={styles.metricSub}>Optimal form</Text>
             </View>
-            <Text style={styles.statLabel}>AI ACCURACY</Text>
-            <Text style={styles.statValue}>93%</Text>
-            <Text style={styles.statSub}>Apex Velocity</Text>
           </View>
         </View>
 
@@ -674,17 +649,17 @@ export default function WeeklyProgressScreen() {
           {/* Selected Day Breakdown Card */}
           <View style={styles.selectedDayCard}>
             <View style={styles.selectedDayHeader}>
-              <View>
+              <View style={{ flex: 1, marginRight: 8 }}>
                 <Text style={styles.selectedDayTitle}>
-                  {selectedDay.fullDay.toUpperCase()} • {selectedDay.date}
+                  {selectedDay.fullDay} • {selectedDay.date}
                 </Text>
-                <Text style={styles.selectedDayWorkout}>
+                <Text style={styles.selectedDayWorkout} numberOfLines={1}>
                   {selectedDay.workoutName}
                 </Text>
               </View>
               {selectedDay.isRest ? (
                 <View style={styles.restBadge}>
-                  <Text style={styles.restBadgeText}>RECOVERY</Text>
+                  <Text style={styles.restBadgeText}>REST</Text>
                 </View>
               ) : (
                 <View style={styles.scoreBadge}>
@@ -700,18 +675,18 @@ export default function WeeklyProgressScreen() {
                 <View style={styles.selectedDayStatItem}>
                   <Clock size={12} color="#94A3B8" />
                   <Text style={styles.selectedDayStatText}>
-                    {selectedDay.minutes} MINS
+                    {selectedDay.minutes}m
                   </Text>
                 </View>
                 <View style={styles.selectedDayStatItem}>
                   <Flame size={12} color="#FB923C" />
                   <Text style={styles.selectedDayStatText}>
-                    {selectedDay.calories} KCAL
+                    {selectedDay.calories} kcal
                   </Text>
                 </View>
                 <View style={styles.selectedDayStatItem}>
                   <CheckCircle2 size={12} color="#38EDD8" />
-                  <Text style={styles.selectedDayStatText}>COMPLETED</Text>
+                  <Text style={styles.selectedDayStatText}>Done</Text>
                 </View>
               </View>
             )}
@@ -726,29 +701,27 @@ export default function WeeklyProgressScreen() {
                 <Dumbbell size={14} color="#38BDF8" />
               </View>
               <Text style={styles.cardTitle} numberOfLines={1}>
-                TONNAGE & MUSCLE SPLIT
-              </Text>
-            </View>
-            <Text style={styles.tonnageHighlight}>+12% LOAD</Text>
-          </View>
-
-          <View style={styles.tonnageSummaryRow}>
-            <View>
-              <Text style={styles.tonnageLabel}>TOTAL VOLUME LIFTED</Text>
-              <Text style={styles.tonnageValue}>
-                14,850 <Text style={styles.tonnageUnit}>KG</Text>
+                VOLUME & SPLIT
               </Text>
             </View>
             <View style={styles.tonnageBadge}>
               <TrendingUp
-                size={13}
+                size={12}
                 color="#2DD4BF"
                 style={{ marginRight: 4 }}
               />
-              <Text style={styles.tonnageBadgeText}>
-                +1,650 KG VS LAST WEEK
+              <Text style={styles.tonnageBadgeText}>+12% LOAD</Text>
+            </View>
+          </View>
+
+          <View style={styles.tonnageSummaryRow}>
+            <View>
+              <Text style={styles.tonnageLabel}>TOTAL VOLUME</Text>
+              <Text style={styles.tonnageValue}>
+                14,850 <Text style={styles.tonnageUnit}>KG</Text>
               </Text>
             </View>
+            <Text style={styles.tonnageSubDelta}>+1,650 kg vs last week</Text>
           </View>
 
           {/* Muscle distribution progress bars */}
@@ -756,8 +729,8 @@ export default function WeeklyProgressScreen() {
             {/* Back & Pull */}
             <View style={styles.muscleItem}>
               <View style={styles.muscleHeader}>
-                <Text style={styles.muscleName}>BACK & BICEPS (PULL)</Text>
-                <Text style={styles.musclePercent}>38% (5,640 kg)</Text>
+                <Text style={styles.muscleName}>Back & Biceps</Text>
+                <Text style={styles.musclePercent}>38%</Text>
               </View>
               <View style={styles.muscleTrack}>
                 <LinearGradient
@@ -772,8 +745,8 @@ export default function WeeklyProgressScreen() {
             {/* Chest & Push */}
             <View style={styles.muscleItem}>
               <View style={styles.muscleHeader}>
-                <Text style={styles.muscleName}>CHEST & TRICEPS (PUSH)</Text>
-                <Text style={styles.musclePercent}>32% (4,750 kg)</Text>
+                <Text style={styles.muscleName}>Chest & Triceps</Text>
+                <Text style={styles.musclePercent}>32%</Text>
               </View>
               <View style={styles.muscleTrack}>
                 <LinearGradient
@@ -788,8 +761,8 @@ export default function WeeklyProgressScreen() {
             {/* Legs & Core */}
             <View style={styles.muscleItem}>
               <View style={styles.muscleHeader}>
-                <Text style={styles.muscleName}>LEGS & POSTERIOR CHAIN</Text>
-                <Text style={styles.musclePercent}>30% (4,460 kg)</Text>
+                <Text style={styles.muscleName}>Legs & Core</Text>
+                <Text style={styles.musclePercent}>30%</Text>
               </View>
               <View style={styles.muscleTrack}>
                 <LinearGradient
@@ -816,7 +789,7 @@ export default function WeeklyProgressScreen() {
                 <Sparkles size={14} color="#38BDF8" />
               </View>
               <Text style={[styles.cardTitle, { color: "#38BDF8" }]}>
-                KINETIC AI BIOMECHANICAL REVIEW
+                AI BIOMECHANICAL REVIEW
               </Text>
             </View>
             <View style={styles.aiPill}>
@@ -828,26 +801,24 @@ export default function WeeklyProgressScreen() {
             <View style={styles.insightItem}>
               <View style={styles.insightDot} />
               <Text style={styles.insightText}>
-                Squat depth consistency improved by{" "}
-                <Text style={styles.insightHighlight}>+14%</Text> during heavy
-                sets, maintaining vertical spinal alignment.
+                <Text style={styles.insightHighlight}>Squat Depth: </Text>
+                +14% depth consistency with stable vertical bar path.
               </Text>
             </View>
 
             <View style={styles.insightItem}>
               <View style={styles.insightDot} />
               <Text style={styles.insightText}>
-                Optimal neuromuscular recovery: Friday rest day preserved{" "}
-                <Text style={styles.insightHighlight}>95% power output</Text> on
-                Saturday functional flow.
+                <Text style={styles.insightHighlight}>Peak Power: </Text>
+                95% sustained output preserved through rest protocol.
               </Text>
             </View>
 
             <View style={styles.insightItem}>
               <View style={styles.insightDot} />
               <Text style={styles.insightText}>
-                Form Alert: Minor right elbow flare noted on incline dumbbell
-                bench press set 3. Kinetic HUD calibrated bar path.
+                <Text style={styles.insightHighlight}>Bar Path: </Text>
+                Calibrated arm trajectory on heavy incline pressing.
               </Text>
             </View>
           </View>
@@ -870,7 +841,13 @@ export default function WeeklyProgressScreen() {
               <View style={styles.badgeIconWrapper}>
                 <Target size={20} color="#38EDD8" />
               </View>
-              <Text style={styles.badgeTitle}>CONSISTENCY</Text>
+              <Text
+                style={styles.badgeTitle}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                CONSISTENCY
+              </Text>
               <Text style={styles.badgeSub}>5/5 Routines</Text>
             </View>
 
@@ -878,15 +855,27 @@ export default function WeeklyProgressScreen() {
               <View style={styles.badgeIconWrapper}>
                 <TrendingUp size={20} color="#00f2fe" />
               </View>
-              <Text style={styles.badgeTitle}>VOLUME SPIKE</Text>
-              <Text style={styles.badgeSub}>+12% Tonnage</Text>
+              <Text
+                style={styles.badgeTitle}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                VOLUME SPIKE
+              </Text>
+              <Text style={styles.badgeSub}>+12% Load</Text>
             </View>
 
             <View style={styles.badgeCard}>
               <View style={styles.badgeIconWrapper}>
                 <ShieldCheckIcon />
               </View>
-              <Text style={styles.badgeTitle}>REST WARRIOR</Text>
+              <Text
+                style={styles.badgeTitle}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                REST PROTOCOL
+              </Text>
               <Text style={styles.badgeSub}>Optimal Reset</Text>
             </View>
           </View>
@@ -934,7 +923,7 @@ function ShieldCheckIcon() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#070A11",
+    backgroundColor: "#060810",
   },
   scrollContainer: {
     paddingHorizontal: HORIZONTAL_PADDING,
@@ -942,7 +931,7 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     marginTop: 4,
-    marginBottom: 16,
+    marginBottom: 14,
   },
   maskedTitleWrapper: {
     height: 44,
@@ -965,83 +954,87 @@ const styles = StyleSheet.create({
     fontSize: clampFontSize(28),
     lineHeight: 34,
     fontWeight: "900",
-    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
-    letterSpacing: 1,
+    fontStyle: "italic",
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    letterSpacing: 0.5,
     textTransform: "uppercase",
   },
-  subtitle: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(12),
-    lineHeight: 18,
-    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
-    fontWeight: "500",
+  titleDateRow: {
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 4,
+  },
+  subtitle: {
+    color: "#38EDD8",
+    fontSize: clampFontSize(11),
+    fontFamily: "JetBrainsMono_700Bold",
+    letterSpacing: 1,
   },
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
+    backgroundColor: "rgba(12, 18, 32, 0.85)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(104, 123, 255, 0.22)",
     borderRadius: 16,
-    padding: 4,
-    marginBottom: 12,
+    padding: 3,
+    marginBottom: 16,
   },
   tabButton: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 9,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 12,
+    borderRadius: 13,
   },
   tabButtonActive: {
     backgroundColor: "#0284C7",
+    shadowColor: "#0284C7",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.45,
+    shadowRadius: 6,
+    elevation: 3,
   },
   tabText: {
-    color: "#94A3B8",
+    color: "#8E9BAE",
     fontSize: clampFontSize(11),
     fontWeight: "800",
     letterSpacing: 0.8,
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   tabTextActive: {
     color: "#FFFFFF",
   },
-  dateBadgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
-  },
-  dateBadgeText: {
-    color: "#38EDD8",
-    fontSize: clampFontSize(11),
-    fontFamily: "JetBrainsMono_700Bold",
-    letterSpacing: 1.2,
-  },
   card: {
-    backgroundColor: "#11141C",
-    borderRadius: 20,
+    backgroundColor: "rgba(13, 19, 33, 0.82)",
+    borderRadius: 22,
     padding: isSmallDevice ? 16 : 20,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(104, 123, 255, 0.22)",
     marginBottom: 16,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 14,
+    elevation: 4,
   },
   aiCardBorder: {
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    backgroundColor: "rgba(15, 23, 42, 0.75)",
+    borderColor: "rgba(56, 189, 248, 0.35)",
+    backgroundColor: "rgba(12, 20, 38, 0.85)",
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 18,
   },
   verticalDivider: {
     width: 1,
-    height: 44,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    height: 38,
+    backgroundColor: "rgba(104, 123, 255, 0.18)",
   },
-  streakContainer: {
+  heroStatCol: {
     alignItems: "center",
+    flex: 1,
   },
   streakTopRow: {
     flexDirection: "row",
@@ -1050,102 +1043,103 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   streakNumber: {
-    color: "#38EDD8",
-    fontSize: clampFontSize(28),
+    color: "#FFFFFF",
+    fontSize: clampFontSize(26),
     fontWeight: "900",
-    lineHeight: 32,
+    lineHeight: 30,
     letterSpacing: -0.5,
-  },
-  streakBottomRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
+    fontFamily: "JetBrainsMono_700Bold",
   },
   streakLabel: {
-    color: "#94A3B8",
+    color: "#8E9BAE",
     fontSize: clampFontSize(9),
     fontWeight: "800",
     letterSpacing: 1.2,
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   xpRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 8,
+    alignItems: "center",
   },
   xpText: {
     color: "#CBD5E1",
-    fontSize: clampFontSize(10),
+    fontSize: clampFontSize(11),
     fontWeight: "700",
-    letterSpacing: 1,
+    letterSpacing: 0.5,
     fontFamily: "JetBrainsMono_700Bold",
   },
   progressBarTrack: {
-    height: 8,
-    backgroundColor: "#1E2230",
-    borderRadius: 4,
-    marginBottom: 12,
+    height: 7,
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    borderRadius: 999,
+    marginBottom: 10,
     overflow: "hidden",
   },
   progressBarFill: {
-    height: 8,
-    borderRadius: 4,
-  },
-  xpTargetRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    height: 7,
+    borderRadius: 999,
   },
   xpTargetText: {
     color: "#38EDD8",
     fontSize: clampFontSize(11),
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     fontWeight: "700",
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
-  statsGrid: {
+  metricsUnifiedCard: {
+    padding: 0,
+    overflow: "hidden",
+  },
+  metricsRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    rowGap: 10,
-    marginBottom: 16,
   },
-  statBox: {
-    width: "48.2%",
-    backgroundColor: "#11141C",
-    borderRadius: 18,
-    padding: isSmallDevice ? 14 : 16,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+  metricCell: {
+    flex: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
   },
-  statIconBadge: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    justifyContent: "center",
+  metricCellHeader: {
+    flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    gap: 6,
+    marginBottom: 6,
   },
-  statLabel: {
-    color: "#94A3B8",
+  metricLabel: {
+    color: "#8E9BAE",
     fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
-    letterSpacing: 1.2,
-    marginBottom: 4,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
-  statValue: {
+  metricValue: {
     color: "#FFFFFF",
     fontSize: clampFontSize(22),
     fontWeight: "900",
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: -0.5,
+    fontFamily: "JetBrainsMono_700Bold",
     marginBottom: 2,
   },
-  statSub: {
+  metricSub: {
     color: "#64748B",
-    fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: clampFontSize(11),
     fontWeight: "600",
+    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
+  },
+  metricVerticalDivider: {
+    width: 1,
+    backgroundColor: "rgba(104, 123, 255, 0.15)",
+  },
+  metricHorizontalDivider: {
+    height: 1,
+    backgroundColor: "rgba(104, 123, 255, 0.15)",
+  },
+  tonnageSubDelta: {
+    color: "#2DD4BF",
+    fontSize: clampFontSize(11),
+    fontWeight: "700",
+    fontFamily: "JetBrainsMono_700Bold",
+    marginTop: 4,
   },
   cardHeader: {
     flexDirection: "row",
@@ -1161,9 +1155,9 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   headerIconContainer: {
-    width: 26,
-    height: 26,
-    borderRadius: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 9,
     backgroundColor: "rgba(56, 237, 216, 0.12)",
     justifyContent: "center",
     alignItems: "center",
@@ -1172,7 +1166,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: clampFontSize(12),
     fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     letterSpacing: 1,
   },
   chartLegend: {
@@ -1187,9 +1181,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#38EDD8",
   },
   legendText: {
-    color: "#94A3B8",
+    color: "#8E9BAE",
     fontSize: clampFontSize(9),
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     letterSpacing: 0.8,
   },
   chartContainer: {
@@ -1201,23 +1195,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
-    paddingHorizontal: 4,
+    paddingHorizontal: 2,
   },
   barWrap: {
     alignItems: "center",
     gap: 6,
   },
   barMinutesText: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(9),
+    color: "#8E9BAE",
+    fontSize: clampFontSize(10),
     fontWeight: "700",
     fontFamily: "JetBrainsMono_700Bold",
   },
   barBackground: {
-    width: 32,
-    height: 90,
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    borderRadius: 8,
+    width: 36,
+    height: 92,
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    borderRadius: 10,
     justifyContent: "flex-end",
     alignItems: "center",
     padding: 3,
@@ -1229,16 +1223,16 @@ const styles = StyleSheet.create({
   },
   bar: {
     width: "100%",
-    borderRadius: 6,
+    borderRadius: 7,
   },
   barRest: {
     height: 14,
     backgroundColor: "rgba(148, 163, 184, 0.25)",
   },
   dayLabelCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -1246,20 +1240,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#0284C7",
   },
   dayLabel: {
-    color: "#94A3B8",
+    color: "#8E9BAE",
     fontSize: clampFontSize(11),
     fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   dayLabelActive: {
     color: "#FFFFFF",
   },
   selectedDayCard: {
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
-    borderRadius: 14,
+    backgroundColor: "rgba(15, 23, 42, 0.75)",
+    borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
+    borderColor: "rgba(56, 237, 216, 0.2)",
   },
   selectedDayHeader: {
     flexDirection: "row",
@@ -1269,26 +1263,28 @@ const styles = StyleSheet.create({
   },
   selectedDayTitle: {
     color: "#38EDD8",
-    fontSize: clampFontSize(10),
+    fontSize: clampFontSize(11),
     fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     letterSpacing: 1,
     marginBottom: 2,
   },
   selectedDayWorkout: {
     color: "#FFFFFF",
-    fontSize: clampFontSize(13),
+    fontSize: clampFontSize(14),
     fontWeight: "700",
-    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
-    maxWidth: "70%",
+    fontFamily: Platform.select({
+      android: "sans-serif-medium",
+      ios: "System",
+    }),
   },
   scoreBadge: {
     backgroundColor: "rgba(56, 237, 216, 0.15)",
-    paddingHorizontal: 8,
+    paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "rgba(56, 237, 216, 0.3)",
+    borderColor: "rgba(56, 237, 216, 0.35)",
   },
   scoreBadgeText: {
     color: "#38EDD8",
@@ -1298,7 +1294,7 @@ const styles = StyleSheet.create({
   },
   restBadge: {
     backgroundColor: "rgba(148, 163, 184, 0.15)",
-    paddingHorizontal: 8,
+    paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 8,
     borderWidth: 1,
@@ -1308,14 +1304,14 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: clampFontSize(10),
     fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   selectedDayStatsRow: {
     flexDirection: "row",
     gap: 16,
-    paddingTop: 8,
+    paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.05)",
+    borderTopColor: "rgba(255, 255, 255, 0.06)",
   },
   selectedDayStatItem: {
     flexDirection: "row",
@@ -1342,10 +1338,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   tonnageLabel: {
-    color: "#94A3B8",
+    color: "#8E9BAE",
     fontSize: clampFontSize(10),
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     letterSpacing: 1,
     marginBottom: 4,
   },
@@ -1367,7 +1363,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(45, 212, 191, 0.12)",
     borderWidth: 1,
     borderColor: "rgba(45, 212, 191, 0.3)",
-    paddingHorizontal: 8,
+    paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 8,
   },
@@ -1391,37 +1387,37 @@ const styles = StyleSheet.create({
     color: "#CBD5E1",
     fontSize: clampFontSize(11),
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   musclePercent: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(10),
+    color: "#8E9BAE",
+    fontSize: clampFontSize(11),
     fontWeight: "800",
     fontFamily: "JetBrainsMono_700Bold",
   },
   muscleTrack: {
-    height: 7,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 4,
+    height: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
+    borderRadius: 999,
     overflow: "hidden",
   },
   muscleFill: {
-    height: 7,
-    borderRadius: 4,
+    height: 8,
+    borderRadius: 999,
   },
   aiPill: {
     backgroundColor: "rgba(56, 189, 248, 0.15)",
     borderWidth: 1,
     borderColor: "rgba(56, 189, 248, 0.35)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   aiPillText: {
     color: "#38BDF8",
     fontSize: clampFontSize(9),
     fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     letterSpacing: 0.8,
   },
   insightsList: {
@@ -1452,9 +1448,10 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   badgesCount: {
-    color: "#94A3B8",
+    color: "#8E9BAE",
     fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "800",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   badgesRow: {
     flexDirection: "row",
@@ -1462,18 +1459,19 @@ const styles = StyleSheet.create({
   },
   badgeCard: {
     flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
-    borderRadius: 14,
-    padding: 12,
+    backgroundColor: "rgba(15, 23, 42, 0.7)",
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 6,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
+    borderColor: "rgba(104, 123, 255, 0.18)",
   },
   badgeIconWrapper: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 8,
@@ -1481,26 +1479,30 @@ const styles = StyleSheet.create({
   badgeTitle: {
     color: "#FFFFFF",
     fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
+    fontWeight: "800",
     textAlign: "center",
-    marginBottom: 2,
+    marginBottom: 3,
+    letterSpacing: 0.3,
   },
   badgeSub: {
-    color: "#64748B",
+    color: "#8E9BAE",
     fontSize: clampFontSize(9),
     fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "600",
+    textAlign: "center",
   },
   bottomButtonsRow: {
     flexDirection: "row",
-    gap: 10,
-    marginTop: 6,
+    gap: 12,
+    marginTop: 10,
+    marginBottom: 24,
   },
   shareBtn: {
     flex: 1,
-    height: 50,
+    height: 52,
     borderRadius: 16,
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: "rgba(56, 237, 216, 0.4)",
     backgroundColor: "rgba(56, 237, 216, 0.08)",
     flexDirection: "row",
@@ -1512,12 +1514,18 @@ const styles = StyleSheet.create({
     fontSize: clampFontSize(12),
     fontWeight: "800",
     letterSpacing: 1,
+    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   workoutBtn: {
     flex: 1,
-    height: 50,
+    height: 52,
     borderRadius: 16,
     overflow: "hidden",
+    shadowColor: "#38BDF8",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
   },
   workoutBtnGradient: {
     flex: 1,
@@ -1526,9 +1534,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   workoutBtnText: {
-    color: "#090A10",
+    color: "#050811",
     fontSize: clampFontSize(12),
     fontWeight: "900",
     letterSpacing: 1,
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
   },
 });
