@@ -1,4 +1,4 @@
-import { useLeaderboard } from "@/hooks/queries/useProgress";
+import { useRankingContext } from "@/hooks/queries/useProgress";
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -12,7 +12,7 @@ export default function RankedAthleteRoute() {
   const insets = useSafeAreaInsets();
   const { userId, context } = useLocalSearchParams<{ userId?: string; context?: string }>();
   const rankingContext = context === "home" ? "home" : "gym";
-  const { data } = useLeaderboard(rankingContext);
+  const { data } = useRankingContext(rankingContext);
   const athlete = data?.entries.find((entry) => entry.userId === userId);
 
   return <View style={[styles.screen, { paddingBottom: insets.bottom }]}>

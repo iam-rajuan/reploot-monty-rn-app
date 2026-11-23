@@ -56,6 +56,8 @@ export const queryKeys = {
     all: ["leaderboard"] as const,
     global: (context = "gym", page = 1) =>
       [...queryKeys.leaderboard.all, "global", context, page] as const,
+    rankingContext: (context: "gym" | "home") =>
+      [...queryKeys.leaderboard.all, "ranking-context", context] as const,
     friends: () => [...queryKeys.leaderboard.all, "friends"] as const,
   },
   challenges: {

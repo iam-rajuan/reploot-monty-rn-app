@@ -1,5 +1,5 @@
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
-import { useLeaderboard } from "@/hooks/queries/useProgress";
+import { useRankingContext } from "@/hooks/queries/useProgress";
 import { LeaderboardEntry, RankingContextId } from "@/shared/types/progress";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
@@ -22,7 +22,7 @@ export default function GlobalRankingsRoute() {
   const initialContext: RankingContextId = params.context === "home" ? "home" : "gym";
   const [activeTab, setActiveTab] = useState<RankingContextId>(initialContext);
   const [search, setSearch] = useState("");
-  const { data, isLoading } = useLeaderboard(activeTab);
+  const { data, isLoading } = useRankingContext(activeTab);
   const entries = data?.entries ?? [];
   const visibleEntries = entries.filter((entry) => entry.fullName.toLowerCase().includes(search.trim().toLowerCase()));
   const currentUser = entries.find((entry) => entry.isCurrentUser);

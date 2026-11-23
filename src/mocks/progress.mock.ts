@@ -5,7 +5,21 @@ import {
   ProgressReport,
   RankingContext,
   RankingContextId,
+  XPProgress,
 } from "@/shared/types/progress";
+
+export const mockXPProgress: XPProgress = {
+  currentLevel: 42,
+  currentXP: 2450,
+  nextLevelXP: 3000,
+  tier: "Elite",
+  dayStreak: 12,
+  totalWorkoutsCompleted: 68,
+  seasonXP: 14250,
+  globalRank: 42,
+  xpToNextTier: 550,
+  tierProgressPercent: 81.6,
+};
 
 export const mockPersonalRecords: PersonalRecord[] = [
   {
@@ -161,7 +175,7 @@ export const mockAchievements: Achievement[] = [
   },
 ];
 
-type UnrankedLeaderboardEntry = Omit<LeaderboardEntry, "rank">;
+type UnrankedLeaderboardEntry = Omit<LeaderboardEntry, "rank" | "weeklyXP">;
 
 // Competition ranking: equal scores share a rank and the next rank skips ahead (1, 2, 2, 4).
 export const assignCompetitionRanks = (
@@ -171,6 +185,7 @@ export const assignCompetitionRanks = (
     .sort((a, b) => b.score - a.score || a.userId.localeCompare(b.userId))
     .map((entry, index, sorted) => ({
       ...entry,
+      weeklyXP: entry.score,
       rank:
         index > 0 && entry.score === sorted[index - 1].score
           ? sorted.slice(0, index).filter((item) => item.score > entry.score).length + 1

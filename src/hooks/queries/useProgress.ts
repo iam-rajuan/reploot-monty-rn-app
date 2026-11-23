@@ -2,6 +2,13 @@ import { queryKeys } from "@/services/api/queryKeys";
 import { progressService } from "@/services/mock/progressService";
 import { useQuery } from "@tanstack/react-query";
 
+export function useXPProgress() {
+  return useQuery({
+    queryKey: queryKeys.progress.overview(),
+    queryFn: () => progressService.getXPProgress(),
+  });
+}
+
 export function useAchievements() {
   return useQuery({
     queryKey: queryKeys.progress.achievements(),
@@ -9,10 +16,17 @@ export function useAchievements() {
   });
 }
 
-export function useLeaderboard(context: "gym" | "home" = "gym") {
+export function useLeaderboard() {
   return useQuery({
-    queryKey: queryKeys.leaderboard.global(context),
-    queryFn: () => progressService.getLeaderboard(context),
+    queryKey: queryKeys.leaderboard.global(),
+    queryFn: () => progressService.getLeaderboard(),
+  });
+}
+
+export function useRankingContext(context: "gym" | "home" = "gym") {
+  return useQuery({
+    queryKey: queryKeys.leaderboard.rankingContext(context),
+    queryFn: () => progressService.getRankingContext(context),
   });
 }
 
