@@ -95,7 +95,7 @@ export default function ProgressTabRoute() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#121318" }, header: { backgroundColor: "#121318" }, content: { paddingHorizontal: 24, paddingTop: 16, gap: 24 },
-  title: { color: "#FFF", fontSize: 32, lineHeight: 38, fontWeight: "900", letterSpacing: -1.1 },
+  title: { color: "#F6F8FF", fontSize: 34, lineHeight: 38, fontWeight: "900", letterSpacing: -0.8, fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }), textShadowColor: "rgba(120, 145, 255, 0.22)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 6 },
   workoutCard: { overflow: "hidden", borderRadius: 32, borderWidth: 1, borderColor: "rgba(197,192,255,0.30)", backgroundColor: "rgba(255,255,255,0.05)", padding: 24 },
   workoutTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }, levelRow: { flex: 1, flexDirection: "row", alignItems: "center", gap: 12 },
   levelIcon: { width: 46, height: 46, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(197,192,255,0.20)", borderWidth: 1, borderColor: "rgba(197,192,255,0.24)" },

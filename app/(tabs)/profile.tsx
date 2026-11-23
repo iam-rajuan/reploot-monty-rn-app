@@ -69,7 +69,7 @@ export default function ProfileTabRoute() {
               }
             >
               <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
+                colors={["#F6F8FF", "#F6F8FF"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.gradient}
@@ -174,10 +174,13 @@ const styles = StyleSheet.create({
   mainTitle: {
     color: "#FFFFFF",
     fontSize: 34,
-    lineHeight: 40,
+    lineHeight: 38,
     fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    letterSpacing: -0.8,
+    textShadowColor: "rgba(120, 145, 255, 0.22)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
     textTransform: "uppercase",
   },
   subtitle: {

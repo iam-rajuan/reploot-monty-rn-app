@@ -231,7 +231,7 @@ export default function NutritionTabRoute() {
               }
             >
               <LinearGradient
-                colors={["#38BDF8", "#0EA5E9", "#2DD4BF"]}
+                colors={["#F6F8FF", "#F6F8FF"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.gradient}
@@ -883,11 +883,14 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     color: "#FFFFFF",
-    fontSize: 28,
-    lineHeight: 34,
+    fontSize: 34,
+    lineHeight: 38,
     fontWeight: "900",
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    letterSpacing: 0.5,
+    letterSpacing: -0.8,
+    textShadowColor: "rgba(120, 145, 255, 0.22)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
     textAlign: "left",
     textTransform: "uppercase",
   },
