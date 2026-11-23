@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { QrCode, Share2, Sparkles } from "lucide-react-native";
+import { ChevronRight, QrCode, Share2, Sparkles } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   Platform,
@@ -54,20 +54,33 @@ export const QRCodeCard = () => {
       <View style={styles.qrContainer}>
         {/* Outer Cyber Glow Border with Corner Accents */}
         <View style={styles.qrFrameOuter}>
+          <LinearGradient
+            pointerEvents="none"
+            colors={["rgba(201,193,255,0.16)", "rgba(16,20,29,0)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
           <View style={[styles.cornerBracket, styles.topLeftBracket]} />
           <View style={[styles.cornerBracket, styles.topRightBracket]} />
           <View style={[styles.cornerBracket, styles.bottomLeftBracket]} />
           <View style={[styles.cornerBracket, styles.bottomRightBracket]} />
+          <View pointerEvents="none" style={[styles.scanNode, styles.scanNodeTopLeft]} />
+          <View pointerEvents="none" style={[styles.scanNode, styles.scanNodeTopRight]} />
+          <View pointerEvents="none" style={[styles.scanNode, styles.scanNodeBottomLeft]} />
 
-          {/* High-Contrast Crisp Scannable Surface */}
           <View style={styles.qrPlate}>
             <QRCode
               value={athleteUrl}
               size={152}
-              color="#090A10"
-              backgroundColor="#FFFFFF"
-              quietZone={8}
+              color="#D8D2FF"
+              backgroundColor="#090C12"
+              quietZone={10}
+              ecl="H"
             />
+            <View pointerEvents="none" style={styles.qrCenterMark}>
+              <ChevronRight size={19} color="#45E7C6" strokeWidth={3} />
+            </View>
           </View>
         </View>
 
@@ -176,53 +189,97 @@ const styles = StyleSheet.create({
   },
   qrFrameOuter: {
     position: "relative",
-    padding: 10,
-    borderRadius: 20,
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    padding: 18,
+    borderRadius: 18,
+    backgroundColor: "#090C12",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.25)",
+    borderColor: "rgba(201,193,255,0.60)",
+    shadowColor: "#8B7DFF",
+    shadowOpacity: 0.26,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
   },
   cornerBracket: {
     position: "absolute",
-    width: 14,
-    height: 14,
-    borderColor: "#38EDD8",
+    width: 17,
+    height: 17,
+    borderColor: "#45E7C6",
   },
   topLeftBracket: {
-    top: 3,
-    left: 3,
-    borderTopWidth: 2,
-    borderLeftWidth: 2,
+    top: 5,
+    left: 5,
+    borderTopWidth: 2.5,
+    borderLeftWidth: 2.5,
     borderTopLeftRadius: 6,
   },
   topRightBracket: {
-    top: 3,
-    right: 3,
-    borderTopWidth: 2,
-    borderRightWidth: 2,
+    top: 5,
+    right: 5,
+    borderTopWidth: 2.5,
+    borderRightWidth: 2.5,
     borderTopRightRadius: 6,
   },
   bottomLeftBracket: {
-    bottom: 3,
-    left: 3,
-    borderBottomWidth: 2,
-    borderLeftWidth: 2,
+    bottom: 5,
+    left: 5,
+    borderBottomWidth: 2.5,
+    borderLeftWidth: 2.5,
     borderBottomLeftRadius: 6,
   },
   bottomRightBracket: {
-    bottom: 3,
-    right: 3,
-    borderBottomWidth: 2,
-    borderRightWidth: 2,
+    bottom: 5,
+    right: 5,
+    borderBottomWidth: 2.5,
+    borderRightWidth: 2.5,
     borderBottomRightRadius: 6,
   },
   qrPlate: {
-    borderRadius: 14,
+    position: "relative",
+    borderRadius: 12,
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#10141D",
+    borderWidth: 2,
+    borderColor: "rgba(201,193,255,0.90)",
+    shadowColor: "#C9C1FF",
+    shadowOpacity: 0.26,
+    shadowRadius: 12,
+    elevation: 4,
   },
+  qrCenterMark: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#121821",
+    borderWidth: 2,
+    borderColor: "#45E7C6",
+    shadowColor: "#45E7C6",
+    shadowOpacity: 0.45,
+    shadowRadius: 8,
+    elevation: 5,
+    transform: [{ translateX: -15 }, { translateY: -15 }],
+  },
+  scanNode: {
+    position: "absolute",
+    width: 7,
+    height: 7,
+    borderRadius: 2,
+    backgroundColor: "#45E7C6",
+    shadowColor: "#45E7C6",
+    shadowOpacity: 0.8,
+    shadowRadius: 7,
+    elevation: 5,
+  },
+  scanNodeTopLeft: { top: 10, left: 34 },
+  scanNodeTopRight: { top: 34, right: 10 },
+  scanNodeBottomLeft: { bottom: 31, left: 10 },
   passDetailsRow: {
     flexDirection: "row",
     alignItems: "center",

@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CustomHeaderLeft } from "./CustomHeaderLeft";
 import { CustomHeaderRight } from "./CustomHeaderRight";
 
-const defaultAvatarUri = require("../../../../assets/avatar/a2.avif");
+const defaultAvatarUri = require("../../../../assets/avatar/sample-athlete-profile.png");
 
 export interface CustomHeaderProps {
   title?: string;

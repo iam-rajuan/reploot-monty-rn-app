@@ -8,7 +8,6 @@ import { useRouter } from "expo-router";
 import {
   Award,
   ChevronRight,
-  CircleUserRound,
   Crown,
   Flame,
   Medal,
@@ -28,6 +27,8 @@ const BADGE_EMOJI: Record<string, string> = {
   ribbon: "🎖️",
   trophy: "🏆",
 };
+
+const defaultAvatar = require("../../../../assets/avatar/sample-athlete-profile.png");
 
 const format = (value: number) => new Intl.NumberFormat().format(value);
 
@@ -71,11 +72,11 @@ export const TopProfileCard = () => {
 
       <View style={styles.identityRow}>
         <View style={styles.avatarFrame}>
-          {user?.avatarUrl ? (
-            <Image source={{ uri: user.avatarUrl }} style={styles.avatar} contentFit="cover" />
-          ) : (
-            <CircleUserRound size={54} color="#94A3B8" />
-          )}
+          <Image
+            source={user?.avatarUrl ? { uri: user.avatarUrl } : defaultAvatar}
+            style={styles.avatar}
+            contentFit="cover"
+          />
         </View>
         <View style={styles.identity}>
           <Text style={styles.name} numberOfLines={1}>
