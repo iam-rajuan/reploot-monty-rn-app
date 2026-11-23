@@ -402,46 +402,58 @@ export default function NutritionTabRoute() {
           {/* Quick-Add Water Buttons: 250 ML (Left), 500 ML (Middle), 750 ML (Right) */}
           <View style={styles.quickAddRow}>
             {/* 250 ML - Left Button */}
-            <Pressable
-              style={({ pressed }) => [
-                styles.quickAddBtn,
-                pressed && styles.quickAddBtnPressed,
-              ]}
-              onPress={() => handleQuickAddWater(250)}
-              accessibilityRole="button"
-              accessibilityLabel="Add 250 millilitres"
-            >
-              <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
-              <Text style={styles.quickAddText}>250 ML</Text>
-            </Pressable>
+            <View style={styles.quickAddBtnWrapper}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.quickAddBtn,
+                  pressed && styles.quickAddBtnPressed,
+                ]}
+                onPress={() => handleQuickAddWater(250)}
+                accessibilityRole="button"
+                accessibilityLabel="Add 250 millilitres"
+              >
+                <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
+                <Text style={styles.quickAddText} numberOfLines={1}>
+                  250 ML
+                </Text>
+              </Pressable>
+            </View>
 
             {/* 500 ML - Middle Button */}
-            <Pressable
-              style={({ pressed }) => [
-                styles.quickAddBtn,
-                pressed && styles.quickAddBtnPressed,
-              ]}
-              onPress={() => handleQuickAddWater(500)}
-              accessibilityRole="button"
-              accessibilityLabel="Add 500 millilitres"
-            >
-              <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
-              <Text style={styles.quickAddText}>500 ML</Text>
-            </Pressable>
+            <View style={styles.quickAddBtnWrapper}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.quickAddBtn,
+                  pressed && styles.quickAddBtnPressed,
+                ]}
+                onPress={() => handleQuickAddWater(500)}
+                accessibilityRole="button"
+                accessibilityLabel="Add 500 millilitres"
+              >
+                <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
+                <Text style={styles.quickAddText} numberOfLines={1}>
+                  500 ML
+                </Text>
+              </Pressable>
+            </View>
 
             {/* 750 ML - Right Button */}
-            <Pressable
-              style={({ pressed }) => [
-                styles.quickAddBtn,
-                pressed && styles.quickAddBtnPressed,
-              ]}
-              onPress={() => handleQuickAddWater(750)}
-              accessibilityRole="button"
-              accessibilityLabel="Add 750 millilitres"
-            >
-              <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
-              <Text style={styles.quickAddText}>750 ML</Text>
-            </Pressable>
+            <View style={styles.quickAddBtnWrapper}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.quickAddBtn,
+                  pressed && styles.quickAddBtnPressed,
+                ]}
+                onPress={() => handleQuickAddWater(750)}
+                accessibilityRole="button"
+                accessibilityLabel="Add 750 millilitres"
+              >
+                <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
+                <Text style={styles.quickAddText} numberOfLines={1}>
+                  750 ML
+                </Text>
+              </Pressable>
+            </View>
           </View>
 
           {/* Custom Water Input & Add Button */}
@@ -546,29 +558,36 @@ export default function NutritionTabRoute() {
               {[2.0, 2.5, 3.0, 3.5, 4.0].map((preset) => {
                 const isSelected = parseFloat(tempGoalInput) === preset;
                 return (
-                  <Pressable
+                  <View
                     key={preset}
-                    style={({ pressed }) => [
-                      styles.modalPresetBtn,
-                      isSelected && styles.modalPresetBtnActive,
-                      pressed && styles.modalPresetBtnPressed,
+                    style={[
+                      styles.modalPresetBtnWrapper,
+                      isSelected && styles.modalPresetBtnWrapperActive,
                     ]}
-                    onPress={() => {
-                      triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-                      setTempGoalInput(preset.toFixed(1));
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${preset} liters preset`}
                   >
-                    <Text
-                      style={[
-                        styles.modalPresetText,
-                        isSelected && styles.modalPresetTextActive,
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.modalPresetBtn,
+                        pressed && styles.modalPresetBtnPressed,
                       ]}
+                      onPress={() => {
+                        triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+                        setTempGoalInput(preset.toFixed(1));
+                      }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${preset} liters preset`}
                     >
-                      {preset.toFixed(1)}L
-                    </Text>
-                  </Pressable>
+                      <Text
+                        style={[
+                          styles.modalPresetText,
+                          isSelected && styles.modalPresetTextActive,
+                        ]}
+                        numberOfLines={1}
+                      >
+                        {preset.toFixed(1)}L
+                      </Text>
+                    </Pressable>
+                  </View>
                 );
               })}
             </View>
@@ -1057,23 +1076,28 @@ const styles = StyleSheet.create({
     gap: 7,
     marginBottom: 16,
   },
-  modalPresetBtn: {
+  modalPresetBtnWrapper: {
     flex: 1,
     height: 42,
     borderRadius: 12,
     backgroundColor: "#162238",
     borderWidth: 1.5,
     borderColor: "rgba(56, 189, 248, 0.45)",
-    alignItems: "center",
-    justifyContent: "center",
+    overflow: "hidden",
   },
-  modalPresetBtnActive: {
+  modalPresetBtnWrapperActive: {
     backgroundColor: "#0284C7",
     borderColor: "#38BDF8",
   },
+  modalPresetBtn: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   modalPresetBtnPressed: {
     opacity: 0.8,
-    transform: [{ scale: 0.96 }],
   },
   modalPresetText: {
     color: "#E0F2FE",
@@ -1192,34 +1216,39 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 16,
   },
-  quickAddBtn: {
+  quickAddBtnWrapper: {
     flex: 1,
     height: 48,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#131F33",
+    backgroundColor: "#131F35",
     borderWidth: 1.5,
-    borderColor: "#38BDF8",
+    borderColor: "rgba(56, 189, 248, 0.45)",
     borderRadius: 14,
-    gap: 5,
+    overflow: "hidden",
     shadowColor: "#0284C7",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 5,
+    shadowRadius: 6,
     elevation: 3,
+  },
+  quickAddBtn: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingHorizontal: 4,
   },
   quickAddBtnPressed: {
     backgroundColor: "rgba(56, 189, 248, 0.25)",
-    borderColor: "#7DD3FC",
-    transform: [{ scale: 0.96 }],
   },
   quickAddText: {
     color: "#FFFFFF",
     fontSize: 12,
     fontFamily: "monospace",
     fontWeight: "900",
-    letterSpacing: 0.8,
+    letterSpacing: 0.6,
   },
   customWaterRow: {
     backgroundColor: "#131C2E",
