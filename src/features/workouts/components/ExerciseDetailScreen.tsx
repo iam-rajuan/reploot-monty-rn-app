@@ -24,7 +24,7 @@ import {
   TrendingUp,
   Video,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   Platform,
@@ -52,6 +52,73 @@ export interface ExerciseDetailScreenProps {
   onMarkDone?: () => void;
 }
 
+interface EditableSetValueProps {
+  value: number;
+  label: string;
+  allowDecimal?: boolean;
+  onCommit: (value: number) => void;
+}
+
+function EditableSetValue({
+  value,
+  label,
+  allowDecimal = false,
+  onCommit,
+}: EditableSetValueProps) {
+  const [draft, setDraft] = useState(String(value));
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing) setDraft(String(value));
+  }, [isEditing, value]);
+
+  const commit = () => {
+    const parsed = Number(draft.replace(",", "."));
+    const minimum = allowDecimal ? 0 : 1;
+    const nextValue = Number.isFinite(parsed)
+      ? Math.max(
+          minimum,
+          allowDecimal ? Math.round(parsed * 2) / 2 : Math.round(parsed),
+        )
+      : value;
+
+    onCommit(nextValue);
+    setDraft(String(nextValue));
+    setIsEditing(false);
+  };
+
+  return (
+    <TextInput
+      accessibilityLabel={label}
+      value={draft}
+      onFocus={() => setIsEditing(true)}
+      onChangeText={(text) => {
+        const normalized = text.replace(",", ".");
+        if (/^\d*\.?\d*$/.test(normalized)) setDraft(normalized);
+      }}
+      onBlur={commit}
+      onSubmitEditing={commit}
+      keyboardType={allowDecimal ? "decimal-pad" : "number-pad"}
+      selectTextOnFocus
+      maxLength={5}
+      style={styles.miniStepperInput}
+    />
+  );
+}
+
+function createInitialSets(sourceSets: SetDetailItem[]): SetDetailItem[] {
+  const fallback = sourceSets[sourceSets.length - 1] ?? {
+    setNumber: 1,
+    reps: 8,
+    weightKg: 20,
+  };
+
+  return Array.from({ length: 3 }, (_, index) => {
+    const source = sourceSets[index] ?? fallback;
+    return { ...source, setNumber: index + 1 };
+  });
+}
+
 export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
   exerciseData,
   onBack,
@@ -66,16 +133,16 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
   // Selected Step Tab (0, 1, 2)
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
   const reduxCompleted = useAppSelector((state) =>
-    state.workout?.completedExerciseIds.includes(exerciseData.id)
+    state.workout?.completedExerciseIds.includes(exerciseData.id),
   );
   const [internalDone, setInternalDone] = useState<boolean>(false);
   const isMarkedDone = reduxCompleted ?? internalDone;
 
   // Dynamic Sets State
-  const [sets, setSets] = useState<SetDetailItem[]>(exerciseData.sets);
-  const [totalSetsCount, setTotalSetsCount] = useState<number>(
-    exerciseData.defaultSetsCount || exerciseData.sets.length || 4,
+  const [sets, setSets] = useState<SetDetailItem[]>(() =>
+    createInitialSets(exerciseData.sets),
   );
+  const [totalSetsCount, setTotalSetsCount] = useState<number>(3);
 
   // Rest Period input
   const [restSeconds, setRestSeconds] = useState<string>(
@@ -189,6 +256,18 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
           [field]: updatedVal,
         };
       }),
+    );
+  };
+
+  const handleSetValueCommit = (
+    index: number,
+    field: "reps" | "weightKg",
+    value: number,
+  ) => {
+    setSets((currentSets) =>
+      currentSets.map((set, setIndex) =>
+        setIndex === index ? { ...set, [field]: value } : set,
+      ),
     );
   };
 
@@ -553,7 +632,7 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={[
               styles.setColumnsScrollContent,
-              sets.length <= 4 && styles.setColumnsScrollContentFit,
+              sets.length <= 3 && styles.setColumnsScrollContentFit,
             ]}
           >
             {sets.map((item, index) => (
@@ -561,7 +640,7 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
                 key={item.setNumber}
                 style={[
                   styles.setColumnItem,
-                  sets.length <= 4 && styles.setColumnItemFlexible,
+                  sets.length <= 3 && styles.setColumnItemFlexible,
                 ]}
               >
                 <Text style={styles.setColNumberLabel}>
@@ -577,7 +656,13 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
                   >
                     <Minus size={11} color="#94A3B8" />
                   </Pressable>
-                  <Text style={styles.miniStepperValue}>{item.reps}</Text>
+                  <EditableSetValue
+                    value={item.reps}
+                    label={`Reps for set ${item.setNumber}`}
+                    onCommit={(value) =>
+                      handleSetValueCommit(index, "reps", value)
+                    }
+                  />
                   <Pressable
                     style={styles.miniStepperBtn}
                     onPress={() => handleUpdateSet(index, "reps", 1)}
@@ -596,7 +681,14 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
                   >
                     <Minus size={11} color="#94A3B8" />
                   </Pressable>
-                  <Text style={styles.miniStepperValue}>{item.weightKg}</Text>
+                  <EditableSetValue
+                    value={item.weightKg}
+                    label={`Weight for set ${item.setNumber}`}
+                    allowDecimal
+                    onCommit={(value) =>
+                      handleSetValueCommit(index, "weightKg", value)
+                    }
+                  />
                   <Pressable
                     style={styles.miniStepperBtn}
                     onPress={() => handleUpdateSet(index, "weightKg", 1)}
@@ -639,7 +731,7 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
                 }
               }}
             >
-              <Check size={14} color="#070A11" strokeWidth={3} />
+              <Check size={12} color="#070A11" strokeWidth={3} />
               <Text style={styles.setRestButtonText}>SET</Text>
             </Pressable>
           </View>
@@ -1066,7 +1158,7 @@ const styles = StyleSheet.create({
   targetBodyThumbBox: {
     width: 68,
     height: 68,
-    borderRadius: 16,
+    borderRadius: 13,
     overflow: "hidden",
     backgroundColor: "#070A11",
     marginRight: 14,
@@ -1148,7 +1240,8 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
     marginBottom: 20,
   },
   setsRepsHeaderRow: {
@@ -1231,19 +1324,19 @@ const styles = StyleSheet.create({
   },
   setColumnsScrollContent: {
     flexDirection: "row",
-    gap: 8,
+    gap: 6,
     paddingVertical: 2,
   },
   setColumnsScrollContentFit: {
     width: "100%",
   },
   setColumnItem: {
-    width: 78,
+    width: 98,
     backgroundColor: "#0B0E17",
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.06)",
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 6,
     alignItems: "center",
   },
@@ -1274,17 +1367,28 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "rgba(255, 255, 255, 0.04)",
     borderRadius: 8,
-    paddingHorizontal: 4,
-    paddingVertical: 3,
+    minHeight: 34,
+    paddingHorizontal: 3,
+    paddingVertical: 2,
   },
   miniStepperBtn: {
-    padding: 3,
+    width: 22,
+    height: 26,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  miniStepperValue: {
+  miniStepperInput: {
+    flex: 1,
+    minWidth: 28,
+    height: 30,
+    paddingHorizontal: 1,
+    paddingVertical: 0,
     color: "#FFFFFF",
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: "monospace",
     fontWeight: "900",
+    textAlign: "center",
+    includeFontPadding: false,
   },
 
   // Rest Period Card
@@ -1310,10 +1414,12 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   restTargetLabel: {
+    width: 64,
     color: "#64748B",
     fontSize: 9.5,
     fontFamily: "monospace",
     fontWeight: "800",
+    textAlign: "center",
   },
   restInputRow: {
     flexDirection: "row",
@@ -1347,19 +1453,19 @@ const styles = StyleSheet.create({
   },
   setRestButton: {
     backgroundColor: "#38EDD8",
-    height: 48,
-    paddingHorizontal: 18,
-    borderRadius: 16,
+    width: 64,
+    height: 40,
+    borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
+    gap: 4,
   },
   setRestButtonText: {
     color: "#070A11",
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: "monospace",
     fontWeight: "900",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
 });
