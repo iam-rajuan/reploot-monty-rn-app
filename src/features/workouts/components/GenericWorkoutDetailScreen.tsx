@@ -13,7 +13,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Check, Dumbbell, RefreshCw, Sparkles } from "lucide-react-native";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
+import { NestableScrollContainer } from "react-native-draggable-flatlist";
 import {
   Platform,
   Pressable,
@@ -113,9 +114,7 @@ export const GenericWorkoutDetailScreen: React.FC<
   ).length;
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const workoutScrollRef = useRef<ScrollView>(null);
-  const workoutScrollOffsetRef = useRef(0);
-  const workoutDragIndexRef = useRef<number | null>(null);
+  const [isDraggingExercise, setIsDraggingExercise] = useState(false);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -200,19 +199,6 @@ export const GenericWorkoutDetailScreen: React.FC<
     );
   };
 
-  const handleWorkoutPlaceholderChange = (index: number) => {
-    const previousIndex = workoutDragIndexRef.current;
-    if (previousIndex !== null && previousIndex !== index) {
-      const nextOffset = Math.max(
-        0,
-        workoutScrollOffsetRef.current + (index > previousIndex ? 96 : -96)
-      );
-      workoutScrollRef.current?.scrollTo({ y: nextOffset, animated: false });
-      workoutScrollOffsetRef.current = nextOffset;
-    }
-    workoutDragIndexRef.current = index;
-  };
-
   // 2. REPLACE ONE EXERCISE: only that exercise changes, picking next appropriate mock exercise
   const handleReplaceExercise = (exerciseId: string) => {
     dispatch(
@@ -243,12 +229,7 @@ export const GenericWorkoutDetailScreen: React.FC<
         onPressBack={handleBack}
       />
 
-      <ScrollView
-        ref={workoutScrollRef}
-        onScroll={(event) => {
-          workoutScrollOffsetRef.current = event.nativeEvent.contentOffset.y;
-        }}
-        scrollEventThrottle={16}
+      <NestableScrollContainer
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
@@ -331,9 +312,9 @@ export const GenericWorkoutDetailScreen: React.FC<
           onReplaceExercise={handleReplaceExercise}
           onDeleteExercise={handleDeleteExercise}
           onReorderExercises={handleReorderExercises}
-          onDragPlaceholderIndexChange={handleWorkoutPlaceholderChange}
+          onDragStateChange={setIsDraggingExercise}
         />
-      </ScrollView>
+      </NestableScrollContainer>
 
       {/* Floating HUD Feedback Toast */}
       {toastMessage ? (
@@ -349,6 +330,7 @@ export const GenericWorkoutDetailScreen: React.FC<
           styles.bottomCtaContainer,
           { paddingBottom: bottomInset + 8 },
         ]}
+        pointerEvents={isDraggingExercise ? "none" : "auto"}
       >
         {/* Soft fade gradient above the dock so scrolling cards dissolve seamlessly */}
         <LinearGradient

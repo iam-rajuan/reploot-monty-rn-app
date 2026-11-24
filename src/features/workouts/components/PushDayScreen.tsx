@@ -1,8 +1,9 @@
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import React from "react";
-import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { NestableScrollContainer } from "react-native-draggable-flatlist";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PUSH_DAY_DATA, PushDayExercise } from "../data/pushDayData";
 import { PushDayExerciseList } from "./PushDayExerciseCard";
@@ -22,6 +23,8 @@ export const PushDayScreen: React.FC<PushDayScreenProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const [exercises, setExercises] = useState(PUSH_DAY_DATA.exercises);
+  const [isDraggingExercise, setIsDraggingExercise] = useState(false);
 
   const handleBack = () => {
     if (Platform.OS !== "web") {
@@ -71,7 +74,7 @@ export const PushDayScreen: React.FC<PushDayScreenProps> = ({
   return (
     <View style={styles.screen}>
       <CustomHeader showBackButton onPressBack={handleBack} />
-      <ScrollView
+      <NestableScrollContainer
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
@@ -83,11 +86,19 @@ export const PushDayScreen: React.FC<PushDayScreenProps> = ({
         </View>
         <PushDayHeroCard />
         <PushDayExerciseList
-          exercises={PUSH_DAY_DATA.exercises}
+          exercises={exercises}
           onExercisePress={handleExercisePress}
+          onDragStateChange={setIsDraggingExercise}
+          onReorderExercises={(orderedIds) => {
+            const byId = new Map(exercises.map((exercise) => [exercise.id, exercise]));
+            setExercises(orderedIds.flatMap((id) => {
+              const exercise = byId.get(id);
+              return exercise ? [exercise] : [];
+            }));
+          }}
         />
-      </ScrollView>
-      <StartAiWorkoutButton onPress={handleStart} />
+      </NestableScrollContainer>
+      <StartAiWorkoutButton onPress={handleStart} dragActive={isDraggingExercise} />
     </View>
   );
 };

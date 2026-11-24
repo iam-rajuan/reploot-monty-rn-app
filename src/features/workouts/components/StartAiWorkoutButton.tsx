@@ -18,6 +18,7 @@ export interface StartAiWorkoutButtonProps {
   title?: string;
   disabled?: boolean;
   inline?: boolean;
+  dragActive?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -27,6 +28,7 @@ export const StartAiWorkoutButton: React.FC<StartAiWorkoutButtonProps> = ({
   title = "START AI WORKOUT",
   disabled = false,
   inline = false,
+  dragActive = false,
   style,
   testID,
 }) => {
@@ -71,7 +73,7 @@ export const StartAiWorkoutButton: React.FC<StartAiWorkoutButtonProps> = ({
         { paddingBottom: Math.max(insets.bottom, 24) + 6 },
         style,
       ]}
-      pointerEvents="box-none"
+      pointerEvents={dragActive ? "none" : "box-none"}
       testID={testID}
     >
       {/* Background Gradient Fade */}

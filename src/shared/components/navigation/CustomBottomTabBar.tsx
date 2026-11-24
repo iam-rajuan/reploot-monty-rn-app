@@ -5,11 +5,12 @@ import {
   StyleSheet,
   Pressable,
   Platform,
+  Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
-import Svg, { Path, Circle, Rect, G } from "react-native-svg";
+import Svg, { Path, Circle, Rect, G, Defs, LinearGradient as SvgGradient, Stop, Ellipse } from "react-native-svg";
 import type { BottomTabBarProps } from "expo-router/build/react-navigation/bottom-tabs";
 
 export function CustomBottomTabBar({
@@ -250,7 +251,7 @@ function HomeTabIcon({
   );
 }
 
-/** 2. Nutrition Icon: Precision Chef Cutlery Pair */
+/** 2. Nutrition Icon: Stylized Apple with Leaf */
 function NutritionTabIcon({
   color,
   isFocused,
@@ -262,42 +263,32 @@ function NutritionTabIcon({
     <View style={styles.iconWrapper}>
       <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
         {isFocused && (
-          <>
-            <Path
-              d="M6 3V8C6 9.7 7.3 11 9 11C10.7 11 12 9.7 12 8V3H6Z"
-              fill="rgba(56, 189, 248, 0.14)"
-            />
-            <Path
-              d="M18 3C15.8 3 14.5 4.8 14.5 8V12H18V3Z"
-              fill="rgba(56, 189, 248, 0.14)"
-            />
-          </>
+          <Path
+            d="M12 7.5C10.5 5.8 7.2 5.8 5.2 7.8C3.2 9.8 3.2 13.5 5.2 16.5C7.2 19.5 9.5 21 12 21C14.5 21 16.8 19.5 18.8 16.5C20.8 13.5 20.8 9.8 18.8 7.8C16.8 5.8 13.5 5.8 12 7.5Z"
+            fill="rgba(56, 189, 248, 0.14)"
+          />
         )}
-        {/* Fork */}
+        {/* Apple Silhouette */}
         <Path
-          d="M6 3V8C6 9.7 7.3 11 9 11C10.7 11 12 9.7 12 8V3"
+          d="M12 7.5C10.5 5.8 7.2 5.8 5.2 7.8C3.2 9.8 3.2 13.5 5.2 16.5C7.2 19.5 9.5 21 12 21C14.5 21 16.8 19.5 18.8 16.5C20.8 13.5 20.8 9.8 18.8 7.8C16.8 5.8 13.5 5.8 12 7.5Z"
           stroke={color}
           strokeWidth={isFocused ? 2.1 : 1.8}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
+        {/* Apple Stem */}
         <Path
-          d="M9 3V7"
+          d="M12 7V3.8C12 3.8 11.5 2.5 10.5 2.5"
           stroke={color}
-          strokeWidth={isFocused ? 2.1 : 1.8}
+          strokeWidth={isFocused ? 2 : 1.7}
           strokeLinecap="round"
         />
+        {/* Dynamic Nutrition Leaf */}
         <Path
-          d="M9 11V21"
+          d="M12.5 4C14.8 3.5 17.5 4.5 18 7C15.5 7.2 13 6 12.5 4Z"
           stroke={color}
-          strokeWidth={isFocused ? 2.1 : 1.8}
-          strokeLinecap="round"
-        />
-        {/* Knife */}
-        <Path
-          d="M18 3C15.8 3 14.5 4.8 14.5 8V12H18V21"
-          stroke={color}
-          strokeWidth={isFocused ? 2.1 : 1.8}
+          strokeWidth={isFocused ? 1.8 : 1.5}
+          fill={isFocused ? color : "rgba(100, 116, 139, 0.3)"}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -306,65 +297,16 @@ function NutritionTabIcon({
   );
 }
 
-/** 3. Center Elevated Dumbbell: Titanium Isometric Silhouette */
+/** 3. Center Elevated Dumbbell: Photorealistic Raytraced 3D Hex Dumbbell (Left-to-Right orientation) */
 function CenterDumbbellIcon() {
   return (
-    <Svg width={28} height={28} viewBox="0 0 28 28" fill="none">
-      <G transform="rotate(-45 14 14)">
-        {/* Steel Handle Bar */}
-        <Rect x={12.5} y={3.8} width={3} height={20.4} rx={1.5} fill="#FFFFFF" />
-        {/* Grip Accent Lines */}
-        <Rect
-          x={12.5}
-          y={11.5}
-          width={3}
-          height={1.2}
-          fill="rgba(2, 132, 199, 0.7)"
-        />
-        <Rect
-          x={12.5}
-          y={13.9}
-          width={3}
-          height={1.2}
-          fill="rgba(2, 132, 199, 0.7)"
-        />
-        <Rect
-          x={12.5}
-          y={16.3}
-          width={3}
-          height={1.2}
-          fill="rgba(2, 132, 199, 0.7)"
-        />
-
-        {/* Top Heavy Outer Plate */}
-        <Rect x={7} y={6.5} width={14} height={3.6} rx={1.6} fill="#FFFFFF" />
-        {/* Top Outer Plate Highlight */}
-        <Rect
-          x={8.5}
-          y={7.1}
-          width={11}
-          height={0.9}
-          rx={0.45}
-          fill="rgba(255, 255, 255, 0.85)"
-        />
-        {/* Top Outer End Cap */}
-        <Rect x={9} y={3.5} width={10} height={2.5} rx={1.2} fill="#FFFFFF" />
-
-        {/* Bottom Heavy Outer Plate */}
-        <Rect x={7} y={17.9} width={14} height={3.6} rx={1.6} fill="#FFFFFF" />
-        {/* Bottom Outer Plate Highlight */}
-        <Rect
-          x={8.5}
-          y={18.5}
-          width={11}
-          height={0.9}
-          rx={0.45}
-          fill="rgba(255, 255, 255, 0.85)"
-        />
-        {/* Bottom Outer End Cap */}
-        <Rect x={9} y={22} width={10} height={2.5} rx={1.2} fill="#FFFFFF" />
-      </G>
-    </Svg>
+    <View style={styles.centerDumbbellContainer}>
+      <Image
+        source={require("../../../../assets/dumbbell_3d.png")}
+        style={styles.dumbbell3dImage}
+        resizeMode="contain"
+      />
+    </View>
   );
 }
 
@@ -618,5 +560,15 @@ const styles = StyleSheet.create({
     borderRadius: 25.5,
     alignItems: "center",
     justifyContent: "center",
+  },
+  centerDumbbellContainer: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  dumbbell3dImage: {
+    width: 38,
+    height: 38,
   },
 });

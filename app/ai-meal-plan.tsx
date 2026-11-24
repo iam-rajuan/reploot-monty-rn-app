@@ -21,13 +21,14 @@ import {
 } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  default as DraggableFlatList,
+  NestableDraggableFlatList,
+  NestableScrollContainer,
+  ScaleDecorator,
   type RenderItemParams,
 } from "react-native-draggable-flatlist";
 import {
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -110,7 +111,7 @@ const MealSwipeShell = ({
     >
       <Pressable
         onLongPress={onLongPress}
-        delayLongPress={180}
+        delayLongPress={450}
         accessibilityHint={onLongPress ? "Press and hold to drag and rearrange this meal" : undefined}
       >
         {children}
@@ -246,9 +247,6 @@ export default function UnifiedMealPlanScreen() {
     params.justLogged === "true",
   );
   const activeSwipeCloserRef = useRef<(() => void) | null>(null);
-  const mealScrollRef = useRef<ScrollView>(null);
-  const mealScrollOffsetRef = useRef(0);
-  const mealDragIndexRef = useRef<number | null>(null);
 
   const meals = useNutritionPlanStore((state) => state.meals);
   const toggleMealLog = useNutritionPlanStore((state) => state.toggleMealLog);
@@ -310,19 +308,6 @@ export default function UnifiedMealPlanScreen() {
     reorderMeals(orderedMeals.map((meal) => meal.id));
   };
 
-  const handleMealPlaceholderChange = (index: number) => {
-    const previousIndex = mealDragIndexRef.current;
-    if (previousIndex !== null && previousIndex !== index) {
-      const nextOffset = Math.max(
-        0,
-        mealScrollOffsetRef.current + (index > previousIndex ? 112 : -112)
-      );
-      mealScrollRef.current?.scrollTo({ y: nextOffset, animated: false });
-      mealScrollOffsetRef.current = nextOffset;
-    }
-    mealDragIndexRef.current = index;
-  };
-
   const computedWeekHistory = useMemo(() => {
     return WEEK_HISTORY_DATA.map((day) => {
       if (day.isToday) {
@@ -351,12 +336,7 @@ export default function UnifiedMealPlanScreen() {
         transparent={true}
       />
 
-      <ScrollView
-        ref={mealScrollRef}
-        onScroll={(event) => {
-          mealScrollOffsetRef.current = event.nativeEvent.contentOffset.y;
-        }}
-        scrollEventThrottle={16}
+      <NestableScrollContainer
         contentContainerStyle={[
           styles.scrollContent,
           { paddingBottom: Math.max(insets.bottom + 90, 110) },
@@ -477,15 +457,14 @@ export default function UnifiedMealPlanScreen() {
             </View>
 
             {/* Meals List */}
-            <DraggableFlatList
+            <NestableDraggableFlatList
               data={meals}
               keyExtractor={(meal) => String(meal.id)}
-              scrollEnabled={false}
-              activationDistance={8}
-              autoscrollThreshold={80}
-              autoscrollSpeed={250}
-              onDragBegin={(index) => handleMealPlaceholderChange(index)}
-              onPlaceholderIndexChange={handleMealPlaceholderChange}
+              activationDistance={12}
+              autoscrollThreshold={170}
+              autoscrollSpeed={110}
+              dragItemOverflow
+              animationConfig={{ damping: 22, stiffness: 180, mass: 0.45 }}
               contentContainerStyle={styles.mealList}
               onDragEnd={({ data }) => handleMealReorder(data)}
               renderItem={({ item: meal, drag, isActive, getIndex }: RenderItemParams<UnifiedMeal>) => {
@@ -495,7 +474,8 @@ export default function UnifiedMealPlanScreen() {
                   (index === 0 || meals[index - 1]?.type !== "SCANNED");
 
                 return (
-                  <React.Fragment key={meal.id}>
+                  <ScaleDecorator activeScale={1.025}>
+                    <React.Fragment key={meal.id}>
                     {isFirstScanned && (
                       <View style={styles.scannedDividerRow}>
                         <View style={styles.scannedDividerLine} />
@@ -619,7 +599,8 @@ export default function UnifiedMealPlanScreen() {
                         </View>
                       </View>
                     </MealSwipeShell>
-                  </React.Fragment>
+                    </React.Fragment>
+                  </ScaleDecorator>
                 );
               }}
             />
@@ -830,7 +811,7 @@ export default function UnifiedMealPlanScreen() {
             </LinearGradient>
           </Pressable>
         </View>
-      </ScrollView>
+      </NestableScrollContainer>
     </View>
   );
 }
