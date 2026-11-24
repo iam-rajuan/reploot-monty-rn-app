@@ -1,4 +1,5 @@
 import { useAchievements, useLeaderboard, useXPProgress } from "@/hooks/queries/useProgress";
+import { useProgressionSnapshot } from "@/features/progression";
 import { ProgressBar } from "@/shared/components/ui/ProgressBar";
 import { useAppSelector } from "@/store/hooks";
 import * as Haptics from "expo-haptics";
@@ -36,6 +37,7 @@ export const TopProfileCard = () => {
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
   const { data: xp } = useXPProgress();
+  const progression = useProgressionSnapshot();
   const { data: leaderboard } = useLeaderboard();
   const { data: achievements } = useAchievements();
   const userRank = leaderboard?.find((entry) => entry.isCurrentUser);
@@ -84,9 +86,9 @@ export const TopProfileCard = () => {
           </Text>
           <Text style={styles.status} numberOfLines={1}>ATHLETE PROFILE</Text>
           <View style={styles.identityMeta}>
-            <View style={styles.tierChip}>
-              <Medal size={13} color="#C5C0FF" />
-              <Text style={styles.tierText}>{xp?.tier ?? "—"}</Text>
+            <View style={[styles.tierChip, { backgroundColor: `${progression.tier.color}18`, borderColor: `${progression.tier.color}45` }]}>
+              <Medal size={13} color={progression.tier.color} />
+              <Text style={[styles.tierText, { color: progression.tier.color }]}>{progression.tier.displayName}</Text>
             </View>
             <View style={styles.streakChip}>
               <Flame size={13} color="#FFB68C" fill="#FFB68C" />

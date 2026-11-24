@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { HORIZONTAL_PADDING } from "@/shared/utils/responsive";
+import { useProgressionSnapshot } from "@/features/progression";
 
 // Crisp hollow neon cyan lightning bolt matching Figma outline design
 const StreakLightningIcon = () => (
@@ -27,6 +28,7 @@ const StreakLightningIcon = () => (
 );
 
 export const WeeklyProgressCard = () => {
+  const progression = useProgressionSnapshot();
   const WEEK_DAYS = [
     { label: "M", height: 28, type: "blue" },
     { label: "T", height: 44, type: "blue" },
@@ -39,7 +41,7 @@ export const WeeklyProgressCard = () => {
 
   return (
     <View style={styles.cardContainer}>
-      {/* Header Row: LVL 42 Badge + ELITE TIER + 12 DAY STREAK */}
+      {/* Header Row: Level, current progression tier, and day streak */}
       <View style={styles.headerRow}>
         {/* LVL 42 Gradient Badge: Proportional, responsive cyber badge */}
         <LinearGradient
@@ -53,9 +55,9 @@ export const WeeklyProgressCard = () => {
         </LinearGradient>
 
         <View style={styles.headerRight}>
-          {/* ELITE TIER */}
+          {/* Current progression tier */}
           <View style={styles.tierCol}>
-            <Text style={styles.tierText}>ELITE</Text>
+            <Text style={[styles.tierText, { color: progression.tier.color }]}>{progression.tier.displayName.toUpperCase()}</Text>
             <Text style={styles.tierText}>TIER</Text>
           </View>
 

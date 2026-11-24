@@ -1,4 +1,5 @@
 import { WorkoutHeader } from "@/features/workouts";
+import { useProgressionSnapshot } from "@/features/progression";
 import { useWeeklyChallenge } from "@/hooks/queries/useChallenges";
 import { useLeaderboard, usePersonalRecords, useXPProgress } from "@/hooks/queries/useProgress";
 import { ProgressBar } from "@/shared/components/ui/ProgressBar";
@@ -23,6 +24,7 @@ function todayMotivation() {
 export default function ProgressTabRoute() {
   const insets = useSafeAreaInsets();
   const { data: xp } = useXPProgress();
+  const progression = useProgressionSnapshot();
   const { data: leaderboard } = useLeaderboard();
   const { data: records } = usePersonalRecords();
   const { data: challenge } = useWeeklyChallenge();
@@ -46,7 +48,7 @@ export default function ProgressTabRoute() {
           <View style={styles.workoutTop}>
             <View style={styles.levelRow}>
               <View style={styles.levelIcon}><Zap size={18} color="#C5C0FF" /></View>
-              <View><Text style={styles.label}>CURRENT LEVEL</Text><Text style={styles.level}>{xp ? "Level " + xp.currentLevel : "Level —"}</Text></View>
+              <View><Text style={styles.label}>CURRENT LEVEL</Text><Text style={styles.level}>{xp ? "Level " + xp.currentLevel : "Level —"}</Text><Text style={[styles.tier, { color: progression.tier.color }]}>{progression.tier.displayName.toUpperCase()} TIER</Text></View>
             </View>
             <View style={styles.streak}><Flame size={18} color="#FFB68C" fill="#FFB68C" /><Text style={styles.streakValue}>{xp?.dayStreak ?? "—"}</Text><Text style={styles.streakText}>DAY{"\n"}STREAK</Text></View>
           </View>
@@ -99,7 +101,7 @@ const styles = StyleSheet.create({
   workoutCard: { overflow: "hidden", borderRadius: 32, borderWidth: 1, borderColor: "rgba(197,192,255,0.30)", backgroundColor: "rgba(255,255,255,0.05)", padding: 24 },
   workoutTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }, levelRow: { flex: 1, flexDirection: "row", alignItems: "center", gap: 12 },
   levelIcon: { width: 46, height: 46, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(197,192,255,0.20)", borderWidth: 1, borderColor: "rgba(197,192,255,0.24)" },
-  label: { color: "rgba(255,255,255,0.72)", fontFamily: "monospace", fontSize: 10, fontWeight: "700", letterSpacing: 1 }, level: { color: "#FFF", fontSize: 28, lineHeight: 32, fontWeight: "900", letterSpacing: -0.8, marginTop: 2 },
+  label: { color: "rgba(255,255,255,0.72)", fontFamily: "monospace", fontSize: 10, fontWeight: "700", letterSpacing: 1 }, level: { color: "#FFF", fontSize: 28, lineHeight: 32, fontWeight: "900", letterSpacing: -0.8, marginTop: 2 }, tier: { fontFamily: "monospace", fontSize: 9, lineHeight: 13, fontWeight: "800", letterSpacing: 0.8, marginTop: 3 },
   streak: { flexDirection: "row", alignItems: "center", gap: 5 }, streakValue: { color: "#FFB68C", fontSize: 25, lineHeight: 30, fontWeight: "900" }, streakText: { color: "#C8C4D8", fontFamily: "monospace", fontSize: 9, lineHeight: 12, fontWeight: "700", letterSpacing: 0.6 },
   xpSection: { marginTop: 26 }, xpHeading: { flexDirection: "row", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 9 }, xpValue: { color: "#C5C0FF", fontFamily: "monospace", fontSize: 12, fontWeight: "700", flexShrink: 1, textAlign: "right" }, xpRemaining: { color: "#C5C0FF", fontFamily: "monospace", fontSize: 10, fontWeight: "700", letterSpacing: 0.8, marginTop: 10 },
   motivation: { minHeight: 62, alignItems: "center", justifyContent: "center", paddingHorizontal: 20 }, quote: { color: "#44EAC3", fontSize: 30, height: 24, lineHeight: 30, fontWeight: "800" }, motivationText: { color: "#E3E1E9", textAlign: "center", fontSize: 18, lineHeight: 25, fontStyle: "italic", fontWeight: "600" },
