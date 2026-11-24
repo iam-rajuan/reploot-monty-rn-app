@@ -24,6 +24,10 @@ import DraggableFlatList, {
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from "react-native-gesture-handler/ReanimatedSwipeable";
+import Animated, {
+  useAnimatedReaction,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import {
   Platform,
   Pressable,
@@ -39,7 +43,87 @@ import { WorkoutExerciseItem } from "../data/workoutPathDetailData";
 
 const ITEM_GAP = 12;
 const SECTION_DIVIDER_HEIGHT = 48;
+const SECTION_CROSSING_OFFSET = SECTION_DIVIDER_HEIGHT - ITEM_GAP;
 const FALLBACK_CARD_HEIGHT = 92;
+const REGULAR_SECTION_ID = "__regular-exercises-section__";
+
+type ExerciseListEntry =
+  | PushDayExercise
+  | WorkoutExerciseItem
+  | { id: typeof REGULAR_SECTION_ID; type: "section" };
+
+const REGULAR_SECTION_ENTRY = {
+  id: REGULAR_SECTION_ID,
+  type: "section",
+} as const;
+
+const isSectionEntry = (
+  entry: ExerciseListEntry,
+): entry is typeof REGULAR_SECTION_ENTRY => entry.id === REGULAR_SECTION_ID;
+
+interface SectionBoundaryDecoratorProps {
+  index: number;
+  animationValues: any;
+  children: React.ReactNode;
+}
+
+const SectionBoundaryDecorator = ({
+  index,
+  animationValues,
+  children,
+}: SectionBoundaryDecoratorProps) => {
+  const animatedStyle = useAnimatedStyle(() => {
+    if (!animationValues) {
+      return { transform: [{ translateY: 0 }] };
+    }
+
+    const activeIndex = animationValues.activeIndexAnim.value;
+    const destinationIndex = animationValues.spacerIndexAnim.value;
+    let boundaryOffset = 0;
+
+    if (index === 7 && activeIndex >= 9 && destinationIndex <= 7) {
+      boundaryOffset = SECTION_CROSSING_OFFSET;
+    } else if (index === 9 && activeIndex <= 7 && destinationIndex >= 9) {
+      boundaryOffset = -SECTION_CROSSING_OFFSET;
+    }
+
+    return {
+      // Keep this directly coupled to the drag position. Starting a new timing
+      // animation for every spacer update makes the boundary trail the finger.
+      transform: [{ translateY: boundaryOffset }],
+    };
+  }, [animationValues, index]);
+
+  return <Animated.View style={animatedStyle}>{children}</Animated.View>;
+};
+
+const StationarySectionHeader = ({
+  animationValues,
+}: {
+  animationValues: any;
+}) => {
+  const animatedStyle = useAnimatedStyle(() => {
+    if (!animationValues) return { transform: [{ translateY: 0 }] };
+
+    const activeIndex = animationValues.activeIndexAnim.value;
+    const destinationIndex = animationValues.spacerIndexAnim.value;
+    let counterOffset = 0;
+
+    if (activeIndex <= 7 && destinationIndex >= 9) {
+      counterOffset = animationValues.activeCellSize.value;
+    } else if (activeIndex >= 9 && destinationIndex <= 7) {
+      counterOffset = -animationValues.activeCellSize.value;
+    }
+
+    return {
+      // This spacer is invisible, so a spring only adds UI-thread work and
+      // delays the visible cards from reaching their destination.
+      transform: [{ translateY: counterOffset }],
+    };
+  }, [animationValues]);
+
+  return <Animated.View style={[styles.sectionSpacer, animatedStyle]} />;
+};
 
 export interface PushDayExerciseCardProps {
   exercise?: PushDayExercise | WorkoutExerciseItem;
@@ -336,8 +420,6 @@ export interface PushDayExerciseListProps {
   ListFooterComponent?: React.ReactElement | null;
 }
 
-const ExerciseItemSeparator = () => <View style={styles.itemSeparator} />;
-
 export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
   exercises,
   completedExerciseIds: propCompletedIds,
@@ -356,6 +438,7 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
   const [headerHeight, setHeaderHeight] = useState(0);
   const [cardHeight, setCardHeight] = useState(FALLBACK_CARD_HEIGHT);
   const [displayExercises, setDisplayExercises] = useState(exercises);
+  const [dragAnimationValues, setDragAnimationValues] = useState<any>(null);
 
   useEffect(() => {
     if (!isDraggingRef.current) {
@@ -378,6 +461,7 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
     (state) => state.workout?.completedExerciseIds || [],
   );
   const completedIds = propCompletedIds ?? reduxCompletedIds;
+  const completedIdSet = useMemo(() => new Set(completedIds), [completedIds]);
 
   const aiRecommended = useMemo(
     () =>
@@ -401,6 +485,18 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
     [displayExercises, showRecommendationSections],
   );
 
+  const listEntries = useMemo<ExerciseListEntry[]>(
+    () =>
+      showRecommendationSections && displayExercises.length > 8
+        ? [
+            ...displayExercises.slice(0, 8),
+            REGULAR_SECTION_ENTRY,
+            ...displayExercises.slice(8),
+          ]
+        : displayExercises,
+    [displayExercises, showRecommendationSections],
+  );
+
   const regularHeaderTop = useMemo(() => {
     if (!headerHeight || !aiRecommended.length) return 0;
     const cardsHeight = aiRecommended.length * cardHeight;
@@ -408,65 +504,126 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
     return headerHeight + cardsHeight + gapsHeight;
   }, [aiRecommended.length, cardHeight, headerHeight]);
 
+  useAnimatedReaction(
+    () => {
+      if (
+        !dragAnimationValues ||
+        !showRecommendationSections ||
+        regularHeaderTop <= 0
+      ) {
+        return -1;
+      }
+
+      const activeIndex = dragAnimationValues.activeIndexAnim.value;
+      if (activeIndex < 0) return -1;
+
+      const cardCenter =
+        dragAnimationValues.hoverOffset.value +
+        dragAnimationValues.activeCellSize.value / 2;
+      const dividerEnd = regularHeaderTop + SECTION_DIVIDER_HEIGHT;
+
+      if (cardCenter < regularHeaderTop || cardCenter > dividerEnd) return -1;
+
+      return cardCenter < regularHeaderTop + SECTION_DIVIDER_HEIGHT / 2 ? 7 : 9;
+    },
+    (snapIndex) => {
+      if (snapIndex < 0 || !dragAnimationValues) return;
+
+      dragAnimationValues.spacerIndexAnim.value = snapIndex;
+      dragAnimationValues.placeholderOffset.value =
+        snapIndex === 9
+          ? regularHeaderTop + SECTION_DIVIDER_HEIGHT
+          : regularHeaderTop - cardHeight;
+    },
+    [
+      cardHeight,
+      dragAnimationValues,
+      regularHeaderTop,
+      showRecommendationSections,
+    ],
+  );
+
   const renderItem = useCallback(
     ({
       item,
       drag,
       isActive,
       getIndex,
-    }: RenderItemParams<PushDayExercise | WorkoutExerciseItem>) => {
+    }: RenderItemParams<ExerciseListEntry>) => {
       const index = getIndex() ?? 0;
 
+      if (isSectionEntry(item)) {
+        return (
+          <StationarySectionHeader animationValues={dragAnimationValues} />
+        );
+      }
+
+      const displayIndex = index > 8 ? index : index + 1;
+
+      const card = (
+        <ScaleDecorator activeScale={1.015}>
+          <PushDayExerciseCard
+            exercise={item}
+            index={String(displayIndex).padStart(2, "0")}
+            isCompleted={completedIdSet.has(item.id)}
+            style={isActive ? styles.draggingCard : undefined}
+            isDragging={isActive}
+            onSwipeStart={() => activeSwipeCloserRef.current?.()}
+            onSwipeOpen={(closeRow) => {
+              activeSwipeCloserRef.current = closeRow;
+            }}
+            onSwipeClose={() => {
+              activeSwipeCloserRef.current = null;
+            }}
+            onPress={() => onExercisePress?.(item)}
+            onLongPress={() => {
+              activeSwipeCloserRef.current?.();
+              if (Platform.OS !== "web") {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(
+                  () => {},
+                );
+              }
+              drag();
+            }}
+            onReplace={
+              onReplaceExercise ? () => onReplaceExercise(item.id) : undefined
+            }
+            onDelete={
+              onDeleteExercise ? () => onDeleteExercise(item.id) : undefined
+            }
+          />
+        </ScaleDecorator>
+      );
+
       return (
-        <View onLayout={handleCardLayout}>
-          <ScaleDecorator activeScale={1.015}>
-            <PushDayExerciseCard
-              exercise={item}
-              index={String(index + 1).padStart(2, "0")}
-              isCompleted={completedIds.includes(item.id)}
-              style={isActive ? styles.draggingCard : undefined}
-              isDragging={isActive}
-              onSwipeStart={() => activeSwipeCloserRef.current?.()}
-              onSwipeOpen={(closeRow) => {
-                activeSwipeCloserRef.current = closeRow;
-              }}
-              onSwipeClose={() => {
-                activeSwipeCloserRef.current = null;
-              }}
-              onPress={() => onExercisePress?.(item)}
-              onLongPress={() => {
-                activeSwipeCloserRef.current?.();
-                if (Platform.OS !== "web") {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(
-                    () => {},
-                  );
-                }
-                drag();
-              }}
-              onReplace={
-                onReplaceExercise ? () => onReplaceExercise(item.id) : undefined
-              }
-              onDelete={
-                onDeleteExercise ? () => onDeleteExercise(item.id) : undefined
-              }
-            />
-          </ScaleDecorator>
+        <View onLayout={index === 0 ? handleCardLayout : undefined}>
+          {index === 7 || index === 9 ? (
+            <SectionBoundaryDecorator
+              index={index}
+              animationValues={dragAnimationValues}
+            >
+              {card}
+            </SectionBoundaryDecorator>
+          ) : (
+            card
+          )}
         </View>
       );
     },
     [
-      completedIds,
+      completedIdSet,
       onExercisePress,
       onReplaceExercise,
       onDeleteExercise,
       handleCardLayout,
+      dragAnimationValues,
     ],
   );
 
   return (
     <DraggableFlatList
-      data={displayExercises}
-      keyExtractor={(exercise) => exercise.id}
+      data={listEntries}
+      keyExtractor={(entry) => entry.id}
       activationDistance={0}
       dragItemOverflow={true}
       autoscrollThreshold={85}
@@ -476,18 +633,17 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
         stiffness: 360,
         mass: 0.5,
       }}
-      initialNumToRender={20}
-      maxToRenderPerBatch={20}
-      windowSize={11}
-      removeClippedSubviews={false}
+      onAnimValInit={(values) => {
+        setDragAnimationValues((current: any) => current ?? values);
+      }}
+      initialNumToRender={10}
+      maxToRenderPerBatch={8}
+      updateCellsBatchingPeriod={16}
+      windowSize={7}
+      removeClippedSubviews={Platform.OS === "android"}
       contentContainerStyle={[styles.exerciseList, style]}
       ItemSeparatorComponent={(props: any) => {
-        const isBoundary =
-          showRecommendationSections &&
-          props.leadingItem?.id === displayExercises[7]?.id;
-        if (isBoundary) {
-          return <View style={styles.sectionDividerSpace} />;
-        }
+        if (props.leadingItem?.id === REGULAR_SECTION_ID) return null;
         return <View style={styles.itemSeparator} />;
       }}
       ListHeaderComponent={
@@ -515,7 +671,6 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
             </View>
           ) : null}
 
-          {/* Stationary REGULAR EXERCISES Header - Anchored in ListHeaderComponent, NEVER moves during drag! */}
           {showRecommendationSections && regularHeaderTop > 0 ? (
             <View
               style={[
@@ -525,7 +680,8 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
                   top: regularHeaderTop,
                   left: 0,
                   right: 0,
-                  zIndex: 5,
+                  zIndex: 100,
+                  elevation: 10,
                 },
               ]}
               pointerEvents="none"
@@ -545,10 +701,14 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
         activeSwipeCloserRef.current?.();
       }}
       onDragEnd={({ data }) => {
-        setDisplayExercises(data);
+        const orderedExercises = data.filter(
+          (entry): entry is PushDayExercise | WorkoutExerciseItem =>
+            !isSectionEntry(entry),
+        );
+        setDisplayExercises(orderedExercises);
         isDraggingRef.current = false;
         requestAnimationFrame(() => {
-          onReorderExercises?.(data.map((exercise) => exercise.id));
+          onReorderExercises?.(orderedExercises.map((exercise) => exercise.id));
         });
       }}
       renderItem={renderItem}
@@ -566,9 +726,6 @@ const styles = StyleSheet.create({
   },
   itemSeparator: {
     height: ITEM_GAP,
-  },
-  sectionDividerSpace: {
-    height: SECTION_DIVIDER_HEIGHT,
   },
   recommendationHeader: {
     minHeight: 34,
@@ -607,6 +764,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+  },
+  sectionSpacer: {
+    height: SECTION_CROSSING_OFFSET,
   },
   regularTitle: {
     color: "#CBD5E1",
