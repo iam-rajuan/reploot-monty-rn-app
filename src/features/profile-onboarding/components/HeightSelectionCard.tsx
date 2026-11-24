@@ -80,7 +80,7 @@ export function HeightSelectionCard({
         min={heightUnit === "cm" ? 120 : 48}
         max={heightUnit === "cm" ? 230 : 90}
         unit={heightUnit.toUpperCase()}
-        itemHeight={44}
+        itemHeight={38}
       />
     </View>
   );
@@ -88,20 +88,20 @@ export function HeightSelectionCard({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 24,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.05)",
     backgroundColor: "#1A1C23",
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 14,
-    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingTop: 13,
+    paddingBottom: 12,
+    marginBottom: 12,
   },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 8,
+    marginBottom: 4,
   },
   titleGroup: {
     flexDirection: "row",
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: "#CBD5E1",
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: "800",
     letterSpacing: 1.5,
   },
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   },
   toggleText: {
     color: "#64748B",
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: "900",
     letterSpacing: 0.8,
     includeFontPadding: false,

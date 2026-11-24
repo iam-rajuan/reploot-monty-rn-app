@@ -1,8 +1,6 @@
 import React, { useCallback } from "react";
-import MaskedView from "@react-native-masked-view/masked-view";
 import { FitnessGoal } from "@/shared/types/user";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useProfileSetupStore } from "../store/profileSetupStore";
 import { OnboardingButton } from "@/features/onboarding/components/OnboardingButton";
@@ -84,32 +82,7 @@ export function Step3YourGoal() {
   return (
     <View style={styles.container}>
       <View style={styles.hero}>
-        <View style={styles.titleWrapper}>
-          <MaskedView
-            style={styles.maskedTitleView}
-            maskElement={
-              <View style={styles.maskWrapper}>
-                <Text
-                  style={styles.title}
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                >
-                  YOUR GOAL
-                </Text>
-              </View>
-            }
-          >
-            <LinearGradient
-              colors={["#00f2fe", "#4facfe"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.gradient}
-            />
-          </MaskedView>
-        </View>
-        <Text style={styles.subtitle}>
-          Select your primary target to focus your training
-        </Text>
+        <Text style={styles.title}>YOUR GOAL</Text>
       </View>
       <View style={[styles.gridContainer, { width: cardWidth * 2 + cardGap }]}>
         {GOAL_PAIRS.map((pair, rowIndex) => (
@@ -128,7 +101,7 @@ export function Step3YourGoal() {
         ))}
       </View>
       <View style={{ width: "100%", paddingHorizontal: horizontalPadding }}>
-        <OnboardingButton text="CONTINUE" onPress={nextStep} />
+        <OnboardingButton text="CONTINUE" compact onPress={nextStep} />
       </View>
     </View>
   );
@@ -147,46 +120,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignItems: "flex-start",
     justifyContent: "center",
-    marginTop: 8,
-    marginBottom: 20,
-  },
-  titleWrapper: {
-    alignItems: "flex-start",
-    width: "100%",
-  },
-  maskedTitleView: {
-    height: 52,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "flex-start",
-  },
-  gradient: {
-    flex: 1,
+    marginTop: 10,
+    marginBottom: 14,
   },
   title: {
-    color: "#FFFFFF",
-    fontSize: 38,
-    lineHeight: 44,
+    color: "#22D3EE",
+    fontSize: 24,
+    lineHeight: 30,
     fontFamily: "monospace",
     fontWeight: "900",
-    letterSpacing: 1.5,
+    letterSpacing: 1,
     textAlign: "left",
     textTransform: "uppercase",
-    textShadowColor: "#FFFFFF",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 1,
-  },
-  subtitle: {
-    color: "#94A3B8",
-    fontSize: 14,
-    fontFamily: "monospace",
-    fontWeight: "600",
-    marginTop: 8,
-    textAlign: "left",
   },
   gridContainer: {
     marginBottom: 2,

@@ -20,7 +20,7 @@ interface VerticalWheelPickerProps {
   itemHeight?: number;
 }
 
-const DEFAULT_ITEM_HEIGHT = 44;
+const DEFAULT_ITEM_HEIGHT = 38;
 
 interface WheelItemProps {
   val: number;
@@ -50,16 +50,6 @@ const WheelItem = React.memo(
       outputRange: [0.68, 0.78, 1.0, 0.78, 0.68],
       extrapolate: "clamp",
     });
-    const unitOpacity = scrollY.interpolate({
-      inputRange: [
-        (index - 0.45) * itemHeight,
-        index * itemHeight,
-        (index + 0.45) * itemHeight,
-      ],
-      outputRange: [0, 1, 0],
-      extrapolate: "clamp",
-    });
-
     return (
       <Pressable
         accessibilityRole="button"
@@ -79,9 +69,6 @@ const WheelItem = React.memo(
           ]}
         >
           <Text style={styles.numberText}>{val}</Text>
-          <Animated.Text style={[styles.unitText, { opacity: unitOpacity }]}>
-            {unit}
-          </Animated.Text>
         </Animated.View>
       </Pressable>
     );
@@ -269,8 +256,8 @@ const styles = StyleSheet.create({
   },
   dividerLine: {
     position: "absolute",
-    left: 20,
-    right: 20,
+    left: 12,
+    right: 12,
     height: 1,
     backgroundColor: "rgba(255, 255, 255, 0.12)",
     zIndex: 5,
@@ -289,24 +276,12 @@ const styles = StyleSheet.create({
   },
   numberText: {
     color: "#FFFFFF",
-    fontSize: 34,
-    lineHeight: 38,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    fontStyle: "italic",
-    letterSpacing: -0.5,
+    fontSize: 27,
+    lineHeight: 32,
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
+    letterSpacing: 0.2,
     includeFontPadding: false,
     textAlign: "center",
-  },
-  unitText: {
-    position: "absolute",
-    left: "50%",
-    marginLeft: 140,
-    color: "#2DD4BF",
-    fontSize: 14,
-    fontFamily: "monospace",
-    fontWeight: "700",
-    letterSpacing: 1,
-    includeFontPadding: false,
   },
 });

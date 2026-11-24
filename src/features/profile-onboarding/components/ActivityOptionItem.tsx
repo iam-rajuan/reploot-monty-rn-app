@@ -52,7 +52,7 @@ export const ActivityOptionItem = React.memo(
             ]}
           >
             {isSelected ? (
-              <Check size={12} color="#FFFFFF" strokeWidth={4} />
+              <Check size={11} color="#071A18" strokeWidth={3.5} />
             ) : null}
           </View>
         </View>
@@ -67,30 +67,32 @@ const styles = StyleSheet.create({
   },
   activityOptionRow: {
     width: "100%",
-    borderRadius: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 13,
+    minHeight: 54,
+    borderRadius: 13,
+    paddingHorizontal: 13,
+    paddingVertical: 9,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    overflow: "hidden",
   },
   activityOptionUnselected: {
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.04)",
-    backgroundColor: "#13141C",
+    borderColor: "rgba(148, 163, 184, 0.08)",
+    backgroundColor: "#111319",
   },
   activityOptionSelected: {
     borderWidth: 1,
-    borderColor: "#2DD4BF",
-    backgroundColor: "#2C2E46",
+    borderColor: "rgba(45, 212, 191, 0.38)",
+    backgroundColor: "rgba(45, 212, 191, 0.08)",
   },
   activityInfo: {
     flex: 1,
   },
   activityTitle: {
-    color: "#CBD5E1",
+    color: "#B8C2D1",
     fontSize: 14,
-    fontWeight: "400",
+    fontWeight: "600",
     marginBottom: 3,
     includeFontPadding: false,
   },
@@ -98,26 +100,26 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   activitySubtitle: {
-    color: "#8290A4",
+    color: "#64748B",
     fontSize: 11,
     fontWeight: "400",
     includeFontPadding: false,
   },
   radioCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 14,
   },
   radioCircleUnselected: {
-    borderWidth: 2,
-    borderColor: "#475569",
+    borderWidth: 1.5,
+    borderColor: "#52617A",
     backgroundColor: "transparent",
   },
   radioCircleSelected: {
     borderWidth: 0,
-    backgroundColor: "#2DD4BF",
+    backgroundColor: "#5EEAD4",
   },
 });

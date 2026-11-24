@@ -39,12 +39,9 @@ export function ActivityLevelCard({
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.titleGroup}>
-          <Zap
-            size={16}
-            color="#2DD4BF"
-            fill="#2DD4BF"
-            style={styles.headerIcon}
-          />
+          <View style={styles.iconBox}>
+            <Zap size={14} color="#5EEAD4" fill="#5EEAD4" />
+          </View>
           <Text style={styles.headerTitle}>ACTIVITY LEVEL</Text>
         </View>
       </View>
@@ -67,37 +64,43 @@ export function ActivityLevelCard({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 24,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.05)",
-    backgroundColor: "#1A1C23",
-    paddingHorizontal: 20,
-    paddingTop: 16,
+    borderColor: "rgba(148, 163, 184, 0.12)",
+    backgroundColor: "#171920",
+    paddingHorizontal: 14,
+    paddingTop: 14,
     paddingBottom: 14,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 8,
+    marginBottom: 12,
   },
   titleGroup: {
     flexDirection: "row",
     alignItems: "center",
   },
-  headerIcon: {
-    marginRight: 9,
+  iconBox: {
+    width: 30,
+    height: 30,
+    borderRadius: 9,
+    backgroundColor: "rgba(45, 212, 191, 0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
   },
   headerTitle: {
-    color: "#CBD5E1",
-    fontSize: 14,
-    fontWeight: "400",
-    letterSpacing: 1.5,
+    color: "#E2E8F0",
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 1.2,
+    includeFontPadding: false,
   },
   activityList: {
-    gap: 10,
-    marginTop: 8,
+    gap: 7,
     marginBottom: 4,
   },
 });
