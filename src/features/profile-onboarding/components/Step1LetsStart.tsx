@@ -58,6 +58,7 @@ export function Step1LetsStart() {
       </View>
       <OnboardingButton
         text="CONTINUE"
+        compact
         onPress={nextStep}
         subtext="BY PROCEEDING YOU AGREE TO OUR TERMS OF FORCE"
       />

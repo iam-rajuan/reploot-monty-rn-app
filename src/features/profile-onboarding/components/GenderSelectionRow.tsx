@@ -1,4 +1,5 @@
 import * as Haptics from "expo-haptics";
+import { Check } from "lucide-react-native";
 import {
   StyleSheet,
   Text,
@@ -32,6 +33,7 @@ export function GenderSelectionRow() {
         accessibilityLabel="Select Male"
         activeOpacity={0.8}
         onPress={() => handleSelectGender("male")}
+        accessibilityState={{ selected: data.gender === "male" }}
       >
         <View
           style={[
@@ -41,6 +43,11 @@ export function GenderSelectionRow() {
             data.gender === "male" && styles.maleActiveCard,
           ]}
         >
+          {data.gender === "male" ? (
+            <View style={[styles.selectedBadge, styles.maleSelectedBadge]}>
+              <Check size={12} color="#071018" strokeWidth={3} />
+            </View>
+          ) : null}
           <View style={styles.iconContainer}>
             <Svg width="32" height="48" viewBox="0 0 32 48" fill="none">
               <Path
@@ -57,6 +64,7 @@ export function GenderSelectionRow() {
         accessibilityLabel="Select Female"
         activeOpacity={0.8}
         onPress={() => handleSelectGender("female")}
+        accessibilityState={{ selected: data.gender === "female" }}
       >
         <View
           style={[
@@ -66,6 +74,11 @@ export function GenderSelectionRow() {
             data.gender === "female" && styles.femaleActiveCard,
           ]}
         >
+          {data.gender === "female" ? (
+            <View style={[styles.selectedBadge, styles.femaleSelectedBadge]}>
+              <Check size={12} color="#FFFFFF" strokeWidth={3} />
+            </View>
+          ) : null}
           <View style={styles.iconContainer}>
             <Svg width="22" height="50" viewBox="0 0 22 50" fill="none">
               <Path
@@ -93,32 +106,51 @@ const styles = StyleSheet.create({
   },
   genderCard: {
     width: "100%",
-    height: 140,
-    borderRadius: 20,
+    height: 124,
+    borderRadius: 18,
     borderWidth: 1.5,
     backgroundColor: "#12131C",
     alignItems: "center",
     justifyContent: "center",
+    position: "relative",
   },
   maleBorder: {
-    borderColor: "#38BDF8",
+    borderColor: "rgba(56, 189, 248, 0.42)",
   },
   maleActiveCard: {
     borderColor: "#38BDF8",
-    backgroundColor: "#161D2E",
+    borderWidth: 2.5,
+    backgroundColor: "rgba(14, 47, 72, 0.72)",
   },
   femaleBorder: {
-    borderColor: "#2DD4BF",
+    borderColor: "rgba(236, 72, 153, 0.42)",
   },
   femaleActiveCard: {
     borderColor: "#EC4899",
-    backgroundColor: "#221526",
+    borderWidth: 2.5,
+    backgroundColor: "rgba(67, 22, 58, 0.72)",
   },
-  iconContainer: {
-    marginBottom: 14,
+  selectedBadge: {
+    position: "absolute",
+    top: 9,
+    right: 9,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     alignItems: "center",
     justifyContent: "center",
-    height: 50,
+  },
+  maleSelectedBadge: {
+    backgroundColor: "#38BDF8",
+  },
+  femaleSelectedBadge: {
+    backgroundColor: "#EC4899",
+  },
+  iconContainer: {
+    marginBottom: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    height: 44,
   },
   genderLabel: {
     fontSize: 14,

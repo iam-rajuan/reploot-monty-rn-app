@@ -1,7 +1,13 @@
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { ArrowRight } from "lucide-react-native";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export interface OnboardingButtonProps {
   isFinalSlide?: boolean;
@@ -9,6 +15,7 @@ export interface OnboardingButtonProps {
   text?: string;
   disabled?: boolean;
   subtext?: string;
+  compact?: boolean;
 }
 
 export function OnboardingButton({
@@ -17,6 +24,7 @@ export function OnboardingButton({
   text,
   disabled = false,
   subtext,
+  compact = false,
 }: OnboardingButtonProps) {
   const displayText = text ?? (isFinalSlide ? "GET STARTED" : "NEXT");
 
@@ -39,7 +47,11 @@ export function OnboardingButton({
         disabled={disabled}
         activeOpacity={0.8}
         onPress={handlePress}
-        style={[styles.buttonWrapper, disabled && styles.buttonDisabled]}
+        style={[
+          styles.buttonWrapper,
+          compact && styles.buttonWrapperCompact,
+          disabled && styles.buttonDisabled,
+        ]}
       >
         <LinearGradient
           colors={
@@ -51,15 +63,22 @@ export function OnboardingButton({
           }
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
-          style={styles.buttonGradient}
+          style={[
+            styles.buttonGradient,
+            compact && styles.buttonGradientCompact,
+          ]}
         >
           <Text
-            style={[styles.buttonText, disabled && styles.buttonTextDisabled]}
+            style={[
+              styles.buttonText,
+              compact && styles.buttonTextCompact,
+              disabled && styles.buttonTextDisabled,
+            ]}
           >
             {displayText}
           </Text>
           <ArrowRight
-            size={19}
+            size={compact ? 17 : 19}
             color={disabled ? "rgba(255, 255, 255, 0.4)" : "#FFFFFF"}
             strokeWidth={2.4}
             style={styles.arrowIcon}
@@ -94,6 +113,10 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     opacity: 0.55,
   },
+  buttonWrapperCompact: {
+    height: 52,
+    borderRadius: 16,
+  },
   buttonPressed: {
     opacity: 0.88,
     transform: [{ scale: 0.985 }],
@@ -107,6 +130,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 24,
   },
+  buttonGradientCompact: {
+    height: 52,
+    borderRadius: 16,
+  },
   buttonText: {
     color: "#FFFFFF",
     fontSize: 16,
@@ -119,6 +146,10 @@ const styles = StyleSheet.create({
   },
   buttonTextDisabled: {
     color: "rgba(255, 255, 255, 0.5)",
+  },
+  buttonTextCompact: {
+    fontSize: 14,
+    letterSpacing: 1.6,
   },
   arrowIcon: {
     marginLeft: 8,
