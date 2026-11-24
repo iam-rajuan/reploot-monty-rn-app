@@ -1,7 +1,5 @@
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
-import MaskedView from "@react-native-masked-view/masked-view";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import {
   Activity,
@@ -288,33 +286,36 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
           },
         ]}
       >
-        {/* Title Section with Masked Gradient Title (Exact progress.tsx pattern) */}
+        {/* Keep the same clear, display-led hierarchy used on the Home tab. */}
         <View style={styles.titleSection}>
           <Text style={styles.categoryBadge}>GYM WORKOUT</Text>
-          <View style={styles.maskedTitleWrapper}>
-            <MaskedView
-              style={styles.maskedTitleView}
-              maskElement={
-                <View style={styles.maskWrapper}>
-                  <Text style={styles.mainTitle} numberOfLines={2}>
-                    {"SELECT YOUR\nPATH"}
-                  </Text>
-                </View>
-              }
-            >
-              <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradient}
-              />
-            </MaskedView>
-          </View>
+          <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
+            CHOOSE YOUR PATH
+          </Text>
+          <Text style={styles.subtitle}>
+            Pick a focus and build today&apos;s session around it.
+          </Text>
         </View>
 
-        <Pressable style={styles.rankingLink} onPress={() => router.push({ pathname: "/profile/global-rankings" as any, params: { context: "gym" } })}>
-          <View><Text style={styles.rankingLinkTitle}>GYM CHALLENGE RANKING</Text><Text style={styles.rankingLinkBody}>See challenge scores and your position</Text></View>
-          <TrendingUp size={20} color="#38EDD8" />
+        <Pressable
+          style={styles.rankingLink}
+          onPress={() =>
+            router.push({
+              pathname: "/profile/global-rankings" as any,
+              params: { context: "gym" },
+            })
+          }
+        >
+          <View style={styles.rankingIcon}>
+            <TrendingUp size={18} color="#54E6CF" />
+          </View>
+          <View style={styles.rankingCopy}>
+            <Text style={styles.rankingLinkTitle}>GYM CHALLENGE RANKING</Text>
+            <Text style={styles.rankingLinkBody}>
+              See your position and challenge scores
+            </Text>
+          </View>
+          <ChevronRight size={18} color="#8E9AB4" />
         </Pressable>
 
         {/* 2-Column Workout Path Cards Grid matching screenshot */}
@@ -325,7 +326,7 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
               style={styles.card}
               onPress={() => handleCardPress(item.id)}
             >
-              {/* Radial Glow Overlay */}
+              {/* Restrained accent tint keeps every focus recognisable without visual noise. */}
               <View
                 style={[styles.glowAura, { backgroundColor: item.glowAura }]}
                 pointerEvents="none"
@@ -371,87 +372,112 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 14,
+    paddingTop: 18,
   },
   titleSection: {
-    marginBottom: 26,
-    marginTop: 4,
+    marginBottom: 22,
+    marginTop: 8,
   },
   categoryBadge: {
-    color: "#44EAC3",
-    fontSize: 12,
+    color: "#94A3B8",
+    fontSize: 13,
+    lineHeight: 18,
     fontWeight: "800",
     letterSpacing: 1.5,
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     textTransform: "uppercase",
-    marginBottom: 8,
-  },
-  maskedTitleWrapper: {
-    height: 84,
-    width: "100%",
     marginBottom: 4,
-    justifyContent: "center",
-  },
-  maskedTitleView: {
-    flex: 1,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "flex-start",
-  },
-  gradient: {
-    flex: 1,
   },
   mainTitle: {
-    color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 38,
+    color: "#F6F8FF",
+    fontSize: 33,
+    lineHeight: 40,
     fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 0.5,
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    letterSpacing: -0.8,
     textAlign: "left",
     textTransform: "uppercase",
+    textShadowColor: "rgba(120, 145, 255, 0.2)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
-    lineHeight: 18,
-    fontFamily: "monospace",
-    fontWeight: "600",
+    lineHeight: 19,
+    fontFamily: "JetBrainsMono_500Medium",
+    fontWeight: "500",
+    marginTop: 4,
   },
 
   cardsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    rowGap: 16,
+    rowGap: 14,
   },
-  rankingLink: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderRadius: 18, borderWidth: 1, borderColor: "rgba(56,237,216,0.25)", backgroundColor: "rgba(56,237,216,0.07)", padding: 16, marginBottom: 20 },
-  rankingLinkTitle: { color: "#FFFFFF", fontSize: 13, fontWeight: "900", fontFamily: "monospace", marginBottom: 4 },
-  rankingLinkBody: { color: "#94A3B8", fontSize: 11, fontFamily: "monospace" },
+  rankingLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "rgba(84, 230, 207, 0.22)",
+    backgroundColor: "#0B2025",
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    marginBottom: 20,
+  },
+  rankingIcon: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 12,
+    backgroundColor: "rgba(84, 230, 207, 0.11)",
+    borderWidth: 1,
+    borderColor: "rgba(84, 230, 207, 0.2)",
+  },
+  rankingCopy: { flex: 1, marginLeft: 11 },
+  rankingLinkTitle: {
+    color: "#F4F7FF",
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "800",
+    fontFamily: "JetBrainsMono_700Bold",
+    letterSpacing: 0.7,
+  },
+  rankingLinkBody: {
+    color: "#8E9AB4",
+    fontSize: 11,
+    lineHeight: 15,
+    fontFamily: "JetBrainsMono_500Medium",
+    marginTop: 2,
+  },
   card: {
     width: (width - 54) / 2,
-    height: 194,
-    backgroundColor: "rgba(18, 22, 33, 0.72)",
-    borderRadius: 24,
+    height: 184,
+    backgroundColor: "#111827",
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 16,
+    borderColor: "rgba(122, 146, 199, 0.19)",
+    padding: 14,
     justifyContent: "space-between",
     position: "relative",
     overflow: "hidden",
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
+    elevation: 3,
   },
   glowAura: {
     position: "absolute",
-    bottom: -30,
-    right: -30,
-    width: 100,
-    height: 100,
+    bottom: -38,
+    right: -38,
+    width: 118,
+    height: 118,
     borderRadius: 50,
-    opacity: 0.15,
+    opacity: 0.5,
   },
   cardTopRow: {
     flexDirection: "row",
@@ -459,21 +485,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   iconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    width: 42,
+    height: 42,
+    borderRadius: 13,
     borderWidth: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   tagPill: {
-    paddingHorizontal: 9,
+    paddingHorizontal: 8,
     paddingVertical: 5,
-    borderRadius: 12,
+    borderRadius: 10,
   },
   tagText: {
-    fontSize: 10,
-    fontFamily: "monospace",
+    fontSize: 9,
+    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "800",
     letterSpacing: 0.8,
   },
@@ -482,21 +508,21 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: "auto",
-    marginBottom: 6,
+    marginBottom: 5,
   },
   cardTitle: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontFamily: "monospace",
+    color: "#F6F8FF",
+    fontSize: 13,
+    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "900",
     letterSpacing: 0.8,
     textTransform: "uppercase",
   },
   cardSubtitle: {
-    color: "#94A3B8",
-    fontSize: 11,
-    lineHeight: 16,
-    fontFamily: "monospace",
-    fontWeight: "600",
+    color: "#91A0B9",
+    fontSize: 10,
+    lineHeight: 15,
+    fontFamily: "JetBrainsMono_500Medium",
+    fontWeight: "500",
   },
 });

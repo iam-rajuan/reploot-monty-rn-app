@@ -2,7 +2,7 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { ArrowRight, Shield } from "lucide-react-native";
-import React from "react";
+import React, { useState } from "react";
 import {
   Platform,
   StyleSheet,
@@ -29,6 +29,7 @@ const StreakLightningIcon = () => (
 
 export const WeeklyProgressCard = () => {
   const progression = useProgressionSnapshot();
+  const [isDailyXpVisible, setIsDailyXpVisible] = useState(false);
   const WEEK_DAYS = [
     { label: "M", height: 28, type: "blue" },
     { label: "T", height: 44, type: "blue" },
@@ -83,14 +84,34 @@ export const WeeklyProgressCard = () => {
         <Text style={styles.xpText}>2,450 XP</Text>
         <Text style={styles.xpText}>3,000 XP</Text>
       </View>
-      <View style={styles.progressBarTrack}>
-        <LinearGradient
-          colors={["#6366F1", "#4F9DFB", "#38D6E8"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={[styles.progressBarFill, { width: "72%" }]}
-        />
-      </View>
+      <TouchableOpacity
+        activeOpacity={0.82}
+        onPress={() => {
+          if (Platform.OS !== "web") {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+          }
+          setIsDailyXpVisible((visible) => !visible);
+        }}
+        accessibilityRole="button"
+        accessibilityLabel="Show today's XP gained"
+        accessibilityState={{ expanded: isDailyXpVisible }}
+        style={styles.xpTapTarget}
+      >
+        <View style={styles.progressBarTrack}>
+          <LinearGradient
+            colors={["#6366F1", "#4F9DFB", "#38D6E8"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.progressBarFill, { width: "72%" }]}
+          />
+        </View>
+      </TouchableOpacity>
+      {isDailyXpVisible ? (
+        <View style={styles.dailyXpDetail}>
+          <Text style={styles.dailyXpLabel}>TODAY&apos;S XP GAINED</Text>
+          <Text style={styles.dailyXpValue}>+2,450 XP</Text>
+        </View>
+      ) : null}
 
       {/* Weekly Bar Chart */}
       <View style={styles.chartContainer}>
@@ -270,11 +291,43 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(148, 163, 184, 0.14)",
     borderRadius: 999,
     overflow: "hidden",
-    marginBottom: 18,
+  },
+  xpTapTarget: {
+    borderRadius: 999,
+    paddingVertical: 4,
+    marginHorizontal: -4,
+    paddingHorizontal: 4,
+    marginBottom: 14,
   },
   progressBarFill: {
     height: 11,
     borderRadius: 999,
+  },
+  dailyXpDetail: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginTop: -6,
+    marginBottom: 14,
+    borderRadius: 10,
+    backgroundColor: "rgba(79, 157, 251, 0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(79, 157, 251, 0.18)",
+  },
+  dailyXpLabel: {
+    color: "#AAB5CB",
+    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 0.7,
+  },
+  dailyXpValue: {
+    color: "#68D8ED",
+    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: 11,
+    fontWeight: "800",
   },
   chartContainer: {
     height: 96,
