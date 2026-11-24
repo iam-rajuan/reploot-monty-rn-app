@@ -150,9 +150,9 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
       setIsKeyboardVisible(true);
       if (!isRestFieldFocusedRef.current) return;
 
-      const settledLayoutTimer = setTimeout(() => {
+      requestAnimationFrame(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
-      }, 60);
+      });
     });
     const keyboardHidden = Keyboard.addListener("keyboardDidHide", (event) => {
       Keyboard.scheduleLayoutAnimation(event);
@@ -319,6 +319,9 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
 
   const handleRestFieldFocus = () => {
     isRestFieldFocusedRef.current = true;
+    requestAnimationFrame(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    });
   };
 
   const currentStep =
