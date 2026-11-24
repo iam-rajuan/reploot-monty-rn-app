@@ -124,7 +124,7 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> =
           <Pressable
             onPress={handleCardPress}
             onLongPress={onLongPress}
-            delayLongPress={340}
+            delayLongPress={240}
             style={[
               styles.exerciseCard,
               isCompleted && styles.exerciseCardCompleted,
@@ -358,11 +358,11 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
       keyExtractor={(exercise) => exercise.id}
       activationDistance={18}
       autoscrollThreshold={90}
-      autoscrollSpeed={65}
+      autoscrollSpeed={78}
       animationConfig={{
-        damping: 22,
-        stiffness: 180,
-        mass: 0.45,
+        damping: 20,
+        stiffness: 235,
+        mass: 0.34,
         overshootClamping: true,
         energyThreshold: 0.001,
       }}

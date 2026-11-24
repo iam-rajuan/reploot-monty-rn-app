@@ -143,7 +143,7 @@ const MealSwipeShell = ({
     >
       <Pressable
         onLongPress={onLongPress}
-        delayLongPress={340}
+        delayLongPress={240}
         accessibilityHint={
           onLongPress
             ? "Press and hold to drag and rearrange this meal"
@@ -547,11 +547,11 @@ export default function UnifiedMealPlanScreen() {
           keyExtractor={(meal) => String(meal.id)}
           activationDistance={18}
           autoscrollThreshold={90}
-          autoscrollSpeed={65}
+          autoscrollSpeed={78}
           animationConfig={{
-            damping: 22,
-            stiffness: 180,
-            mass: 0.45,
+            damping: 20,
+            stiffness: 235,
+            mass: 0.34,
             overshootClamping: true,
             energyThreshold: 0.001,
           }}
