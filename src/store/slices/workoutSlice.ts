@@ -330,13 +330,16 @@ export const workoutSlice = createSlice({
         (exercise) => !requestedIds.has(exercise.id)
       );
 
-      currentWorkout.exercises = [...ordered, ...remaining].map(
-        (exercise, index) => ({
-          ...exercise,
-          index: String(index + 1).padStart(2, "0"),
-          isAiRecommended: index < 8,
-        })
-      );
+      const nextExercises = [...ordered, ...remaining];
+      nextExercises.forEach((exercise, index) => {
+        const nextIndex = String(index + 1).padStart(2, "0");
+        const isAiRecommended = index < 8;
+        if (exercise.index !== nextIndex) exercise.index = nextIndex;
+        if (exercise.isAiRecommended !== isAiRecommended) {
+          exercise.isAiRecommended = isAiRecommended;
+        }
+      });
+      currentWorkout.exercises = nextExercises;
     },
 
     // 1. DELETE ONE EXERCISE: only that exercise is removed, re-indexing remaining
