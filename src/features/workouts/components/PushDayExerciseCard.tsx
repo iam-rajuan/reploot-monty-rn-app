@@ -109,7 +109,7 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
       <Pressable
         onPress={handleCardPress}
         onLongPress={onLongPress}
-        delayLongPress={450}
+        delayLongPress={260}
         style={[
           styles.exerciseCard,
           isCompleted && styles.exerciseCardCompleted,
@@ -334,10 +334,10 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
       data={exercises}
       keyExtractor={(exercise) => exercise.id}
       activationDistance={10}
-      autoscrollThreshold={100}
-      autoscrollSpeed={120}
+      autoscrollThreshold={130}
+      autoscrollSpeed={280}
       dragItemOverflow
-      animationConfig={{ damping: 22, stiffness: 180, mass: 0.45 }}
+      animationConfig={{ damping: 30, stiffness: 420, mass: 0.16 }}
       contentContainerStyle={[styles.exerciseList, style]}
       ListHeaderComponent={
         <>
@@ -358,15 +358,11 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
       ListFooterComponent={ListFooterComponent}
       onDragBegin={() => onDragStateChange?.(true)}
       onRelease={() => {
-        setTimeout(() => {
-          onDragStateChange?.(false);
-        }, 150);
+        onDragStateChange?.(false);
       }}
       onDragEnd={({ data }) => {
         onReorderExercises?.(data.map((exercise) => exercise.id));
-        setTimeout(() => {
-          onDragStateChange?.(false);
-        }, 150);
+        onDragStateChange?.(false);
       }}
       renderItem={({ item, drag, isActive, getIndex }: RenderItemParams<PushDayExercise | WorkoutExerciseItem>) => {
         const index = getIndex() ?? 0;

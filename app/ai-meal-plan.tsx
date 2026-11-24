@@ -115,7 +115,7 @@ const MealSwipeShell = ({
     >
       <Pressable
         onLongPress={onLongPress}
-        delayLongPress={450}
+        delayLongPress={260}
         accessibilityHint={onLongPress ? "Press and hold to drag and rearrange this meal" : undefined}
       >
         {children}
@@ -507,10 +507,10 @@ export default function UnifiedMealPlanScreen() {
             data={meals}
             keyExtractor={(meal) => String(meal.id)}
             activationDistance={10}
-            autoscrollThreshold={100}
-            autoscrollSpeed={120}
+            autoscrollThreshold={130}
+            autoscrollSpeed={280}
             dragItemOverflow
-            animationConfig={{ damping: 22, stiffness: 180, mass: 0.45 }}
+            animationConfig={{ damping: 30, stiffness: 420, mass: 0.16 }}
             contentContainerStyle={styles.mealList}
             ListHeaderComponent={
               <>
@@ -532,15 +532,11 @@ export default function UnifiedMealPlanScreen() {
             ListFooterComponent={bottomActions}
             onDragBegin={() => setIsDraggingMeal(true)}
             onRelease={() => {
-              setTimeout(() => {
-                setIsDraggingMeal(false);
-              }, 150);
+              setIsDraggingMeal(false);
             }}
             onDragEnd={({ data }) => {
               handleMealReorder(data);
-              setTimeout(() => {
-                setIsDraggingMeal(false);
-              }, 150);
+              setIsDraggingMeal(false);
             }}
             renderItem={({
               item: meal,
