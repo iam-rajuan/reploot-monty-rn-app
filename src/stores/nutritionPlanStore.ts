@@ -93,6 +93,7 @@ interface NutritionPlanState {
   toggleMealLog: (id: number) => void;
   regenerateMeal: (id: number) => void;
   deleteMeal: (id: number) => void;
+  reorderMeals: (orderedMealIds: number[]) => void;
   randomizeCalories: () => void;
   resetMeals: () => void;
 
@@ -138,6 +139,22 @@ export const useNutritionPlanStore = create<NutritionPlanState>((set, get) => ({
     set((state) => ({
       meals: state.meals.filter((m) => m.id !== id),
     })),
+
+  reorderMeals: (orderedMealIds: number[]) =>
+    set((state) => {
+      const mealsById = new Map(state.meals.map((meal) => [meal.id, meal]));
+      const orderedMeals = orderedMealIds
+        .map((id) => mealsById.get(id))
+        .filter((meal): meal is UnifiedMeal => Boolean(meal));
+      const requestedIds = new Set(orderedMealIds);
+
+      return {
+        meals: [
+          ...orderedMeals,
+          ...state.meals.filter((meal) => !requestedIds.has(meal.id)),
+        ],
+      };
+    }),
 
   randomizeCalories: () =>
     set((state) => ({

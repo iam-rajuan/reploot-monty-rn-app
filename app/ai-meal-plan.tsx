@@ -21,6 +21,10 @@ import {
 } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
+  default as DraggableFlatList,
+  type RenderItemParams,
+} from "react-native-draggable-flatlist";
+import {
   Platform,
   Pressable,
   ScrollView,
@@ -59,6 +63,7 @@ const MealSwipeShell = ({
   onSwipeClose,
   onRegenerate,
   onDelete,
+  onLongPress,
   children,
 }: {
   mealName: string;
@@ -67,6 +72,7 @@ const MealSwipeShell = ({
   onSwipeClose: () => void;
   onRegenerate: () => void;
   onDelete: () => void;
+  onLongPress?: () => void;
   children: React.ReactNode;
 }) => {
   const swipeableRef = useRef<SwipeableMethods | null>(null);
@@ -102,7 +108,13 @@ const MealSwipeShell = ({
       }}
       onSwipeableClose={onSwipeClose}
     >
-      {children}
+      <Pressable
+        onLongPress={onLongPress}
+        delayLongPress={180}
+        accessibilityHint={onLongPress ? "Press and hold to drag and rearrange this meal" : undefined}
+      >
+        {children}
+      </Pressable>
     </ReanimatedSwipeable>
   );
 };
@@ -234,11 +246,15 @@ export default function UnifiedMealPlanScreen() {
     params.justLogged === "true",
   );
   const activeSwipeCloserRef = useRef<(() => void) | null>(null);
+  const mealScrollRef = useRef<ScrollView>(null);
+  const mealScrollOffsetRef = useRef(0);
+  const mealDragIndexRef = useRef<number | null>(null);
 
   const meals = useNutritionPlanStore((state) => state.meals);
   const toggleMealLog = useNutritionPlanStore((state) => state.toggleMealLog);
   const regenerateMeal = useNutritionPlanStore((state) => state.regenerateMeal);
   const deleteMeal = useNutritionPlanStore((state) => state.deleteMeal);
+  const reorderMeals = useNutritionPlanStore((state) => state.reorderMeals);
   const randomizeCalories = useNutritionPlanStore(
     (state) => state.randomizeCalories,
   );
@@ -289,6 +305,24 @@ export default function UnifiedMealPlanScreen() {
 
   const loggedMeals = useMemo(() => meals.filter((m) => m.completed), [meals]);
 
+  const handleMealReorder = (orderedMeals: UnifiedMeal[]) => {
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+    reorderMeals(orderedMeals.map((meal) => meal.id));
+  };
+
+  const handleMealPlaceholderChange = (index: number) => {
+    const previousIndex = mealDragIndexRef.current;
+    if (previousIndex !== null && previousIndex !== index) {
+      const nextOffset = Math.max(
+        0,
+        mealScrollOffsetRef.current + (index > previousIndex ? 112 : -112)
+      );
+      mealScrollRef.current?.scrollTo({ y: nextOffset, animated: false });
+      mealScrollOffsetRef.current = nextOffset;
+    }
+    mealDragIndexRef.current = index;
+  };
+
   const computedWeekHistory = useMemo(() => {
     return WEEK_HISTORY_DATA.map((day) => {
       if (day.isToday) {
@@ -318,6 +352,11 @@ export default function UnifiedMealPlanScreen() {
       />
 
       <ScrollView
+        ref={mealScrollRef}
+        onScroll={(event) => {
+          mealScrollOffsetRef.current = event.nativeEvent.contentOffset.y;
+        }}
+        scrollEventThrottle={16}
         contentContainerStyle={[
           styles.scrollContent,
           { paddingBottom: Math.max(insets.bottom + 90, 110) },
@@ -438,8 +477,19 @@ export default function UnifiedMealPlanScreen() {
             </View>
 
             {/* Meals List */}
-            <View style={styles.mealList}>
-              {meals.map((meal, index) => {
+            <DraggableFlatList
+              data={meals}
+              keyExtractor={(meal) => String(meal.id)}
+              scrollEnabled={false}
+              activationDistance={8}
+              autoscrollThreshold={80}
+              autoscrollSpeed={250}
+              onDragBegin={(index) => handleMealPlaceholderChange(index)}
+              onPlaceholderIndexChange={handleMealPlaceholderChange}
+              contentContainerStyle={styles.mealList}
+              onDragEnd={({ data }) => handleMealReorder(data)}
+              renderItem={({ item: meal, drag, isActive, getIndex }: RenderItemParams<UnifiedMeal>) => {
+                const index = getIndex() ?? 0;
                 const isFirstScanned =
                   meal.type === "SCANNED" &&
                   (index === 0 || meals[index - 1]?.type !== "SCANNED");
@@ -468,10 +518,16 @@ export default function UnifiedMealPlanScreen() {
                       }}
                       onRegenerate={() => regenerateMeal(meal.id)}
                       onDelete={() => deleteMeal(meal.id)}
+                      onLongPress={() => {
+                        activeSwipeCloserRef.current?.();
+                        triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+                        drag();
+                      }}
                     >
                       <View
                         style={[
                           styles.mealCard,
+                          isActive && styles.mealCardDragging,
                           meal.completed && styles.mealCardCompleted,
                           meal.type === "SCANNED" && styles.mealCardScanned,
                           meal.id === lastSavedMealId &&
@@ -565,8 +621,8 @@ export default function UnifiedMealPlanScreen() {
                     </MealSwipeShell>
                   </React.Fragment>
                 );
-              })}
-            </View>
+              }}
+            />
           </>
         ) : (
           <>
@@ -914,6 +970,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.07)",
     padding: isSmallDevice ? 14 : 16,
+  },
+  mealCardDragging: {
+    opacity: 0.92,
+    transform: [{ scale: 1.015 }],
   },
   mealCardCompleted: {
     borderColor: "rgba(45, 212, 191, 0.32)",

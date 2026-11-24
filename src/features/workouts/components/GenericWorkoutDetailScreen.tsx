@@ -4,6 +4,7 @@ import {
   regenerateWorkout,
   removeExerciseFromWorkout,
   replaceExerciseInWorkout,
+  reorderWorkoutExercises,
   setActiveWorkoutPathId,
   setSelectedWorkoutCategory,
 } from "@/store/slices/workoutSlice";
@@ -12,7 +13,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Check, Dumbbell, RefreshCw, Sparkles } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Platform,
   Pressable,
@@ -112,6 +113,9 @@ export const GenericWorkoutDetailScreen: React.FC<
   ).length;
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const workoutScrollRef = useRef<ScrollView>(null);
+  const workoutScrollOffsetRef = useRef(0);
+  const workoutDragIndexRef = useRef<number | null>(null);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -187,6 +191,28 @@ export const GenericWorkoutDetailScreen: React.FC<
     showToast("EXERCISE REMOVED FROM ROUTINE");
   };
 
+  const handleReorderExercises = (orderedExerciseIds: string[]) => {
+    dispatch(
+      reorderWorkoutExercises({
+        pathId: activePathId,
+        orderedExerciseIds,
+      })
+    );
+  };
+
+  const handleWorkoutPlaceholderChange = (index: number) => {
+    const previousIndex = workoutDragIndexRef.current;
+    if (previousIndex !== null && previousIndex !== index) {
+      const nextOffset = Math.max(
+        0,
+        workoutScrollOffsetRef.current + (index > previousIndex ? 96 : -96)
+      );
+      workoutScrollRef.current?.scrollTo({ y: nextOffset, animated: false });
+      workoutScrollOffsetRef.current = nextOffset;
+    }
+    workoutDragIndexRef.current = index;
+  };
+
   // 2. REPLACE ONE EXERCISE: only that exercise changes, picking next appropriate mock exercise
   const handleReplaceExercise = (exerciseId: string) => {
     dispatch(
@@ -218,6 +244,11 @@ export const GenericWorkoutDetailScreen: React.FC<
       />
 
       <ScrollView
+        ref={workoutScrollRef}
+        onScroll={(event) => {
+          workoutScrollOffsetRef.current = event.nativeEvent.contentOffset.y;
+        }}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
@@ -299,6 +330,8 @@ export const GenericWorkoutDetailScreen: React.FC<
           onExercisePress={handleExercisePress}
           onReplaceExercise={handleReplaceExercise}
           onDeleteExercise={handleDeleteExercise}
+          onReorderExercises={handleReorderExercises}
+          onDragPlaceholderIndexChange={handleWorkoutPlaceholderChange}
         />
       </ScrollView>
 

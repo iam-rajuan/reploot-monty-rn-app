@@ -3,6 +3,10 @@ import * as Haptics from "expo-haptics";
 import { Image, ImageSource } from "expo-image";
 import { Check, Play, RefreshCw, Sparkles, Trash2, Zap } from "lucide-react-native";
 import React, { useRef } from "react";
+import {
+  default as DraggableFlatList,
+  type RenderItemParams,
+} from "react-native-draggable-flatlist";
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from "react-native-gesture-handler/ReanimatedSwipeable";
@@ -32,6 +36,7 @@ export interface PushDayExerciseCardProps {
   onPress?: () => void;
   onReplace?: () => void;
   onDelete?: () => void;
+  onLongPress?: () => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -50,6 +55,7 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
   onPress,
   onReplace,
   onDelete,
+  onLongPress,
   style,
   testID,
 }) => {
@@ -164,6 +170,8 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
       <View style={styles.animatedCardContainer}>
         <Pressable
           onPress={handleCardPress}
+          onLongPress={onLongPress}
+          delayLongPress={180}
           style={[
             styles.exerciseCard,
             isCompleted && styles.exerciseCardCompleted,
@@ -268,6 +276,8 @@ export interface PushDayExerciseListProps {
   onExercisePress?: (exercise: PushDayExercise | WorkoutExerciseItem) => void;
   onReplaceExercise?: (exerciseId: string) => void;
   onDeleteExercise?: (exerciseId: string) => void;
+  onReorderExercises?: (orderedExerciseIds: string[]) => void;
+  onDragPlaceholderIndexChange?: (index: number) => void;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -278,6 +288,8 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
   onExercisePress,
   onReplaceExercise,
   onDeleteExercise,
+  onReorderExercises,
+  onDragPlaceholderIndexChange,
   style,
 }) => {
   const activeSwipeCloserRef = useRef<(() => void) | null>(null);
@@ -318,7 +330,46 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
   };
 
   if (!showRecommendationSections) {
-    return <View style={[styles.exerciseList, style]}>{exercises.map(renderExercise)}</View>;
+    return (
+      <DraggableFlatList
+        data={exercises}
+        keyExtractor={(exercise) => exercise.id}
+        scrollEnabled={false}
+        activationDistance={8}
+        autoscrollThreshold={80}
+        autoscrollSpeed={250}
+        onDragBegin={(index) => onDragPlaceholderIndexChange?.(index)}
+        onPlaceholderIndexChange={onDragPlaceholderIndexChange}
+        contentContainerStyle={[styles.exerciseList, style]}
+        onDragEnd={({ data }) => {
+          onReorderExercises?.(data.map((exercise) => exercise.id));
+        }}
+        renderItem={({ item, drag, isActive }: RenderItemParams<PushDayExercise | WorkoutExerciseItem>) => (
+          <PushDayExerciseCard
+            exercise={item}
+            isCompleted={completedIds.includes(item.id)}
+            style={isActive ? styles.draggingCard : undefined}
+            onSwipeStart={() => activeSwipeCloserRef.current?.()}
+            onSwipeOpen={(closeRow) => {
+              activeSwipeCloserRef.current = closeRow;
+            }}
+            onSwipeClose={() => {
+              activeSwipeCloserRef.current = null;
+            }}
+            onPress={() => onExercisePress?.(item)}
+            onLongPress={() => {
+              activeSwipeCloserRef.current?.();
+              if (Platform.OS !== "web") {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+              }
+              drag();
+            }}
+            onReplace={onReplaceExercise ? () => onReplaceExercise(item.id) : undefined}
+            onDelete={onDeleteExercise ? () => onDeleteExercise(item.id) : undefined}
+          />
+        )}
+      />
+    );
   }
 
   const aiRecommended = exercises.filter(
@@ -620,6 +671,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingLeft: 4,
+  },
+  draggingCard: {
+    opacity: 0.92,
+    transform: [{ scale: 1.02 }],
   },
   playButton: {
     width: 36,

@@ -4,6 +4,7 @@ import {
   REPLACEMENT_EXERCISES_POOL,
   WORKOUT_PATH_DETAILS_MAP,
   WORKOUT_VARIATIONS_MAP,
+  WorkoutExerciseItem,
 } from '@/features/workouts/data/workoutPathDetailData';
 
 export interface ScheduledWorkoutEntry {
@@ -296,6 +297,36 @@ export const workoutSlice = createSlice({
     },
     setSelectedWorkoutCategory: (state, action: PayloadAction<string>) => {
       state.selectedWorkoutCategory = action.payload.toLowerCase();
+    },
+
+    // Keep the routine order selected by the member. `orderedExerciseIds` may
+    // contain only the visible AI picks, so retain any exercises not included
+    // in the payload at the end of the routine.
+    reorderWorkoutExercises: (
+      state,
+      action: PayloadAction<{ pathId: string; orderedExerciseIds: string[] }>
+    ) => {
+      const { pathId, orderedExerciseIds } = action.payload;
+      const currentWorkout = state.workoutsByPath[pathId.toLowerCase()];
+      if (!currentWorkout) return;
+
+      const exercisesById = new Map(
+        currentWorkout.exercises.map((exercise) => [exercise.id, exercise])
+      );
+      const ordered = orderedExerciseIds
+        .map((id) => exercisesById.get(id))
+        .filter((exercise): exercise is WorkoutExerciseItem => Boolean(exercise));
+      const requestedIds = new Set(orderedExerciseIds);
+      const remaining = currentWorkout.exercises.filter(
+        (exercise) => !requestedIds.has(exercise.id)
+      );
+
+      currentWorkout.exercises = [...ordered, ...remaining].map(
+        (exercise, index) => ({
+          ...exercise,
+          index: String(index + 1).padStart(2, "0"),
+        })
+      );
     },
 
     // 1. DELETE ONE EXERCISE: only that exercise is removed, re-indexing remaining
@@ -618,6 +649,7 @@ export const {
   setCurrentExerciseIndex,
   setActiveWorkoutPathId,
   setSelectedWorkoutCategory,
+  reorderWorkoutExercises,
   removeExerciseFromWorkout,
   replaceExerciseInWorkout,
   regenerateWorkout,
