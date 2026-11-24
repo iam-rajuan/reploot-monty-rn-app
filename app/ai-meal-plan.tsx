@@ -63,6 +63,8 @@ export interface DayHistory {
 }
 
 const MEAL_ACTION_DRAWER_WIDTH = 144;
+const MealItemSeparator = () => <View style={styles.mealItemSeparator} />;
+
 const MealSwipeShell = ({
   mealName,
   onSwipeStart,
@@ -549,17 +551,18 @@ export default function UnifiedMealPlanScreen() {
           autoscrollThreshold={90}
           autoscrollSpeed={78}
           animationConfig={{
-            damping: 20,
-            stiffness: 235,
-            mass: 0.34,
+            damping: 18,
+            stiffness: 360,
+            mass: 0.25,
             overshootClamping: true,
-            energyThreshold: 0.001,
+            energyThreshold: 0.01,
           }}
           contentContainerStyle={[
             styles.scrollContent,
             styles.mealList,
             { paddingBottom: Math.max(insets.bottom + 90, 110) },
           ]}
+          ItemSeparatorComponent={MealItemSeparator}
           ListHeaderComponent={todayListHeader}
           ListFooterComponent={bottomActions}
           onDragEnd={({ data }) => {
@@ -1012,8 +1015,10 @@ const styles = StyleSheet.create({
     fontFamily: "JetBrainsMono_700Bold",
   },
   mealList: {
-    gap: 12,
     marginBottom: 22,
+  },
+  mealItemSeparator: {
+    height: 12,
   },
   mealSwipeShell: { width: "100%" },
   mealSwipeActions: {

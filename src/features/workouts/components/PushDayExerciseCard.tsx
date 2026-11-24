@@ -324,6 +324,8 @@ export interface PushDayExerciseListProps {
   ListFooterComponent?: React.ReactElement | null;
 }
 
+const ExerciseItemSeparator = () => <View style={styles.itemSeparator} />;
+
 export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
   exercises,
   completedExerciseIds: propCompletedIds,
@@ -360,13 +362,14 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
       autoscrollThreshold={90}
       autoscrollSpeed={78}
       animationConfig={{
-        damping: 20,
-        stiffness: 235,
-        mass: 0.34,
+        damping: 18,
+        stiffness: 360,
+        mass: 0.25,
         overshootClamping: true,
-        energyThreshold: 0.001,
+        energyThreshold: 0.01,
       }}
       contentContainerStyle={[styles.exerciseList, style]}
+      ItemSeparatorComponent={ExerciseItemSeparator}
       ListHeaderComponent={
         <>
           {ListHeaderComponent}
@@ -461,7 +464,10 @@ export const WorkoutExerciseList = PushDayExerciseList;
 
 const styles = StyleSheet.create({
   exerciseList: {
-    gap: 12,
+    width: "100%",
+  },
+  itemSeparator: {
+    height: 12,
   },
   recommendationHeader: {
     minHeight: 34,
