@@ -439,102 +439,131 @@ export default function UnifiedMealPlanScreen() {
 
             {/* Meals List */}
             <View style={styles.mealList}>
-              {meals.map((meal) => {
+              {meals.map((meal, index) => {
+                const isFirstScanned =
+                  meal.type === "SCANNED" &&
+                  (index === 0 || meals[index - 1]?.type !== "SCANNED");
+
                 return (
-                  <MealSwipeShell
-                    key={meal.id}
-                    mealName={meal.name}
-                    onSwipeStart={() => activeSwipeCloserRef.current?.()}
-                    onSwipeOpen={(closeRow) => {
-                      activeSwipeCloserRef.current = closeRow;
-                    }}
-                    onSwipeClose={() => {
-                      activeSwipeCloserRef.current = null;
-                    }}
-                    onRegenerate={() => regenerateMeal(meal.id)}
-                    onDelete={() => deleteMeal(meal.id)}
-                  >
-                  <View
-                    style={[
-                      styles.mealCard,
-                      meal.completed && styles.mealCardCompleted,
-                      meal.id === lastSavedMealId &&
-                        justLoggedBannerVisible &&
-                        styles.mealCardJustLogged,
-                    ]}
-                  >
-                    {/* Top Row: Type Label + Time + Action Button */}
-                    <View style={styles.mealTopRow}>
-                      <View style={styles.mealBadgeGroup}>
-                        <View style={styles.typeBadge}>
-                          <Text
-                            style={[styles.typeText, { color: meal.typeColor }]}
-                          >
-                            {meal.type}
-                          </Text>
+                  <React.Fragment key={meal.id}>
+                    {isFirstScanned && (
+                      <View style={styles.scannedDividerRow}>
+                        <View style={styles.scannedDividerLine} />
+                        <View style={styles.scannedDividerBadge}>
+                          <Camera size={11} color="#38BDF8" style={{ marginRight: 5 }} />
+                          <Text style={styles.scannedDividerText}>SCANNED MEALS QUEUE</Text>
+                        </View>
+                        <View style={styles.scannedDividerLine} />
+                      </View>
+                    )}
+
+                    <MealSwipeShell
+                      mealName={meal.name}
+                      onSwipeStart={() => activeSwipeCloserRef.current?.()}
+                      onSwipeOpen={(closeRow) => {
+                        activeSwipeCloserRef.current = closeRow;
+                      }}
+                      onSwipeClose={() => {
+                        activeSwipeCloserRef.current = null;
+                      }}
+                      onRegenerate={() => regenerateMeal(meal.id)}
+                      onDelete={() => deleteMeal(meal.id)}
+                    >
+                      <View
+                        style={[
+                          styles.mealCard,
+                          meal.completed && styles.mealCardCompleted,
+                          meal.type === "SCANNED" && styles.mealCardScanned,
+                          meal.id === lastSavedMealId &&
+                            justLoggedBannerVisible &&
+                            styles.mealCardJustLogged,
+                        ]}
+                      >
+                        {/* Top Row: Type Label + Time + Action Button */}
+                        <View style={styles.mealTopRow}>
+                          <View style={styles.mealBadgeGroup}>
+                            <View
+                              style={[
+                                styles.typeBadge,
+                                meal.type === "SCANNED" && styles.scannedTypeBadge,
+                              ]}
+                            >
+                              {meal.type === "SCANNED" ? (
+                                <View style={styles.scannedBadgeContent}>
+                                  <Camera size={10} color="#38BDF8" style={{ marginRight: 4 }} />
+                                  <Text style={styles.scannedTypeText}>SCANNED</Text>
+                                </View>
+                              ) : (
+                                <Text
+                                  style={[styles.typeText, { color: meal.typeColor }]}
+                                >
+                                  {meal.type}
+                                </Text>
+                              )}
+                            </View>
+
+                            <View style={styles.timingBadge}>
+                              <Clock size={11} color="#64748B" />
+                              <Text style={styles.timingText}>{meal.time}</Text>
+                              <Text style={styles.prepTimeDot}>•</Text>
+                              <Text style={styles.prepTimeText}>{meal.prepTime}</Text>
+                            </View>
+                          </View>
+
+                          {/* Log / Completed Action Button */}
+                          {meal.completed ? (
+                            <Pressable
+                              style={styles.completedBtn}
+                              onPress={() => handleToggleMealLog(meal.id)}
+                              accessibilityRole="button"
+                              accessibilityLabel="Meal logged, tap to unmark"
+                            >
+                              <Check size={12} color="#2DD4BF" strokeWidth={2.5} />
+                              <Text style={styles.completedBtnText}>LOGGED</Text>
+                            </Pressable>
+                          ) : (
+                            <Pressable
+                              style={styles.logBtn}
+                              onPress={() => handleToggleMealLog(meal.id)}
+                              accessibilityRole="button"
+                              accessibilityLabel="Log meal"
+                            >
+                              <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
+                              <Text style={styles.logBtnText}>LOG</Text>
+                            </Pressable>
+                          )}
                         </View>
 
-                        <View style={styles.timingBadge}>
-                          <Clock size={11} color="#64748B" />
-                          <Text style={styles.timingText}>{meal.time}</Text>
-                          <Text style={styles.prepTimeDot}>•</Text>
-                          <Text style={styles.prepTimeText}>{meal.prepTime}</Text>
+                        {/* Meal Name */}
+                        <Text style={styles.mealName}>{meal.name}</Text>
+
+                        {/* Macro Details & Calories Row */}
+                        <View style={styles.mealBottomRow}>
+                          {/* Calories badge */}
+                          <View style={styles.kcalBadge}>
+                            <Flame size={12} color="#38BDF8" />
+                            <Text style={styles.kcalNumber}>{meal.calories}</Text>
+                            <Text style={styles.kcalLabel}>KCAL</Text>
+                          </View>
+
+                          {/* Clean Macro Telemetry */}
+                          <View style={styles.mealMacrosRow}>
+                            <Text style={styles.macroVal}>
+                              {meal.protein}g <Text style={styles.macroKey}>P</Text>
+                            </Text>
+                            <Text style={styles.macroDotDivider}>•</Text>
+                            <Text style={styles.macroVal}>
+                              {meal.carbs}g <Text style={styles.macroKey}>C</Text>
+                            </Text>
+                            <Text style={styles.macroDotDivider}>•</Text>
+                            <Text style={styles.macroVal}>
+                              {meal.fat}g <Text style={styles.macroKey}>F</Text>
+                            </Text>
+                          </View>
                         </View>
                       </View>
-
-                      {/* Log / Completed Action Button */}
-                      {meal.completed ? (
-                        <Pressable
-                          style={styles.completedBtn}
-                          onPress={() => handleToggleMealLog(meal.id)}
-                          accessibilityRole="button"
-                          accessibilityLabel="Meal logged, tap to unmark"
-                        >
-                          <Check size={12} color="#2DD4BF" strokeWidth={2.5} />
-                          <Text style={styles.completedBtnText}>LOGGED</Text>
-                        </Pressable>
-                      ) : (
-                        <Pressable
-                          style={styles.logBtn}
-                          onPress={() => handleToggleMealLog(meal.id)}
-                          accessibilityRole="button"
-                          accessibilityLabel="Log meal"
-                        >
-                          <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
-                          <Text style={styles.logBtnText}>LOG</Text>
-                        </Pressable>
-                      )}
-                    </View>
-
-                    {/* Meal Name */}
-                    <Text style={styles.mealName}>{meal.name}</Text>
-
-                    {/* Macro Details & Calories Row */}
-                    <View style={styles.mealBottomRow}>
-                      {/* Calories badge */}
-                      <View style={styles.kcalBadge}>
-                        <Flame size={12} color="#38BDF8" />
-                        <Text style={styles.kcalNumber}>{meal.calories}</Text>
-                        <Text style={styles.kcalLabel}>KCAL</Text>
-                      </View>
-
-                      {/* Clean Macro Telemetry */}
-                      <View style={styles.mealMacrosRow}>
-                        <Text style={styles.macroVal}>
-                          {meal.protein}g <Text style={styles.macroKey}>P</Text>
-                        </Text>
-                        <Text style={styles.macroDotDivider}>•</Text>
-                        <Text style={styles.macroVal}>
-                          {meal.carbs}g <Text style={styles.macroKey}>C</Text>
-                        </Text>
-                        <Text style={styles.macroDotDivider}>•</Text>
-                        <Text style={styles.macroVal}>
-                          {meal.fat}g <Text style={styles.macroKey}>F</Text>
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                  </MealSwipeShell>
+                    </MealSwipeShell>
+                  </React.Fragment>
                 );
               })}
             </View>
@@ -889,6 +918,56 @@ const styles = StyleSheet.create({
   mealCardCompleted: {
     borderColor: "rgba(45, 212, 191, 0.32)",
     backgroundColor: "#0C171F",
+  },
+  mealCardScanned: {
+    borderColor: "rgba(56, 189, 248, 0.35)",
+    backgroundColor: "#0B1422",
+  },
+  scannedTypeBadge: {
+    backgroundColor: "rgba(56, 189, 248, 0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.35)",
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 6,
+  },
+  scannedBadgeContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  scannedTypeText: {
+    color: "#38BDF8",
+    fontSize: clampFontSize(9.5),
+    fontFamily: "JetBrainsMono_700Bold",
+    letterSpacing: 0.8,
+  },
+  scannedDividerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginTop: 8,
+    marginBottom: 6,
+  },
+  scannedDividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "rgba(56, 189, 248, 0.2)",
+  },
+  scannedDividerBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(14, 22, 38, 0.9)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.28)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  scannedDividerText: {
+    color: "#38BDF8",
+    fontSize: clampFontSize(9.5),
+    fontFamily: "JetBrainsMono_700Bold",
+    letterSpacing: 0.8,
   },
   mealCardJustLogged: {
     borderColor: "rgba(45, 212, 191, 0.8)",

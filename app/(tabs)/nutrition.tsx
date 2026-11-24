@@ -83,6 +83,12 @@ export default function NutritionTabRoute() {
   );
   const isLunchLogged = lunchMeal?.completed ?? false;
 
+  const scannedMeals = useMemo(
+    () => meals.filter((m) => m.type === "SCANNED"),
+    [meals],
+  );
+  const latestScannedMeal = scannedMeals[scannedMeals.length - 1];
+
   const animatedWaterProgress = useRef(new Animated.Value(1.8 / 3.0)).current;
 
   useEffect(() => {
@@ -710,7 +716,6 @@ export default function NutritionTabRoute() {
           <Pressable
             style={({ pressed }) => [
               styles.nutritionLunch,
-              isLunchLogged && styles.nutritionLunchLogged,
               pressed && { opacity: 0.88, transform: [{ scale: 0.99 }] },
             ]}
             onPress={() => {
@@ -722,44 +727,78 @@ export default function NutritionTabRoute() {
           >
             <View style={styles.nutritionLunchLabelRow}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
-                <Utensils size={12} color={isLunchLogged ? "#2DD4BF" : "#38BDF8"} />
-                <Text
-                  style={[
-                    styles.nutritionLunchLabel,
-                    isLunchLogged && { color: "#2DD4BF" },
-                  ]}
-                >
-                  {isLunchLogged ? "TODAY'S LUNCH" : "RECOMMENDED LUNCH"}
-                </Text>
+                <Utensils size={12} color="#2DD4BF" />
+                <Text style={styles.nutritionLunchLabel}>RECOMMENDED LUNCH</Text>
               </View>
-              {isLunchLogged && (
-                <View style={styles.lunchLoggedBadge}>
-                  <Check size={10} color="#2DD4BF" strokeWidth={2.8} />
-                  <Text style={styles.lunchLoggedBadgeText}>LOGGED</Text>
-                </View>
-              )}
             </View>
 
             <Text style={styles.nutritionLunchText}>
-              {lunchMeal?.name || "Grilled Chicken & Brown Rice Bowl"}
+              {lunchMeal?.name || "Grilled Chicken Quinoa Bowl"}
             </Text>
 
             {/* Meal Macro & Calorie Telemetry */}
             <View style={styles.nutritionLunchMacrosRow}>
               <Flame size={12} color="#38BDF8" />
               <Text style={styles.lunchKcalText}>
-                {lunchMeal?.calories ?? 450} KCAL
+                {lunchMeal?.calories ?? 680} KCAL
               </Text>
               <Text style={styles.lunchDivider}>•</Text>
               <Text style={styles.lunchProteinHighlight}>
-                {lunchMeal?.protein ?? 35}g PROTEIN
-              </Text>
-              <Text style={styles.lunchDivider}>•</Text>
-              <Text style={styles.lunchCarbsHighlight}>
-                {lunchMeal?.carbs ?? 42}g CARBS
+                {lunchMeal?.protein ?? 48}g PROTEIN
               </Text>
             </View>
           </Pressable>
+
+          {/* Latest Scanned Meal Queue Item */}
+          {latestScannedMeal && (
+            <Pressable
+              style={({ pressed }) => [
+                styles.nutritionLunch,
+                styles.nutritionLunchLogged,
+                { marginTop: 10 },
+                pressed && { opacity: 0.88, transform: [{ scale: 0.99 }] },
+              ]}
+              onPress={() => {
+                triggerHaptic();
+                router.push("/meal-history");
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="View scanned meals in schedule"
+            >
+              <View style={styles.nutritionLunchLabelRow}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+                  <Camera size={12} color="#38BDF8" />
+                  <Text style={[styles.nutritionLunchLabel, { color: "#38BDF8" }]}>
+                    SCANNED MEAL {scannedMeals.length > 1 ? `(${scannedMeals.length})` : ""}
+                  </Text>
+                </View>
+                <View style={styles.lunchLoggedBadge}>
+                  <Check size={10} color="#2DD4BF" strokeWidth={2.8} />
+                  <Text style={styles.lunchLoggedBadgeText}>LOGGED</Text>
+                </View>
+              </View>
+
+              <Text style={styles.nutritionLunchText}>
+                {latestScannedMeal.name}
+              </Text>
+
+              {/* Meal Macro & Calorie Telemetry */}
+              <View style={styles.nutritionLunchMacrosRow}>
+                <Flame size={12} color="#38BDF8" />
+                <Text style={styles.lunchKcalText}>
+                  {latestScannedMeal.calories} KCAL
+                </Text>
+                <Text style={styles.lunchDivider}>•</Text>
+                <Text style={styles.lunchProteinHighlight}>
+                  {latestScannedMeal.protein}g PROTEIN
+                </Text>
+                <Text style={styles.lunchDivider}>•</Text>
+                <Text style={styles.lunchCarbsHighlight}>
+                  {latestScannedMeal.carbs}g CARBS
+                </Text>
+              </View>
+            </Pressable>
+          )}
 
           {/* Action Button */}
           <Pressable

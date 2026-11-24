@@ -34,11 +34,11 @@ export const INITIAL_MEALS: UnifiedMeal[] = [
     time: "01:00 PM",
     type: "LUNCH",
     typeColor: "#38BDF8",
-    name: "Grilled Chicken & Brown Rice Bowl",
-    calories: 450,
-    protein: 35,
-    carbs: 42,
-    fat: 12,
+    name: "Grilled Chicken Quinoa Bowl",
+    calories: 680,
+    protein: 48,
+    carbs: 62,
+    fat: 14,
     prepTime: "20m",
     completed: false,
   },
@@ -150,80 +150,22 @@ export const useNutritionPlanStore = create<NutritionPlanState>((set, get) => ({
   resetMeals: () => set({ meals: INITIAL_MEALS, lastSavedMealId: null }),
 
   logScannedMeal: (mealData: ScannedMealInput) => {
-    const state = get();
-    const targetType = (mealData.type || "LUNCH").toUpperCase();
-
-    // 1. Look for matching meal type (e.g. LUNCH)
-    const matchingMeal = state.meals.find(
-      (m) => m.type.toUpperCase() === targetType,
-    );
-
-    if (matchingMeal) {
-      set({
-        meals: state.meals.map((m) =>
-          m.id === matchingMeal.id
-            ? {
-                ...m,
-                name: mealData.name,
-                calories: mealData.calories,
-                protein: mealData.protein,
-                carbs: mealData.carbs,
-                fat: mealData.fat,
-                completed: true,
-                loggedAt: new Date().toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                }),
-              }
-            : m,
-        ),
-        lastSavedMealId: matchingMeal.id,
-      });
-      return matchingMeal.id;
-    }
-
-    // 2. Look for any uncompleted meal
-    const uncompleted = state.meals.find((m) => !m.completed);
-    if (uncompleted) {
-      set({
-        meals: state.meals.map((m) =>
-          m.id === uncompleted.id
-            ? {
-                ...m,
-                name: mealData.name,
-                calories: mealData.calories,
-                protein: mealData.protein,
-                carbs: mealData.carbs,
-                fat: mealData.fat,
-                completed: true,
-                loggedAt: new Date().toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                }),
-              }
-            : m,
-        ),
-        lastSavedMealId: uncompleted.id,
-      });
-      return uncompleted.id;
-    }
-
-    // 3. Fallback: Append as new logged meal
+    // Generate unique ID for this scanned meal
     const targetId = Date.now();
-    const newMeal: UnifiedMeal = {
+    const newScannedMeal: UnifiedMeal = {
       id: targetId,
       time: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       }),
-      type: mealData.type || "LUNCH",
+      type: "SCANNED",
       typeColor: "#38BDF8",
       name: mealData.name,
       calories: mealData.calories,
       protein: mealData.protein,
       carbs: mealData.carbs,
       fat: mealData.fat,
-      prepTime: mealData.prepTime || "15m",
+      prepTime: "AI SCAN",
       completed: true,
       loggedAt: new Date().toLocaleTimeString([], {
         hour: "2-digit",
@@ -231,10 +173,11 @@ export const useNutritionPlanStore = create<NutritionPlanState>((set, get) => ({
       }),
     };
 
-    set({
-      meals: [...state.meals, newMeal],
+    // Append to bottom queue without replacing any scheduled meal
+    set((state) => ({
+      meals: [...state.meals, newScannedMeal],
       lastSavedMealId: targetId,
-    });
+    }));
 
     return targetId;
   },
