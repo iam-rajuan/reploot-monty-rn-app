@@ -81,13 +81,6 @@ export default function NutritionTabRoute() {
     () => meals.find((m) => m.type.toUpperCase() === "LUNCH"),
     [meals],
   );
-  const isLunchLogged = lunchMeal?.completed ?? false;
-
-  const scannedMeals = useMemo(
-    () => meals.filter((m) => m.type === "SCANNED"),
-    [meals],
-  );
-  const latestScannedMeal = scannedMeals[scannedMeals.length - 1];
 
   const animatedWaterProgress = useRef(new Animated.Value(1.8 / 3.0)).current;
 
@@ -713,23 +706,12 @@ export default function NutritionTabRoute() {
           )}
 
           {/* Recommended Next Meal Card */}
-          <Pressable
-            style={({ pressed }) => [
-              styles.nutritionLunch,
-              pressed && { opacity: 0.88, transform: [{ scale: 0.99 }] },
-            ]}
-            onPress={() => {
-              triggerHaptic();
-              router.push("/meal-history");
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="View today's scheduled meals"
-          >
+          <View style={styles.nutritionLunch}>
             <View style={styles.nutritionLunchLabelRow}>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
-                <Utensils size={12} color="#2DD4BF" />
-                <Text style={styles.nutritionLunchLabel}>RECOMMENDED LUNCH</Text>
-              </View>
+              <Utensils size={12} color="#2DD4BF" />
+              <Text style={styles.nutritionLunchLabel}>
+                RECOMMENDED LUNCH
+              </Text>
             </View>
 
             <Text style={styles.nutritionLunchText}>
@@ -747,58 +729,7 @@ export default function NutritionTabRoute() {
                 {lunchMeal?.protein ?? 48}g PROTEIN
               </Text>
             </View>
-          </Pressable>
-
-          {/* Latest Scanned Meal Queue Item */}
-          {latestScannedMeal && (
-            <Pressable
-              style={({ pressed }) => [
-                styles.nutritionLunch,
-                styles.nutritionLunchLogged,
-                { marginTop: 10 },
-                pressed && { opacity: 0.88, transform: [{ scale: 0.99 }] },
-              ]}
-              onPress={() => {
-                triggerHaptic();
-                router.push("/meal-history");
-              }}
-              accessibilityRole="button"
-              accessibilityLabel="View scanned meals in schedule"
-            >
-              <View style={styles.nutritionLunchLabelRow}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
-                  <Camera size={12} color="#38BDF8" />
-                  <Text style={[styles.nutritionLunchLabel, { color: "#38BDF8" }]}>
-                    SCANNED MEAL {scannedMeals.length > 1 ? `(${scannedMeals.length})` : ""}
-                  </Text>
-                </View>
-                <View style={styles.lunchLoggedBadge}>
-                  <Check size={10} color="#2DD4BF" strokeWidth={2.8} />
-                  <Text style={styles.lunchLoggedBadgeText}>LOGGED</Text>
-                </View>
-              </View>
-
-              <Text style={styles.nutritionLunchText}>
-                {latestScannedMeal.name}
-              </Text>
-
-              {/* Meal Macro & Calorie Telemetry */}
-              <View style={styles.nutritionLunchMacrosRow}>
-                <Flame size={12} color="#38BDF8" />
-                <Text style={styles.lunchKcalText}>
-                  {latestScannedMeal.calories} KCAL
-                </Text>
-                <Text style={styles.lunchDivider}>•</Text>
-                <Text style={styles.lunchProteinHighlight}>
-                  {latestScannedMeal.protein}g PROTEIN
-                </Text>
-                <Text style={styles.lunchDivider}>•</Text>
-                <Text style={styles.lunchCarbsHighlight}>
-                  {latestScannedMeal.carbs}g CARBS
-                </Text>
-              </View>
-            </Pressable>
-          )}
+          </View>
 
           {/* Action Button */}
           <Pressable
@@ -1770,28 +1701,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     gap: 4,
   },
-  nutritionLunchLogged: {
-    backgroundColor: "rgba(12, 23, 31, 0.75)",
-    borderColor: "rgba(45, 212, 191, 0.4)",
-  },
-  lunchLoggedBadge: {
-    marginLeft: "auto",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "rgba(45, 212, 191, 0.12)",
-    borderColor: "rgba(45, 212, 191, 0.4)",
-    borderWidth: 1,
-    borderRadius: 6,
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-  },
-  lunchLoggedBadgeText: {
-    color: "#2DD4BF",
-    fontSize: 9.5,
-    fontFamily: "JetBrainsMono_700Bold",
-    letterSpacing: 0.5,
-  },
   nutritionLunchLabelRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -1829,12 +1738,6 @@ const styles = StyleSheet.create({
   },
   lunchProteinHighlight: {
     color: "#2DD4BF",
-    fontSize: 10.5,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
-  },
-  lunchCarbsHighlight: {
-    color: "#FBBF24",
     fontSize: 10.5,
     fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "800",
