@@ -17,6 +17,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -25,6 +26,8 @@ import Svg, { Line as SvgLine } from "react-native-svg";
 export default function ProfileTabRoute() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const isCompact = width <= 430;
 
   const handleNavigate = (
     path: "/profile/payment-history" | "/profile/account-settings",
@@ -51,18 +54,19 @@ export default function ProfileTabRoute() {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
+          isCompact && styles.scrollContentCompact,
           { paddingBottom: Math.max(insets.bottom + 110, 130) },
         ]}
         showsVerticalScrollIndicator={false}
       >
         {/* Title Section with Masked Gradient Title & Description */}
-        <View style={styles.titleSection}>
+        <View style={[styles.titleSection, isCompact && styles.titleSectionCompact]}>
           <View style={styles.maskedTitleWrapper}>
             <MaskedView
               style={styles.maskedTitleView}
               maskElement={
                 <View style={styles.maskWrapper}>
-                  <Text style={styles.mainTitle} numberOfLines={1}>
+                  <Text style={[styles.mainTitle, isCompact && styles.mainTitleCompact]} numberOfLines={1}>
                     MY PROFILE
                   </Text>
                 </View>
@@ -151,9 +155,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 4,
   },
+  scrollContentCompact: {
+    paddingHorizontal: 14,
+  },
   titleSection: {
     marginTop: 4,
     marginBottom: 20,
+  },
+  titleSectionCompact: {
+    marginBottom: 14,
   },
   maskedTitleWrapper: {
     height: 48,
@@ -182,6 +192,10 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 6,
     textTransform: "uppercase",
+  },
+  mainTitleCompact: {
+    fontSize: 30,
+    lineHeight: 34,
   },
   subtitle: {
     color: "#94A3B8",

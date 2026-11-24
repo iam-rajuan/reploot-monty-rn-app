@@ -16,7 +16,7 @@ import {
   Zap,
 } from "lucide-react-native";
 import React, { useMemo } from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 const BADGE_EMOJI: Record<string, string> = {
   medal: "🏅",
@@ -35,6 +35,8 @@ const format = (value: number) => new Intl.NumberFormat().format(value);
 
 export const TopProfileCard = () => {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isCompact = width <= 430;
   const user = useAppSelector((state) => state.auth.user);
   const { data: xp } = useXPProgress();
   const progression = useProgressionSnapshot();
@@ -64,7 +66,7 @@ export const TopProfileCard = () => {
   };
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, isCompact && styles.cardCompact]}>
       <LinearGradient
         colors={["rgba(56,189,248,0.12)", "rgba(139,92,246,0.07)", "rgba(255,255,255,0.02)"]}
         start={{ x: 0, y: 0 }}
@@ -73,7 +75,7 @@ export const TopProfileCard = () => {
       />
 
       <View style={styles.identityRow}>
-        <View style={styles.avatarFrame}>
+        <View style={[styles.avatarFrame, isCompact && styles.avatarFrameCompact]}>
           <Image
             source={user?.avatarUrl ? { uri: user.avatarUrl } : defaultAvatar}
             style={styles.avatar}
@@ -81,41 +83,41 @@ export const TopProfileCard = () => {
           />
         </View>
         <View style={styles.identity}>
-          <Text style={styles.name} numberOfLines={1}>
+          <Text style={[styles.name, isCompact && styles.nameCompact]} numberOfLines={1}>
             {user?.fullName || "Athlete"}
           </Text>
           <Text style={styles.status} numberOfLines={1}>ATHLETE PROFILE</Text>
-          <View style={styles.identityMeta}>
-            <View style={[styles.tierChip, { backgroundColor: `${progression.tier.color}18`, borderColor: `${progression.tier.color}45` }]}>
-              <Medal size={13} color={progression.tier.color} />
-              <Text style={[styles.tierText, { color: progression.tier.color }]}>{progression.tier.displayName}</Text>
+          <View style={[styles.identityMeta, isCompact && styles.identityMetaCompact]}>
+            <View style={[styles.tierChip, isCompact && styles.metaChipCompact, { backgroundColor: `${progression.tier.color}18`, borderColor: `${progression.tier.color}45` }]}>
+              <Medal size={isCompact ? 10 : 13} color={progression.tier.color} />
+              <Text style={[styles.tierText, isCompact && styles.metaTextCompact, { color: progression.tier.color }]}>{progression.tier.displayName}</Text>
             </View>
-            <View style={styles.streakChip}>
-              <Flame size={13} color="#FFB68C" fill="#FFB68C" />
-              <Text style={styles.streakText}>{xp?.dayStreak ?? "—"} DAY STREAK</Text>
+            <View style={[styles.streakChip, isCompact && styles.metaChipCompact]}>
+              <Flame size={isCompact ? 10 : 13} color="#FFB68C" fill="#FFB68C" />
+              <Text style={[styles.streakText, isCompact && styles.metaTextCompact]} numberOfLines={1}>{xp?.dayStreak ?? "—"} DAY STREAK</Text>
             </View>
           </View>
         </View>
       </View>
 
-      <View style={styles.statsRow}>
+      <View style={[styles.statsRow, isCompact && styles.statsRowCompact]}>
         <View style={styles.stat}>
-          <Text style={styles.statValue}>{xp?.currentLevel ?? "—"}</Text>
+          <Text style={[styles.statValue, isCompact && styles.statValueCompact]}>{xp?.currentLevel ?? "—"}</Text>
           <Text style={styles.statLabel}>LEVEL</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.stat}>
-          <Text style={styles.statValue}>{userRank ? "#" + userRank.rank : "—"}</Text>
+          <Text style={[styles.statValue, isCompact && styles.statValueCompact]}>{userRank ? "#" + userRank.rank : "—"}</Text>
           <Text style={styles.statLabel}>GLOBAL RANK</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.stat}>
-          <Text style={styles.statValue}>{earnedBadges.length}</Text>
+          <Text style={[styles.statValue, isCompact && styles.statValueCompact]}>{earnedBadges.length}</Text>
           <Text style={styles.statLabel}>BADGES</Text>
         </View>
       </View>
 
-      <View style={styles.xpSection}>
+      <View style={[styles.xpSection, isCompact && styles.sectionCompact]}>
         <View style={styles.xpHeading}>
           <View style={styles.xpLabelRow}><Zap size={14} color="#38BDF8" /><Text style={styles.xpLabel}>WORKOUT XP</Text></View>
           <Text style={styles.xpValue}>{xp ? format(xp.currentXP) + " / " + format(xp.nextLevelXP) + " XP" : "Loading…"}</Text>
@@ -123,25 +125,25 @@ export const TopProfileCard = () => {
         <ProgressBar progress={xpRatio} height={8} />
       </View>
 
-      <View style={styles.achievementsSection}>
+      <View style={[styles.achievementsSection, isCompact && styles.sectionCompact]}>
         <View style={styles.achievementsHeader}>
           <View style={styles.achievementsTitleRow}><Award size={15} color="#C5C0FF" /><Text style={styles.achievementsTitle}>ACHIEVEMENT COLLECTION</Text></View>
           <Text style={styles.badgeCount}>{earnedBadges.length} UNLOCKED</Text>
         </View>
         {previewBadges.length ? (
-          <View style={styles.badgesRow}>
+          <View style={[styles.badgesRow, isCompact && styles.badgesRowCompact]}>
             {previewBadges.map((badge) => (
               <Pressable
                 key={badge.id}
                 accessibilityRole="button"
                 accessibilityLabel={"View " + badge.title + " achievement"}
-                style={styles.badge}
+                style={[styles.badge, isCompact && styles.badgeCompact]}
                 onPress={() => navigate("/achievements")}
               >
-                <Text style={styles.badgeEmoji}>{BADGE_EMOJI[badge.iconType ?? badge.iconName] ?? "🏅"}</Text>
+                <Text style={[styles.badgeEmoji, isCompact && styles.badgeEmojiCompact]}>{BADGE_EMOJI[badge.iconType ?? badge.iconName] ?? "🏅"}</Text>
               </Pressable>
             ))}
-            {additionalBadges > 0 ? <View style={styles.moreBadge}><Text style={styles.moreBadgeText}>+{additionalBadges}</Text></View> : null}
+            {additionalBadges > 0 ? <View style={[styles.moreBadge, isCompact && styles.badgeCompact]}><Text style={styles.moreBadgeText}>+{additionalBadges}</Text></View> : null}
           </View>
         ) : (
           <Text style={styles.emptyBadges}>Complete your first workout to earn a badge.</Text>
@@ -164,23 +166,32 @@ export const TopProfileCard = () => {
 
 const styles = StyleSheet.create({
   card: { overflow: "hidden", borderRadius: 24, borderWidth: 1, borderColor: "rgba(56,189,248,0.18)", backgroundColor: "#111A25", padding: 20, marginBottom: 20 },
+  cardCompact: { padding: 14, borderRadius: 20 },
   identityRow: { flexDirection: "row", alignItems: "center" },
   avatarFrame: { width: 78, height: 78, marginRight: 16, borderRadius: 24, alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "#0D141E", borderWidth: 1, borderColor: "rgba(34,211,238,0.55)", shadowColor: "#22D3EE", shadowOpacity: 0.16, shadowRadius: 10, elevation: 3 },
+  avatarFrameCompact: { width: 62, height: 62, marginRight: 10, borderRadius: 19 },
   avatar: { width: "100%", height: "100%" },
   identity: { flex: 1, minWidth: 0 },
   name: { color: "#FFFFFF", fontSize: 20, lineHeight: 24, fontWeight: "900", fontFamily: "monospace", letterSpacing: 0.3 },
+  nameCompact: { fontSize: 17, lineHeight: 20 },
   status: { color: "#94A3B8", fontSize: 10, lineHeight: 14, fontWeight: "700", fontFamily: "monospace", letterSpacing: 0.8, marginTop: 2 },
   identityMeta: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 8 },
+  identityMetaCompact: { flexWrap: "nowrap", gap: 4, marginTop: 6 },
   tierChip: { minHeight: 25, flexDirection: "row", alignItems: "center", gap: 4, borderRadius: 99, paddingHorizontal: 8, backgroundColor: "rgba(197,192,255,0.14)", borderWidth: 1, borderColor: "rgba(197,192,255,0.26)" },
   tierText: { color: "#C5C0FF", fontSize: 9, fontFamily: "monospace", fontWeight: "800", letterSpacing: 0.6, textTransform: "uppercase" },
   streakChip: { minHeight: 25, flexDirection: "row", alignItems: "center", gap: 4, borderRadius: 99, paddingHorizontal: 8, backgroundColor: "rgba(255,182,140,0.12)", borderWidth: 1, borderColor: "rgba(255,182,140,0.24)" },
   streakText: { color: "#FFB68C", fontSize: 9, fontFamily: "monospace", fontWeight: "800", letterSpacing: 0.4 },
+  metaChipCompact: { minHeight: 21, gap: 2, paddingHorizontal: 5 },
+  metaTextCompact: { fontSize: 7, letterSpacing: 0.15 },
   statsRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 24, paddingVertical: 14, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(255,255,255,0.08)" },
+  statsRowCompact: { marginTop: 18, paddingVertical: 11 },
   stat: { flex: 1, alignItems: "center", minWidth: 0 },
   statDivider: { width: 1, height: 30, backgroundColor: "rgba(255,255,255,0.10)" },
   statValue: { color: "#FFFFFF", fontSize: 22, lineHeight: 25, fontWeight: "900" },
+  statValueCompact: { fontSize: 19, lineHeight: 22 },
   statLabel: { color: "#94A3B8", fontFamily: "monospace", fontSize: 8, lineHeight: 12, fontWeight: "700", letterSpacing: 0.6, marginTop: 3, textAlign: "center" },
   xpSection: { marginTop: 20 },
+  sectionCompact: { marginTop: 17 },
   xpHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 9 },
   xpLabelRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   xpLabel: { color: "#38BDF8", fontSize: 10, fontFamily: "monospace", fontWeight: "800", letterSpacing: 0.9 },
@@ -191,8 +202,11 @@ const styles = StyleSheet.create({
   achievementsTitle: { color: "#FFFFFF", fontSize: 11, fontFamily: "monospace", fontWeight: "800", letterSpacing: 0.6, flexShrink: 1 },
   badgeCount: { color: "#C5C0FF", fontFamily: "monospace", fontSize: 9, fontWeight: "700", letterSpacing: 0.5 },
   badgesRow: { flexDirection: "row", alignItems: "center", gap: 9, marginTop: 13 },
+  badgesRowCompact: { gap: 6, marginTop: 11 },
   badge: { width: 38, height: 38, borderRadius: 19, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(197,192,255,0.12)", borderWidth: 1, borderColor: "rgba(197,192,255,0.24)" },
+  badgeCompact: { width: 34, height: 34, borderRadius: 17 },
   badgeEmoji: { fontSize: 18 },
+  badgeEmojiCompact: { fontSize: 16 },
   moreBadge: { width: 38, height: 38, borderRadius: 19, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(56,189,248,0.12)", borderWidth: 1, borderColor: "rgba(56,189,248,0.24)" },
   moreBadgeText: { color: "#38BDF8", fontFamily: "monospace", fontSize: 11, fontWeight: "800" },
   emptyBadges: { color: "#94A3B8", fontSize: 12, lineHeight: 17, marginTop: 10 },
