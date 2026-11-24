@@ -85,7 +85,7 @@ export const WeeklyProgressCard = () => {
       </View>
       <View style={styles.progressBarTrack}>
         <LinearGradient
-          colors={["#5D68F6", "#48B8F3"]}
+          colors={["#6366F1", "#4F9DFB", "#38D6E8"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={[styles.progressBarFill, { width: "72%" }]}
@@ -266,14 +266,14 @@ const styles = StyleSheet.create({
     letterSpacing: 0,
   },
   progressBarTrack: {
-    height: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.07)",
+    height: 11,
+    backgroundColor: "rgba(148, 163, 184, 0.14)",
     borderRadius: 999,
     overflow: "hidden",
     marginBottom: 18,
   },
   progressBarFill: {
-    height: 8,
+    height: 11,
     borderRadius: 999,
   },
   chartContainer: {
