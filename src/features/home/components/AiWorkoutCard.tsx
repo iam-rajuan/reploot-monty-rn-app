@@ -157,9 +157,14 @@ const styles = StyleSheet.create({
     marginHorizontal: HORIZONTAL_PADDING,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: "rgba(130, 151, 255, 0.18)",
+    borderColor: "rgba(104, 123, 255, 0.32)",
     position: "relative",
     minHeight: 310,
+    shadowColor: "#162A5C",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.28,
+    shadowRadius: 12,
+    elevation: 4,
   },
   backgroundImage: {
     position: "absolute",
@@ -319,6 +324,7 @@ const styles = StyleSheet.create({
   },
   buttonGradient: {
     height: 52,
+    borderRadius: 999,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

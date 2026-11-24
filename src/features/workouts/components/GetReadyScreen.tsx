@@ -41,7 +41,6 @@ export interface GetReadyScreenProps {
 
 const DEFAULT_REQUIREMENTS: GetReadyRequirement[] = [
   { id: "dist", label: "Stand 2–3 meters away" },
-  { id: "dist", label: "Stand 2–3 meters away" },
   { id: "visible", label: "Keep your full body visible" },
   { id: "light", label: "Ensure good lighting" },
   { id: "clear", label: "Remove obstacles from camera view" },

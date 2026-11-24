@@ -69,7 +69,7 @@ export const WorkoutLibraryDetailScreen: React.FC<
     } else {
       router.push({
         pathname: "/workouts/exercise-detail" as any,
-        params: { id: exerciseId },
+        params: { id: exerciseId, pathId: data.category.toLowerCase() },
       });
     }
   };

@@ -7,6 +7,8 @@ export interface WorkoutExerciseItem {
   isAiRecommended?: boolean;
   title: string;
   subtitle: string;
+  /** Reward shown on the exercise row. Falls back to the shared default while data is being curated. */
+  xp?: string;
   image: ImageSource | number | string;
   targetMuscle?: string;
   sets?: number;

@@ -85,10 +85,10 @@ export const TodaysMissionsCard = () => {
       accessibilityLabel={`Today's Mission: ${missionTitle}, ${missionSubtitle}`}
     >
       <View style={styles.card}>
-        <View style={styles.glassBase} pointerEvents="none" />
+        <View style={[styles.glassBase, styles.cardLayer]} pointerEvents="none" />
         <Image
           source={missionBackground}
-          style={styles.backgroundImage}
+          style={[styles.backgroundImage, styles.cardLayer]}
           contentFit="cover"
           pointerEvents="none"
         />
@@ -99,7 +99,7 @@ export const TodaysMissionsCard = () => {
             "rgba(6, 10, 20, 0.85)",
           ]}
           locations={[0, 0.5, 1]}
-          style={styles.gradient}
+          style={[styles.gradient, styles.cardLayer]}
           pointerEvents="none"
         />
 
@@ -166,14 +166,14 @@ export const TodaysMissionsCard = () => {
 const styles = StyleSheet.create({
   pressTarget: {
     width: "100%",
-    borderRadius: 32,
+    borderRadius: 24,
     overflow: "hidden",
   },
   pressed: { opacity: 0.96 },
   card: {
     width: "100%",
     minHeight: 210,
-    borderRadius: 32,
+    borderRadius: 24,
     overflow: "hidden",
     position: "relative",
     borderWidth: 1,
@@ -192,6 +192,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: "rgba(129, 151, 255, 0.05)",
+  },
+  cardLayer: {
+    borderRadius: 24,
   },
   backgroundImage: {
     position: "absolute",
@@ -275,6 +278,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderWidth: 1,
     borderColor: "rgba(188, 199, 255, 0.09)",
-    borderRadius: 31,
+    borderRadius: 23,
   },
 });

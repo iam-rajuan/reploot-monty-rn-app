@@ -84,6 +84,7 @@ export const UpperBodySessionScreen: React.FC<UpperBodySessionScreenProps> = ({
         params: {
           id: exercise.id,
           title: exercise.title.replace(/\n/g, " "),
+          pathId: "upper",
         },
       });
     }

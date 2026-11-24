@@ -8,6 +8,7 @@ export default function ExerciseDetailsRoute() {
   const params = useLocalSearchParams<{
     id?: string;
     title?: string;
+    pathId?: string;
   }>();
 
   const exerciseId = (params.id as string) || "bench-press";
@@ -33,7 +34,13 @@ export default function ExerciseDetailsRoute() {
         }
       }}
       onStartExercise={() => {
-        // Ready for workout session tracker integration
+        router.push({
+          pathname: "/workouts/ai-session" as any,
+          params: {
+            pathId: (params.pathId as string) || "push",
+            exerciseId,
+          },
+        });
       }}
     />
   );

@@ -62,6 +62,7 @@ export const PushDayScreen: React.FC<PushDayScreenProps> = ({
         params: {
           id: exercise.id,
           title: exercise.title.replace(/\n/g, " "),
+          pathId: "push",
         },
       });
     }

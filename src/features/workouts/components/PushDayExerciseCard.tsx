@@ -1,7 +1,7 @@
 import { useAppSelector } from "@/store/hooks";
 import * as Haptics from "expo-haptics";
 import { Image, ImageSource } from "expo-image";
-import { Check, Play, RefreshCw, Sparkles, Trash2 } from "lucide-react-native";
+import { Check, Play, RefreshCw, Sparkles, Trash2, Zap } from "lucide-react-native";
 import React, { useRef } from "react";
 import ReanimatedSwipeable, {
   type SwipeableMethods,
@@ -54,6 +54,7 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
   testID,
 }) => {
   const hasActions = Boolean(onReplace || onDelete);
+  const xpReward = exercise?.xp ?? "+40 XP";
   const actionDrawerWidth = (onReplace ? 68 : 0) + (onDelete ? 68 : 0) + 8;
 
   const swipeableRef = useRef<SwipeableMethods | null>(null);
@@ -219,16 +220,22 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
               {title}
             </Text>
 
-            {isCompleted ? (
-              <View style={styles.completedStatusRow}>
-                <View style={styles.completedDot} />
-                <Text style={styles.completedStatusText}>COMPLETED</Text>
+            <View style={styles.exerciseMetaRow}>
+              {isCompleted ? (
+                <View style={styles.completedStatusRow}>
+                  <View style={styles.completedDot} />
+                  <Text style={styles.completedStatusText}>COMPLETED</Text>
+                </View>
+              ) : (
+                <Text style={styles.exerciseSubtitle} numberOfLines={1}>
+                  {subtitle}
+                </Text>
+              )}
+              <View style={styles.xpReward}>
+                <Zap size={11} color="#79F0DD" strokeWidth={2.5} />
+                <Text style={styles.xpRewardText}>{xpReward}</Text>
               </View>
-            ) : (
-              <Text style={styles.exerciseSubtitle} numberOfLines={1}>
-                {subtitle}
-              </Text>
-            )}
+            </View>
           </View>
 
           {/* Resting State Action Indicator (Play Button or Completed Checkmark) */}
@@ -560,17 +567,42 @@ const styles = StyleSheet.create({
     color: "#CBD5E1",
   },
   exerciseSubtitle: {
+    flex: 1,
     color: "#8E95A5",
     fontSize: 13,
     lineHeight: 18,
     fontWeight: "500",
     marginTop: 4,
   },
+  exerciseMetaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 5,
+  },
+  xpReward: {
+    flexShrink: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    minHeight: 21,
+    paddingHorizontal: 7,
+    borderRadius: 6,
+    backgroundColor: "rgba(45, 212, 191, 0.12)",
+  },
+  xpRewardText: {
+    color: "#8AF4E2",
+    fontSize: 9.5,
+    lineHeight: 12,
+    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "800",
+    letterSpacing: 0.1,
+  },
   completedStatusRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    marginTop: 4,
+    flex: 1,
   },
   completedDot: {
     width: 6,

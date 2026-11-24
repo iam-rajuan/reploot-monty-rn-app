@@ -170,6 +170,7 @@ export const GenericWorkoutDetailScreen: React.FC<
         params: {
           id: exercise.id,
           title: exercise.title.replace(/\n/g, " "),
+          pathId: activePathId,
         },
       });
     }

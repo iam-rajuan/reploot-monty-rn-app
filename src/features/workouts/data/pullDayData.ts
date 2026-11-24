@@ -5,6 +5,7 @@ export interface PullDayExercise {
   index?: string;
   title: string;
   subtitle: string;
+  xp?: string;
   image: ImageSource | number | string;
 }
 

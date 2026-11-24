@@ -56,7 +56,7 @@ export const WorkoutModalityCard: React.FC<WorkoutModalityCardProps> = ({
       {/* Background Workout Image */}
       <Image
         source={image}
-        style={styles.backgroundImage}
+        style={[styles.backgroundImage, styles.cardLayer]}
         contentFit="cover"
         transition={200}
       />
@@ -69,7 +69,7 @@ export const WorkoutModalityCard: React.FC<WorkoutModalityCardProps> = ({
           "#070B15",
         ]}
         locations={[0, 0.45, 1]}
-        style={StyleSheet.absoluteFill}
+        style={[StyleSheet.absoluteFill, styles.cardLayer]}
         pointerEvents="none"
       />
       <View style={styles.insetHighlight} pointerEvents="none" />
@@ -111,17 +111,17 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 240,
     minHeight: 240,
-    borderRadius: 32,
+    borderRadius: 24,
     overflow: "hidden",
     backgroundColor: "#0A101D",
     borderWidth: 1,
-    borderColor: "rgba(104, 123, 255, 0.3)",
+    borderColor: "rgba(104, 123, 255, 0.32)",
     position: "relative",
-    shadowColor: "#030611",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.3,
-    shadowRadius: 18,
-    elevation: 6,
+    shadowColor: "#162A5C",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.28,
+    shadowRadius: 12,
+    elevation: 4,
   },
   cardPressed: {
     opacity: 0.92,
@@ -133,6 +133,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  cardLayer: {
+    borderRadius: 24,
+  },
   insetHighlight: {
     position: "absolute",
     top: 1,
@@ -141,7 +144,7 @@ const styles = StyleSheet.create({
     left: 1,
     borderWidth: 1,
     borderColor: "rgba(188, 199, 255, 0.09)",
-    borderRadius: 31,
+    borderRadius: 23,
   },
   cardContent: {
     height: 240,

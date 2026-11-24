@@ -5,6 +5,7 @@ export interface PushDayExercise {
   index?: string;
   title: string;
   subtitle: string;
+  xp?: string;
   image: ImageSource | number | string;
 }
 

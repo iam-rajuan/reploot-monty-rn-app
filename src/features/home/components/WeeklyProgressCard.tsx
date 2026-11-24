@@ -43,24 +43,25 @@ export const WeeklyProgressCard = () => {
     <View style={styles.cardContainer}>
       {/* Header Row: Level, current progression tier, and day streak */}
       <View style={styles.headerRow}>
-        {/* LVL 42 Gradient Badge: Proportional, responsive cyber badge */}
-        <LinearGradient
-          colors={["#5865F2", "#397DF6"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.levelBox}
-        >
-          <Text style={styles.levelLabel}>LVL</Text>
-          <Text style={styles.levelNumber}>42</Text>
-        </LinearGradient>
+        <View style={styles.levelCluster}>
+          {/* LVL 42 Gradient Badge: Proportional, responsive cyber badge */}
+          <LinearGradient
+            colors={["#5865F2", "#397DF6"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.levelBox}
+          >
+            <Text style={styles.levelLabel}>LVL</Text>
+            <Text style={styles.levelNumber}>42</Text>
+          </LinearGradient>
 
-        <View style={styles.headerRight}>
-          {/* Current progression tier */}
           <View style={styles.tierCol}>
             <Text style={[styles.tierText, { color: progression.tier.color }]}>{progression.tier.displayName.toUpperCase()}</Text>
             <Text style={styles.tierText}>TIER</Text>
           </View>
+        </View>
 
+        <View style={styles.headerRight}>
           {/* 12 DAY STREAK */}
           <View style={styles.streakCol}>
             <View style={styles.streakTopRow}>
@@ -186,11 +187,14 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
     textAlign: "center",
   },
-  headerRight: {
+  levelCluster: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
+    gap: 12,
     flexShrink: 1,
+  },
+  headerRight: {
+    alignItems: "flex-end",
   },
   tierCol: {
     justifyContent: "center",
