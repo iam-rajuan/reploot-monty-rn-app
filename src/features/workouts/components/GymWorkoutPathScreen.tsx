@@ -8,8 +8,6 @@ import {
   Dumbbell,
   Footprints,
   LibraryBig,
-  MoveDownLeft,
-  MoveUpRight,
   PersonStanding,
 } from "lucide-react-native";
 import React, { useState } from "react";
@@ -23,7 +21,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Line as SvgLine } from "react-native-svg";
+import Svg, { Circle, Line, Path } from "react-native-svg";
 import {
   DynamicWorkoutPathDetail,
   WORKOUT_PATH_DETAILS_MAP,
@@ -56,6 +54,57 @@ const CARD_ACCENT = "#25D7E8";
 const CARD_ACCENT_SOFT = "#8CECF4";
 const CARD_ACCENT_BACKGROUND = "rgba(37, 215, 232, 0.11)";
 const CARD_ACCENT_BORDER = "rgba(37, 215, 232, 0.28)";
+
+const GymPushIcon = () => (
+  <Svg width={23} height={23} viewBox="0 0 24 24" fill="none">
+    <Circle cx="12" cy="10" r="2" stroke={CARD_ACCENT} strokeWidth="1.7" />
+    <Path
+      d="M12 12.5v7M9 21l3-1.5 3 1.5M9.8 13.5 7 9V5.5M14.2 13.5 17 9V5.5"
+      stroke={CARD_ACCENT}
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Line x1="3" y1="4" x2="21" y2="4" stroke={CARD_ACCENT} strokeWidth="1.7" />
+    <Line
+      x1="5"
+      y1="2.5"
+      x2="5"
+      y2="5.5"
+      stroke={CARD_ACCENT}
+      strokeWidth="1.7"
+      strokeLinecap="round"
+    />
+    <Line
+      x1="19"
+      y1="2.5"
+      x2="19"
+      y2="5.5"
+      stroke={CARD_ACCENT}
+      strokeWidth="1.7"
+      strokeLinecap="round"
+    />
+  </Svg>
+);
+
+const GymPullIcon = () => (
+  <Svg width={23} height={23} viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M4 4h16M5 4l4 5M19 4l-4 5M9 9l1.5 2M15 9l-1.5 2"
+      stroke={CARD_ACCENT}
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Circle cx="12" cy="13" r="2" stroke={CARD_ACCENT} strokeWidth="1.7" />
+    <Path
+      d="M12 15.5V21M8.5 21h7"
+      stroke={CARD_ACCENT}
+      strokeWidth="1.7"
+      strokeLinecap="round"
+    />
+  </Svg>
+);
 
 export interface GymWorkoutPathScreenProps {
   onSelectPath?: (pathId: WorkoutPathId) => void;
@@ -184,7 +233,7 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
       arrowColor: CARD_ACCENT,
       iconBg: CARD_ACCENT_BACKGROUND,
       iconBorder: CARD_ACCENT_BORDER,
-      icon: <MoveUpRight size={21} strokeWidth={1.9} color={CARD_ACCENT} />,
+      icon: <GymPushIcon />,
     },
     {
       id: "pull",
@@ -196,7 +245,7 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
       arrowColor: CARD_ACCENT,
       iconBg: CARD_ACCENT_BACKGROUND,
       iconBorder: CARD_ACCENT_BORDER,
-      icon: <MoveDownLeft size={21} strokeWidth={1.9} color={CARD_ACCENT} />,
+      icon: <GymPullIcon />,
     },
     {
       id: "chest",

@@ -3,16 +3,13 @@ import { EditProfileBanner } from "@/features/profile/components/EditProfileBann
 import { EditProfileForm } from "@/features/profile/components/EditProfileForm";
 import { EditProfileSecurityBox } from "@/features/profile/components/EditProfileSecurityBox";
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
-import MaskedView from "@react-native-masked-view/masked-view";
-import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Check } from "lucide-react-native";
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Line as SvgLine } from "react-native-svg";
 
 export default function EditProfileRoute() {
   const router = useRouter();
@@ -60,31 +57,9 @@ export default function EditProfileRoute() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
       >
-        {/* Title Section with Masked Gradient Title & Description */}
         <View style={styles.titleSection}>
-          <View style={styles.maskedTitleWrapper}>
-            <MaskedView
-              style={styles.maskedTitleView}
-              maskElement={
-                <View style={styles.maskWrapper}>
-                  <Text
-                    style={styles.mainTitle}
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                  >
-                    EDIT PROFILE
-                  </Text>
-                </View>
-              }
-            >
-              <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradient}
-              />
-            </MaskedView>
-          </View>
+          <Text style={styles.eyebrow}>ATHLETE PROFILE</Text>
+          <Text style={styles.mainTitle}>EDIT PROFILE</Text>
         </View>
 
         <EditProfileBanner />
@@ -93,10 +68,9 @@ export default function EditProfileRoute() {
         <EditProfileActions onSave={handleSave} />
       </KeyboardAwareScrollView>
 
-      {/* Floating Cyber HUD Toast */}
       {toastMessage && (
         <View style={styles.savedToast}>
-          <Check size={16} color="#00f2fe" style={{ marginRight: 8 }} />
+          <Check size={16} color="#25D7E8" style={{ marginRight: 8 }} />
           <Text style={styles.savedToastText}>{toastMessage}</Text>
         </View>
       )}
@@ -107,52 +81,37 @@ export default function EditProfileRoute() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#090A10",
+    backgroundColor: "#070A11",
   },
   keyboardView: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 4,
+    paddingTop: 8,
     flexGrow: 1,
   },
   titleSection: {
-    marginTop: 4,
-    marginBottom: 20,
+    marginTop: 2,
+    marginBottom: 18,
   },
-  maskedTitleWrapper: {
-    height: 48,
-    width: "100%",
-  },
-  maskedTitleView: {
-    flex: 1,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-  },
-  gradient: {
-    flex: 1,
+  eyebrow: {
+    color: "#94A3B8",
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: "800",
+    fontFamily: "JetBrainsMono_700Bold",
+    letterSpacing: 1.4,
+    marginBottom: 3,
   },
   mainTitle: {
-    color: "#FFFFFF",
-    fontSize: 34,
-    lineHeight: 40,
+    color: "#F6F8FF",
+    fontSize: 30,
+    lineHeight: 36,
     fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    letterSpacing: -0.6,
     textTransform: "uppercase",
-  },
-  subtitle: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontFamily: "monospace",
-    fontWeight: "600",
-    marginTop: 4,
   },
   savedToast: {
     position: "absolute",
@@ -162,23 +121,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(7, 10, 17, 0.95)",
-    borderWidth: 1.5,
-    borderColor: "#00f2fe",
+    backgroundColor: "#101A29",
+    borderWidth: 1,
+    borderColor: "rgba(37, 215, 232, 0.32)",
     borderRadius: 14,
     paddingVertical: 14,
     paddingHorizontal: 16,
     zIndex: 9999,
     elevation: 12,
-    shadowColor: "#00f2fe",
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.3,
     shadowRadius: 10,
   },
   savedToastText: {
-    color: "#00f2fe",
+    color: "#8CECF4",
     fontSize: 12,
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "900",
     letterSpacing: 0.6,
   },

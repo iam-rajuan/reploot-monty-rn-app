@@ -1,7 +1,14 @@
 import * as Haptics from "expo-haptics";
 import { ChevronDown, Mail, Phone, User } from "lucide-react-native";
 import React, { useState } from "react";
-import { Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export const EditProfileForm = () => {
   const [fullName, setFullName] = useState("Alex Rivers");
@@ -13,6 +20,7 @@ export const EditProfileForm = () => {
 
   return (
     <View style={styles.formContainer}>
+      <Text style={styles.sectionTitle}>PERSONAL DETAILS</Text>
       <View style={styles.formGroup}>
         <Text style={styles.inputLabel}>FULL NAME</Text>
         <View style={styles.inputWrapper}>
@@ -22,7 +30,7 @@ export const EditProfileForm = () => {
             onChangeText={setFullName}
             placeholderTextColor="#64748B"
           />
-          <User size={18} color="#38BDF8" />
+          <User size={18} color="#25D7E8" strokeWidth={1.8} />
         </View>
       </View>
 
@@ -37,7 +45,7 @@ export const EditProfileForm = () => {
             autoCapitalize="none"
             placeholderTextColor="#64748B"
           />
-          <Mail size={18} color="#38BDF8" />
+          <Mail size={18} color="#25D7E8" strokeWidth={1.8} />
         </View>
       </View>
 
@@ -51,7 +59,7 @@ export const EditProfileForm = () => {
             keyboardType="phone-pad"
             placeholderTextColor="#64748B"
           />
-          <Phone size={18} color="#38BDF8" />
+          <Phone size={18} color="#25D7E8" strokeWidth={1.8} />
         </View>
       </View>
 
@@ -74,7 +82,9 @@ export const EditProfileForm = () => {
             activeOpacity={0.7}
             onPress={() => {
               if (Platform.OS !== "web") {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+                  () => {},
+                );
               }
               setShowGenderSelect(!showGenderSelect);
             }}
@@ -82,7 +92,7 @@ export const EditProfileForm = () => {
             <Text style={[styles.input, { color: "#FFFFFF", lineHeight: 20 }]}>
               {gender}
             </Text>
-            <ChevronDown size={18} color="#38BDF8" />
+            <ChevronDown size={18} color="#25D7E8" strokeWidth={1.8} />
           </TouchableOpacity>
 
           {showGenderSelect && (
@@ -90,7 +100,9 @@ export const EditProfileForm = () => {
               <TouchableOpacity
                 onPress={() => {
                   if (Platform.OS !== "web") {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                    Haptics.impactAsync(
+                      Haptics.ImpactFeedbackStyle.Light,
+                    ).catch(() => {});
                   }
                   setGender("Male");
                   setShowGenderSelect(false);
@@ -104,7 +116,9 @@ export const EditProfileForm = () => {
               <TouchableOpacity
                 onPress={() => {
                   if (Platform.OS !== "web") {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                    Haptics.impactAsync(
+                      Haptics.ImpactFeedbackStyle.Light,
+                    ).catch(() => {});
                   }
                   setGender("Female");
                   setShowGenderSelect(false);
@@ -124,10 +138,20 @@ export const EditProfileForm = () => {
 
 const styles = StyleSheet.create({
   formContainer: {
-    marginTop: 4,
+    marginTop: 2,
+    marginBottom: 4,
+  },
+  sectionTitle: {
+    color: "#F6F8FF",
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: "800",
+    fontFamily: "JetBrainsMono_700Bold",
+    letterSpacing: 1,
+    marginBottom: 14,
   },
   formGroup: {
-    marginBottom: 16,
+    marginBottom: 14,
   },
   rowGroup: {
     flexDirection: "row",
@@ -136,43 +160,43 @@ const styles = StyleSheet.create({
     ...(Platform.OS === "android" ? { elevation: 10 } : {}),
   },
   inputLabel: {
-    color: "#94A3B8",
-    fontSize: 11,
+    color: "#8E9AB4",
+    fontSize: 10,
     fontWeight: "700",
-    fontFamily: "monospace",
-    letterSpacing: 1.2,
-    marginBottom: 6,
-    marginLeft: 4,
+    fontFamily: "JetBrainsMono_700Bold",
+    letterSpacing: 1.1,
+    marginBottom: 7,
+    marginLeft: 2,
   },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
+    backgroundColor: "#101827",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.2)",
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 50,
+    borderColor: "rgba(86, 130, 166, 0.28)",
+    borderRadius: 14,
+    paddingHorizontal: 15,
+    height: 54,
   },
   input: {
     flex: 1,
     color: "#FFFFFF",
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "600",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_500Medium",
     ...(Platform.OS === "web" ? { outlineStyle: "none" } : {}),
   } as any,
   dropdownMenu: {
     position: "absolute",
-    top: 76,
+    top: 78,
     left: 0,
     right: 0,
-    backgroundColor: "#11141C",
-    borderRadius: 16,
+    backgroundColor: "#111B2A",
+    borderRadius: 14,
     padding: 8,
     zIndex: 20,
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
+    borderColor: "rgba(37, 215, 232, 0.32)",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.5,
@@ -180,14 +204,14 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   dropdownItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
   },
   dropdownText: {
     color: "#FFFFFF",
     fontSize: 13,
     fontWeight: "700",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
   },
   dropdownDivider: {
     height: 1,

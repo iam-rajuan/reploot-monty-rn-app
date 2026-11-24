@@ -1,4 +1,4 @@
-import { Image } from "expo-image";
+import { ShieldCheck } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -6,17 +6,12 @@ export const EditProfileSecurityBox = () => {
   return (
     <View style={styles.securityBox}>
       <View style={styles.iconContainer}>
-        <Image
-          source={require("../../../../assets/dataSecurity.png")}
-          style={{ width: 48, height: 48 }}
-          contentFit="contain"
-        />
+        <ShieldCheck size={21} color="#25D7E8" strokeWidth={1.9} />
       </View>
       <View style={styles.securityTextContent}>
-        <Text style={styles.securityTitle}>DATA ENCRYPTION</Text>
+        <Text style={styles.securityTitle}>PROFILE PROTECTED</Text>
         <Text style={styles.securityDesc}>
-          Your telemetry & biometrics are encrypted via Kinetic AI Core
-          protocols.
+          Personal and biometric data is encrypted.
         </Text>
       </View>
     </View>
@@ -27,36 +22,40 @@ const styles = StyleSheet.create({
   securityBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(15, 23, 42, 0.45)",
+    backgroundColor: "#0E1826",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.22)",
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 20,
-    marginTop: 10,
+    borderColor: "rgba(86, 130, 166, 0.24)",
+    borderRadius: 15,
+    padding: 13,
+    marginBottom: 18,
+    marginTop: 4,
   },
   iconContainer: {
-    width: 60,
-    height: 60,
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginRight: 11,
+    borderRadius: 12,
+    backgroundColor: "rgba(37, 215, 232, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(37, 215, 232, 0.22)",
   },
   securityTextContent: {
     flex: 1,
   },
   securityTitle: {
     color: "#FFFFFF",
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: "800",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
     marginBottom: 3,
   },
   securityDesc: {
-    color: "#94A3B8",
-    fontSize: 11,
-    lineHeight: 16,
-    fontFamily: "monospace",
+    color: "#8E9AB4",
+    fontSize: 10,
+    lineHeight: 15,
+    fontFamily: "JetBrainsMono_500Medium",
   },
 });

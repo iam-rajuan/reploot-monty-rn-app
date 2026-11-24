@@ -1,7 +1,13 @@
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface EditProfileActionsProps {
   onSave?: () => void;
@@ -38,7 +44,7 @@ export const EditProfileActions = ({
         onPress={handleSave}
       >
         <LinearGradient
-          colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
+          colors={["#08A8DB", "#25D7E8"]}
           style={styles.saveBtnGradient}
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
@@ -60,13 +66,13 @@ export const EditProfileActions = ({
 
 const styles = StyleSheet.create({
   actionsContainer: {
-    marginTop: 10,
+    marginTop: 2,
     marginBottom: 20,
   },
   saveBtn: {
-    borderRadius: 16,
+    borderRadius: 14,
     overflow: "hidden",
-    marginBottom: 14,
+    marginBottom: 12,
   },
   btnPressed: {
     opacity: 0.85,
@@ -81,15 +87,15 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 13,
     fontWeight: "800",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1.2,
   },
   deleteBtn: {
-    height: 50,
-    borderRadius: 16,
+    height: 48,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: "rgba(239, 68, 68, 0.35)",
-    backgroundColor: "rgba(239, 68, 68, 0.05)",
+    backgroundColor: "rgba(239, 68, 68, 0.04)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -97,7 +103,7 @@ const styles = StyleSheet.create({
     color: "#F87171",
     fontSize: 13,
     fontWeight: "800",
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1.2,
   },
 });

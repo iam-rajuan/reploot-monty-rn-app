@@ -1,8 +1,8 @@
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { QrCode, Share2, Sparkles } from "lucide-react-native";
-import QRCodeGenerator from "qrcode";
-import React, { useMemo, useState } from "react";
+import QRCodeStyled from "react-native-qrcode-styled";
+import React, { useState } from "react";
 import {
   Platform,
   Share,
@@ -12,58 +12,50 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-import Svg, { Path, Rect } from "react-native-svg";
 
-const MOSAIC_COLORS = ["#172554", "#164E63", "#0F766E", "#3730A3", "#5B21B6"];
-const FINDER_COLOR = "#0F172A";
-const QUIET_ZONE_MODULES = 4;
+const QR_GRADIENT = {
+  type: "radial" as const,
+  options: {
+    colors: ["#FF7BC6", "#0F0080"],
+    locations: [0, 1],
+    center: [0.5, 0.5] as [number, number],
+    radius: [1, 1] as [number, number],
+  },
+};
 
-const MosaicQRCode = ({ value, size }: { value: string; size: number }) => {
-  const { canvasSize, paths } = useMemo(() => {
-    const matrix = QRCodeGenerator.create(value, {
-      errorCorrectionLevel: "H",
-    }).modules;
-    const pathByColor = new Map<string, string>();
-
-    for (let row = 0; row < matrix.size; row += 1) {
-      for (let column = 0; column < matrix.size; column += 1) {
-        if (!matrix.get(row, column)) continue;
-        const isFinder =
-          (row < 7 && column < 7) ||
-          (row < 7 && column >= matrix.size - 7) ||
-          (row >= matrix.size - 7 && column < 7);
-        const color = isFinder
-          ? FINDER_COLOR
-          : MOSAIC_COLORS[(row * 17 + column * 31) % MOSAIC_COLORS.length];
-        const x = column + QUIET_ZONE_MODULES;
-        const y = row + QUIET_ZONE_MODULES;
-        // Use fully separated, absolute SVG commands. Android's native SVG
-        // parser can drop a long path when compact subpaths touch (`zM`).
-        const modulePath = `M ${x} ${y} L ${x + 1} ${y} L ${x + 1} ${y + 1} L ${x} ${y + 1} Z `;
-        pathByColor.set(color, `${pathByColor.get(color) ?? ""}${modulePath}`);
-      }
-    }
-
-    return {
-      canvasSize: matrix.size + QUIET_ZONE_MODULES * 2,
-      paths: Array.from(pathByColor.entries()),
-    };
-  }, [value]);
-
+const CustomEyesQRCode = ({ value, size }: { value: string; size: number }) => {
   return (
-    <Svg width={size} height={size} viewBox={`0 0 ${canvasSize} ${canvasSize}`}>
-      <Rect width={canvasSize} height={canvasSize} fill="#F8FAFC" />
-      {paths.map(([color, path]) => (
-        <Path key={color} d={path} fill={color} />
-      ))}
-    </Svg>
+    <QRCodeStyled
+      data={value}
+      size={size - 40}
+      padding={20}
+      style={styles.qrCode}
+      errorCorrectionLevel="M"
+      pieceBorderRadius="50%"
+      gradient={QR_GRADIENT}
+      outerEyesOptions={{
+        topLeft: {
+          borderRadius: ["40%", "40%", 0, "40%"],
+        },
+        topRight: {
+          borderRadius: ["40%", "40%", "40%"],
+        },
+        bottomLeft: {
+          borderRadius: ["40%", 0, "40%", "40%"],
+        },
+      }}
+      innerEyesOptions={{
+        borderRadius: "50%",
+        scale: 0.85,
+      }}
+    />
   );
 };
 
 export const QRCodeCard = () => {
   const [copied, setCopied] = useState(false);
   const { width } = useWindowDimensions();
-  const qrSize = width <= 430 ? 190 : 210;
+  const qrSize = width <= 430 ? 200 : 220;
   const athleteId = "KX-8821";
   const athleteUrl = `https://kinetqx.app/athlete/alex-rivers?id=${athleteId}`;
 
@@ -105,7 +97,7 @@ export const QRCodeCard = () => {
         {/* Outer Cyber Glow Border with Corner Accents */}
         <View style={styles.qrFrameOuter}>
           <View style={styles.qrPlate}>
-            <MosaicQRCode value={athleteUrl} size={qrSize} />
+            <CustomEyesQRCode value={athleteUrl} size={qrSize} />
           </View>
         </View>
 
@@ -168,7 +160,7 @@ const styles = StyleSheet.create({
   iconBadge: {
     width: 28,
     height: 28,
-    borderRadius: 8,
+    borderRadius: 36,
     backgroundColor: "rgba(56, 189, 248, 0.12)",
     borderWidth: 1,
     borderColor: "rgba(56, 189, 248, 0.3)",
@@ -224,6 +216,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#F8FAFC",
+  },
+  qrCode: {
+    backgroundColor: "#F8FAFC",
+    borderRadius: 36,
+    overflow: "hidden",
   },
   passDetailsRow: {
     flexDirection: "row",
