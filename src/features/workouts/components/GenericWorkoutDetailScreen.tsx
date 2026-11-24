@@ -365,10 +365,10 @@ export const GenericWorkoutDetailScreen: React.FC<
             >
               <View style={styles.regenerateSurface}>
                 <RefreshCw
-                  size={18}
+                  size={16}
                   color="#6FE8FF"
                   strokeWidth={2.2}
-                  style={{ marginRight: 10 }}
+                  style={{ marginRight: 8 }}
                 />
                 <Text style={styles.regenerateBtnText} numberOfLines={1}>
                   REGENERATE WORKOUT
@@ -393,7 +393,7 @@ export const GenericWorkoutDetailScreen: React.FC<
                 style={styles.startWorkoutGradient}
               >
                 <Sparkles
-                  size={18}
+                  size={16}
                   color="#050811"
                   fill="#050811"
                   style={{ marginRight: 8 }}
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   },
   categoryPillText: {
     color: "#64748B",
-    fontSize: 11.5,
+    fontSize: 10.5,
     fontWeight: "700",
     letterSpacing: 0.5,
   },
@@ -455,16 +455,16 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     color: "#FFFFFF",
-    fontSize: 34,
-    lineHeight: 40,
+    fontSize: 30,
+    lineHeight: 36,
     fontWeight: "900",
     letterSpacing: -0.5,
     textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 13,
+    lineHeight: 19,
     fontWeight: "500",
     marginTop: 4,
   },
@@ -541,11 +541,11 @@ const styles = StyleSheet.create({
   regenerateBtn: {
     alignSelf: "stretch",
     width: "100%",
-    height: 48,
-    minHeight: 48,
-    maxHeight: 48,
+    height: 42,
+    minHeight: 42,
+    maxHeight: 42,
     flexShrink: 0,
-    borderRadius: 24,
+    borderRadius: 21,
     overflow: "hidden",
     shadowColor: "#2BD8F3",
     shadowOffset: { width: 0, height: 4 },
@@ -559,8 +559,8 @@ const styles = StyleSheet.create({
   },
   regenerateSurface: {
     width: "100%",
-    height: 48,
-    borderRadius: 24,
+    height: 42,
+    borderRadius: 21,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -570,19 +570,19 @@ const styles = StyleSheet.create({
   },
   regenerateBtnText: {
     color: "#D7F8FF",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "800",
     fontFamily: "monospace",
-    letterSpacing: 1.2,
+    letterSpacing: 1,
   },
   startWorkoutBtn: {
     alignSelf: "stretch",
     width: "100%",
-    height: 48,
-    minHeight: 48,
-    maxHeight: 48,
+    height: 42,
+    minHeight: 42,
+    maxHeight: 42,
     flexShrink: 0,
-    borderRadius: 24,
+    borderRadius: 21,
     overflow: "hidden",
     shadowColor: "#00f2fe",
     shadowOffset: { width: 0, height: 4 },
@@ -596,9 +596,9 @@ const styles = StyleSheet.create({
   },
   startWorkoutGradient: {
     width: "100%",
-    height: 48,
-    minHeight: 48,
-    borderRadius: 24,
+    height: 42,
+    minHeight: 42,
+    borderRadius: 21,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -606,9 +606,9 @@ const styles = StyleSheet.create({
   },
   startWorkoutText: {
     color: "#050811",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "900",
     fontFamily: "monospace",
-    letterSpacing: 1.2,
+    letterSpacing: 1,
   },
 });
