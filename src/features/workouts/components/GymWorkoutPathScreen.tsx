@@ -1,17 +1,16 @@
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
 import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import {
-  Activity,
   ArrowRight,
-  ChevronRight,
+  BicepsFlexed,
   Dumbbell,
-  Flame,
-  LayoutGrid,
-  Sparkles,
-  TrendingUp,
-  User,
-  Zap,
+  Footprints,
+  LibraryBig,
+  MoveDownLeft,
+  MoveUpRight,
+  PersonStanding,
 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
@@ -38,13 +37,7 @@ import { WorkoutLibraryScreen } from "./WorkoutLibraryScreen";
 const { width } = Dimensions.get("window");
 
 export type WorkoutPathId =
-  | "push"
-  | "pull"
-  | "chest"
-  | "upper"
-  | "lower"
-  | "fullbody"
-  | "library";
+  "push" | "pull" | "chest" | "upper" | "lower" | "fullbody" | "library";
 
 interface GymPathCardConfig {
   id: WorkoutPathId;
@@ -56,9 +49,13 @@ interface GymPathCardConfig {
   arrowColor: string;
   iconBg: string;
   iconBorder: string;
-  glowAura: string;
   icon: React.ReactNode;
 }
+
+const CARD_ACCENT = "#25D7E8";
+const CARD_ACCENT_SOFT = "#8CECF4";
+const CARD_ACCENT_BACKGROUND = "rgba(37, 215, 232, 0.11)";
+const CARD_ACCENT_BORDER = "rgba(37, 215, 232, 0.28)";
 
 export interface GymWorkoutPathScreenProps {
   onSelectPath?: (pathId: WorkoutPathId) => void;
@@ -82,15 +79,15 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
   }>();
   const reduxSelectedCategory = useAppSelector(
     (state) =>
-      (state.workout?.selectedWorkoutCategory as WorkoutPathId) || "push"
+      (state.workout?.selectedWorkoutCategory as WorkoutPathId) || "push",
   );
 
   const initialPath =
-    (params.pathId as WorkoutPathId) ||
-    (params.split as WorkoutPathId) ||
-    null;
+    (params.pathId as WorkoutPathId) || (params.split as WorkoutPathId) || null;
 
-  const [activePath, setActivePath] = useState<WorkoutPathId | null>(initialPath);
+  const [activePath, setActivePath] = useState<WorkoutPathId | null>(
+    initialPath,
+  );
   const lastParamRef = React.useRef<WorkoutPathId | null>(initialPath);
 
   const handleBack = () => {
@@ -108,7 +105,9 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
 
   React.useEffect(() => {
     const target =
-      (params.pathId as WorkoutPathId) || (params.split as WorkoutPathId) || null;
+      (params.pathId as WorkoutPathId) ||
+      (params.split as WorkoutPathId) ||
+      null;
     if (target && target !== lastParamRef.current) {
       lastParamRef.current = target;
       setActivePath(target);
@@ -180,91 +179,84 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
       title: "PUSH DAY",
       subtitle: "Chest, Shoulders & Triceps focus",
       tag: "+50 XP",
-      tagColor: "#C5C0FF",
-      tagBg: "rgba(129, 140, 248, 0.15)",
-      arrowColor: "#818CF8",
-      iconBg: "rgba(108, 92, 255, 0.18)",
-      iconBorder: "rgba(129, 140, 248, 0.35)",
-      glowAura: "rgba(129, 140, 248, 0.12)",
-      icon: <Zap size={20} color="#C5C0FF" />,
+      tagColor: CARD_ACCENT_SOFT,
+      tagBg: CARD_ACCENT_BACKGROUND,
+      arrowColor: CARD_ACCENT,
+      iconBg: CARD_ACCENT_BACKGROUND,
+      iconBorder: CARD_ACCENT_BORDER,
+      icon: <MoveUpRight size={21} strokeWidth={1.9} color={CARD_ACCENT} />,
     },
     {
       id: "pull",
       title: "PULL DAY",
       subtitle: "Back, Biceps & Rear Delts focus",
       tag: "+50 XP",
-      tagColor: "#38EDD8",
-      tagBg: "rgba(56, 237, 216, 0.12)",
-      arrowColor: "#38EDD8",
-      iconBg: "rgba(56, 237, 216, 0.16)",
-      iconBorder: "rgba(56, 237, 216, 0.35)",
-      glowAura: "rgba(56, 237, 216, 0.12)",
-      icon: <User size={20} color="#38EDD8" />,
+      tagColor: CARD_ACCENT_SOFT,
+      tagBg: CARD_ACCENT_BACKGROUND,
+      arrowColor: CARD_ACCENT,
+      iconBg: CARD_ACCENT_BACKGROUND,
+      iconBorder: CARD_ACCENT_BORDER,
+      icon: <MoveDownLeft size={21} strokeWidth={1.9} color={CARD_ACCENT} />,
     },
     {
       id: "chest",
       title: "CHEST DAY",
       subtitle: "Pectoral hypertrophy & density",
       tag: "+55 XP",
-      tagColor: "#38EDD8",
-      tagBg: "rgba(56, 237, 216, 0.12)",
-      arrowColor: "#38EDD8",
-      iconBg: "rgba(56, 237, 216, 0.16)",
-      iconBorder: "rgba(56, 237, 216, 0.35)",
-      glowAura: "rgba(56, 237, 216, 0.12)",
-      icon: <Dumbbell size={20} color="#38EDD8" />,
+      tagColor: CARD_ACCENT_SOFT,
+      tagBg: CARD_ACCENT_BACKGROUND,
+      arrowColor: CARD_ACCENT,
+      iconBg: CARD_ACCENT_BACKGROUND,
+      iconBorder: CARD_ACCENT_BORDER,
+      icon: <Dumbbell size={21} strokeWidth={1.9} color={CARD_ACCENT} />,
     },
     {
       id: "upper",
       title: "UPPER BODY",
       subtitle: "Chest, Back, Arms & Delts",
       tag: "+60 XP",
-      tagColor: "#C5C0FF",
-      tagBg: "rgba(129, 140, 248, 0.15)",
-      arrowColor: "#818CF8",
-      iconBg: "rgba(108, 92, 255, 0.18)",
-      iconBorder: "rgba(129, 140, 248, 0.35)",
-      glowAura: "rgba(129, 140, 248, 0.12)",
-      icon: <Dumbbell size={20} color="#C5C0FF" />,
+      tagColor: CARD_ACCENT_SOFT,
+      tagBg: CARD_ACCENT_BACKGROUND,
+      arrowColor: CARD_ACCENT,
+      iconBg: CARD_ACCENT_BACKGROUND,
+      iconBorder: CARD_ACCENT_BORDER,
+      icon: <BicepsFlexed size={21} strokeWidth={1.9} color={CARD_ACCENT} />,
     },
     {
       id: "lower",
       title: "LOWER BODY",
       subtitle: "Quads, Glutes, Calves & Hams",
       tag: "+60 XP",
-      tagColor: "#38EDD8",
-      tagBg: "rgba(56, 237, 216, 0.12)",
-      arrowColor: "#38EDD8",
-      iconBg: "rgba(56, 237, 216, 0.16)",
-      iconBorder: "rgba(56, 237, 216, 0.35)",
-      glowAura: "rgba(56, 237, 216, 0.12)",
-      icon: <Activity size={20} color="#38EDD8" />,
+      tagColor: CARD_ACCENT_SOFT,
+      tagBg: CARD_ACCENT_BACKGROUND,
+      arrowColor: CARD_ACCENT,
+      iconBg: CARD_ACCENT_BACKGROUND,
+      iconBorder: CARD_ACCENT_BORDER,
+      icon: <Footprints size={21} strokeWidth={1.9} color={CARD_ACCENT} />,
     },
     {
       id: "fullbody",
       title: "FULL BODY",
       subtitle: "Total compound power & endurance",
       tag: "+75 XP",
-      tagColor: "#C5C0FF",
-      tagBg: "rgba(129, 140, 248, 0.15)",
-      arrowColor: "#818CF8",
-      iconBg: "rgba(108, 92, 255, 0.18)",
-      iconBorder: "rgba(129, 140, 248, 0.35)",
-      glowAura: "rgba(129, 140, 248, 0.12)",
-      icon: <Flame size={20} color="#C5C0FF" />,
+      tagColor: CARD_ACCENT_SOFT,
+      tagBg: CARD_ACCENT_BACKGROUND,
+      arrowColor: CARD_ACCENT,
+      iconBg: CARD_ACCENT_BACKGROUND,
+      iconBorder: CARD_ACCENT_BORDER,
+      icon: <PersonStanding size={21} strokeWidth={1.9} color={CARD_ACCENT} />,
     },
     {
       id: "library",
       title: "LIBRARY",
       subtitle: "Browse all gym routine programs",
       tag: "EXPLORE",
-      tagColor: "#38EDD8",
-      tagBg: "rgba(56, 237, 216, 0.12)",
-      arrowColor: "#38EDD8",
-      iconBg: "rgba(56, 237, 216, 0.16)",
-      iconBorder: "rgba(56, 237, 216, 0.35)",
-      glowAura: "rgba(56, 237, 216, 0.12)",
-      icon: <LayoutGrid size={20} color="#38EDD8" />,
+      tagColor: CARD_ACCENT_SOFT,
+      tagBg: CARD_ACCENT_BACKGROUND,
+      arrowColor: CARD_ACCENT,
+      iconBg: CARD_ACCENT_BACKGROUND,
+      iconBorder: CARD_ACCENT_BORDER,
+      icon: <LibraryBig size={21} strokeWidth={1.9} color={CARD_ACCENT} />,
     },
   ];
 
@@ -297,38 +289,26 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
           </Text>
         </View>
 
-        <Pressable
-          style={styles.rankingLink}
-          onPress={() =>
-            router.push({
-              pathname: "/profile/global-rankings" as any,
-              params: { context: "gym" },
-            })
-          }
-        >
-          <View style={styles.rankingIcon}>
-            <TrendingUp size={18} color="#54E6CF" />
-          </View>
-          <View style={styles.rankingCopy}>
-            <Text style={styles.rankingLinkTitle}>GYM CHALLENGE RANKING</Text>
-            <Text style={styles.rankingLinkBody}>
-              See your position and challenge scores
-            </Text>
-          </View>
-          <ChevronRight size={18} color="#8E9AB4" />
-        </Pressable>
-
         {/* 2-Column Workout Path Cards Grid matching screenshot */}
         <View style={styles.cardsGrid}>
           {PATH_CARDS.map((item) => (
             <Pressable
               key={item.id}
-              style={styles.card}
+              style={[styles.card, item.id === "library" && styles.libraryCard]}
               onPress={() => handleCardPress(item.id)}
             >
               {/* Restrained accent tint keeps every focus recognisable without visual noise. */}
-              <View
-                style={[styles.glowAura, { backgroundColor: item.glowAura }]}
+              <LinearGradient
+                colors={[
+                  "rgba(37, 215, 232, 0)",
+                  "rgba(37, 215, 232, 0)",
+                  "rgba(37, 215, 232, 0.025)",
+                  "rgba(37, 215, 232, 0.09)",
+                ]}
+                locations={[0, 0.34, 0.64, 1]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.cardGradient}
                 pointerEvents="none"
               />
 
@@ -397,7 +377,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.8,
     textAlign: "left",
     textTransform: "uppercase",
-    textShadowColor: "rgba(120, 145, 255, 0.2)",
+    textShadowColor: "rgba(37, 215, 232, 0.12)",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 6,
   },
@@ -416,50 +396,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     rowGap: 14,
   },
-  rankingLink: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "rgba(84, 230, 207, 0.22)",
-    backgroundColor: "#0B2025",
-    paddingHorizontal: 14,
-    paddingVertical: 13,
-    marginBottom: 20,
-  },
-  rankingIcon: {
-    width: 36,
-    height: 36,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 12,
-    backgroundColor: "rgba(84, 230, 207, 0.11)",
-    borderWidth: 1,
-    borderColor: "rgba(84, 230, 207, 0.2)",
-  },
-  rankingCopy: { flex: 1, marginLeft: 11 },
-  rankingLinkTitle: {
-    color: "#F4F7FF",
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
-    letterSpacing: 0.7,
-  },
-  rankingLinkBody: {
-    color: "#8E9AB4",
-    fontSize: 11,
-    lineHeight: 15,
-    fontFamily: "JetBrainsMono_500Medium",
-    marginTop: 2,
-  },
   card: {
     width: (width - 54) / 2,
     height: 184,
     backgroundColor: "#111827",
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(122, 146, 199, 0.19)",
+    borderColor: "rgba(86, 130, 166, 0.22)",
     padding: 14,
     justifyContent: "space-between",
     position: "relative",
@@ -470,14 +413,15 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 3,
   },
-  glowAura: {
+  libraryCard: {
+    width: "100%",
+  },
+  cardGradient: {
     position: "absolute",
-    bottom: -38,
-    right: -38,
-    width: 118,
-    height: 118,
-    borderRadius: 50,
-    opacity: 0.5,
+    right: 0,
+    bottom: 0,
+    width: "100%",
+    height: "100%",
   },
   cardTopRow: {
     flexDirection: "row",

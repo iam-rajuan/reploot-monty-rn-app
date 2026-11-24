@@ -32,6 +32,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -72,11 +73,15 @@ export default function NutritionTabRoute() {
   const [waterTotal, setWaterTotal] = useState(1.8);
   const [waterGoal, setWaterGoal] = useState(3.0);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
+  const [isResetModalVisible, setIsResetModalVisible] = useState(false);
   const [tempGoalInput, setTempGoalInput] = useState("3.0");
   const hasGeneratedPlan = useNutritionPlanStore(
     (state) => state.hasGeneratedPlan,
   );
   const hasHydrated = useNutritionPlanStore((state) => state.hasHydrated);
+  const resetNutritionJourney = useNutritionPlanStore(
+    (state) => state.resetNutritionJourney,
+  );
   const lastApprovedAdjustment = useNutritionPlanStore(
     (state) => state.lastApprovedAdjustment,
   );
@@ -354,61 +359,78 @@ export default function NutritionTabRoute() {
               <Flame size={13} color="#38BDF8" />
               <Text style={styles.budgetBadgeText}>DAILY ENERGY BUDGET</Text>
             </View>
-            <View style={styles.cardActions}>
-              <Pressable
-                onPress={() => {
-                  triggerHaptic();
-                  router.push("/meal-history");
-                }}
-                style={({ pressed }) => [
-                  styles.headerLink,
-                  pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel="View meal logs"
-              >
-                <Text style={styles.headerLinkText} numberOfLines={1}>
-                  LOGS <Text style={styles.headerLinkArrow}>›</Text>
-                </Text>
-              </Pressable>
-            </View>
+            {(hasGeneratedPlan || loggedNutrition.calories > 0) && (
+              <View style={styles.cardActions}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Reset nutrition plan and meal logs"
+                  onPress={() => {
+                    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+                    setIsResetModalVisible(true);
+                  }}
+                  style={({ pressed }) => [
+                    styles.resetPlanButton,
+                    pressed && { opacity: 0.7, transform: [{ scale: 0.96 }] },
+                  ]}
+                >
+                  <RotateCcw size={13} color="#94A3B8" />
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    triggerHaptic();
+                    router.push("/meal-history");
+                  }}
+                  style={({ pressed }) => [
+                    styles.headerLink,
+                    pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="View meal logs"
+                >
+                  <Text style={styles.headerLinkText} numberOfLines={1}>
+                    LOGS <Text style={styles.headerLinkArrow}>›</Text>
+                  </Text>
+                </Pressable>
+              </View>
+            )}
           </View>
 
-          {/* Calorie Telemetry Row */}
-          <View style={styles.budgetRow}>
-            <Text style={styles.budgetMain}>
-              {loggedNutrition.calories.toLocaleString()}
-            </Text>
-            <Text style={styles.budgetTargetSlash}>/</Text>
-            <Text style={styles.budgetTargetTotal}>
-              {calorieTarget.toLocaleString()}
-            </Text>
-            <Text style={styles.budgetTargetUnit}>KCAL</Text>
-          </View>
-
-          {/* Progress Meter */}
-          <View style={styles.progressContainer}>
-            <View style={styles.progressBarBg}>
-              <LinearGradient
-                colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={[
-                  StyleSheet.absoluteFill,
-                  { width: `${calorieProgress}%` },
-                ]}
-              />
+          <View style={styles.energySummary}>
+            <Text style={styles.energySummaryLabel}>CONSUMED TODAY</Text>
+            <View style={styles.budgetRow}>
+              <Text style={styles.budgetMain}>
+                {loggedNutrition.calories.toLocaleString()}
+              </Text>
+              <Text style={styles.budgetTargetSlash}>/</Text>
+              <Text style={styles.budgetTargetTotal}>
+                {calorieTarget.toLocaleString()}
+              </Text>
+              <Text style={styles.budgetTargetUnit}>KCAL</Text>
             </View>
-            <View style={styles.progressMeta}>
-              <View style={styles.progressMetaLeft}>
-                <View style={styles.metaDot} />
-                <Text style={styles.progressRemaining}>
-                  {caloriesRemaining.toLocaleString()} KCAL REMAINING
+
+            <View style={styles.progressContainer}>
+              <View style={styles.progressBarBg}>
+                <LinearGradient
+                  colors={["#2DD4BF", "#0EA5E9", "#38BDF8"]}
+                  start={{ x: 0, y: 0.5 }}
+                  end={{ x: 1, y: 0.5 }}
+                  style={[
+                    StyleSheet.absoluteFill,
+                    { width: `${calorieProgress}%` },
+                  ]}
+                />
+              </View>
+              <View style={styles.progressMeta}>
+                <View style={styles.progressMetaLeft}>
+                  <View style={styles.metaDot} />
+                  <Text style={styles.progressRemaining}>
+                    {caloriesRemaining.toLocaleString()} KCAL REMAINING
+                  </Text>
+                </View>
+                <Text style={styles.progressPercent}>
+                  {calorieProgress}% CONSUMED
                 </Text>
               </View>
-              <Text style={styles.progressPercent}>
-                {calorieProgress}% CONSUMED
-              </Text>
             </View>
           </View>
 
@@ -684,9 +706,8 @@ export default function NutritionTabRoute() {
                 accessibilityLabel="Add 250 millilitres"
               >
                 <View style={styles.quickAddContent}>
-                  <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
                   <Text style={styles.quickAddText} numberOfLines={1}>
-                    250 ML
+                    <Text style={styles.quickAddPlus}>+</Text> 250 ML
                   </Text>
                 </View>
               </Pressable>
@@ -704,9 +725,8 @@ export default function NutritionTabRoute() {
                 accessibilityLabel="Add 500 millilitres"
               >
                 <View style={styles.quickAddContent}>
-                  <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
                   <Text style={styles.quickAddText} numberOfLines={1}>
-                    500 ML
+                    <Text style={styles.quickAddPlus}>+</Text> 500 ML
                   </Text>
                 </View>
               </Pressable>
@@ -724,9 +744,8 @@ export default function NutritionTabRoute() {
                 accessibilityLabel="Add 750 millilitres"
               >
                 <View style={styles.quickAddContent}>
-                  <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
                   <Text style={styles.quickAddText} numberOfLines={1}>
-                    750 ML
+                    <Text style={styles.quickAddPlus}>+</Text> 750 ML
                   </Text>
                 </View>
               </Pressable>
@@ -855,6 +874,63 @@ export default function NutritionTabRoute() {
           </Pressable>
         </LinearGradient>
       </KeyboardAwareScrollView>
+
+      <Modal
+        visible={isResetModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsResetModalVisible(false)}
+      >
+        <View style={styles.resetModalBackdrop}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setIsResetModalVisible(false)}
+            accessibilityLabel="Close reset confirmation"
+          />
+          <View style={styles.resetModalCard}>
+            <View style={styles.resetModalHeader}>
+              <View style={styles.resetModalTitleRow}>
+                <View style={styles.resetModalIcon}>
+                  <RotateCcw size={16} color="#FB7185" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.resetModalTitle}>RESET NUTRITION</Text>
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Close reset confirmation"
+                hitSlop={10}
+                onPress={() => setIsResetModalVisible(false)}
+                style={styles.resetModalClose}
+              >
+                <X size={17} color="#8290A4" />
+              </Pressable>
+            </View>
+            <Text style={styles.resetModalText}>Clear plan and meal logs.</Text>
+            <View style={styles.resetModalActions}>
+              <TouchableOpacity
+                accessibilityRole="button"
+                activeOpacity={0.82}
+                onPress={() => {
+                  resetNutritionJourney();
+                  setIsResetModalVisible(false);
+                }}
+                style={styles.resetModalConfirm}
+              >
+                <RotateCcw size={14} color="#FFFFFF" strokeWidth={2.5} />
+                <Text style={styles.resetModalConfirmText}>RESET PLAN</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                accessibilityRole="button"
+                activeOpacity={0.7}
+                onPress={() => setIsResetModalVisible(false)}
+                style={styles.resetModalCancel}
+              >
+                <Text style={styles.resetModalCancelText}>KEEP MY PLAN</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* Daily Hydration Target Modal */}
       <Modal
@@ -1034,34 +1110,34 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   card: {
-    backgroundColor: "rgba(13, 19, 31, 0.85)",
-    borderRadius: 24,
+    backgroundColor: "#0C1420",
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.18)",
-    padding: 18,
+    borderColor: "rgba(148, 163, 184, 0.14)",
+    padding: 16,
     marginBottom: 18,
-    shadowColor: "#000",
+    shadowColor: "#020617",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 10,
-    elevation: 2,
+    shadowOpacity: 0.22,
+    shadowRadius: 12,
+    elevation: 3,
   },
   cardHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 14,
+    marginBottom: 12,
   },
   budgetBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "rgba(56, 189, 248, 0.08)",
+    backgroundColor: "rgba(56, 189, 248, 0.07)",
     borderWidth: 1,
     borderColor: "rgba(56, 189, 248, 0.2)",
     paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingVertical: 5,
+    borderRadius: 9,
   },
   budgetBadgeText: {
     color: "#38BDF8",
@@ -1076,12 +1152,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   resetPlanButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    width: 30,
+    height: 30,
+    borderRadius: 9,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(148, 163, 184, 0.16)",
+    backgroundColor: "rgba(148, 163, 184, 0.06)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1090,16 +1166,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexWrap: "nowrap",
-    width: 62,
-    minWidth: 62,
-    height: 28,
+    width: 58,
+    minWidth: 58,
+    height: 30,
     flexShrink: 0,
     gap: 3,
-    paddingHorizontal: 9,
-    borderRadius: 8,
-    backgroundColor: "rgba(56, 189, 248, 0.08)",
+    paddingHorizontal: 6,
+    borderRadius: 9,
     borderWidth: 1,
     borderColor: "rgba(56, 189, 248, 0.2)",
+    backgroundColor: "rgba(56, 189, 248, 0.06)",
   },
   headerLinkText: {
     color: "#38BDF8",
@@ -1131,16 +1207,34 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: 0.8,
   },
+  energySummary: {
+    backgroundColor: "rgba(2, 8, 23, 0.48)",
+    borderWidth: 1,
+    borderColor: "rgba(148, 163, 184, 0.08)",
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    paddingBottom: 11,
+    marginBottom: 12,
+  },
+  energySummaryLabel: {
+    color: "#64748B",
+    fontSize: 8.5,
+    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "800",
+    letterSpacing: 1.2,
+    textAlign: "center",
+  },
   budgetRow: {
     flexDirection: "row",
     alignItems: "baseline",
     justifyContent: "center",
-    marginTop: 2,
-    marginBottom: 14,
+    marginTop: 1,
+    marginBottom: 10,
   },
   budgetMain: {
     color: "#FFFFFF",
-    fontSize: 38,
+    fontSize: 36,
     fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
     fontWeight: "900",
     letterSpacing: -0.5,
@@ -1167,14 +1261,14 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   progressContainer: {
-    marginBottom: 16,
+    marginBottom: 0,
   },
   progressBarBg: {
-    height: 8,
-    borderRadius: 4,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: "rgba(255, 255, 255, 0.06)",
     overflow: "hidden",
-    marginBottom: 8,
+    marginBottom: 7,
   },
   progressMeta: {
     flexDirection: "row",
@@ -1208,17 +1302,17 @@ const styles = StyleSheet.create({
   macrosRow: {
     flexDirection: "row",
     gap: 8,
-    marginBottom: 18,
+    marginBottom: 14,
     width: "100%",
   },
   macroBox: {
     flex: 1,
     borderWidth: 1,
-    borderRadius: 14,
-    paddingVertical: 10,
-    paddingHorizontal: 6,
+    borderRadius: 12,
+    paddingVertical: 9,
+    paddingHorizontal: 7,
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    backgroundColor: "rgba(2, 8, 23, 0.4)",
   },
   macroHeader: {
     flexDirection: "row",
@@ -1274,20 +1368,20 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   scanBtn: {
-    borderRadius: 14,
+    borderRadius: 13,
     overflow: "hidden",
     shadowColor: "#0284C7",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 4,
+    shadowOpacity: 0.22,
+    shadowRadius: 7,
+    elevation: 2,
   },
   scanBtnGradient: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    height: 48,
-    borderRadius: 14,
+    height: 46,
+    borderRadius: 13,
     overflow: "hidden",
   },
   scanBtnText: {
@@ -1439,6 +1533,111 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
+  },
+  resetModalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(2, 6, 14, 0.76)",
+    justifyContent: "flex-end",
+  },
+  resetModalCard: {
+    width: "100%",
+    backgroundColor: "#101722",
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    borderColor: "rgba(148, 163, 184, 0.14)",
+    paddingHorizontal: 22,
+    paddingTop: 18,
+    paddingBottom: 26,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 18,
+    elevation: 16,
+  },
+  resetModalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  resetModalTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  resetModalIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(244, 63, 94, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(244, 63, 94, 0.2)",
+  },
+  resetModalClose: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
+  },
+  resetModalTitle: {
+    color: "#F8FAFC",
+    fontSize: 13,
+    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "900",
+    letterSpacing: 0.7,
+  },
+  resetModalText: {
+    color: "#8B9AAF",
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 10,
+    marginBottom: 16,
+  },
+  resetModalActions: {
+    width: "100%",
+    gap: 9,
+  },
+  resetModalCancel: {
+    width: "100%",
+    height: 44,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "transparent",
+  },
+  resetModalConfirm: {
+    width: "100%",
+    height: 48,
+    borderRadius: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "#E11D48",
+    shadowColor: "#E11D48",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.24,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  resetModalCancelText: {
+    color: "#94A3B8",
+    fontSize: 11,
+    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "800",
+    letterSpacing: 0.8,
+  },
+  resetModalConfirmText: {
+    color: "#FFFFFF",
+    fontSize: 11.5,
+    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "900",
+    letterSpacing: 0.8,
   },
   modalCard: {
     width: "100%",
@@ -1663,8 +1862,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 4,
-    paddingHorizontal: 4,
+    paddingHorizontal: 6,
   },
   quickAddText: {
     color: "#FFFFFF",
@@ -1675,6 +1873,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textAlignVertical: "center",
     includeFontPadding: false,
+    width: "100%",
+  },
+  quickAddPlus: {
+    color: "#38BDF8",
+    fontWeight: "900",
   },
   customWaterRow: {
     backgroundColor: "rgba(255, 255, 255, 0.03)",

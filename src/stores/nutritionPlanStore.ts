@@ -91,6 +91,7 @@ interface NutritionPlanState {
 
   activateGeneratedPlan: () => void;
   setHasHydrated: (value: boolean) => void;
+  resetNutritionJourney: () => void;
   approvePlanAdjustment: (summary: string) => void;
 
   toggleMealLog: (id: number) => void;
@@ -114,6 +115,17 @@ export const useNutritionPlanStore = create<NutritionPlanState>()(
 
       activateGeneratedPlan: () => set({ hasGeneratedPlan: true }),
       setHasHydrated: (value: boolean) => set({ hasHydrated: value }),
+      resetNutritionJourney: () =>
+        set({
+          hasGeneratedPlan: false,
+          lastApprovedAdjustment: null,
+          meals: INITIAL_MEALS.map((meal) => ({
+            ...meal,
+            completed: false,
+            loggedAt: undefined,
+          })),
+          lastSavedMealId: null,
+        }),
       approvePlanAdjustment: (summary: string) =>
         set({ lastApprovedAdjustment: summary }),
 
