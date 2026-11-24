@@ -16,7 +16,7 @@ import {
 const QR_GRADIENT = {
   type: "radial" as const,
   options: {
-    colors: ["#FF7BC6", "#0F0080"],
+    colors: ["#FF7BC6", "#8B5CF6"],
     locations: [0, 1],
     center: [0.5, 0.5] as [number, number],
     radius: [1, 1] as [number, number],
@@ -211,15 +211,17 @@ const styles = StyleSheet.create({
   },
   qrPlate: {
     position: "relative",
-    borderRadius: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.22)",
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F8FAFC",
+    backgroundColor: "#070B14",
   },
   qrCode: {
-    backgroundColor: "#F8FAFC",
-    borderRadius: 36,
+    backgroundColor: "#070B14",
+    borderRadius: 20,
     overflow: "hidden",
   },
   passDetailsRow: {
