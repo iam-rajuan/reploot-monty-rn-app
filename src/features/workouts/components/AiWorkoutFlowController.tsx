@@ -18,12 +18,7 @@ import { GetReadyScreen } from "./GetReadyScreen";
 import { WorkoutSummaryScreen } from "./WorkoutSummaryScreen";
 
 export type AiWorkoutSessionStep =
-  | "get-ready"
-  | "countdown"
-  | "camera-record"
-  | "stats"
-  | "live"
-  | "summary";
+  "get-ready" | "countdown" | "camera-record" | "stats" | "live" | "summary";
 
 export interface AiWorkoutFlowControllerProps {
   initialPathId?: string;
@@ -38,31 +33,48 @@ export const AiWorkoutFlowController: React.FC<
   const params = useLocalSearchParams<{
     pathId?: string;
     exerciseId?: string;
+    exerciseIds?: string;
     step?: string;
   }>();
 
   const pathKey = (initialPathId || params.pathId || "push").toLowerCase();
   const workoutsByPath = useAppSelector(
-    (state) => state.workout?.workoutsByPath || {}
+    (state) => state.workout?.workoutsByPath || {},
   );
   const workoutRoutine =
     workoutsByPath[pathKey] ||
     WORKOUT_PATH_DETAILS_MAP[pathKey] ||
     WORKOUT_PATH_DETAILS_MAP.push;
-  const exercises = workoutRoutine.exercises || [];
+  const allExercises = workoutRoutine.exercises || [];
+  const requestedExerciseIds = (params.exerciseIds || "")
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean)
+    .slice(0, 8);
+  const requestedExercises = requestedExerciseIds
+    .map((id) => allExercises.find((exercise) => exercise.id === id))
+    .filter((exercise): exercise is WorkoutExerciseItem => Boolean(exercise));
+  const defaultSessionExercises = allExercises
+    .filter((exercise) => exercise.isAiRecommended !== false)
+    .slice(0, 8);
+  const exercises = requestedExercises.length
+    ? requestedExercises.slice(0, 8)
+    : defaultSessionExercises.length
+      ? defaultSessionExercises
+      : allExercises.slice(0, 8);
 
   // Determine initial exercise index
   const requestedExerciseId = initialExerciseId || params.exerciseId;
   const initialIndex = exercises.findIndex(
-    (ex) => ex.id === requestedExerciseId
+    (ex) => ex.id === requestedExerciseId,
   );
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState<number>(
-    initialIndex >= 0 ? initialIndex : 0
+    initialIndex >= 0 ? initialIndex : 0,
   );
 
   // Flow State: 'get-ready' -> 'countdown' -> 'camera-record' -> 'stats' -> next exercise 'camera-record' -> 'stats' -> ... -> 'summary'
   const [sessionStep, setSessionStep] = useState<AiWorkoutSessionStep>(
-    (params.step as AiWorkoutSessionStep) || "get-ready"
+    (params.step as AiWorkoutSessionStep) || "get-ready",
   );
 
   useEffect(() => {
@@ -71,13 +83,14 @@ export const AiWorkoutFlowController: React.FC<
     }
   }, [params.step]);
 
-  const currentExercise: WorkoutExerciseItem =
-    exercises[currentExerciseIndex] || {
-      id: "bench-press",
-      title: "BENCH PRESS\n(BARBELL)",
-      subtitle: "4 Sets × 8-10 Reps",
-      image: require("../../../../assets/pushDay/pd4.png"),
-    };
+  const currentExercise: WorkoutExerciseItem = exercises[
+    currentExerciseIndex
+  ] || {
+    id: "bench-press",
+    title: "BENCH PRESS\n(BARBELL)",
+    subtitle: "4 Sets × 8-10 Reps",
+    image: require("../../../../assets/pushDay/pd4.png"),
+  };
 
   // Step 1: User finishes Get Ready checks -> start 3-second countdown
   const handleReady = () => {

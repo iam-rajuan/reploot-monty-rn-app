@@ -390,7 +390,7 @@ export const AiWorkoutLiveScreen: React.FC<AiWorkoutLiveScreenProps> = ({
       <View
         style={[
           styles.bottomActionBar,
-          { paddingBottom: Math.max(insets.bottom, 14) + 8 },
+          { paddingBottom: Math.max(insets.bottom + 16, 44) },
         ]}
       >
         <Pressable
@@ -1041,13 +1041,13 @@ const styles = StyleSheet.create({
   },
   nextExerciseButton: {
     width: "100%",
-    height: 52,
-    borderRadius: 26,
+    height: 54,
+    borderRadius: 27,
     overflow: "hidden",
     shadowOpacity: 0.45,
     shadowRadius: 16,
     elevation: 8,
-    marginBottom: 8,
+    marginBottom: 10,
   },
   nextButtonGradient: {
     flex: 1,

@@ -1,4 +1,5 @@
 import { WorkoutHeader } from "@/features/workouts";
+import { useProfileSetupStore } from "@/features/profile-onboarding/store/profileSetupStore";
 import MaskedView from "@react-native-masked-view/masked-view";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
@@ -7,8 +8,10 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
   Calendar,
+  Activity,
   Flame,
   Plus,
+  Ruler,
   Scale,
   Sparkles,
   Target,
@@ -32,10 +35,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, {
   Circle,
   Defs,
+  G,
   Line as SvgLine,
   LinearGradient as SvgLinearGradient,
   Path,
   Stop,
+  Text as SvgText,
 } from "react-native-svg";
 
 const { width } = Dimensions.get("window");
@@ -49,10 +54,24 @@ interface TrendPoint {
 
 export default function WeightProgressScreen() {
   const insets = useSafeAreaInsets();
+  const heightCm = useProfileSetupStore((state) => state.data.heightCm);
   const [selectedTab, setSelectedTab] = useState<TabType>("MONTHLY");
+  const [selectedPointIndex, setSelectedPointIndex] = useState<number | null>(
+    null,
+  );
   const [currentWeight, setCurrentWeight] = useState(72.4);
   const targetWeight = 68.0;
   const remainingWeight = Math.max(0, currentWeight - targetWeight);
+  const heightM = heightCm / 100;
+  const bmi = heightM > 0 ? currentWeight / (heightM * heightM) : 0;
+  const bmiStatus =
+    bmi < 18.5
+      ? "BELOW RANGE"
+      : bmi < 25
+        ? "HEALTHY RANGE"
+        : bmi < 30
+          ? "ABOVE RANGE"
+          : "HIGH RANGE";
 
   // Modal for logging new weight
   const [isLogModalVisible, setIsLogModalVisible] = useState(false);
@@ -69,6 +88,7 @@ export default function WeightProgressScreen() {
   const handleTabPress = (tab: TabType) => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
     setSelectedTab(tab);
+    setSelectedPointIndex(null);
   };
 
   const handleOpenLogModal = () => {
@@ -175,7 +195,7 @@ export default function WeightProgressScreen() {
               maskElement={
                 <View style={styles.maskWrapper}>
                   <Text style={styles.mainTitle} numberOfLines={1}>
-                    WEIGHT PROGRESS
+                    BODY METRICS
                   </Text>
                 </View>
               }
@@ -204,6 +224,34 @@ export default function WeightProgressScreen() {
                 </Text>
                 <Text style={styles.weightUnit}>KG</Text>
               </View>
+            </View>
+          </View>
+
+          <View style={styles.bodyMetricsRow}>
+            <View style={styles.bodyMetricCard}>
+              <View style={styles.bodyMetricHeader}>
+                <Ruler size={14} color="#38BDF8" strokeWidth={2.2} />
+                <Text style={styles.bodyMetricLabel}>HEIGHT</Text>
+              </View>
+              <View style={styles.bodyMetricValueRow}>
+                <Text style={styles.bodyMetricValue}>{heightCm}</Text>
+                <Text style={styles.bodyMetricUnit}>CM</Text>
+              </View>
+              <Text style={styles.bodyMetricHint}>PROFILE MEASUREMENT</Text>
+            </View>
+
+            <View style={[styles.bodyMetricCard, styles.bmiMetricCard]}>
+              <View style={styles.bodyMetricHeader}>
+                <Activity size={14} color="#2DD4BF" strokeWidth={2.2} />
+                <Text style={styles.bodyMetricLabel}>BODY MASS INDEX</Text>
+              </View>
+              <View style={styles.bodyMetricValueRow}>
+                <Text style={[styles.bodyMetricValue, styles.bmiMetricValue]}>
+                  {bmi.toFixed(1)}
+                </Text>
+                <Text style={styles.bodyMetricUnit}>BMI</Text>
+              </View>
+              <Text style={styles.bmiStatus}>{bmiStatus}</Text>
             </View>
           </View>
 
@@ -342,12 +390,68 @@ export default function WeightProgressScreen() {
                     <Circle
                       cx={pt.x}
                       cy={pt.y}
-                      r="6"
-                      fill="rgba(45, 212, 191, 0.35)"
+                      r="16"
+                      fill="transparent"
+                      onPress={() => {
+                        triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+                        setSelectedPointIndex(i);
+                      }}
                     />
-                    <Circle cx={pt.x} cy={pt.y} r="3.5" fill="#FFFFFF" />
+                    <Circle
+                      cx={pt.x}
+                      cy={pt.y}
+                      r={selectedPointIndex === i ? "8" : "6"}
+                      pointerEvents="none"
+                      fill={
+                        selectedPointIndex === i
+                          ? "rgba(56, 189, 248, 0.42)"
+                          : "rgba(45, 212, 191, 0.35)"
+                      }
+                    />
+                    <Circle
+                      cx={pt.x}
+                      cy={pt.y}
+                      r="3.5"
+                      fill="#FFFFFF"
+                      pointerEvents="none"
+                    />
                   </React.Fragment>
                 ))}
+
+                {selectedPointIndex !== null &&
+                pts[selectedPointIndex] &&
+                currentPoints[selectedPointIndex] ? (
+                  <G>
+                    <SvgText
+                      x={
+                        Math.max(
+                          42,
+                          Math.min(pts[selectedPointIndex].x, graphWidth - 42),
+                        ) + 1
+                      }
+                      y={Math.max(17, pts[selectedPointIndex].y - 12) + 1}
+                      fill="rgba(7, 16, 24, 0.95)"
+                      fontSize="13"
+                      fontWeight="900"
+                      textAnchor="middle"
+                    >
+                      {currentPoints[selectedPointIndex].weight.toFixed(1)} KG
+                    </SvgText>
+                    <SvgText
+                      x={Math.max(
+                        42,
+                        Math.min(pts[selectedPointIndex].x, graphWidth - 42),
+                      )}
+                      y={Math.max(17, pts[selectedPointIndex].y - 12)}
+                      fill="#38EDD8"
+                      fontSize="12"
+                      fontWeight="900"
+                      textAnchor="middle"
+                    >
+                      {currentPoints[selectedPointIndex].weight.toFixed(1)} KG
+                    </SvgText>
+                  </G>
+                ) : null}
               </Svg>
             </View>
 
@@ -585,6 +689,78 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
     fontWeight: "800",
     marginLeft: 6,
+  },
+  bodyMetricsRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 14,
+  },
+  bodyMetricCard: {
+    flex: 1,
+    minWidth: 0,
+    backgroundColor: "rgba(56, 189, 248, 0.07)",
+    borderWidth: 1,
+    borderColor: "rgba(56, 189, 248, 0.18)",
+    borderRadius: 14,
+    padding: 12,
+  },
+  bmiMetricCard: {
+    backgroundColor: "rgba(45, 212, 191, 0.07)",
+    borderColor: "rgba(45, 212, 191, 0.18)",
+  },
+  bodyMetricHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 8,
+  },
+  bodyMetricLabel: {
+    flexShrink: 1,
+    color: "#94A3B8",
+    fontSize: 8.5,
+    lineHeight: 11,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.7,
+  },
+  bodyMetricValueRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+  bodyMetricValue: {
+    color: "#F8FAFC",
+    fontSize: 22,
+    lineHeight: 27,
+    fontFamily: "monospace",
+    fontWeight: "900",
+  },
+  bmiMetricValue: {
+    color: "#2DD4BF",
+  },
+  bodyMetricUnit: {
+    color: "#64748B",
+    fontSize: 9,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    marginLeft: 5,
+  },
+  bodyMetricHint: {
+    color: "#64748B",
+    fontSize: 7.5,
+    lineHeight: 10,
+    fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: 0.35,
+    marginTop: 4,
+  },
+  bmiStatus: {
+    color: "#2DD4BF",
+    fontSize: 7.5,
+    lineHeight: 10,
+    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 0.45,
+    marginTop: 4,
   },
   tierPill: {
     flexDirection: "row",

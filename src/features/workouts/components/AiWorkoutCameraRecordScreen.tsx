@@ -142,7 +142,12 @@ export const AiWorkoutCameraRecordScreen: React.FC<
           )}
         </View>
       </View>
-      <View style={styles.bottomOverlayContainer}>
+      <View
+        style={[
+          styles.bottomOverlayContainer,
+          { paddingBottom: Math.max(insets.bottom + 16, 44) },
+        ]}
+      >
         <View style={styles.exerciseInfoRow}>
           <View style={styles.cyanIndicator} />
           <View style={styles.exerciseTitleCol}>
@@ -327,7 +332,6 @@ const styles = StyleSheet.create({
   bottomOverlayContainer: {
     marginTop: "auto",
     paddingHorizontal: 20,
-    paddingBottom: 28,
     zIndex: 10,
   },
   exerciseInfoRow: {

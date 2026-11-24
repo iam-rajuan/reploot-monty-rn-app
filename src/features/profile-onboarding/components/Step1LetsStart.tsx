@@ -46,10 +46,12 @@ export function Step1LetsStart() {
       <GenderSelectionRow />
       <View style={styles.ageCard}>
         <View style={styles.ageInfo}>
-          <Text style={styles.ageTitle}>SELECT</Text>
-          <Text style={styles.ageTitle}>AGE</Text>
-          <Text style={styles.ageSubtitle}>Years of</Text>
-          <Text style={styles.ageSubtitle}>power</Text>
+          <Text style={styles.ageTitle} numberOfLines={1}>
+            SELECT AGE
+          </Text>
+          <Text style={styles.ageSubtitle} numberOfLines={1}>
+            Years of power
+          </Text>
         </View>
 
         <AgeSlider value={data.age} onChange={(age) => updateData({ age })} />
@@ -136,24 +138,25 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
   },
   ageInfo: {
-    width: 76,
+    width: 100,
+    flexShrink: 0,
     justifyContent: "center",
   },
   ageTitle: {
     color: "#FFFFFF",
-    fontSize: 10,
-    lineHeight: 13,
+    fontSize: 9,
+    lineHeight: 12,
     fontFamily: "monospace",
     fontWeight: "900",
-    letterSpacing: 1.6,
+    letterSpacing: 1.2,
     textTransform: "uppercase",
   },
   ageSubtitle: {
     color: "#22D3EE",
-    fontSize: 12,
-    lineHeight: 14,
+    fontSize: 9.5,
+    lineHeight: 13,
     fontFamily: "monospace",
     fontWeight: "600",
-    marginTop: 4,
+    marginTop: 3,
   },
 });

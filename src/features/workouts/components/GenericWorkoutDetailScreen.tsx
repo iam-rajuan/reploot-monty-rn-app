@@ -157,6 +157,10 @@ export const GenericWorkoutDetailScreen: React.FC<
         pathname: "/workouts/ai-session" as any,
         params: {
           pathId: activePathId,
+          exerciseIds: visibleExercises
+            .slice(0, 8)
+            .map((exercise) => exercise.id)
+            .join(","),
         },
       });
     }
@@ -322,7 +326,7 @@ export const GenericWorkoutDetailScreen: React.FC<
           {
             paddingBottom: shouldShowFullLibrary
               ? bottomInset + 28
-              : bottomInset + 172,
+              : bottomInset + 220,
           },
         ]}
         ListHeaderComponent={workoutListHeader}
@@ -550,10 +554,10 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     overflow: "hidden",
     shadowColor: "#2BD8F3",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.14,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   regenerateBtnPressed: {
     opacity: 0.9,
