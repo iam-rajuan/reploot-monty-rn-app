@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
   },
   recommendationTitle: {
     color: "#42E8D1",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "800",
     letterSpacing: 1.15,
   },
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
   },
   regularTitle: {
     color: "#CBD5E1",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "800",
     letterSpacing: 1.1,
   },
@@ -655,8 +655,8 @@ const styles = StyleSheet.create({
   },
   exerciseTitle: {
     color: "#FFFFFF",
-    fontSize: 14,
-    lineHeight: 18,
+    fontSize: 12.5,
+    lineHeight: 16,
     fontWeight: "800",
     letterSpacing: 0.2,
     textTransform: "uppercase",
@@ -667,8 +667,8 @@ const styles = StyleSheet.create({
   exerciseSubtitle: {
     flex: 1,
     color: "#8E95A5",
-    fontSize: 12,
-    lineHeight: 17,
+    fontSize: 11,
+    lineHeight: 15,
     fontWeight: "500",
     marginTop: 4,
   },

@@ -356,6 +356,7 @@ export const GenericWorkoutDetailScreen: React.FC<
             {/* 1. REGENERATE WORKOUT BUTTON */}
             <Pressable
               onPress={handleRegenerate}
+              hitSlop={5}
               style={({ pressed }) => [
                 styles.regenerateBtn,
                 pressed && styles.regenerateBtnPressed,
@@ -365,7 +366,7 @@ export const GenericWorkoutDetailScreen: React.FC<
             >
               <View style={styles.regenerateSurface}>
                 <RefreshCw
-                  size={16}
+                  size={14}
                   color="#6FE8FF"
                   strokeWidth={2.2}
                   style={{ marginRight: 8 }}
@@ -379,6 +380,7 @@ export const GenericWorkoutDetailScreen: React.FC<
             {/* 2. START AI WORKOUT BUTTON */}
             <Pressable
               onPress={handleStart}
+              hitSlop={5}
               style={({ pressed }) => [
                 styles.startWorkoutBtn,
                 pressed && styles.startWorkoutBtnPressed,
@@ -393,7 +395,7 @@ export const GenericWorkoutDetailScreen: React.FC<
                 style={styles.startWorkoutGradient}
               >
                 <Sparkles
-                  size={16}
+                  size={14}
                   color="#050811"
                   fill="#050811"
                   style={{ marginRight: 8 }}
@@ -442,7 +444,7 @@ const styles = StyleSheet.create({
   },
   categoryPillText: {
     color: "#64748B",
-    fontSize: 10.5,
+    fontSize: 9.5,
     fontWeight: "700",
     letterSpacing: 0.5,
   },
@@ -455,16 +457,16 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     color: "#FFFFFF",
-    fontSize: 30,
-    lineHeight: 36,
+    fontSize: 27,
+    lineHeight: 32,
     fontWeight: "900",
     letterSpacing: -0.5,
     textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: 12,
+    lineHeight: 17,
     fontWeight: "500",
     marginTop: 4,
   },
@@ -541,11 +543,11 @@ const styles = StyleSheet.create({
   regenerateBtn: {
     alignSelf: "stretch",
     width: "100%",
-    height: 42,
-    minHeight: 42,
-    maxHeight: 42,
+    height: 38,
+    minHeight: 38,
+    maxHeight: 38,
     flexShrink: 0,
-    borderRadius: 21,
+    borderRadius: 19,
     overflow: "hidden",
     shadowColor: "#2BD8F3",
     shadowOffset: { width: 0, height: 4 },
@@ -559,8 +561,8 @@ const styles = StyleSheet.create({
   },
   regenerateSurface: {
     width: "100%",
-    height: 42,
-    borderRadius: 21,
+    height: 38,
+    borderRadius: 19,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -570,19 +572,19 @@ const styles = StyleSheet.create({
   },
   regenerateBtnText: {
     color: "#D7F8FF",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "800",
     fontFamily: "monospace",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
   startWorkoutBtn: {
     alignSelf: "stretch",
     width: "100%",
-    height: 42,
-    minHeight: 42,
-    maxHeight: 42,
+    height: 38,
+    minHeight: 38,
+    maxHeight: 38,
     flexShrink: 0,
-    borderRadius: 21,
+    borderRadius: 19,
     overflow: "hidden",
     shadowColor: "#00f2fe",
     shadowOffset: { width: 0, height: 4 },
@@ -596,9 +598,9 @@ const styles = StyleSheet.create({
   },
   startWorkoutGradient: {
     width: "100%",
-    height: 42,
-    minHeight: 42,
-    borderRadius: 21,
+    height: 38,
+    minHeight: 38,
+    borderRadius: 19,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -606,9 +608,9 @@ const styles = StyleSheet.create({
   },
   startWorkoutText: {
     color: "#050811",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "900",
     fontFamily: "monospace",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
 });
