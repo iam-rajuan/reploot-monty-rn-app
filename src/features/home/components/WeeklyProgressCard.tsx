@@ -30,15 +30,40 @@ const StreakLightningIcon = () => (
 export const WeeklyProgressCard = () => {
   const progression = useProgressionSnapshot();
   const [isDailyXpVisible, setIsDailyXpVisible] = useState(false);
+  const [selectedDayIndex, setSelectedDayIndex] = useState<number | null>(null);
+  const xpRevealTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const WEEK_DAYS = [
-    { label: "M", height: 28, type: "blue" },
-    { label: "T", height: 44, type: "blue" },
-    { label: "W", height: 60, type: "purple" },
-    { label: "T", height: 72, type: "active" },
-    { label: "F", height: 22, type: "blue" },
-    { label: "S", height: 40, type: "blue" },
-    { label: "S", height: 16, type: "blue" },
+    { label: "M", height: 28, xp: "+180", type: "blue" },
+    { label: "T", height: 44, xp: "+320", type: "blue" },
+    { label: "W", height: 60, xp: "+410", type: "purple" },
+    { label: "T", height: 72, xp: "+620", type: "active" },
+    { label: "F", height: 22, xp: "+0", type: "blue" },
+    { label: "S", height: 40, xp: "+540", type: "blue" },
+    { label: "S", height: 16, xp: "+380", type: "blue" },
   ];
+
+  React.useEffect(
+    () => () => {
+      if (xpRevealTimerRef.current) {
+        clearTimeout(xpRevealTimerRef.current);
+      }
+    },
+    []
+  );
+
+  const revealDayXp = (index: number) => {
+    if (Platform.OS !== "web") {
+      Haptics.selectionAsync().catch(() => {});
+    }
+    if (xpRevealTimerRef.current) {
+      clearTimeout(xpRevealTimerRef.current);
+    }
+    setSelectedDayIndex(index);
+    xpRevealTimerRef.current = setTimeout(() => {
+      setSelectedDayIndex(null);
+      xpRevealTimerRef.current = null;
+    }, 3000);
+  };
 
   return (
     <View style={styles.cardContainer}>
@@ -93,7 +118,7 @@ export const WeeklyProgressCard = () => {
           setIsDailyXpVisible((visible) => !visible);
         }}
         accessibilityRole="button"
-        accessibilityLabel="Show today's XP gained"
+        accessibilityLabel="Show XP gained by day"
         accessibilityState={{ expanded: isDailyXpVisible }}
         style={styles.xpTapTarget}
       >
@@ -106,13 +131,6 @@ export const WeeklyProgressCard = () => {
           />
         </View>
       </TouchableOpacity>
-      {isDailyXpVisible ? (
-        <View style={styles.dailyXpDetail}>
-          <Text style={styles.dailyXpLabel}>TODAY&apos;S XP GAINED</Text>
-          <Text style={styles.dailyXpValue}>+2,450 XP</Text>
-        </View>
-      ) : null}
-
       {/* Weekly Bar Chart */}
       <View style={styles.chartContainer}>
         <View style={styles.chartBars}>
@@ -120,8 +138,27 @@ export const WeeklyProgressCard = () => {
             const isActive = dayItem.type === "active";
             const isPurple = dayItem.type === "purple";
 
+            const shouldShowXp = isDailyXpVisible || selectedDayIndex === index;
+
             return (
-              <View key={index} style={styles.barWrap}>
+              <TouchableOpacity
+                key={index}
+                activeOpacity={0.78}
+                style={styles.barWrap}
+                onPress={() => revealDayXp(index)}
+                accessibilityRole="button"
+                accessibilityLabel={`Show ${dayItem.label} XP: ${dayItem.xp}`}
+              >
+                <Text
+                  style={[
+                    styles.dailyBarXp,
+                    isActive && styles.dailyBarXpActive,
+                    !shouldShowXp && styles.dailyBarXpHidden,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {dayItem.xp}
+                </Text>
                 <View
                   style={[
                     styles.bar,
@@ -141,7 +178,7 @@ export const WeeklyProgressCard = () => {
                 >
                   {dayItem.label}
                 </Text>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </View>
@@ -303,34 +340,9 @@ const styles = StyleSheet.create({
     height: 11,
     borderRadius: 999,
   },
-  dailyXpDetail: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginTop: -6,
-    marginBottom: 14,
-    borderRadius: 10,
-    backgroundColor: "rgba(79, 157, 251, 0.10)",
-    borderWidth: 1,
-    borderColor: "rgba(79, 157, 251, 0.18)",
-  },
-  dailyXpLabel: {
-    color: "#AAB5CB",
-    fontFamily: "JetBrainsMono_700Bold",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.7,
-  },
-  dailyXpValue: {
-    color: "#68D8ED",
-    fontFamily: "JetBrainsMono_700Bold",
-    fontSize: 11,
-    fontWeight: "800",
-  },
   chartContainer: {
-    height: 96,
+    // The label row is always reserved, so revealing XP never shifts the chart.
+    height: 112,
     justifyContent: "flex-end",
     marginBottom: 14,
   },
@@ -345,6 +357,22 @@ const styles = StyleSheet.create({
     maxWidth: 46,
     alignItems: "center",
     gap: 6,
+  },
+  dailyBarXp: {
+    minHeight: 14,
+    color: "#8FA0BD",
+    fontSize: 9,
+    lineHeight: 14,
+    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "700",
+    letterSpacing: -0.3,
+    textAlign: "center",
+  },
+  dailyBarXpActive: {
+    color: "#54E6CF",
+  },
+  dailyBarXpHidden: {
+    opacity: 0,
   },
   bar: {
     width: "98%",
