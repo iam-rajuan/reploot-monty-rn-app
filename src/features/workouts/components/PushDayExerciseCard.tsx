@@ -9,8 +9,9 @@ import {
   Trash2,
   Zap,
 } from "lucide-react-native";
-import React, { useRef } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import DraggableFlatList, {
+  ScaleDecorator,
   useNestableScrollContainerContext,
   type RenderItemParams,
 } from "react-native-draggable-flatlist";
@@ -124,7 +125,7 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> =
           <Pressable
             onPress={handleCardPress}
             onLongPress={onLongPress}
-            delayLongPress={240}
+            delayLongPress={350}
             style={[
               styles.exerciseCard,
               isCompleted && styles.exerciseCardCompleted,
@@ -334,44 +335,130 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
   onReplaceExercise,
   onDeleteExercise,
   onReorderExercises,
+  onDragStateChange,
   style,
   ListHeaderComponent,
   ListFooterComponent,
 }) => {
   const activeSwipeCloserRef = useRef<(() => void) | null>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
 
   const reduxCompletedIds = useAppSelector(
     (state) => state.workout?.completedExerciseIds || [],
   );
   const completedIds = propCompletedIds ?? reduxCompletedIds;
 
-  const aiRecommended = exercises.filter(
-    (exercise, index) =>
-      (exercise as WorkoutExerciseItem).isAiRecommended ?? index < 8,
+  const aiRecommended = useMemo(
+    () =>
+      showRecommendationSections
+        ? exercises.slice(0, 8)
+        : exercises.filter(
+            (exercise, index) =>
+              (exercise as WorkoutExerciseItem).isAiRecommended ?? index < 8,
+          ),
+    [exercises, showRecommendationSections],
   );
-  const regularExercises = exercises.filter(
-    (exercise, index) =>
-      !((exercise as WorkoutExerciseItem).isAiRecommended ?? index < 8),
+
+  const regularExercises = useMemo(
+    () =>
+      showRecommendationSections
+        ? exercises.slice(8)
+        : exercises.filter(
+            (exercise, index) =>
+              !((exercise as WorkoutExerciseItem).isAiRecommended ?? index < 8),
+          ),
+    [exercises, showRecommendationSections],
+  );
+
+  const renderItem = useCallback(
+    ({
+      item,
+      drag,
+      isActive,
+      getIndex,
+    }: RenderItemParams<PushDayExercise | WorkoutExerciseItem>) => {
+      const index = getIndex() ?? 0;
+
+      return (
+        <ScaleDecorator activeScale={1.03}>
+          <PushDayExerciseCard
+            exercise={item}
+            index={String(index + 1).padStart(2, "0")}
+            isCompleted={completedIds.includes(item.id)}
+            style={isActive ? styles.draggingCard : undefined}
+            isDragging={isActive}
+            onSwipeStart={() => activeSwipeCloserRef.current?.()}
+            onSwipeOpen={(closeRow) => {
+              activeSwipeCloserRef.current = closeRow;
+            }}
+            onSwipeClose={() => {
+              activeSwipeCloserRef.current = null;
+            }}
+            onPress={() => onExercisePress?.(item)}
+            onLongPress={() => {
+              activeSwipeCloserRef.current?.();
+              if (Platform.OS !== "web") {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(
+                  () => {},
+                );
+              }
+              drag();
+            }}
+            onReplace={
+              onReplaceExercise ? () => onReplaceExercise(item.id) : undefined
+            }
+            onDelete={
+              onDeleteExercise ? () => onDeleteExercise(item.id) : undefined
+            }
+          />
+        </ScaleDecorator>
+      );
+    },
+    [
+      completedIds,
+      onExercisePress,
+      onReplaceExercise,
+      onDeleteExercise,
+    ],
   );
 
   return (
     <DraggableFlatList
       data={exercises}
       keyExtractor={(exercise) => exercise.id}
-      activationDistance={18}
-      autoscrollThreshold={90}
-      autoscrollSpeed={78}
+      activationDistance={0}
+      dragItemOverflow={true}
+      autoscrollThreshold={85}
+      autoscrollSpeed={85}
       animationConfig={{
-        damping: 18,
-        stiffness: 360,
-        mass: 0.25,
-        overshootClamping: true,
-        energyThreshold: 0.01,
+        damping: 20,
+        stiffness: 120,
+        mass: 0.2,
       }}
+      initialNumToRender={20}
+      maxToRenderPerBatch={20}
+      windowSize={11}
+      removeClippedSubviews={false}
       contentContainerStyle={[styles.exerciseList, style]}
-      ItemSeparatorComponent={ExerciseItemSeparator}
+      ItemSeparatorComponent={(props: any) => {
+        const isBoundary =
+          showRecommendationSections &&
+          props.leadingItem?.id === exercises[7]?.id;
+        if (isBoundary) {
+          return <View style={{ height: 48 }} />;
+        }
+        return <View style={styles.itemSeparator} />;
+      }}
       ListHeaderComponent={
-        <>
+        <View
+          style={{ position: "relative" }}
+          onLayout={(e) => {
+            const h = e.nativeEvent.layout.height;
+            if (h > 0 && Math.abs(h - headerHeight) > 1) {
+              setHeaderHeight(h);
+            }
+          }}
+        >
           {ListHeaderComponent}
           {showRecommendationSections && aiRecommended.length > 0 ? (
             <View style={styles.recommendationHeader}>
@@ -386,74 +473,39 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
               </Text>
             </View>
           ) : null}
-        </>
+
+          {/* Stationary REGULAR EXERCISES Header - Anchored in ListHeaderComponent, NEVER moves during drag! */}
+          {showRecommendationSections && headerHeight > 0 ? (
+            <View
+              style={[
+                styles.regularHeader,
+                {
+                  position: "absolute",
+                  top: headerHeight + 836,
+                  left: 0,
+                  right: 0,
+                  zIndex: 5,
+                },
+              ]}
+              pointerEvents="none"
+            >
+              <Text style={styles.regularTitle}>REGULAR EXERCISES</Text>
+              <View style={styles.regularRule} />
+              <Text style={styles.recommendationCount}>
+                {regularExercises.length} MORE
+              </Text>
+            </View>
+          ) : null}
+        </View>
       }
       ListFooterComponent={ListFooterComponent}
+      onDragBegin={() => {
+        activeSwipeCloserRef.current?.();
+      }}
       onDragEnd={({ data }) => {
         onReorderExercises?.(data.map((exercise) => exercise.id));
       }}
-      renderItem={({
-        item,
-        drag,
-        isActive,
-        getIndex,
-      }: RenderItemParams<PushDayExercise | WorkoutExerciseItem>) => {
-        const index = getIndex() ?? 0;
-        const isAiRec =
-          (item as WorkoutExerciseItem).isAiRecommended ?? index < 8;
-        const prevItem = index > 0 ? exercises[index - 1] : undefined;
-        const prevIsAiRec = prevItem
-          ? ((prevItem as WorkoutExerciseItem).isAiRecommended ?? index - 1 < 8)
-          : true;
-        const showRegularHeader =
-          showRecommendationSections &&
-          regularExercises.length > 0 &&
-          !isAiRec &&
-          (index === 0 || prevIsAiRec);
-
-        return (
-          <View>
-            {showRegularHeader ? (
-              <View style={styles.regularHeader}>
-                <Text style={styles.regularTitle}>REGULAR EXERCISES</Text>
-                <View style={styles.regularRule} />
-                <Text style={styles.recommendationCount}>
-                  {regularExercises.length} MORE
-                </Text>
-              </View>
-            ) : null}
-            <PushDayExerciseCard
-              exercise={item}
-              isCompleted={completedIds.includes(item.id)}
-              style={isActive ? styles.draggingCard : undefined}
-              isDragging={isActive}
-              onSwipeStart={() => activeSwipeCloserRef.current?.()}
-              onSwipeOpen={(closeRow) => {
-                activeSwipeCloserRef.current = closeRow;
-              }}
-              onSwipeClose={() => {
-                activeSwipeCloserRef.current = null;
-              }}
-              onPress={() => onExercisePress?.(item)}
-              onLongPress={() => {
-                activeSwipeCloserRef.current?.();
-                if (Platform.OS !== "web") {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(
-                    () => {},
-                  );
-                }
-                drag();
-              }}
-              onReplace={
-                onReplaceExercise ? () => onReplaceExercise(item.id) : undefined
-              }
-              onDelete={
-                onDeleteExercise ? () => onDeleteExercise(item.id) : undefined
-              }
-            />
-          </View>
-        );
-      }}
+      renderItem={renderItem}
     />
   );
 };
@@ -726,8 +778,7 @@ const styles = StyleSheet.create({
     paddingLeft: 4,
   },
   draggingCard: {
-    opacity: 0.92,
-    transform: [{ scale: 1.02 }],
+    opacity: 0.95,
   },
   playButton: {
     width: 36,

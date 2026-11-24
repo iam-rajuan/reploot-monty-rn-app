@@ -236,6 +236,7 @@ const cloneInitialWorkouts = (): Record<string, DynamicWorkoutPathDetail> => {
       exercises: item.exercises.map((ex, i) => ({
         ...ex,
         index: String(i + 1).padStart(2, '0'),
+        isAiRecommended: i < 8,
       })),
     };
   });
@@ -333,6 +334,7 @@ export const workoutSlice = createSlice({
         (exercise, index) => ({
           ...exercise,
           index: String(index + 1).padStart(2, "0"),
+          isAiRecommended: index < 8,
         })
       );
     },
@@ -354,6 +356,7 @@ export const workoutSlice = createSlice({
       currentWorkout.exercises = filtered.map((ex, idx) => ({
         ...ex,
         index: String(idx + 1).padStart(2, '0'),
+        isAiRecommended: idx < 8,
       }));
     },
 
@@ -381,6 +384,7 @@ export const workoutSlice = createSlice({
         currentWorkout.exercises[exerciseIndex] = {
           ...candidate,
           index: String(exerciseIndex + 1).padStart(2, '0'),
+          isAiRecommended: exerciseIndex < 8,
         };
       } else {
         // Fallback: If pool exhausted, pick from alternate variations
@@ -391,6 +395,7 @@ export const workoutSlice = createSlice({
             currentWorkout.exercises[exerciseIndex] = {
               ...varCandidate,
               index: String(exerciseIndex + 1).padStart(2, '0'),
+              isAiRecommended: exerciseIndex < 8,
             };
             break;
           }
@@ -445,6 +450,7 @@ export const workoutSlice = createSlice({
         ].map((exercise, idx) => ({
           ...exercise,
           index: String(idx + 1).padStart(2, '0'),
+          isAiRecommended: idx < 8,
         }));
       }
     },
@@ -462,6 +468,7 @@ export const workoutSlice = createSlice({
           exercises: WORKOUT_PATH_DETAILS_MAP[key].exercises.map((ex, i) => ({
             ...ex,
             index: String(i + 1).padStart(2, '0'),
+            isAiRecommended: i < 8,
           })),
         };
         state.regenerationCounterByPath[key] = 0;

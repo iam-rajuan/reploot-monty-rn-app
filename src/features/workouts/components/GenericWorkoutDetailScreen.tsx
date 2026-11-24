@@ -102,10 +102,9 @@ export const GenericWorkoutDetailScreen: React.FC<
   const completedExerciseIds = useAppSelector(
     (state) => state.workout?.completedExerciseIds || [],
   );
+  const isMission = params.source === "mission";
   const shouldShowFullLibrary =
-    showFullExerciseLibrary ||
-    params.source === "home" ||
-    params.source === "gym";
+    showFullExerciseLibrary || !isMission;
   const visibleExercises = shouldShowFullLibrary
     ? workout.exercises
     : workout.exercises
@@ -324,9 +323,7 @@ export const GenericWorkoutDetailScreen: React.FC<
         style={[
           styles.scrollContent,
           {
-            paddingBottom: shouldShowFullLibrary
-              ? bottomInset + 28
-              : bottomInset + 220,
+            paddingBottom: bottomInset + 180,
           },
         ]}
         ListHeaderComponent={workoutListHeader}
@@ -340,78 +337,76 @@ export const GenericWorkoutDetailScreen: React.FC<
         </View>
       ) : null}
 
-      {/* Today’s Mission is a focused AI routine; library views remain browse-only. */}
-      {!shouldShowFullLibrary ? (
-        <View
-          style={[
-            styles.bottomCtaContainer,
-            { paddingBottom: bottomInset + 8 },
-          ]}
-          pointerEvents="box-none"
-        >
-          {/* Soft fade gradient above the dock so scrolling cards dissolve seamlessly */}
-          <LinearGradient
-            colors={["transparent", "#070A11"]}
-            style={styles.fadeGradient}
-            pointerEvents="none"
-          />
+      {/* Floating Bottom Action Dock: REGENERATE WORKOUT and START AI WORKOUT */}
+      <View
+        style={[
+          styles.bottomCtaContainer,
+          { paddingBottom: bottomInset + 8 },
+        ]}
+        pointerEvents="box-none"
+      >
+        {/* Soft fade gradient above the dock so scrolling cards dissolve seamlessly */}
+        <LinearGradient
+          colors={["transparent", "#070A11"]}
+          style={styles.fadeGradient}
+          pointerEvents="none"
+        />
 
-          <View style={styles.ctaButtonsCol}>
-            {/* 1. REGENERATE WORKOUT BUTTON */}
-            <Pressable
-              onPress={handleRegenerate}
-              hitSlop={5}
-              style={({ pressed }) => [
-                styles.regenerateBtn,
-                pressed && styles.regenerateBtnPressed,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Regenerate Workout"
-            >
-              <View style={styles.regenerateSurface}>
-                <RefreshCw
-                  size={14}
-                  color="#6FE8FF"
-                  strokeWidth={2.2}
-                  style={{ marginRight: 8 }}
-                />
-                <Text style={styles.regenerateBtnText} numberOfLines={1}>
-                  REGENERATE WORKOUT
-                </Text>
-              </View>
-            </Pressable>
+        <View style={styles.ctaButtonsCol}>
+          {/* 1. REGENERATE WORKOUT BUTTON */}
+          <Pressable
+            onPress={handleRegenerate}
+            hitSlop={5}
+            style={({ pressed }) => [
+              styles.regenerateBtn,
+              pressed && styles.regenerateBtnPressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Regenerate Workout"
+          >
+            <View style={styles.regenerateSurface}>
+              <RefreshCw
+                size={14}
+                color="#6FE8FF"
+                strokeWidth={2.2}
+                style={{ marginRight: 8 }}
+              />
+              <Text style={styles.regenerateBtnText} numberOfLines={1}>
+                REGENERATE WORKOUT
+              </Text>
+            </View>
+          </Pressable>
 
-            {/* 2. START AI WORKOUT BUTTON */}
-            <Pressable
-              onPress={handleStart}
-              hitSlop={5}
-              style={({ pressed }) => [
-                styles.startWorkoutBtn,
-                pressed && styles.startWorkoutBtnPressed,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Start AI Workout"
+          {/* 2. START AI WORKOUT BUTTON */}
+          <Pressable
+            onPress={handleStart}
+            hitSlop={5}
+            style={({ pressed }) => [
+              styles.startWorkoutBtn,
+              pressed && styles.startWorkoutBtnPressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Start AI Workout"
+          >
+            <LinearGradient
+              colors={["#00f2fe", "#4facfe"]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.startWorkoutGradient}
             >
-              <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.startWorkoutGradient}
-              >
-                <Sparkles
-                  size={14}
-                  color="#050811"
-                  fill="#050811"
-                  style={{ marginRight: 8 }}
-                />
-                <Text style={styles.startWorkoutText} numberOfLines={1}>
-                  START AI WORKOUT
-                </Text>
-              </LinearGradient>
-            </Pressable>
-          </View>
+              <Sparkles
+                size={14}
+                color="#050811"
+                fill="#050811"
+                style={{ marginRight: 8 }}
+              />
+              <Text style={styles.startWorkoutText} numberOfLines={1}>
+                START AI WORKOUT
+              </Text>
+            </LinearGradient>
+          </Pressable>
         </View>
-      ) : null}
+      </View>
     </View>
   );
 };
