@@ -377,23 +377,29 @@ export default function MealAnalysisScreen() {
                 triggerHaptic();
                 setIsEditingPortions((prev) => !prev);
               }}
-              style={({ pressed }) => [
-                styles.adjustToggle,
-                isEditingPortions && styles.adjustToggleActive,
-                pressed && { opacity: 0.8 },
-              ]}
+              style={styles.adjustTogglePressable}
               accessibilityRole="button"
               accessibilityLabel="Adjust ingredient portions"
             >
-              <Sliders size={12} color={isEditingPortions ? "#38BDF8" : "#94A3B8"} />
-              <Text
-                style={[
-                  styles.adjustToggleText,
-                  isEditingPortions && styles.adjustToggleTextActive,
-                ]}
-              >
-                {isEditingPortions ? "DONE" : "ADJUST"}
-              </Text>
+              {({ pressed }) => (
+                <View
+                  style={[
+                    styles.adjustToggleInner,
+                    isEditingPortions && styles.adjustToggleActive,
+                    pressed && styles.adjustTogglePressed,
+                  ]}
+                >
+                  <Sliders size={12} color={isEditingPortions ? "#38BDF8" : "#94A3B8"} />
+                  <Text
+                    style={[
+                      styles.adjustToggleText,
+                      isEditingPortions && styles.adjustToggleTextActive,
+                    ]}
+                  >
+                    {isEditingPortions ? "DONE" : "ADJUST"}
+                  </Text>
+                </View>
+              )}
             </Pressable>
           </View>
 
@@ -422,27 +428,39 @@ export default function MealAnalysisScreen() {
                   {isEditingPortions ? (
                     <View style={styles.stepperContainer}>
                       <Pressable
-                        style={({ pressed }) => [
-                          styles.stepperBtn,
-                          pressed && styles.stepperBtnPressed,
-                        ]}
+                        style={styles.stepperPressable}
                         onPress={() => handleUpdatePortion(item.id, -10)}
                         accessibilityRole="button"
                         accessibilityLabel={`Decrease ${item.name} portion`}
                       >
-                        <Minus size={13} color="#38BDF8" strokeWidth={2.5} />
+                        {({ pressed }) => (
+                          <View
+                            style={[
+                              styles.stepperBtnInner,
+                              pressed && styles.stepperBtnPressed,
+                            ]}
+                          >
+                            <Minus size={13} color="#38BDF8" strokeWidth={2.5} />
+                          </View>
+                        )}
                       </Pressable>
                       <Text style={styles.stepperValue}>{item.portionGrams}g</Text>
                       <Pressable
-                        style={({ pressed }) => [
-                          styles.stepperBtn,
-                          pressed && styles.stepperBtnPressed,
-                        ]}
+                        style={styles.stepperPressable}
                         onPress={() => handleUpdatePortion(item.id, 10)}
                         accessibilityRole="button"
                         accessibilityLabel={`Increase ${item.name} portion`}
                       >
-                        <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
+                        {({ pressed }) => (
+                          <View
+                            style={[
+                              styles.stepperBtnInner,
+                              pressed && styles.stepperBtnPressed,
+                            ]}
+                          >
+                            <Plus size={13} color="#38BDF8" strokeWidth={2.5} />
+                          </View>
+                        )}
                       </Pressable>
                     </View>
                   ) : (
@@ -496,36 +514,38 @@ export default function MealAnalysisScreen() {
         {/* Action Buttons */}
         <View style={styles.actionsContainer}>
           <Pressable
-            style={({ pressed }) => [
-              styles.saveBtn,
-              pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] },
-            ]}
+            style={styles.saveBtnPressable}
             onPress={handleSaveMeal}
             accessibilityRole="button"
             accessibilityLabel="Save meal to log"
           >
-            <LinearGradient
-              colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={styles.saveBtnGradient}
-            >
-              <Check size={18} color="#FFFFFF" strokeWidth={2.8} style={{ marginRight: 8 }} />
-              <Text style={styles.saveBtnText}>SAVE MEAL TO LOG</Text>
-            </LinearGradient>
+            {({ pressed }) => (
+              <View style={[styles.saveBtnInner, pressed && styles.saveBtnPressed]}>
+                <LinearGradient
+                  colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
+                  start={{ x: 0, y: 0.5 }}
+                  end={{ x: 1, y: 0.5 }}
+                  style={styles.saveBtnGradient}
+                >
+                  <Check size={18} color="#FFFFFF" strokeWidth={2.8} style={{ marginRight: 8 }} />
+                  <Text style={styles.saveBtnText}>SAVE MEAL TO LOG</Text>
+                </LinearGradient>
+              </View>
+            )}
           </Pressable>
 
           <Pressable
-            style={({ pressed }) => [
-              styles.scanAgainBtn,
-              pressed && { opacity: 0.8, transform: [{ scale: 0.99 }] },
-            ]}
+            style={styles.scanAgainPressable}
             onPress={handleScanAgain}
             accessibilityRole="button"
             accessibilityLabel="Scan another meal"
           >
-            <RotateCcw size={14} color="#38BDF8" style={{ marginRight: 8 }} />
-            <Text style={styles.scanAgainText}>SCAN ANOTHER MEAL</Text>
+            {({ pressed }) => (
+              <View style={[styles.scanAgainInner, pressed && styles.scanAgainPressed]}>
+                <RotateCcw size={15} color="#38BDF8" style={{ marginRight: 8 }} />
+                <Text style={styles.scanAgainText}>SCAN ANOTHER MEAL</Text>
+              </View>
+            )}
           </Pressable>
         </View>
       </ScrollView>
@@ -826,7 +846,11 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
     fontWeight: "700",
   },
-  adjustToggle: {
+  adjustTogglePressable: {
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  adjustToggleInner: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -840,6 +864,9 @@ const styles = StyleSheet.create({
   adjustToggleActive: {
     backgroundColor: "rgba(56, 189, 248, 0.12)",
     borderColor: "rgba(56, 189, 248, 0.35)",
+  },
+  adjustTogglePressed: {
+    opacity: 0.75,
   },
   adjustToggleText: {
     color: "#94A3B8",
@@ -911,7 +938,11 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     gap: 6,
   },
-  stepperBtn: {
+  stepperPressable: {
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+  stepperBtnInner: {
     width: 26,
     height: 26,
     borderRadius: 6,
@@ -992,7 +1023,8 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 8,
   },
-  saveBtn: {
+  saveBtnPressable: {
+    width: "100%",
     borderRadius: 16,
     overflow: "hidden",
     shadowColor: "#0284C7",
@@ -1001,8 +1033,19 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 4,
   },
+  saveBtnInner: {
+    width: "100%",
+    height: 54,
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+  saveBtnPressed: {
+    opacity: 0.92,
+    transform: [{ scale: 0.985 }],
+  },
   saveBtnGradient: {
-    height: 52,
+    width: "100%",
+    height: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -1014,15 +1057,27 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     letterSpacing: 1,
   },
-  scanAgainBtn: {
-    height: 48,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.25)",
-    backgroundColor: "rgba(13, 20, 36, 0.6)",
+  scanAgainPressable: {
+    width: "100%",
+    borderRadius: 15,
+    overflow: "hidden",
+  },
+  scanAgainInner: {
+    width: "100%",
+    height: 50,
+    borderRadius: 15,
+    borderWidth: 1.5,
+    borderColor: "rgba(56, 189, 248, 0.35)",
+    backgroundColor: "rgba(14, 22, 38, 0.8)",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+  },
+  scanAgainPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.985 }],
+    backgroundColor: "rgba(56, 189, 248, 0.15)",
+    borderColor: "rgba(56, 189, 248, 0.6)",
   },
   scanAgainText: {
     color: "#38BDF8",
