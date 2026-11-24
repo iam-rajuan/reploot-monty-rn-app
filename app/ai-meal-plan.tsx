@@ -1,6 +1,6 @@
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
 import * as Haptics from "expo-haptics";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import ReanimatedSwipeable, {
@@ -14,10 +14,12 @@ import {
   Flame,
   Plus,
   RefreshCw,
-  Sparkles, Trash2,
+  Sparkles,
+  Trash2,
   Utensils,
+  X,
 } from "lucide-react-native";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Platform,
   Pressable,
@@ -28,20 +30,9 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HORIZONTAL_PADDING, clampFontSize, isSmallDevice } from "@/shared/utils/responsive";
+import { useNutritionPlanStore, type UnifiedMeal } from "@/stores/nutritionPlanStore";
 
-export interface UnifiedMeal {
-  id: number;
-  time: string;
-  type: string;
-  typeColor: string;
-  name: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  prepTime: string;
-  completed: boolean;
-}
+export type { UnifiedMeal };
 
 export interface DayHistory {
   id: string;
@@ -233,65 +224,40 @@ const WEEK_HISTORY_DATA: DayHistory[] = [
 
 export default function UnifiedMealPlanScreen() {
   const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{ tab?: string; justLogged?: string }>();
 
-  const [viewMode, setViewMode] = useState<"today" | "week">("today");
+  const [viewMode, setViewMode] = useState<"today" | "week">(
+    params.tab === "week" ? "week" : "today",
+  );
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [justLoggedBannerVisible, setJustLoggedBannerVisible] = useState(
+    params.justLogged === "true",
+  );
   const activeSwipeCloserRef = useRef<(() => void) | null>(null);
 
-  const [meals, setMeals] = useState<UnifiedMeal[]>([
-    {
-      id: 1,
-      time: "08:30 AM",
-      type: "BREAKFAST",
-      typeColor: "#38BDF8",
-      name: "Avocado & Poached Egg Toast",
-      calories: 420,
-      protein: 22,
-      carbs: 34,
-      fat: 16,
-      prepTime: "10m",
-      completed: true,
-    },
-    {
-      id: 2,
-      time: "01:00 PM",
-      type: "LUNCH",
-      typeColor: "#38BDF8",
-      name: "Grilled Chicken Quinoa Bowl",
-      calories: 680,
-      protein: 48,
-      carbs: 62,
-      fat: 14,
-      prepTime: "20m",
-      completed: false,
-    },
-    {
-      id: 3,
-      time: "04:30 PM",
-      type: "SNACK",
-      typeColor: "#38BDF8",
-      name: "Almond & Whey Cacao Crunch",
-      calories: 310,
-      protein: 18,
-      carbs: 24,
-      fat: 12,
-      prepTime: "5m",
-      completed: false,
-    },
-    {
-      id: 4,
-      time: "07:45 PM",
-      type: "DINNER",
-      typeColor: "#38BDF8",
-      name: "Atlantic Salmon & Grilled Greens",
-      calories: 540,
-      protein: 42,
-      carbs: 16,
-      fat: 22,
-      prepTime: "25m",
-      completed: false,
-    },
-  ]);
+  const meals = useNutritionPlanStore((state) => state.meals);
+  const toggleMealLog = useNutritionPlanStore((state) => state.toggleMealLog);
+  const regenerateMeal = useNutritionPlanStore((state) => state.regenerateMeal);
+  const deleteMeal = useNutritionPlanStore((state) => state.deleteMeal);
+  const randomizeCalories = useNutritionPlanStore(
+    (state) => state.randomizeCalories,
+  );
+  const lastSavedMealId = useNutritionPlanStore(
+    (state) => state.lastSavedMealId,
+  );
+
+  useEffect(() => {
+    if (params.tab === "today" || params.justLogged === "true") {
+      setViewMode("today");
+    }
+    if (params.justLogged === "true") {
+      setJustLoggedBannerVisible(true);
+      const timer = setTimeout(() => {
+        setJustLoggedBannerVisible(false);
+      }, 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [params.tab, params.justLogged]);
 
   const triggerHaptic = (
     style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light,
@@ -301,32 +267,15 @@ export default function UnifiedMealPlanScreen() {
     }
   };
 
-  const toggleMealLog = (id: number) => {
+  const handleToggleMealLog = (id: number) => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-    setMeals((prev) =>
-      prev.map((m) => {
-        if (m.id === id) {
-          const nextCompleted = !m.completed;
-          if (nextCompleted && Platform.OS !== "web") {
-            Haptics.notificationAsync(
-              Haptics.NotificationFeedbackType.Success,
-            ).catch(() => {});
-          }
-          return { ...m, completed: nextCompleted };
-        }
-        return m;
-      }),
-    );
-  };
-
-  const regenerateMeal = (id: number) => {
-    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-    setMeals((prev) => prev.map((meal) => meal.id === id ? { ...meal, completed: false, calories: Math.max(100, meal.calories + Math.floor(Math.random() * 81) - 40) } : meal));
-  };
-
-  const deleteMeal = (id: number) => {
-    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-    setMeals((prev) => prev.filter((meal) => meal.id !== id));
+    const target = meals.find((m) => m.id === id);
+    if (target && !target.completed && Platform.OS !== "web") {
+      Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success,
+      ).catch(() => {});
+    }
+    toggleMealLog(id);
   };
 
   const handleRegenerate = () => {
@@ -334,16 +283,26 @@ export default function UnifiedMealPlanScreen() {
     setIsRegenerating(true);
     setTimeout(() => {
       setIsRegenerating(false);
-      setMeals((prev) =>
-        prev.map((m) => ({
-          ...m,
-          calories: m.calories + Math.floor(Math.random() * 20) - 10,
-        })),
-      );
+      randomizeCalories();
     }, 1000);
   };
 
   const loggedMeals = useMemo(() => meals.filter((m) => m.completed), [meals]);
+
+  const computedWeekHistory = useMemo(() => {
+    return WEEK_HISTORY_DATA.map((day) => {
+      if (day.isToday) {
+        const todayCalories = loggedMeals.reduce((acc, m) => acc + m.calories, 0);
+        return {
+          ...day,
+          mealsLogged: loggedMeals.length,
+          totalMeals: meals.length,
+          caloriesTaken: Math.max(day.caloriesTaken, todayCalories),
+        };
+      }
+      return day;
+    });
+  }, [loggedMeals, meals.length]);
 
   return (
     <View style={styles.container}>
@@ -373,6 +332,39 @@ export default function UnifiedMealPlanScreen() {
           </View>
           <Text style={styles.mainTitle}>MEALS & LOGS</Text>
         </View>
+
+        {/* Meal Logged Confirmation Banner */}
+        {justLoggedBannerVisible && (
+          <View style={styles.loggedSuccessBanner}>
+            <LinearGradient
+              colors={["rgba(45, 212, 191, 0.16)", "rgba(56, 189, 248, 0.08)"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.loggedSuccessGradient}
+            >
+              <View style={styles.loggedSuccessIconCircle}>
+                <Check size={13} color="#2DD4BF" strokeWidth={3} />
+              </View>
+              <View style={styles.loggedSuccessTextCol}>
+                <Text style={styles.loggedSuccessTitle}>
+                  MEAL LOGGED TO TODAY'S SCHEDULE
+                </Text>
+                <Text style={styles.loggedSuccessSub}>
+                  Saved to today's schedule and marked as completed
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => setJustLoggedBannerVisible(false)}
+                hitSlop={8}
+                style={styles.loggedSuccessDismiss}
+                accessibilityRole="button"
+                accessibilityLabel="Dismiss confirmation"
+              >
+                <X size={14} color="#94A3B8" />
+              </Pressable>
+            </LinearGradient>
+          </View>
+        )}
 
         {/* View Mode Switcher: Today's Schedule vs Week History */}
         <View style={styles.tabSwitcher}>
@@ -462,7 +454,15 @@ export default function UnifiedMealPlanScreen() {
                     onRegenerate={() => regenerateMeal(meal.id)}
                     onDelete={() => deleteMeal(meal.id)}
                   >
-                  <View style={[styles.mealCard, meal.completed && styles.mealCardCompleted]}>
+                  <View
+                    style={[
+                      styles.mealCard,
+                      meal.completed && styles.mealCardCompleted,
+                      meal.id === lastSavedMealId &&
+                        justLoggedBannerVisible &&
+                        styles.mealCardJustLogged,
+                    ]}
+                  >
                     {/* Top Row: Type Label + Time + Action Button */}
                     <View style={styles.mealTopRow}>
                       <View style={styles.mealBadgeGroup}>
@@ -486,7 +486,7 @@ export default function UnifiedMealPlanScreen() {
                       {meal.completed ? (
                         <Pressable
                           style={styles.completedBtn}
-                          onPress={() => toggleMealLog(meal.id)}
+                          onPress={() => handleToggleMealLog(meal.id)}
                           accessibilityRole="button"
                           accessibilityLabel="Meal logged, tap to unmark"
                         >
@@ -496,7 +496,7 @@ export default function UnifiedMealPlanScreen() {
                       ) : (
                         <Pressable
                           style={styles.logBtn}
-                          onPress={() => toggleMealLog(meal.id)}
+                          onPress={() => handleToggleMealLog(meal.id)}
                           accessibilityRole="button"
                           accessibilityLabel="Log meal"
                         >
@@ -554,7 +554,7 @@ export default function UnifiedMealPlanScreen() {
 
             {/* Week History Cards List */}
             <View style={styles.historyList}>
-              {WEEK_HISTORY_DATA.map((day) => {
+              {computedWeekHistory.map((day) => {
                 const progressPct = Math.min(
                   100,
                   Math.round((day.caloriesTaken / day.caloriesTarget) * 100),
@@ -889,6 +889,49 @@ const styles = StyleSheet.create({
   mealCardCompleted: {
     borderColor: "rgba(45, 212, 191, 0.32)",
     backgroundColor: "#0C171F",
+  },
+  mealCardJustLogged: {
+    borderColor: "rgba(45, 212, 191, 0.8)",
+    borderWidth: 1.5,
+  },
+  loggedSuccessBanner: {
+    marginBottom: 16,
+    borderRadius: 14,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(45, 212, 191, 0.4)",
+  },
+  loggedSuccessGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 10,
+  },
+  loggedSuccessIconCircle: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: "rgba(45, 212, 191, 0.2)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loggedSuccessTextCol: {
+    flex: 1,
+  },
+  loggedSuccessTitle: {
+    color: "#2DD4BF",
+    fontSize: clampFontSize(11),
+    fontFamily: "JetBrainsMono_700Bold",
+    letterSpacing: 0.5,
+  },
+  loggedSuccessSub: {
+    color: "#94A3B8",
+    fontSize: clampFontSize(9.5),
+    marginTop: 2,
+  },
+  loggedSuccessDismiss: {
+    padding: 4,
   },
   mealTopRow: {
     flexDirection: "row",

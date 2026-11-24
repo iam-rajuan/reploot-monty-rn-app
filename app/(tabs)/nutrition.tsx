@@ -21,7 +21,7 @@ import {
   ArrowRight,
   X,
 } from "lucide-react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Easing,
@@ -75,6 +75,13 @@ export default function NutritionTabRoute() {
   const hasGeneratedPlan = useNutritionPlanStore((state) => state.hasGeneratedPlan);
   const resetGeneratedPlan = useNutritionPlanStore((state) => state.resetGeneratedPlan);
   const lastApprovedAdjustment = useNutritionPlanStore((state) => state.lastApprovedAdjustment);
+  const meals = useNutritionPlanStore((state) => state.meals);
+
+  const lunchMeal = useMemo(
+    () => meals.find((m) => m.type.toUpperCase() === "LUNCH"),
+    [meals],
+  );
+  const isLunchLogged = lunchMeal?.completed ?? false;
 
   const animatedWaterProgress = useRef(new Animated.Value(1.8 / 3.0)).current;
 
@@ -700,26 +707,59 @@ export default function NutritionTabRoute() {
           )}
 
           {/* Recommended Next Meal Card */}
-          <View style={styles.nutritionLunch}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.nutritionLunch,
+              isLunchLogged && styles.nutritionLunchLogged,
+              pressed && { opacity: 0.88, transform: [{ scale: 0.99 }] },
+            ]}
+            onPress={() => {
+              triggerHaptic();
+              router.push("/meal-history");
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="View today's scheduled meals"
+          >
             <View style={styles.nutritionLunchLabelRow}>
-              <Utensils size={12} color="#2DD4BF" />
-              <Text style={styles.nutritionLunchLabel}>
-                RECOMMENDED LUNCH
-              </Text>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+                <Utensils size={12} color={isLunchLogged ? "#2DD4BF" : "#38BDF8"} />
+                <Text
+                  style={[
+                    styles.nutritionLunchLabel,
+                    isLunchLogged && { color: "#2DD4BF" },
+                  ]}
+                >
+                  {isLunchLogged ? "TODAY'S LUNCH" : "RECOMMENDED LUNCH"}
+                </Text>
+              </View>
+              {isLunchLogged && (
+                <View style={styles.lunchLoggedBadge}>
+                  <Check size={10} color="#2DD4BF" strokeWidth={2.8} />
+                  <Text style={styles.lunchLoggedBadgeText}>LOGGED</Text>
+                </View>
+              )}
             </View>
 
             <Text style={styles.nutritionLunchText}>
-              Grilled Chicken & Brown Rice
+              {lunchMeal?.name || "Grilled Chicken & Brown Rice Bowl"}
             </Text>
 
             {/* Meal Macro & Calorie Telemetry */}
             <View style={styles.nutritionLunchMacrosRow}>
               <Flame size={12} color="#38BDF8" />
-              <Text style={styles.lunchKcalText}>580 KCAL</Text>
+              <Text style={styles.lunchKcalText}>
+                {lunchMeal?.calories ?? 450} KCAL
+              </Text>
               <Text style={styles.lunchDivider}>•</Text>
-              <Text style={styles.lunchProteinHighlight}>48g PROTEIN</Text>
+              <Text style={styles.lunchProteinHighlight}>
+                {lunchMeal?.protein ?? 35}g PROTEIN
+              </Text>
+              <Text style={styles.lunchDivider}>•</Text>
+              <Text style={styles.lunchCarbsHighlight}>
+                {lunchMeal?.carbs ?? 42}g CARBS
+              </Text>
             </View>
-          </View>
+          </Pressable>
 
           {/* Action Button */}
           <Pressable
@@ -1691,6 +1731,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     gap: 4,
   },
+  nutritionLunchLogged: {
+    backgroundColor: "rgba(12, 23, 31, 0.75)",
+    borderColor: "rgba(45, 212, 191, 0.4)",
+  },
+  lunchLoggedBadge: {
+    marginLeft: "auto",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(45, 212, 191, 0.12)",
+    borderColor: "rgba(45, 212, 191, 0.4)",
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+  },
+  lunchLoggedBadgeText: {
+    color: "#2DD4BF",
+    fontSize: 9.5,
+    fontFamily: "JetBrainsMono_700Bold",
+    letterSpacing: 0.5,
+  },
   nutritionLunchLabelRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -1728,6 +1790,12 @@ const styles = StyleSheet.create({
   },
   lunchProteinHighlight: {
     color: "#2DD4BF",
+    fontSize: 10.5,
+    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "800",
+  },
+  lunchCarbsHighlight: {
+    color: "#FBBF24",
     fontSize: 10.5,
     fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "800",

@@ -1,5 +1,6 @@
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
 import { HORIZONTAL_PADDING, clampFontSize, isSmallDevice } from "@/shared/utils/responsive";
+import { useNutritionPlanStore } from "@/stores/nutritionPlanStore";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { Image } from "expo-image";
 import * as Haptics from "expo-haptics";
@@ -163,9 +164,31 @@ export default function MealAnalysisScreen() {
     };
   }, [ingredients]);
 
+  const logScannedMeal = useNutritionPlanStore((state) => state.logScannedMeal);
+
   const handleSaveMeal = () => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-    router.push("/meal-history");
+    if (Platform.OS !== "web") {
+      Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success,
+      ).catch(() => {});
+    }
+
+    // Save and log this meal to today's scheduled meals in shared state
+    logScannedMeal({
+      name: "Grilled Chicken & Brown Rice Bowl",
+      calories: totalCalories,
+      protein: totalProtein,
+      carbs: totalCarbs,
+      fat: totalFat,
+      type: "LUNCH",
+    });
+
+    // Navigate to Today's Scheduled Meals
+    router.push({
+      pathname: "/meal-history",
+      params: { tab: "today", justLogged: "true" },
+    });
   };
 
   const handleScanAgain = () => {
