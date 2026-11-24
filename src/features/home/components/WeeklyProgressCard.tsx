@@ -1,7 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { ArrowRight } from "lucide-react-native";
+import { ArrowRight, Shield } from "lucide-react-native";
 import React from "react";
 import {
   Platform,
@@ -55,9 +55,14 @@ export const WeeklyProgressCard = () => {
             <Text style={styles.levelNumber}>42</Text>
           </LinearGradient>
 
-          <View style={styles.tierCol}>
-            <Text style={[styles.tierText, { color: progression.tier.color }]}>{progression.tier.displayName.toUpperCase()}</Text>
-            <Text style={styles.tierText}>TIER</Text>
+          <View style={styles.tierIdentity}>
+            <View style={[styles.tierEmblem, { backgroundColor: `${progression.tier.color}18`, borderColor: `${progression.tier.color}4D` }]}>
+              <Shield size={15} color={progression.tier.color} strokeWidth={2.3} />
+            </View>
+            <View style={styles.tierCol}>
+              <Text style={[styles.tierText, { color: progression.tier.color }]}>{progression.tier.displayName.toUpperCase()}</Text>
+              <Text style={styles.tierText}>TIER</Text>
+            </View>
           </View>
         </View>
 
@@ -196,6 +201,19 @@ const styles = StyleSheet.create({
   headerRight: {
     alignItems: "flex-end",
   },
+  tierIdentity: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+  },
+  tierEmblem: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+  },
   tierCol: {
     justifyContent: "center",
     alignItems: "flex-start",
@@ -271,15 +289,15 @@ const styles = StyleSheet.create({
   },
   barWrap: {
     flex: 1,
-    maxWidth: 36,
+    maxWidth: 46,
     alignItems: "center",
     gap: 6,
   },
   bar: {
-    width: "100%",
-    maxWidth: 28,
-    borderTopLeftRadius: 6,
-    borderTopRightRadius: 6,
+    width: "98%",
+    maxWidth: 42,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
   },
   barBlue: {
     backgroundColor: "#74A9E8",
