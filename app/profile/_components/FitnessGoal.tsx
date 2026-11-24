@@ -1,7 +1,13 @@
 import { Image } from "expo-image";
 import * as Haptics from "expo-haptics";
 import React from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface FitnessGoalProps {
   selectedGoal: string;
@@ -78,10 +84,7 @@ export function FitnessGoal({
             <TouchableOpacity
               key={goal.id}
               activeOpacity={0.75}
-              style={[
-                styles.goalCard,
-                isSelected && styles.goalCardSelected,
-              ]}
+              style={[styles.goalCard, isSelected && styles.goalCardSelected]}
               onPress={() => handleSelect(goal.id)}
             >
               {/* Left Icon Container */}
@@ -245,3 +248,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#38BDF8",
   },
 });
+
+export default FitnessGoal;

@@ -23,23 +23,55 @@ export function WorkoutTabs({ activeTab, setActiveTab }: WorkoutTabsProps) {
       <RankingTab
         label="GYM"
         active={activeTab === "gym"}
-        icon={<Dumbbell size={16} color={activeTab === "gym" ? "#061018" : "#94A3B8"} />}
+        icon={
+          <Dumbbell
+            size={16}
+            color={activeTab === "gym" ? "#061018" : "#94A3B8"}
+          />
+        }
         onPress={() => selectTab("gym")}
       />
       <RankingTab
         label="HOME"
         active={activeTab === "home"}
-        icon={<House size={16} color={activeTab === "home" ? "#061018" : "#94A3B8"} />}
+        icon={
+          <House
+            size={16}
+            color={activeTab === "home" ? "#061018" : "#94A3B8"}
+          />
+        }
         onPress={() => selectTab("home")}
       />
     </View>
   );
 }
 
-function RankingTab({ label, active, icon, onPress }: { label: string; active: boolean; icon: React.ReactNode; onPress: () => void }) {
+function RankingTab({
+  label,
+  active,
+  icon,
+  onPress,
+}: {
+  label: string;
+  active: boolean;
+  icon: React.ReactNode;
+  onPress: () => void;
+}) {
   return (
-    <Pressable accessibilityRole="tab" accessibilityState={{ selected: active }} onPress={onPress} style={styles.tab}>
-      {active && <LinearGradient colors={["#38EDD8", "#4FACFE"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />}
+    <Pressable
+      accessibilityRole="tab"
+      accessibilityState={{ selected: active }}
+      onPress={onPress}
+      style={styles.tab}
+    >
+      {active && (
+        <LinearGradient
+          colors={["#38EDD8", "#4FACFE"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+      )}
       {icon}
       <Text style={[styles.label, active && styles.activeLabel]}>{label}</Text>
     </Pressable>
@@ -47,8 +79,34 @@ function RankingTab({ label, active, icon, onPress }: { label: string; active: b
 }
 
 const styles = StyleSheet.create({
-  container: { flexDirection: "row", height: 52, padding: 4, marginBottom: 18, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,0.08)", backgroundColor: "rgba(8,13,24,0.82)", overflow: "hidden" },
-  tab: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: 14, overflow: "hidden" },
-  label: { color: "#94A3B8", fontSize: 12, fontWeight: "900", fontFamily: "monospace", letterSpacing: 1.3 },
+  container: {
+    flexDirection: "row",
+    height: 52,
+    padding: 4,
+    marginBottom: 18,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+    backgroundColor: "rgba(8,13,24,0.82)",
+    overflow: "hidden",
+  },
+  tab: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderRadius: 14,
+    overflow: "hidden",
+  },
+  label: {
+    color: "#94A3B8",
+    fontSize: 12,
+    fontWeight: "900",
+    fontFamily: "monospace",
+    letterSpacing: 1.3,
+  },
   activeLabel: { color: "#061018" },
 });
+
+export default WorkoutTabs;

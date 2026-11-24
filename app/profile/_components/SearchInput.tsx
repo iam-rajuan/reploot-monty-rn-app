@@ -2,7 +2,13 @@ import { Search } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 
-export function SearchInput({ value, onChangeText }: { value: string; onChangeText: (value: string) => void }) {
+export function SearchInput({
+  value,
+  onChangeText,
+}: {
+  value: string;
+  onChangeText: (value: string) => void;
+}) {
   return (
     <View style={styles.searchContainer}>
       <Search size={18} color="#38BDF8" style={styles.searchIcon} />
@@ -37,6 +43,8 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 14,
     fontFamily: "monospace",
-    ...( { outlineStyle: "none" } as any ),
+    ...({ outlineStyle: "none" } as any),
   },
 });
+
+export default SearchInput;

@@ -13,8 +13,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Check, Dumbbell, RefreshCw, Sparkles } from "lucide-react-native";
-import React, { useState } from "react";
-import { NestableScrollContainer } from "react-native-draggable-flatlist";
+import React, { useMemo, useState } from "react";
 import {
   Platform,
   Pressable,
@@ -72,12 +71,13 @@ export const GenericWorkoutDetailScreen: React.FC<
   }>();
 
   // Local override when user taps category tabs
-  const [selectedCategoryOverride, setSelectedCategoryOverride] =
-    useState<string | null>(null);
+  const [selectedCategoryOverride, setSelectedCategoryOverride] = useState<
+    string | null
+  >(null);
 
   // Determine active category from local tab override, props, route params, or Redux state
   const reduxSelectedCategory = useAppSelector(
-    (state) => state.workout?.selectedWorkoutCategory || "push"
+    (state) => state.workout?.selectedWorkoutCategory || "push",
   );
   const activePathId = (
     selectedCategoryOverride ||
@@ -91,7 +91,7 @@ export const GenericWorkoutDetailScreen: React.FC<
 
   // Read current workout from shared Redux store (preserves user modifications)
   const workoutsByPath = useAppSelector(
-    (state) => state.workout?.workoutsByPath || {}
+    (state) => state.workout?.workoutsByPath || {},
   );
   const workout: DynamicWorkoutPathDetail =
     workoutsByPath[activePathId] ||
@@ -100,21 +100,22 @@ export const GenericWorkoutDetailScreen: React.FC<
     WORKOUT_PATH_DETAILS_MAP.push;
 
   const completedExerciseIds = useAppSelector(
-    (state) => state.workout?.completedExerciseIds || []
+    (state) => state.workout?.completedExerciseIds || [],
   );
   const shouldShowFullLibrary =
-    showFullExerciseLibrary || params.source === "home" || params.source === "gym";
+    showFullExerciseLibrary ||
+    params.source === "home" ||
+    params.source === "gym";
   const visibleExercises = shouldShowFullLibrary
     ? workout.exercises
     : workout.exercises
         .filter((exercise) => exercise.isAiRecommended !== false)
         .slice(0, 8);
   const visibleCompletedCount = visibleExercises.filter((exercise) =>
-    completedExerciseIds.includes(exercise.id)
+    completedExerciseIds.includes(exercise.id),
   ).length;
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [isDraggingExercise, setIsDraggingExercise] = useState(false);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -185,7 +186,7 @@ export const GenericWorkoutDetailScreen: React.FC<
       removeExerciseFromWorkout({
         pathId: activePathId,
         exerciseId,
-      })
+      }),
     );
     showToast("EXERCISE REMOVED FROM ROUTINE");
   };
@@ -195,7 +196,7 @@ export const GenericWorkoutDetailScreen: React.FC<
       reorderWorkoutExercises({
         pathId: activePathId,
         orderedExerciseIds,
-      })
+      }),
     );
   };
 
@@ -205,7 +206,7 @@ export const GenericWorkoutDetailScreen: React.FC<
       replaceExerciseInWorkout({
         pathId: activePathId,
         exerciseId,
-      })
+      }),
     );
     showToast("EXERCISE REPLACED WITH ALTERNATIVE");
   };
@@ -219,6 +220,86 @@ export const GenericWorkoutDetailScreen: React.FC<
     showToast(`${workout.title} REGENERATED (AI SET)`);
   };
 
+  const workoutListHeader = useMemo(
+    () => (
+      <>
+        {/* Workout Category Selector Pills */}
+        <View style={styles.categoryTabsWrapper}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoryTabsScroll}
+          >
+            {WORKOUT_SPLIT_TABS.map((tab) => {
+              const isActive = tab.id === activePathId;
+              return (
+                <Pressable
+                  key={tab.id}
+                  onPress={() => handleTabChange(tab.id)}
+                  style={[
+                    styles.categoryPill,
+                    isActive && styles.categoryPillActive,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={tab.label}
+                >
+                  <Dumbbell
+                    size={12}
+                    color={isActive ? "#00f2fe" : "#64748B"}
+                    style={{ marginRight: 6 }}
+                  />
+                  <Text
+                    style={[
+                      styles.categoryPillText,
+                      isActive && styles.categoryPillTextActive,
+                    ]}
+                  >
+                    {tab.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        {/* Title Section matching clean Figma design */}
+        <View style={styles.titleSection}>
+          <Text style={styles.mainTitle}>{workout.title}</Text>
+        </View>
+
+        {/* Hero Card with Stats */}
+        <PushDayHeroCard
+          image={workout.heroImage}
+          xpText={workout.xpText}
+          durationText={workout.durationText}
+          caloriesText={workout.caloriesText}
+        />
+
+        {/* Completion Progress Pill (only shown when user has checked off exercises) */}
+        {visibleCompletedCount > 0 ? (
+          <View style={styles.completedHeaderRow}>
+            <View style={styles.completedPill}>
+              <Check size={12} color="#38EDD8" strokeWidth={3} />
+              <Text style={styles.completedCountText}>
+                {visibleCompletedCount} OF {visibleExercises.length} COMPLETED
+              </Text>
+            </View>
+          </View>
+        ) : null}
+      </>
+    ),
+    [
+      activePathId,
+      workout.title,
+      workout.heroImage,
+      workout.xpText,
+      workout.durationText,
+      workout.caloriesText,
+      visibleCompletedCount,
+      visibleExercises.length,
+    ],
+  );
+
   return (
     <View style={styles.screen}>
       <StatusBar style="light" />
@@ -229,9 +310,14 @@ export const GenericWorkoutDetailScreen: React.FC<
         onPressBack={handleBack}
       />
 
-      <NestableScrollContainer
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
+      <PushDayExerciseList
+        exercises={visibleExercises}
+        showRecommendationSections={shouldShowFullLibrary}
+        onExercisePress={handleExercisePress}
+        onReplaceExercise={handleReplaceExercise}
+        onDeleteExercise={handleDeleteExercise}
+        onReorderExercises={handleReorderExercises}
+        style={[
           styles.scrollContent,
           {
             paddingBottom: shouldShowFullLibrary
@@ -239,84 +325,8 @@ export const GenericWorkoutDetailScreen: React.FC<
               : bottomInset + 172,
           },
         ]}
-      >
-        <PushDayExerciseList
-          exercises={visibleExercises}
-          showRecommendationSections={shouldShowFullLibrary}
-          onExercisePress={handleExercisePress}
-          onReplaceExercise={handleReplaceExercise}
-          onDeleteExercise={handleDeleteExercise}
-          onReorderExercises={handleReorderExercises}
-          onDragStateChange={setIsDraggingExercise}
-          ListHeaderComponent={
-            <>
-              {/* Workout Category Selector Pills */}
-              <View style={styles.categoryTabsWrapper}>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.categoryTabsScroll}
-                >
-                  {WORKOUT_SPLIT_TABS.map((tab) => {
-                    const isActive = tab.id === activePathId;
-                    return (
-                      <Pressable
-                        key={tab.id}
-                        onPress={() => handleTabChange(tab.id)}
-                        style={[
-                          styles.categoryPill,
-                          isActive && styles.categoryPillActive,
-                        ]}
-                        accessibilityRole="button"
-                        accessibilityLabel={tab.label}
-                      >
-                        <Dumbbell
-                          size={12}
-                          color={isActive ? "#00f2fe" : "#64748B"}
-                          style={{ marginRight: 6 }}
-                        />
-                        <Text
-                          style={[
-                            styles.categoryPillText,
-                            isActive && styles.categoryPillTextActive,
-                          ]}
-                        >
-                          {tab.label}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </ScrollView>
-              </View>
-
-              {/* Title Section matching clean Figma design */}
-              <View style={styles.titleSection}>
-                <Text style={styles.mainTitle}>{workout.title}</Text>
-              </View>
-
-              {/* Hero Card with Stats */}
-              <PushDayHeroCard
-                image={workout.heroImage}
-                xpText={workout.xpText}
-                durationText={workout.durationText}
-                caloriesText={workout.caloriesText}
-              />
-
-              {/* Completion Progress Pill (only shown when user has checked off exercises) */}
-              {visibleCompletedCount > 0 ? (
-                <View style={styles.completedHeaderRow}>
-                  <View style={styles.completedPill}>
-                    <Check size={12} color="#38EDD8" strokeWidth={3} />
-                    <Text style={styles.completedCountText}>
-                      {visibleCompletedCount} OF {visibleExercises.length} COMPLETED
-                    </Text>
-                  </View>
-                </View>
-              ) : null}
-            </>
-          }
-        />
-      </NestableScrollContainer>
+        ListHeaderComponent={workoutListHeader}
+      />
 
       {/* Floating HUD Feedback Toast */}
       {toastMessage ? (
@@ -327,73 +337,75 @@ export const GenericWorkoutDetailScreen: React.FC<
       ) : null}
 
       {/* Today’s Mission is a focused AI routine; library views remain browse-only. */}
-      {!shouldShowFullLibrary ? <View
-        style={[
-          styles.bottomCtaContainer,
-          { paddingBottom: bottomInset + 8 },
-        ]}
-        pointerEvents={isDraggingExercise ? "none" : "auto"}
-      >
-        {/* Soft fade gradient above the dock so scrolling cards dissolve seamlessly */}
-        <LinearGradient
-          colors={["transparent", "#070A11"]}
-          style={styles.fadeGradient}
-          pointerEvents="none"
-        />
+      {!shouldShowFullLibrary ? (
+        <View
+          style={[
+            styles.bottomCtaContainer,
+            { paddingBottom: bottomInset + 8 },
+          ]}
+          pointerEvents="box-none"
+        >
+          {/* Soft fade gradient above the dock so scrolling cards dissolve seamlessly */}
+          <LinearGradient
+            colors={["transparent", "#070A11"]}
+            style={styles.fadeGradient}
+            pointerEvents="none"
+          />
 
-        <View style={styles.ctaButtonsCol}>
-          {/* 1. REGENERATE WORKOUT BUTTON */}
-          <Pressable
-            onPress={handleRegenerate}
-            style={({ pressed }) => [
-              styles.regenerateBtn,
-              pressed && styles.regenerateBtnPressed,
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel="Regenerate Workout"
-          >
-            <View style={styles.regenerateSurface}>
-              <RefreshCw
-                size={18}
-                color="#6FE8FF"
-                strokeWidth={2.2}
-                style={{ marginRight: 10 }}
-              />
-              <Text style={styles.regenerateBtnText} numberOfLines={1}>
-                REGENERATE WORKOUT
-              </Text>
-            </View>
-          </Pressable>
-
-          {/* 2. START AI WORKOUT BUTTON */}
-          <Pressable
-            onPress={handleStart}
-            style={({ pressed }) => [
-              styles.startWorkoutBtn,
-              pressed && styles.startWorkoutBtnPressed,
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel="Start AI Workout"
-          >
-            <LinearGradient
-              colors={["#00f2fe", "#4facfe"]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={styles.startWorkoutGradient}
+          <View style={styles.ctaButtonsCol}>
+            {/* 1. REGENERATE WORKOUT BUTTON */}
+            <Pressable
+              onPress={handleRegenerate}
+              style={({ pressed }) => [
+                styles.regenerateBtn,
+                pressed && styles.regenerateBtnPressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel="Regenerate Workout"
             >
-              <Sparkles
-                size={18}
-                color="#050811"
-                fill="#050811"
-                style={{ marginRight: 8 }}
-              />
-              <Text style={styles.startWorkoutText} numberOfLines={1}>
-                START AI WORKOUT
-              </Text>
-            </LinearGradient>
-          </Pressable>
+              <View style={styles.regenerateSurface}>
+                <RefreshCw
+                  size={18}
+                  color="#6FE8FF"
+                  strokeWidth={2.2}
+                  style={{ marginRight: 10 }}
+                />
+                <Text style={styles.regenerateBtnText} numberOfLines={1}>
+                  REGENERATE WORKOUT
+                </Text>
+              </View>
+            </Pressable>
+
+            {/* 2. START AI WORKOUT BUTTON */}
+            <Pressable
+              onPress={handleStart}
+              style={({ pressed }) => [
+                styles.startWorkoutBtn,
+                pressed && styles.startWorkoutBtnPressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel="Start AI Workout"
+            >
+              <LinearGradient
+                colors={["#00f2fe", "#4facfe"]}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.startWorkoutGradient}
+              >
+                <Sparkles
+                  size={18}
+                  color="#050811"
+                  fill="#050811"
+                  style={{ marginRight: 8 }}
+                />
+                <Text style={styles.startWorkoutText} numberOfLines={1}>
+                  START AI WORKOUT
+                </Text>
+              </LinearGradient>
+            </Pressable>
+          </View>
         </View>
-      </View> : null}
+      ) : null}
     </View>
   );
 };

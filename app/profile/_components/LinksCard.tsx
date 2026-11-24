@@ -2,7 +2,13 @@ import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { ChevronRight, FileText, Info, Shield } from "lucide-react-native";
 import React from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export function LinksCard() {
   const router = useRouter();
@@ -145,3 +151,5 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
 });
+
+export default LinksCard;

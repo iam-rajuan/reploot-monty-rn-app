@@ -15,7 +15,9 @@ interface CredentialsCardProps {
   onPasswordUpdated?: () => void;
 }
 
-export function CredentialsCard({ onPasswordUpdated }: CredentialsCardProps = {}) {
+export function CredentialsCard({
+  onPasswordUpdated,
+}: CredentialsCardProps = {}) {
   const [passwordModalVisible, setPasswordModalVisible] = useState(false);
 
   const triggerHaptic = () => {
@@ -251,3 +253,5 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
 });
+
+export default CredentialsCard;

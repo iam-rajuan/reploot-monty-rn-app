@@ -20,23 +20,28 @@ import {
   X,
 } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  NestableDraggableFlatList,
-  NestableScrollContainer,
-  ScaleDecorator,
+import DraggableFlatList, {
   useNestableScrollContainerContext,
   type RenderItemParams,
 } from "react-native-draggable-flatlist";
 import {
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { HORIZONTAL_PADDING, clampFontSize, isSmallDevice } from "@/shared/utils/responsive";
-import { useNutritionPlanStore, type UnifiedMeal } from "@/stores/nutritionPlanStore";
+import {
+  HORIZONTAL_PADDING,
+  clampFontSize,
+  isSmallDevice,
+} from "@/shared/utils/responsive";
+import {
+  useNutritionPlanStore,
+  type UnifiedMeal,
+} from "@/stores/nutritionPlanStore";
 
 export type { UnifiedMeal };
 
@@ -66,6 +71,7 @@ const MealSwipeShell = ({
   onRegenerate,
   onDelete,
   onLongPress,
+  isDragging = false,
   children,
 }: {
   mealName: string;
@@ -75,6 +81,7 @@ const MealSwipeShell = ({
   onRegenerate: () => void;
   onDelete: () => void;
   onLongPress?: () => void;
+  isDragging?: boolean;
   children: React.ReactNode;
 }) => {
   const swipeableRef = useRef<SwipeableMethods | null>(null);
@@ -89,6 +96,7 @@ const MealSwipeShell = ({
   return (
     <ReanimatedSwipeable
       ref={swipeableRef}
+      enabled={!isDragging}
       simultaneousWithExternalGesture={scrollableRef}
       friction={1.5}
       rightThreshold={MEAL_ACTION_DRAWER_WIDTH * 0.32}
@@ -97,8 +105,28 @@ const MealSwipeShell = ({
       containerStyle={styles.mealSwipeShell}
       renderRightActions={() => (
         <View style={styles.mealSwipeActions}>
-          <Pressable onPress={() => runAction(onRegenerate)} style={styles.mealSwipeAction} accessibilityRole="button" accessibilityLabel={`Regenerate ${mealName}`}><View style={styles.mealRegenerateCircle}><RefreshCw size={18} color="#FFF" /></View><Text style={styles.mealRegenerateLabel}>Regenerate</Text></Pressable>
-          <Pressable onPress={() => runAction(onDelete)} style={styles.mealSwipeAction} accessibilityRole="button" accessibilityLabel={`Delete ${mealName}`}><View style={styles.mealDeleteCircle}><Trash2 size={18} color="#FFF" /></View><Text style={styles.mealDeleteLabel}>Delete</Text></Pressable>
+          <Pressable
+            onPress={() => runAction(onRegenerate)}
+            style={styles.mealSwipeAction}
+            accessibilityRole="button"
+            accessibilityLabel={`Regenerate ${mealName}`}
+          >
+            <View style={styles.mealRegenerateCircle}>
+              <RefreshCw size={18} color="#FFF" />
+            </View>
+            <Text style={styles.mealRegenerateLabel}>Regenerate</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => runAction(onDelete)}
+            style={styles.mealSwipeAction}
+            accessibilityRole="button"
+            accessibilityLabel={`Delete ${mealName}`}
+          >
+            <View style={styles.mealDeleteCircle}>
+              <Trash2 size={18} color="#FFF" />
+            </View>
+            <Text style={styles.mealDeleteLabel}>Delete</Text>
+          </Pressable>
         </View>
       )}
       onSwipeableOpenStartDrag={(direction) => {
@@ -115,8 +143,12 @@ const MealSwipeShell = ({
     >
       <Pressable
         onLongPress={onLongPress}
-        delayLongPress={260}
-        accessibilityHint={onLongPress ? "Press and hold to drag and rearrange this meal" : undefined}
+        delayLongPress={340}
+        accessibilityHint={
+          onLongPress
+            ? "Press and hold to drag and rearrange this meal"
+            : undefined
+        }
       >
         {children}
       </Pressable>
@@ -250,7 +282,6 @@ export default function UnifiedMealPlanScreen() {
   const [justLoggedBannerVisible, setJustLoggedBannerVisible] = useState(
     params.justLogged === "true",
   );
-  const [isDraggingMeal, setIsDraggingMeal] = useState(false);
   const activeSwipeCloserRef = useRef<(() => void) | null>(null);
 
   const meals = useNutritionPlanStore((state) => state.meals);
@@ -290,9 +321,9 @@ export default function UnifiedMealPlanScreen() {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
     const target = meals.find((m) => m.id === id);
     if (target && !target.completed && Platform.OS !== "web") {
-      Haptics.notificationAsync(
-        Haptics.NotificationFeedbackType.Success,
-      ).catch(() => {});
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
+        () => {},
+      );
     }
     toggleMealLog(id);
   };
@@ -316,7 +347,10 @@ export default function UnifiedMealPlanScreen() {
   const computedWeekHistory = useMemo(() => {
     return WEEK_HISTORY_DATA.map((day) => {
       if (day.isToday) {
-        const todayCalories = loggedMeals.reduce((acc, m) => acc + m.calories, 0);
+        const todayCalories = loggedMeals.reduce(
+          (acc, m) => acc + m.calories,
+          0,
+        );
         return {
           ...day,
           mealsLogged: loggedMeals.length,
@@ -375,10 +409,7 @@ export default function UnifiedMealPlanScreen() {
       {/* View Mode Switcher: Today's Schedule vs Week History */}
       <View style={styles.tabSwitcher}>
         <Pressable
-          style={[
-            styles.tabBtn,
-            viewMode === "today" && styles.tabBtnActive,
-          ]}
+          style={[styles.tabBtn, viewMode === "today" && styles.tabBtnActive]}
           onPress={() => {
             triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
             setViewMode("today");
@@ -401,10 +432,7 @@ export default function UnifiedMealPlanScreen() {
         </Pressable>
 
         <Pressable
-          style={[
-            styles.tabBtn,
-            viewMode === "week" && styles.tabBtnActive,
-          ]}
+          style={[styles.tabBtn, viewMode === "week" && styles.tabBtnActive]}
           onPress={() => {
             triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
             setViewMode("week");
@@ -430,10 +458,7 @@ export default function UnifiedMealPlanScreen() {
   );
 
   const bottomActions = (
-    <View
-      style={styles.actionsContainer}
-      pointerEvents={isDraggingMeal ? "none" : "auto"}
-    >
+    <View style={styles.actionsContainer}>
       <Pressable
         style={({ pressed }) => [
           styles.scanBtn,
@@ -482,6 +507,27 @@ export default function UnifiedMealPlanScreen() {
     </View>
   );
 
+  const todayListHeader = useMemo(
+    () => (
+      <>
+        {commonHeader}
+        {/* Meal Schedule Section Header */}
+        <View style={styles.sectionHeader}>
+          <View style={styles.sectionIconBadge}>
+            <Utensils size={12} color="#38BDF8" />
+          </View>
+          <Text style={styles.sectionTitle}>TODAY'S SCHEDULE</Text>
+          <View style={styles.sectionCountBadge}>
+            <Text style={styles.sectionCountText}>
+              {loggedMeals.length}/{meals.length} LOGGED
+            </Text>
+          </View>
+        </View>
+      </>
+    ),
+    [commonHeader, loggedMeals.length, meals.length],
+  );
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -495,382 +541,351 @@ export default function UnifiedMealPlanScreen() {
         transparent={true}
       />
 
-      <NestableScrollContainer
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: Math.max(insets.bottom + 90, 110) },
-        ]}
-        showsVerticalScrollIndicator={false}
-      >
-        {viewMode === "today" ? (
-          <NestableDraggableFlatList
-            data={meals}
-            keyExtractor={(meal) => String(meal.id)}
-            activationDistance={10}
-            autoscrollThreshold={130}
-            autoscrollSpeed={280}
-            dragItemOverflow
-            animationConfig={{ damping: 30, stiffness: 420, mass: 0.16 }}
-            contentContainerStyle={styles.mealList}
-            ListHeaderComponent={
-              <>
-                {commonHeader}
-                {/* Meal Schedule Section Header */}
-                <View style={styles.sectionHeader}>
-                  <View style={styles.sectionIconBadge}>
-                    <Utensils size={12} color="#38BDF8" />
-                  </View>
-                  <Text style={styles.sectionTitle}>TODAY'S SCHEDULE</Text>
-                  <View style={styles.sectionCountBadge}>
-                    <Text style={styles.sectionCountText}>
-                      {loggedMeals.length}/{meals.length} LOGGED
-                    </Text>
-                  </View>
-                </View>
-              </>
-            }
-            ListFooterComponent={bottomActions}
-            onDragBegin={() => setIsDraggingMeal(true)}
-            onRelease={() => {
-              setIsDraggingMeal(false);
-            }}
-            onDragEnd={({ data }) => {
-              handleMealReorder(data);
-              setIsDraggingMeal(false);
-            }}
-            renderItem={({
-              item: meal,
-              drag,
-              isActive,
-              getIndex,
-            }: RenderItemParams<UnifiedMeal>) => {
-              const index = getIndex() ?? 0;
-              const isFirstScanned =
-                meal.type === "SCANNED" &&
-                (index === 0 || meals[index - 1]?.type !== "SCANNED");
+      {viewMode === "today" ? (
+        <DraggableFlatList
+          data={meals}
+          keyExtractor={(meal) => String(meal.id)}
+          activationDistance={18}
+          autoscrollThreshold={90}
+          autoscrollSpeed={65}
+          animationConfig={{
+            damping: 22,
+            stiffness: 180,
+            mass: 0.45,
+            overshootClamping: true,
+            energyThreshold: 0.001,
+          }}
+          contentContainerStyle={[
+            styles.scrollContent,
+            styles.mealList,
+            { paddingBottom: Math.max(insets.bottom + 90, 110) },
+          ]}
+          ListHeaderComponent={todayListHeader}
+          ListFooterComponent={bottomActions}
+          onDragEnd={({ data }) => {
+            handleMealReorder(data);
+          }}
+          renderItem={({
+            item: meal,
+            drag,
+            isActive,
+            getIndex,
+          }: RenderItemParams<UnifiedMeal>) => {
+            const index = getIndex() ?? 0;
+            const isFirstScanned =
+              meal.type === "SCANNED" &&
+              (index === 0 || meals[index - 1]?.type !== "SCANNED");
 
-              return (
-                <View key={meal.id}>
-                  {isFirstScanned && (
-                    <View style={styles.scannedDividerRow}>
-                      <View style={styles.scannedDividerLine} />
-                      <View style={styles.scannedDividerBadge}>
-                        <Camera
-                          size={11}
-                          color="#38BDF8"
-                          style={{ marginRight: 5 }}
-                        />
-                        <Text style={styles.scannedDividerText}>
-                          SCANNED MEALS QUEUE
-                        </Text>
-                      </View>
-                      <View style={styles.scannedDividerLine} />
+            return (
+              <View key={meal.id}>
+                {isFirstScanned && (
+                  <View style={styles.scannedDividerRow}>
+                    <View style={styles.scannedDividerLine} />
+                    <View style={styles.scannedDividerBadge}>
+                      <Camera
+                        size={11}
+                        color="#38BDF8"
+                        style={{ marginRight: 5 }}
+                      />
+                      <Text style={styles.scannedDividerText}>
+                        SCANNED MEALS QUEUE
+                      </Text>
                     </View>
-                  )}
+                    <View style={styles.scannedDividerLine} />
+                  </View>
+                )}
 
-                  <ScaleDecorator activeScale={1.025}>
-                    <MealSwipeShell
-                      mealName={meal.name}
-                      onSwipeStart={() => activeSwipeCloserRef.current?.()}
-                      onSwipeOpen={(closeRow) => {
-                        activeSwipeCloserRef.current = closeRow;
-                      }}
-                      onSwipeClose={() => {
-                        activeSwipeCloserRef.current = null;
-                      }}
-                      onRegenerate={() => regenerateMeal(meal.id)}
-                      onDelete={() => deleteMeal(meal.id)}
-                      onLongPress={() => {
-                        activeSwipeCloserRef.current?.();
-                        triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-                        drag();
-                      }}
-                    >
-                      <View
-                        style={[
-                          styles.mealCard,
-                          isActive && styles.mealCardDragging,
-                          meal.completed && styles.mealCardCompleted,
-                          meal.type === "SCANNED" && styles.mealCardScanned,
-                          meal.id === lastSavedMealId &&
-                            justLoggedBannerVisible &&
-                            styles.mealCardJustLogged,
-                        ]}
-                      >
-                        {/* Top Row: Type Label + Time + Action Button */}
-                        <View style={styles.mealTopRow}>
-                          <View style={styles.mealBadgeGroup}>
-                            <View
-                              style={[
-                                styles.typeBadge,
-                                meal.type === "SCANNED" &&
-                                  styles.scannedTypeBadge,
-                              ]}
-                            >
-                              {meal.type === "SCANNED" ? (
-                                <View style={styles.scannedBadgeContent}>
-                                  <Camera
-                                    size={10}
-                                    color="#38BDF8"
-                                    style={{ marginRight: 4 }}
-                                  />
-                                  <Text style={styles.scannedTypeText}>
-                                    SCANNED
-                                  </Text>
-                                </View>
-                              ) : (
-                                <Text
-                                  style={[
-                                    styles.typeText,
-                                    { color: meal.typeColor },
-                                  ]}
-                                >
-                                  {meal.type}
-                                </Text>
-                              )}
-                            </View>
-
-                            <View style={styles.timingBadge}>
-                              <Clock size={11} color="#64748B" />
-                              <Text style={styles.timingText}>{meal.time}</Text>
-                              <Text style={styles.prepTimeDot}>•</Text>
-                              <Text style={styles.prepTimeText}>
-                                {meal.prepTime}
-                              </Text>
-                            </View>
-                          </View>
-
-                          {/* Log / Completed Action Button */}
-                          {meal.completed ? (
-                            <Pressable
-                              style={styles.completedBtn}
-                              onPress={() => handleToggleMealLog(meal.id)}
-                              accessibilityRole="button"
-                              accessibilityLabel="Meal logged, tap to unmark"
-                            >
-                              <Check
-                                size={12}
-                                color="#2DD4BF"
-                                strokeWidth={2.5}
-                              />
-                              <Text style={styles.completedBtnText}>LOGGED</Text>
-                            </Pressable>
-                          ) : (
-                            <Pressable
-                              style={styles.logBtn}
-                              onPress={() => handleToggleMealLog(meal.id)}
-                              accessibilityRole="button"
-                              accessibilityLabel="Log meal"
-                            >
-                              <Plus
-                                size={12}
-                                color="#38BDF8"
-                                strokeWidth={2.5}
-                              />
-                              <Text style={styles.logBtnText}>LOG</Text>
-                            </Pressable>
-                          )}
-                        </View>
-
-                        {/* Meal Name */}
-                        <Text style={styles.mealName}>{meal.name}</Text>
-
-                        {/* Macro Details & Calories Row */}
-                        <View style={styles.mealBottomRow}>
-                          {/* Calories badge */}
-                          <View style={styles.kcalBadge}>
-                            <Flame size={12} color="#38BDF8" />
-                            <Text style={styles.kcalNumber}>
-                              {meal.calories}
-                            </Text>
-                            <Text style={styles.kcalLabel}>KCAL</Text>
-                          </View>
-
-                          {/* Clean Macro Telemetry */}
-                          <View style={styles.mealMacrosRow}>
-                            <Text style={styles.macroVal}>
-                              {meal.protein}g{" "}
-                              <Text style={styles.macroKey}>P</Text>
-                            </Text>
-                            <Text style={styles.macroDotDivider}>•</Text>
-                            <Text style={styles.macroVal}>
-                              {meal.carbs}g{" "}
-                              <Text style={styles.macroKey}>C</Text>
-                            </Text>
-                            <Text style={styles.macroDotDivider}>•</Text>
-                            <Text style={styles.macroVal}>
-                              {meal.fat}g{" "}
-                              <Text style={styles.macroKey}>F</Text>
-                            </Text>
-                          </View>
-                        </View>
-                      </View>
-                    </MealSwipeShell>
-                  </ScaleDecorator>
-                </View>
-              );
-            }}
-          />
-        ) : (
-          <View>
-            {commonHeader}
-            {/* Week History Section Header */}
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionIconBadge}>
-                <Calendar size={12} color="#38BDF8" />
-              </View>
-              <Text style={styles.sectionTitle}>7-DAY NUTRITION HISTORY</Text>
-              <View style={styles.sectionCountBadge}>
-                <Text style={styles.sectionCountText}>PAST 7 DAYS</Text>
-              </View>
-            </View>
-
-            {/* Week History Cards List */}
-            <View style={styles.historyList}>
-              {computedWeekHistory.map((day) => {
-                const progressPct = Math.min(
-                  100,
-                  Math.round((day.caloriesTaken / day.caloriesTarget) * 100),
-                );
-                const isFullyLogged = day.mealsLogged === day.totalMeals;
-
-                return (
+                <MealSwipeShell
+                  mealName={meal.name}
+                  isDragging={isActive}
+                  onSwipeStart={() => activeSwipeCloserRef.current?.()}
+                  onSwipeOpen={(closeRow) => {
+                    activeSwipeCloserRef.current = closeRow;
+                  }}
+                  onSwipeClose={() => {
+                    activeSwipeCloserRef.current = null;
+                  }}
+                  onRegenerate={() => regenerateMeal(meal.id)}
+                  onDelete={() => deleteMeal(meal.id)}
+                  onLongPress={() => {
+                    activeSwipeCloserRef.current?.();
+                    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+                    drag();
+                  }}
+                >
                   <View
-                    key={day.id}
                     style={[
-                      styles.historyCard,
-                      day.isToday && styles.historyCardToday,
+                      styles.mealCard,
+                      isActive && styles.mealCardDragging,
+                      meal.completed && styles.mealCardCompleted,
+                      meal.type === "SCANNED" && styles.mealCardScanned,
+                      meal.id === lastSavedMealId &&
+                        justLoggedBannerVisible &&
+                        styles.mealCardJustLogged,
                     ]}
                   >
-                    {/* Header Row: Day Info on Left, Calories & Status on Right */}
-                    <View style={styles.historyCardHeader}>
-                      <View style={styles.historyDateCol}>
-                        <View style={styles.historyDayTitleRow}>
-                          <Text
-                            style={[
-                              styles.historyDayTitle,
-                              day.isToday && styles.historyDayTitleToday,
-                            ]}
-                          >
-                            {day.dayName}
-                          </Text>
-                          {day.isToday && (
-                            <View style={styles.currentBadge}>
-                              <Text style={styles.currentBadgeText}>
-                                CURRENT
-                              </Text>
-                            </View>
-                          )}
-                        </View>
-                        <Text style={styles.historyDateSubtitle}>
-                          {day.dateStr}
-                        </Text>
-                      </View>
-
-                      <View style={styles.historyRightCol}>
-                        <View style={styles.historyCalorieBadge}>
-                          <Text style={styles.historyCaloriesText}>
-                            {day.caloriesTaken.toLocaleString()}
-                          </Text>
-                          <Text style={styles.historyTargetText}>
-                            /{day.caloriesTarget.toLocaleString()} kcal
-                          </Text>
-                        </View>
-
+                    {/* Top Row: Type Label + Time + Action Button */}
+                    <View style={styles.mealTopRow}>
+                      <View style={styles.mealBadgeGroup}>
                         <View
                           style={[
-                            styles.mealsLoggedPill,
-                            isFullyLogged && styles.mealsLoggedPillComplete,
+                            styles.typeBadge,
+                            meal.type === "SCANNED" && styles.scannedTypeBadge,
                           ]}
                         >
-                          <Check
-                            size={10}
-                            color={isFullyLogged ? "#2DD4BF" : "#94A3B8"}
-                          />
-                          <Text
-                            style={[
-                              styles.mealsLoggedText,
-                              isFullyLogged && styles.mealsLoggedTextComplete,
-                            ]}
-                          >
-                            {day.mealsLogged}/{day.totalMeals} LOGGED
+                          {meal.type === "SCANNED" ? (
+                            <View style={styles.scannedBadgeContent}>
+                              <Camera
+                                size={10}
+                                color="#38BDF8"
+                                style={{ marginRight: 4 }}
+                              />
+                              <Text style={styles.scannedTypeText}>
+                                SCANNED
+                              </Text>
+                            </View>
+                          ) : (
+                            <Text
+                              style={[
+                                styles.typeText,
+                                { color: meal.typeColor },
+                              ]}
+                            >
+                              {meal.type}
+                            </Text>
+                          )}
+                        </View>
+
+                        <View style={styles.timingBadge}>
+                          <Clock size={11} color="#64748B" />
+                          <Text style={styles.timingText}>{meal.time}</Text>
+                          <Text style={styles.prepTimeDot}>•</Text>
+                          <Text style={styles.prepTimeText}>
+                            {meal.prepTime}
                           </Text>
                         </View>
                       </View>
+
+                      {/* Log / Completed Action Button */}
+                      {meal.completed ? (
+                        <Pressable
+                          style={styles.completedBtn}
+                          onPress={() => handleToggleMealLog(meal.id)}
+                          accessibilityRole="button"
+                          accessibilityLabel="Meal logged, tap to unmark"
+                        >
+                          <Check size={12} color="#2DD4BF" strokeWidth={2.5} />
+                          <Text style={styles.completedBtnText}>LOGGED</Text>
+                        </Pressable>
+                      ) : (
+                        <Pressable
+                          style={styles.logBtn}
+                          onPress={() => handleToggleMealLog(meal.id)}
+                          accessibilityRole="button"
+                          accessibilityLabel="Log meal"
+                        >
+                          <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
+                          <Text style={styles.logBtnText}>LOG</Text>
+                        </Pressable>
+                      )}
                     </View>
 
-                    {/* Progress Bar with Percentage */}
-                    <View style={styles.historyBarContainer}>
-                      <View style={styles.historyBarTrack}>
-                        <LinearGradient
-                          colors={
-                            progressPct >= 95
-                              ? ["#0284C7", "#2DD4BF"]
-                              : ["#0284C7", "#38BDF8"]
-                          }
-                          start={{ x: 0, y: 0.5 }}
-                          end={{ x: 1, y: 0.5 }}
-                          style={[
-                            styles.historyBarFill,
-                            { width: `${progressPct}%` },
-                          ]}
-                        />
+                    {/* Meal Name */}
+                    <Text style={styles.mealName}>{meal.name}</Text>
+
+                    {/* Macro Details & Calories Row */}
+                    <View style={styles.mealBottomRow}>
+                      {/* Calories badge */}
+                      <View style={styles.kcalBadge}>
+                        <Flame size={12} color="#38BDF8" />
+                        <Text style={styles.kcalNumber}>{meal.calories}</Text>
+                        <Text style={styles.kcalLabel}>KCAL</Text>
                       </View>
-                      <Text style={styles.historyProgressPercent}>
-                        {progressPct}%
+
+                      {/* Clean Macro Telemetry */}
+                      <View style={styles.mealMacrosRow}>
+                        <Text style={styles.macroVal}>
+                          {meal.protein}g <Text style={styles.macroKey}>P</Text>
+                        </Text>
+                        <Text style={styles.macroDotDivider}>•</Text>
+                        <Text style={styles.macroVal}>
+                          {meal.carbs}g <Text style={styles.macroKey}>C</Text>
+                        </Text>
+                        <Text style={styles.macroDotDivider}>•</Text>
+                        <Text style={styles.macroVal}>
+                          {meal.fat}g <Text style={styles.macroKey}>F</Text>
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </MealSwipeShell>
+              </View>
+            );
+          }}
+        />
+      ) : (
+        <ScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: Math.max(insets.bottom + 90, 110) },
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
+          {commonHeader}
+          {/* Week History Section Header */}
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionIconBadge}>
+              <Calendar size={12} color="#38BDF8" />
+            </View>
+            <Text style={styles.sectionTitle}>7-DAY NUTRITION HISTORY</Text>
+            <View style={styles.sectionCountBadge}>
+              <Text style={styles.sectionCountText}>PAST 7 DAYS</Text>
+            </View>
+          </View>
+
+          {/* Week History Cards List */}
+          <View style={styles.historyList}>
+            {computedWeekHistory.map((day) => {
+              const progressPct = Math.min(
+                100,
+                Math.round((day.caloriesTaken / day.caloriesTarget) * 100),
+              );
+              const isFullyLogged = day.mealsLogged === day.totalMeals;
+
+              return (
+                <View
+                  key={day.id}
+                  style={[
+                    styles.historyCard,
+                    day.isToday && styles.historyCardToday,
+                  ]}
+                >
+                  {/* Header Row: Day Info on Left, Calories & Status on Right */}
+                  <View style={styles.historyCardHeader}>
+                    <View style={styles.historyDateCol}>
+                      <View style={styles.historyDayTitleRow}>
+                        <Text
+                          style={[
+                            styles.historyDayTitle,
+                            day.isToday && styles.historyDayTitleToday,
+                          ]}
+                        >
+                          {day.dayName}
+                        </Text>
+                        {day.isToday && (
+                          <View style={styles.currentBadge}>
+                            <Text style={styles.currentBadgeText}>CURRENT</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text style={styles.historyDateSubtitle}>
+                        {day.dateStr}
                       </Text>
                     </View>
 
-                    {/* Unified Macro Telemetry Bar */}
-                    <View style={styles.historyNutrientsRow}>
-                      <View style={styles.nutrientCol}>
-                        <Text style={styles.nutrientLabel}>PROTEIN</Text>
-                        <View style={styles.nutrientValueRow}>
-                          <Text style={styles.nutrientValue}>
-                            {day.proteinTaken}g
-                          </Text>
-                          <Text style={styles.nutrientTarget}>
-                            /{day.proteinTarget}g
-                          </Text>
-                        </View>
+                    <View style={styles.historyRightCol}>
+                      <View style={styles.historyCalorieBadge}>
+                        <Text style={styles.historyCaloriesText}>
+                          {day.caloriesTaken.toLocaleString()}
+                        </Text>
+                        <Text style={styles.historyTargetText}>
+                          /{day.caloriesTarget.toLocaleString()} kcal
+                        </Text>
                       </View>
 
-                      <View style={styles.nutrientDivider} />
-
-                      <View style={styles.nutrientCol}>
-                        <Text style={styles.nutrientLabel}>CARBS</Text>
-                        <View style={styles.nutrientValueRow}>
-                          <Text style={styles.nutrientValue}>
-                            {day.carbsTaken}g
-                          </Text>
-                          <Text style={styles.nutrientTarget}>
-                            /{day.carbsTarget}g
-                          </Text>
-                        </View>
-                      </View>
-
-                      <View style={styles.nutrientDivider} />
-
-                      <View style={styles.nutrientCol}>
-                        <Text style={styles.nutrientLabel}>FAT</Text>
-                        <View style={styles.nutrientValueRow}>
-                          <Text style={styles.nutrientValue}>
-                            {day.fatTaken}g
-                          </Text>
-                          <Text style={styles.nutrientTarget}>
-                            /{day.fatTarget}g
-                          </Text>
-                        </View>
+                      <View
+                        style={[
+                          styles.mealsLoggedPill,
+                          isFullyLogged && styles.mealsLoggedPillComplete,
+                        ]}
+                      >
+                        <Check
+                          size={10}
+                          color={isFullyLogged ? "#2DD4BF" : "#94A3B8"}
+                        />
+                        <Text
+                          style={[
+                            styles.mealsLoggedText,
+                            isFullyLogged && styles.mealsLoggedTextComplete,
+                          ]}
+                        >
+                          {day.mealsLogged}/{day.totalMeals} LOGGED
+                        </Text>
                       </View>
                     </View>
                   </View>
-                );
-              })}
-            </View>
-            {bottomActions}
+
+                  {/* Progress Bar with Percentage */}
+                  <View style={styles.historyBarContainer}>
+                    <View style={styles.historyBarTrack}>
+                      <LinearGradient
+                        colors={
+                          progressPct >= 95
+                            ? ["#0284C7", "#2DD4BF"]
+                            : ["#0284C7", "#38BDF8"]
+                        }
+                        start={{ x: 0, y: 0.5 }}
+                        end={{ x: 1, y: 0.5 }}
+                        style={[
+                          styles.historyBarFill,
+                          { width: `${progressPct}%` },
+                        ]}
+                      />
+                    </View>
+                    <Text style={styles.historyProgressPercent}>
+                      {progressPct}%
+                    </Text>
+                  </View>
+
+                  {/* Unified Macro Telemetry Bar */}
+                  <View style={styles.historyNutrientsRow}>
+                    <View style={styles.nutrientCol}>
+                      <Text style={styles.nutrientLabel}>PROTEIN</Text>
+                      <View style={styles.nutrientValueRow}>
+                        <Text style={styles.nutrientValue}>
+                          {day.proteinTaken}g
+                        </Text>
+                        <Text style={styles.nutrientTarget}>
+                          /{day.proteinTarget}g
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.nutrientDivider} />
+
+                    <View style={styles.nutrientCol}>
+                      <Text style={styles.nutrientLabel}>CARBS</Text>
+                      <View style={styles.nutrientValueRow}>
+                        <Text style={styles.nutrientValue}>
+                          {day.carbsTaken}g
+                        </Text>
+                        <Text style={styles.nutrientTarget}>
+                          /{day.carbsTarget}g
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.nutrientDivider} />
+
+                    <View style={styles.nutrientCol}>
+                      <Text style={styles.nutrientLabel}>FAT</Text>
+                      <View style={styles.nutrientValueRow}>
+                        <Text style={styles.nutrientValue}>
+                          {day.fatTaken}g
+                        </Text>
+                        <Text style={styles.nutrientTarget}>
+                          /{day.fatTarget}g
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              );
+            })}
           </View>
-        )}
-      </NestableScrollContainer>
+          {bottomActions}
+        </ScrollView>
+      )}
     </View>
   );
 }
@@ -912,7 +927,10 @@ const styles = StyleSheet.create({
     fontSize: clampFontSize(26),
     lineHeight: 32,
     fontWeight: "900",
-    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+    fontFamily: Platform.select({
+      android: "sans-serif-medium",
+      ios: "System",
+    }),
     letterSpacing: 0.5,
   },
   subtitle: {
@@ -998,12 +1016,51 @@ const styles = StyleSheet.create({
     marginBottom: 22,
   },
   mealSwipeShell: { width: "100%" },
-  mealSwipeActions: { width: MEAL_ACTION_DRAWER_WIDTH, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 8, paddingRight: 4 },
-  mealSwipeAction: { width: 64, alignItems: "center", justifyContent: "center" },
-  mealRegenerateCircle: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "#222736", borderWidth: 1, borderColor: "rgba(255,255,255,0.16)" },
-  mealDeleteCircle: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "#EF4444", borderWidth: 1, borderColor: "#DC2626" },
-  mealRegenerateLabel: { color: "#CBD5E1", fontSize: 9, fontWeight: "700", marginTop: 4 },
-  mealDeleteLabel: { color: "#EF4444", fontSize: 9, fontWeight: "700", marginTop: 4 },
+  mealSwipeActions: {
+    width: MEAL_ACTION_DRAWER_WIDTH,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: 8,
+    paddingRight: 4,
+  },
+  mealSwipeAction: {
+    width: 64,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  mealRegenerateCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#222736",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.16)",
+  },
+  mealDeleteCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#EF4444",
+    borderWidth: 1,
+    borderColor: "#DC2626",
+  },
+  mealRegenerateLabel: {
+    color: "#CBD5E1",
+    fontSize: 9,
+    fontWeight: "700",
+    marginTop: 4,
+  },
+  mealDeleteLabel: {
+    color: "#EF4444",
+    fontSize: 9,
+    fontWeight: "700",
+    marginTop: 4,
+  },
   mealCard: {
     backgroundColor: "#0D1322",
     borderRadius: 16,
@@ -1189,7 +1246,10 @@ const styles = StyleSheet.create({
     color: "#F8FAFC",
     fontSize: clampFontSize(15),
     lineHeight: 20,
-    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+    fontFamily: Platform.select({
+      android: "sans-serif-medium",
+      ios: "System",
+    }),
     fontWeight: "700",
     letterSpacing: 0.2,
     marginTop: 10,

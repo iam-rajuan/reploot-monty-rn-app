@@ -1,7 +1,13 @@
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import React from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface ActivityLevelProps {
   activityLevel: string;
@@ -100,3 +106,5 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
 });
+
+export default ActivityLevel;

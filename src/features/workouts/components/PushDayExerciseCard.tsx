@@ -1,11 +1,16 @@
 import { useAppSelector } from "@/store/hooks";
 import * as Haptics from "expo-haptics";
 import { Image, ImageSource } from "expo-image";
-import { Check, Play, RefreshCw, Sparkles, Trash2, Zap } from "lucide-react-native";
-import React, { useRef } from "react";
 import {
-  NestableDraggableFlatList,
-  ScaleDecorator,
+  Check,
+  Play,
+  RefreshCw,
+  Sparkles,
+  Trash2,
+  Zap,
+} from "lucide-react-native";
+import React, { useRef } from "react";
+import DraggableFlatList, {
   useNestableScrollContainerContext,
   type RenderItemParams,
 } from "react-native-draggable-flatlist";
@@ -39,252 +44,270 @@ export interface PushDayExerciseCardProps {
   onReplace?: () => void;
   onDelete?: () => void;
   onLongPress?: () => void;
+  isDragging?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
-export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
-  exercise,
-  index = exercise?.index,
-  title = exercise?.title,
-  subtitle = exercise?.subtitle,
-  targetMuscle = (exercise as WorkoutExerciseItem)?.targetMuscle,
-  image = exercise?.image,
-  isCompleted = false,
-  onSwipeStart,
-  onSwipeOpen,
-  onSwipeClose,
-  onPress,
-  onReplace,
-  onDelete,
-  onLongPress,
-  style,
-  testID,
-}) => {
-  const hasActions = Boolean(onReplace || onDelete);
-  const nestableContext = useNestableScrollContainerContext();
-  const scrollableRef = nestableContext?.scrollableRef;
-  const xpReward = exercise?.xp ?? "+40 XP";
-  const actionDrawerWidth = (onReplace ? 68 : 0) + (onDelete ? 68 : 0) + 8;
+export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> =
+  React.memo(
+    ({
+      exercise,
+      index = exercise?.index,
+      title = exercise?.title,
+      subtitle = exercise?.subtitle,
+      targetMuscle = (exercise as WorkoutExerciseItem)?.targetMuscle,
+      image = exercise?.image,
+      isCompleted = false,
+      onSwipeStart,
+      onSwipeOpen,
+      onSwipeClose,
+      onPress,
+      onReplace,
+      onDelete,
+      onLongPress,
+      isDragging = false,
+      style,
+      testID,
+    }) => {
+      const hasActions = Boolean(onReplace || onDelete);
+      const nestableContext = useNestableScrollContainerContext();
+      const scrollableRef = nestableContext?.scrollableRef;
+      const xpReward = exercise?.xp ?? "+40 XP";
+      const actionDrawerWidth = (onReplace ? 68 : 0) + (onDelete ? 68 : 0) + 8;
 
-  const swipeableRef = useRef<SwipeableMethods | null>(null);
-  const isOpenRef = useRef(false);
+      const swipeableRef = useRef<SwipeableMethods | null>(null);
+      const isOpenRef = useRef(false);
 
-  const closeRow = (callback?: () => void) => {
-    swipeableRef.current?.close();
-    callback?.();
-  };
+      const closeRow = (callback?: () => void) => {
+        swipeableRef.current?.close();
+        callback?.();
+      };
 
-  const handleCardPress = () => {
-    if (isOpenRef.current) {
-      closeRow();
-      return;
-    }
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    }
-    onPress?.();
-  };
+      const handleCardPress = () => {
+        if (isOpenRef.current) {
+          closeRow();
+          return;
+        }
+        if (Platform.OS !== "web") {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+            () => {},
+          );
+        }
+        onPress?.();
+      };
 
-  const handleReplacePress = () => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-    }
-    closeRow(() => {
-      onReplace?.();
-    });
-  };
+      const handleReplacePress = () => {
+        if (Platform.OS !== "web") {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(
+            () => {},
+          );
+        }
+        closeRow(() => {
+          onReplace?.();
+        });
+      };
 
-  const handleDeletePress = () => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-    }
-    closeRow(() => {
-      onDelete?.();
-    });
-  };
+      const handleDeletePress = () => {
+        if (Platform.OS !== "web") {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(
+            () => {},
+          );
+        }
+        closeRow(() => {
+          onDelete?.();
+        });
+      };
 
-  const cardContent = (
-    <View style={styles.animatedCardContainer}>
-      <Pressable
-        onPress={handleCardPress}
-        onLongPress={onLongPress}
-        delayLongPress={260}
-        style={[
-          styles.exerciseCard,
-          isCompleted && styles.exerciseCardCompleted,
-        ]}
-        accessibilityRole="button"
-        accessibilityLabel={`${title}, ${isCompleted ? "Completed" : subtitle}`}
-      >
-        {/* Exercise Thumbnail */}
-        <View style={styles.thumbnailWrapper}>
-          {image && (
-            <Image
-              source={image}
-              style={[
-                styles.thumbnailImage,
-                isCompleted && styles.thumbnailImageCompleted,
-              ]}
-              contentFit="cover"
-            />
-          )}
-          {index ? (
-            <View
-              style={[
-                styles.indexBadge,
-                isCompleted && styles.indexBadgeCompleted,
-              ]}
-            >
+      const cardContent = (
+        <View style={styles.animatedCardContainer}>
+          <Pressable
+            onPress={handleCardPress}
+            onLongPress={onLongPress}
+            delayLongPress={340}
+            style={[
+              styles.exerciseCard,
+              isCompleted && styles.exerciseCardCompleted,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={`${title}, ${isCompleted ? "Completed" : subtitle}`}
+          >
+            {/* Exercise Thumbnail */}
+            <View style={styles.thumbnailWrapper}>
+              {image && (
+                <Image
+                  source={image}
+                  style={[
+                    styles.thumbnailImage,
+                    isCompleted && styles.thumbnailImageCompleted,
+                  ]}
+                  contentFit="cover"
+                />
+              )}
+              {index ? (
+                <View
+                  style={[
+                    styles.indexBadge,
+                    isCompleted && styles.indexBadgeCompleted,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.indexBadgeText,
+                      isCompleted && styles.indexBadgeTextCompleted,
+                    ]}
+                  >
+                    {index}
+                  </Text>
+                </View>
+              ) : null}
+
+              {isCompleted && (
+                <View style={styles.thumbnailCheckBadge}>
+                  <Check size={11} color="#38EDD8" strokeWidth={3.5} />
+                </View>
+              )}
+            </View>
+
+            {/* Title & Sets/Reps */}
+            <View style={styles.exerciseTextContainer}>
               <Text
                 style={[
-                  styles.indexBadgeText,
-                  isCompleted && styles.indexBadgeTextCompleted,
+                  styles.exerciseTitle,
+                  isCompleted && styles.exerciseTitleCompleted,
                 ]}
+                numberOfLines={2}
               >
-                {index}
+                {title}
               </Text>
-            </View>
-          ) : null}
 
-          {isCompleted && (
-            <View style={styles.thumbnailCheckBadge}>
-              <Check size={11} color="#38EDD8" strokeWidth={3.5} />
-            </View>
-          )}
-        </View>
-
-        {/* Title & Sets/Reps */}
-        <View style={styles.exerciseTextContainer}>
-          <Text
-            style={[
-              styles.exerciseTitle,
-              isCompleted && styles.exerciseTitleCompleted,
-            ]}
-            numberOfLines={2}
-          >
-            {title}
-          </Text>
-
-          <View style={styles.exerciseMetaRow}>
-            {isCompleted ? (
-              <View style={styles.completedStatusRow}>
-                <View style={styles.completedDot} />
-                <Text style={styles.completedStatusText}>COMPLETED</Text>
+              <View style={styles.exerciseMetaRow}>
+                {isCompleted ? (
+                  <View style={styles.completedStatusRow}>
+                    <View style={styles.completedDot} />
+                    <Text style={styles.completedStatusText}>COMPLETED</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.exerciseSubtitle} numberOfLines={1}>
+                    {subtitle}
+                  </Text>
+                )}
+                <View style={styles.xpReward}>
+                  <Zap size={11} color="#79F0DD" strokeWidth={2.5} />
+                  <Text style={styles.xpRewardText}>{xpReward}</Text>
+                </View>
               </View>
-            ) : (
-              <Text style={styles.exerciseSubtitle} numberOfLines={1}>
-                {subtitle}
-              </Text>
-            )}
-            <View style={styles.xpReward}>
-              <Zap size={11} color="#79F0DD" strokeWidth={2.5} />
-              <Text style={styles.xpRewardText}>{xpReward}</Text>
             </View>
+
+            {/* Resting State Action Indicator (Play Button or Completed Checkmark) */}
+            <View style={styles.restingActionContainer}>
+              {isCompleted ? (
+                <View style={styles.completedCheckCircle}>
+                  <Check size={16} color="#38EDD8" strokeWidth={3.2} />
+                </View>
+              ) : (
+                <View style={styles.playButton}>
+                  <Play
+                    size={13}
+                    color="rgba(255, 255, 255, 0.85)"
+                    fill="rgba(255, 255, 255, 0.85)"
+                    style={styles.playIcon}
+                  />
+                </View>
+              )}
+            </View>
+          </Pressable>
+        </View>
+      );
+
+      if (!hasActions) {
+        return (
+          <View style={[styles.cardWrapper, style]} testID={testID}>
+            {cardContent}
           </View>
-        </View>
+        );
+      }
 
-        {/* Resting State Action Indicator (Play Button or Completed Checkmark) */}
-        <View style={styles.restingActionContainer}>
-          {isCompleted ? (
-            <View style={styles.completedCheckCircle}>
-              <Check size={16} color="#38EDD8" strokeWidth={3.2} />
-            </View>
-          ) : (
-            <View style={styles.playButton}>
-              <Play
-                size={13}
-                color="rgba(255, 255, 255, 0.85)"
-                fill="rgba(255, 255, 255, 0.85)"
-                style={styles.playIcon}
-              />
+      return (
+        <ReanimatedSwipeable
+          ref={swipeableRef}
+          enabled={hasActions && !isDragging}
+          simultaneousWithExternalGesture={scrollableRef}
+          friction={1.5}
+          rightThreshold={actionDrawerWidth * 0.32}
+          dragOffsetFromRightEdge={8}
+          overshootRight={false}
+          containerStyle={[styles.cardWrapper, style]}
+          renderRightActions={() => (
+            <View
+              style={[
+                styles.revealedActionsBackground,
+                { width: actionDrawerWidth },
+              ]}
+            >
+              {onReplace ? (
+                <Pressable
+                  onPress={handleReplacePress}
+                  style={({ pressed }) => [
+                    styles.actionItemCol,
+                    pressed && styles.actionItemColPressed,
+                  ]}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Replace ${title}`}
+                >
+                  <View style={styles.replaceCircleBtn}>
+                    <RefreshCw size={18} color="#FFFFFF" strokeWidth={2.4} />
+                  </View>
+                  <Text style={styles.replaceActionLabel}>Replace</Text>
+                </Pressable>
+              ) : null}
+
+              {onDelete ? (
+                <Pressable
+                  onPress={handleDeletePress}
+                  style={({ pressed }) => [
+                    styles.actionItemCol,
+                    pressed && styles.actionItemColPressed,
+                  ]}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Delete ${title}`}
+                >
+                  <View style={styles.deleteCircleBtn}>
+                    <Trash2 size={18} color="#FFFFFF" strokeWidth={2.4} />
+                  </View>
+                  <Text style={styles.deleteActionLabel}>Delete</Text>
+                </Pressable>
+              ) : null}
             </View>
           )}
-        </View>
-      </Pressable>
-    </View>
+          onSwipeableOpenStartDrag={(direction) => {
+            if (direction === "left") onSwipeStart?.();
+          }}
+          onSwipeableWillOpen={(direction) => {
+            if (direction !== "left") return;
+            isOpenRef.current = true;
+            // Reset the previously active row instantly so this new swipe can
+            // take over without waiting for another row's close animation.
+            onSwipeOpen?.(() => swipeableRef.current?.reset());
+            if (Platform.OS !== "web") {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+                () => {},
+              );
+            }
+          }}
+          onSwipeableWillClose={() => {
+            isOpenRef.current = false;
+            onSwipeClose?.();
+          }}
+          testID={testID}
+        >
+          {cardContent}
+        </ReanimatedSwipeable>
+      );
+    },
   );
-
-  if (!hasActions) {
-    return (
-      <View style={[styles.cardWrapper, style]} testID={testID}>
-        {cardContent}
-      </View>
-    );
-  }
-
-  return (
-    <ReanimatedSwipeable
-      ref={swipeableRef}
-      enabled={hasActions}
-      simultaneousWithExternalGesture={scrollableRef}
-      friction={1.5}
-      rightThreshold={actionDrawerWidth * 0.32}
-      dragOffsetFromRightEdge={8}
-      overshootRight={false}
-      containerStyle={[styles.cardWrapper, style]}
-      renderRightActions={() => (
-        <View style={[styles.revealedActionsBackground, { width: actionDrawerWidth }]}>
-          {onReplace ? (
-            <Pressable
-              onPress={handleReplacePress}
-              style={({ pressed }) => [
-                styles.actionItemCol,
-                pressed && styles.actionItemColPressed,
-              ]}
-              hitSlop={8}
-              accessibilityRole="button"
-              accessibilityLabel={`Replace ${title}`}
-            >
-              <View style={styles.replaceCircleBtn}>
-                <RefreshCw size={18} color="#FFFFFF" strokeWidth={2.4} />
-              </View>
-              <Text style={styles.replaceActionLabel}>Replace</Text>
-            </Pressable>
-          ) : null}
-
-          {onDelete ? (
-            <Pressable
-              onPress={handleDeletePress}
-              style={({ pressed }) => [
-                styles.actionItemCol,
-                pressed && styles.actionItemColPressed,
-              ]}
-              hitSlop={8}
-              accessibilityRole="button"
-              accessibilityLabel={`Delete ${title}`}
-            >
-              <View style={styles.deleteCircleBtn}>
-                <Trash2 size={18} color="#FFFFFF" strokeWidth={2.4} />
-              </View>
-              <Text style={styles.deleteActionLabel}>Delete</Text>
-            </Pressable>
-          ) : null}
-        </View>
-      )}
-      onSwipeableOpenStartDrag={(direction) => {
-        if (direction === "left") onSwipeStart?.();
-      }}
-      onSwipeableWillOpen={(direction) => {
-        if (direction !== "left") return;
-        isOpenRef.current = true;
-        // Reset the previously active row instantly so this new swipe can
-        // take over without waiting for another row's close animation.
-        onSwipeOpen?.(() => swipeableRef.current?.reset());
-        if (Platform.OS !== "web") {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-        }
-      }}
-      onSwipeableWillClose={() => {
-        isOpenRef.current = false;
-        onSwipeClose?.();
-      }}
-      testID={testID}
-    >
-      {cardContent}
-    </ReanimatedSwipeable>
-  );
-};
 
 export interface PushDayExerciseListProps {
   exercises: (PushDayExercise | WorkoutExerciseItem)[];
@@ -294,6 +317,7 @@ export interface PushDayExerciseListProps {
   onReplaceExercise?: (exerciseId: string) => void;
   onDeleteExercise?: (exerciseId: string) => void;
   onReorderExercises?: (orderedExerciseIds: string[]) => void;
+  /** @deprecated Drag state remains on the UI thread to avoid screen re-renders. */
   onDragStateChange?: (isDragging: boolean) => void;
   style?: StyleProp<ViewStyle>;
   ListHeaderComponent?: React.ReactElement | null;
@@ -308,7 +332,6 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
   onReplaceExercise,
   onDeleteExercise,
   onReorderExercises,
-  onDragStateChange,
   style,
   ListHeaderComponent,
   ListFooterComponent,
@@ -316,28 +339,33 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
   const activeSwipeCloserRef = useRef<(() => void) | null>(null);
 
   const reduxCompletedIds = useAppSelector(
-    (state) => state.workout?.completedExerciseIds || []
+    (state) => state.workout?.completedExerciseIds || [],
   );
   const completedIds = propCompletedIds ?? reduxCompletedIds;
 
   const aiRecommended = exercises.filter(
     (exercise, index) =>
-      (exercise as WorkoutExerciseItem).isAiRecommended ?? index < 8
+      (exercise as WorkoutExerciseItem).isAiRecommended ?? index < 8,
   );
   const regularExercises = exercises.filter(
     (exercise, index) =>
-      !((exercise as WorkoutExerciseItem).isAiRecommended ?? index < 8)
+      !((exercise as WorkoutExerciseItem).isAiRecommended ?? index < 8),
   );
 
   return (
-    <NestableDraggableFlatList
+    <DraggableFlatList
       data={exercises}
       keyExtractor={(exercise) => exercise.id}
-      activationDistance={10}
-      autoscrollThreshold={130}
-      autoscrollSpeed={280}
-      dragItemOverflow
-      animationConfig={{ damping: 30, stiffness: 420, mass: 0.16 }}
+      activationDistance={18}
+      autoscrollThreshold={90}
+      autoscrollSpeed={65}
+      animationConfig={{
+        damping: 22,
+        stiffness: 180,
+        mass: 0.45,
+        overshootClamping: true,
+        energyThreshold: 0.001,
+      }}
       contentContainerStyle={[styles.exerciseList, style]}
       ListHeaderComponent={
         <>
@@ -350,26 +378,29 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
                 </View>
                 <Text style={styles.recommendationTitle}>AI RECOMMENDED</Text>
               </View>
-              <Text style={styles.recommendationCount}>{aiRecommended.length} PICKS</Text>
+              <Text style={styles.recommendationCount}>
+                {aiRecommended.length} PICKS
+              </Text>
             </View>
           ) : null}
         </>
       }
       ListFooterComponent={ListFooterComponent}
-      onDragBegin={() => onDragStateChange?.(true)}
-      onRelease={() => {
-        onDragStateChange?.(false);
-      }}
       onDragEnd={({ data }) => {
         onReorderExercises?.(data.map((exercise) => exercise.id));
-        onDragStateChange?.(false);
       }}
-      renderItem={({ item, drag, isActive, getIndex }: RenderItemParams<PushDayExercise | WorkoutExerciseItem>) => {
+      renderItem={({
+        item,
+        drag,
+        isActive,
+        getIndex,
+      }: RenderItemParams<PushDayExercise | WorkoutExerciseItem>) => {
         const index = getIndex() ?? 0;
-        const isAiRec = (item as WorkoutExerciseItem).isAiRecommended ?? index < 8;
+        const isAiRec =
+          (item as WorkoutExerciseItem).isAiRecommended ?? index < 8;
         const prevItem = index > 0 ? exercises[index - 1] : undefined;
         const prevIsAiRec = prevItem
-          ? ((prevItem as WorkoutExerciseItem).isAiRecommended ?? (index - 1) < 8)
+          ? ((prevItem as WorkoutExerciseItem).isAiRecommended ?? index - 1 < 8)
           : true;
         const showRegularHeader =
           showRecommendationSections &&
@@ -383,33 +414,40 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
               <View style={styles.regularHeader}>
                 <Text style={styles.regularTitle}>REGULAR EXERCISES</Text>
                 <View style={styles.regularRule} />
-                <Text style={styles.recommendationCount}>{regularExercises.length} MORE</Text>
+                <Text style={styles.recommendationCount}>
+                  {regularExercises.length} MORE
+                </Text>
               </View>
             ) : null}
-            <ScaleDecorator activeScale={1.025}>
-              <PushDayExerciseCard
-                exercise={item}
-                isCompleted={completedIds.includes(item.id)}
-                style={isActive ? styles.draggingCard : undefined}
-                onSwipeStart={() => activeSwipeCloserRef.current?.()}
-                onSwipeOpen={(closeRow) => {
-                  activeSwipeCloserRef.current = closeRow;
-                }}
-                onSwipeClose={() => {
-                  activeSwipeCloserRef.current = null;
-                }}
-                onPress={() => onExercisePress?.(item)}
-                onLongPress={() => {
-                  activeSwipeCloserRef.current?.();
-                  if (Platform.OS !== "web") {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-                  }
-                  drag();
-                }}
-                onReplace={onReplaceExercise ? () => onReplaceExercise(item.id) : undefined}
-                onDelete={onDeleteExercise ? () => onDeleteExercise(item.id) : undefined}
-              />
-            </ScaleDecorator>
+            <PushDayExerciseCard
+              exercise={item}
+              isCompleted={completedIds.includes(item.id)}
+              style={isActive ? styles.draggingCard : undefined}
+              isDragging={isActive}
+              onSwipeStart={() => activeSwipeCloserRef.current?.()}
+              onSwipeOpen={(closeRow) => {
+                activeSwipeCloserRef.current = closeRow;
+              }}
+              onSwipeClose={() => {
+                activeSwipeCloserRef.current = null;
+              }}
+              onPress={() => onExercisePress?.(item)}
+              onLongPress={() => {
+                activeSwipeCloserRef.current?.();
+                if (Platform.OS !== "web") {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(
+                    () => {},
+                  );
+                }
+                drag();
+              }}
+              onReplace={
+                onReplaceExercise ? () => onReplaceExercise(item.id) : undefined
+              }
+              onDelete={
+                onDeleteExercise ? () => onDeleteExercise(item.id) : undefined
+              }
+            />
           </View>
         );
       }}

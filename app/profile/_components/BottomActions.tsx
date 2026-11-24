@@ -129,3 +129,5 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
   },
 });
+
+export default BottomActions;
