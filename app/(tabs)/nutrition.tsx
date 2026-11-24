@@ -74,6 +74,7 @@ export default function NutritionTabRoute() {
   const [tempGoalInput, setTempGoalInput] = useState("3.0");
   const hasGeneratedPlan = useNutritionPlanStore((state) => state.hasGeneratedPlan);
   const resetGeneratedPlan = useNutritionPlanStore((state) => state.resetGeneratedPlan);
+  const lastApprovedAdjustment = useNutritionPlanStore((state) => state.lastApprovedAdjustment);
 
   const animatedWaterProgress = useRef(new Animated.Value(1.8 / 3.0)).current;
 
@@ -689,6 +690,15 @@ export default function NutritionTabRoute() {
             </View>
           </View>
 
+          {lastApprovedAdjustment && (
+            <View style={styles.approvedAdjustmentNotice}>
+              <Check size={13} color="#2DD4BF" />
+              <Text style={styles.approvedAdjustmentText} numberOfLines={2}>
+                PLAN UPDATE CONFIRMED — {lastApprovedAdjustment}
+              </Text>
+            </View>
+          )}
+
           {/* Recommended Next Meal Card */}
           <View style={styles.nutritionLunch}>
             <View style={styles.nutritionLunchLabelRow}>
@@ -717,7 +727,7 @@ export default function NutritionTabRoute() {
             accessibilityLabel="Adjust plan with AI"
             onPress={() => {
               triggerHaptic();
-              router.push("/nutrition-ai?mode=adjust");
+              router.push("/coach?context=nutrition");
             }}
             style={({ pressed }) => [
               styles.nutritionPlan,
@@ -1596,6 +1606,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
+  },
+  approvedAdjustmentNotice: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: "rgba(45, 212, 191, 0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(45, 212, 191, 0.17)",
+  },
+  approvedAdjustmentText: {
+    flex: 1,
+    color: "#9FEBDD",
+    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: 9,
+    lineHeight: 13,
+    letterSpacing: 0.35,
   },
   nutritionAvatarShell: {
     width: 44,

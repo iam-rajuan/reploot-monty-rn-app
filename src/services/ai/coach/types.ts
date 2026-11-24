@@ -18,6 +18,11 @@ export interface ChatMessage {
   suggestedActions?: ChatSuggestion[];
   relatedWorkoutId?: string;
   relatedMealId?: string;
+  proposedChange?: {
+    id: string;
+    title: string;
+    summary: string;
+  };
 }
 
 export interface ChatConversation {

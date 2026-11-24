@@ -93,7 +93,7 @@ export default function HomeTabRoute() {
       </ScrollView>
       <Pressable
         style={styles.fabContainer}
-        onPress={() => router.push("/coach")}
+        onPress={() => router.push("/coach?context=fitness")}
         accessibilityRole="button"
         accessibilityLabel="AI Coach"
       >

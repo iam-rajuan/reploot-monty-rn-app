@@ -729,7 +729,7 @@ export default function UnifiedMealPlanScreen() {
             ]}
             onPress={() => {
               triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-              router.push("/nutrition-ai?mode=adjust");
+              router.push("/coach?context=nutrition");
             }}
             accessibilityRole="button"
             accessibilityLabel="Adjust meal plan with AI"

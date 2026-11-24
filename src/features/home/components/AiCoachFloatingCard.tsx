@@ -14,7 +14,7 @@ export const AiCoachFloatingCard = () => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     }
-    router.push("/coach");
+    router.push("/coach?context=fitness");
   };
 
   return (
