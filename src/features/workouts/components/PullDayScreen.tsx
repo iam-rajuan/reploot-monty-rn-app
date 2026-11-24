@@ -65,12 +65,6 @@ export const PullDayScreen: React.FC<PullDayScreenProps> = ({
           { paddingBottom: Math.max(insets.bottom, 16) + 90 },
         ]}
       >
-        <View style={styles.titleSection}>
-          <Text style={styles.mainTitle}>{PULL_DAY_DATA.title}</Text>
-        </View>
-
-        <PullDayHeroCard />
-
         <PushDayExerciseList
           exercises={exercises}
           onExercisePress={handleExercisePress}
@@ -82,6 +76,14 @@ export const PullDayScreen: React.FC<PullDayScreenProps> = ({
               return exercise ? [exercise] : [];
             }));
           }}
+          ListHeaderComponent={
+            <>
+              <View style={styles.titleSection}>
+                <Text style={styles.mainTitle}>{PULL_DAY_DATA.title}</Text>
+              </View>
+              <PullDayHeroCard />
+            </>
+          }
         />
       </NestableScrollContainer>
 

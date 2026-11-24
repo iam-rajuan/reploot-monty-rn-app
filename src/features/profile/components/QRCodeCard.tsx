@@ -1,19 +1,69 @@
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { ChevronRight, QrCode, Share2, Sparkles } from "lucide-react-native";
-import React, { useState } from "react";
+import { QrCode, Share2, Sparkles } from "lucide-react-native";
+import QRCodeGenerator from "qrcode";
+import React, { useMemo, useState } from "react";
 import {
   Platform,
   Share,
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from "react-native";
-import QRCode from "react-native-qrcode-svg";
+import Svg, { Path, Rect } from "react-native-svg";
+
+const MOSAIC_COLORS = ["#172554", "#164E63", "#0F766E", "#3730A3", "#5B21B6"];
+const FINDER_COLOR = "#0F172A";
+const QUIET_ZONE_MODULES = 4;
+
+const MosaicQRCode = ({ value, size }: { value: string; size: number }) => {
+  const { canvasSize, paths } = useMemo(() => {
+    const matrix = QRCodeGenerator.create(value, {
+      errorCorrectionLevel: "H",
+    }).modules;
+    const pathByColor = new Map<string, string>();
+
+    for (let row = 0; row < matrix.size; row += 1) {
+      for (let column = 0; column < matrix.size; column += 1) {
+        if (!matrix.get(row, column)) continue;
+        const isFinder =
+          (row < 7 && column < 7) ||
+          (row < 7 && column >= matrix.size - 7) ||
+          (row >= matrix.size - 7 && column < 7);
+        const color = isFinder
+          ? FINDER_COLOR
+          : MOSAIC_COLORS[(row * 17 + column * 31) % MOSAIC_COLORS.length];
+        const x = column + QUIET_ZONE_MODULES;
+        const y = row + QUIET_ZONE_MODULES;
+        // Use fully separated, absolute SVG commands. Android's native SVG
+        // parser can drop a long path when compact subpaths touch (`zM`).
+        const modulePath = `M ${x} ${y} L ${x + 1} ${y} L ${x + 1} ${y + 1} L ${x} ${y + 1} Z `;
+        pathByColor.set(color, `${pathByColor.get(color) ?? ""}${modulePath}`);
+      }
+    }
+
+    return {
+      canvasSize: matrix.size + QUIET_ZONE_MODULES * 2,
+      paths: Array.from(pathByColor.entries()),
+    };
+  }, [value]);
+
+  return (
+    <Svg width={size} height={size} viewBox={`0 0 ${canvasSize} ${canvasSize}`}>
+      <Rect width={canvasSize} height={canvasSize} fill="#F8FAFC" />
+      {paths.map(([color, path]) => (
+        <Path key={color} d={path} fill={color} />
+      ))}
+    </Svg>
+  );
+};
 
 export const QRCodeCard = () => {
   const [copied, setCopied] = useState(false);
+  const { width } = useWindowDimensions();
+  const qrSize = width <= 430 ? 190 : 210;
   const athleteId = "KX-8821";
   const athleteUrl = `https://kinetqx.app/athlete/alex-rivers?id=${athleteId}`;
 
@@ -24,8 +74,8 @@ export const QRCodeCard = () => {
 
     try {
       await Share.share({
-        title: "REPLOOTAthlete Pass",
-        message: `REPLOOTAthlete Pass: Alex Rivers [ID: ${athleteId}]\nScan or visit: ${athleteUrl}`,
+        title: "REPLOOT Athlete Pass",
+        message: `REPLOOT Athlete Pass: Alex Rivers [ID: ${athleteId}]\nScan or visit: ${athleteUrl}`,
       });
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
@@ -54,33 +104,8 @@ export const QRCodeCard = () => {
       <View style={styles.qrContainer}>
         {/* Outer Cyber Glow Border with Corner Accents */}
         <View style={styles.qrFrameOuter}>
-          <LinearGradient
-            pointerEvents="none"
-            colors={["rgba(201,193,255,0.16)", "rgba(16,20,29,0)"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-          <View style={[styles.cornerBracket, styles.topLeftBracket]} />
-          <View style={[styles.cornerBracket, styles.topRightBracket]} />
-          <View style={[styles.cornerBracket, styles.bottomLeftBracket]} />
-          <View style={[styles.cornerBracket, styles.bottomRightBracket]} />
-          <View pointerEvents="none" style={[styles.scanNode, styles.scanNodeTopLeft]} />
-          <View pointerEvents="none" style={[styles.scanNode, styles.scanNodeTopRight]} />
-          <View pointerEvents="none" style={[styles.scanNode, styles.scanNodeBottomLeft]} />
-
           <View style={styles.qrPlate}>
-            <QRCode
-              value={athleteUrl}
-              size={152}
-              color="#D8D2FF"
-              backgroundColor="#090C12"
-              quietZone={10}
-              ecl="H"
-            />
-            <View pointerEvents="none" style={styles.qrCenterMark}>
-              <ChevronRight size={19} color="#45E7C6" strokeWidth={3} />
-            </View>
+            <MosaicQRCode value={athleteUrl} size={qrSize} />
           </View>
         </View>
 
@@ -189,97 +214,17 @@ const styles = StyleSheet.create({
   },
   qrFrameOuter: {
     position: "relative",
-    padding: 18,
-    borderRadius: 18,
-    backgroundColor: "#090C12",
-    borderWidth: 1,
-    borderColor: "rgba(201,193,255,0.60)",
-    shadowColor: "#8B7DFF",
-    shadowOpacity: 0.26,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
-  },
-  cornerBracket: {
-    position: "absolute",
-    width: 17,
-    height: 17,
-    borderColor: "#45E7C6",
-  },
-  topLeftBracket: {
-    top: 5,
-    left: 5,
-    borderTopWidth: 2.5,
-    borderLeftWidth: 2.5,
-    borderTopLeftRadius: 6,
-  },
-  topRightBracket: {
-    top: 5,
-    right: 5,
-    borderTopWidth: 2.5,
-    borderRightWidth: 2.5,
-    borderTopRightRadius: 6,
-  },
-  bottomLeftBracket: {
-    bottom: 5,
-    left: 5,
-    borderBottomWidth: 2.5,
-    borderLeftWidth: 2.5,
-    borderBottomLeftRadius: 6,
-  },
-  bottomRightBracket: {
-    bottom: 5,
-    right: 5,
-    borderBottomWidth: 2.5,
-    borderRightWidth: 2.5,
-    borderBottomRightRadius: 6,
+    padding: 0,
+    backgroundColor: "transparent",
   },
   qrPlate: {
     position: "relative",
-    borderRadius: 12,
+    borderRadius: 8,
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#10141D",
-    borderWidth: 2,
-    borderColor: "rgba(201,193,255,0.90)",
-    shadowColor: "#C9C1FF",
-    shadowOpacity: 0.26,
-    shadowRadius: 12,
-    elevation: 4,
+    backgroundColor: "#F8FAFC",
   },
-  qrCenterMark: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#121821",
-    borderWidth: 2,
-    borderColor: "#45E7C6",
-    shadowColor: "#45E7C6",
-    shadowOpacity: 0.45,
-    shadowRadius: 8,
-    elevation: 5,
-    transform: [{ translateX: -15 }, { translateY: -15 }],
-  },
-  scanNode: {
-    position: "absolute",
-    width: 7,
-    height: 7,
-    borderRadius: 2,
-    backgroundColor: "#45E7C6",
-    shadowColor: "#45E7C6",
-    shadowOpacity: 0.8,
-    shadowRadius: 7,
-    elevation: 5,
-  },
-  scanNodeTopLeft: { top: 10, left: 34 },
-  scanNodeTopRight: { top: 34, right: 10 },
-  scanNodeBottomLeft: { bottom: 31, left: 10 },
   passDetailsRow: {
     flexDirection: "row",
     alignItems: "center",

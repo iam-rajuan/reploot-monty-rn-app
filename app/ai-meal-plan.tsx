@@ -24,6 +24,7 @@ import {
   NestableDraggableFlatList,
   NestableScrollContainer,
   ScaleDecorator,
+  useNestableScrollContainerContext,
   type RenderItemParams,
 } from "react-native-draggable-flatlist";
 import {
@@ -77,6 +78,8 @@ const MealSwipeShell = ({
   children: React.ReactNode;
 }) => {
   const swipeableRef = useRef<SwipeableMethods | null>(null);
+  const nestableContext = useNestableScrollContainerContext();
+  const scrollableRef = nestableContext?.scrollableRef;
 
   const runAction = (callback: () => void) => {
     swipeableRef.current?.close();
@@ -86,6 +89,7 @@ const MealSwipeShell = ({
   return (
     <ReanimatedSwipeable
       ref={swipeableRef}
+      simultaneousWithExternalGesture={scrollableRef}
       friction={1.5}
       rightThreshold={MEAL_ACTION_DRAWER_WIDTH * 0.32}
       dragOffsetFromRightEdge={8}
@@ -246,6 +250,7 @@ export default function UnifiedMealPlanScreen() {
   const [justLoggedBannerVisible, setJustLoggedBannerVisible] = useState(
     params.justLogged === "true",
   );
+  const [isDraggingMeal, setIsDraggingMeal] = useState(false);
   const activeSwipeCloserRef = useRef<(() => void) | null>(null);
 
   const meals = useNutritionPlanStore((state) => state.meals);
@@ -323,6 +328,160 @@ export default function UnifiedMealPlanScreen() {
     });
   }, [loggedMeals, meals.length]);
 
+  const commonHeader = (
+    <>
+      {/* Title Header */}
+      <View style={styles.titleSection}>
+        <View style={styles.titleBadge}>
+          <Sparkles size={11} color="#38BDF8" />
+          <Text style={styles.titleBadgeText}>AI NUTRITION MATRIX</Text>
+        </View>
+        <Text style={styles.mainTitle}>MEALS & LOGS</Text>
+      </View>
+
+      {/* Meal Logged Confirmation Banner */}
+      {justLoggedBannerVisible && (
+        <View style={styles.loggedSuccessBanner}>
+          <LinearGradient
+            colors={["rgba(45, 212, 191, 0.16)", "rgba(56, 189, 248, 0.08)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.loggedSuccessGradient}
+          >
+            <View style={styles.loggedSuccessIconCircle}>
+              <Check size={13} color="#2DD4BF" strokeWidth={3} />
+            </View>
+            <View style={styles.loggedSuccessTextCol}>
+              <Text style={styles.loggedSuccessTitle}>
+                MEAL LOGGED TO TODAY'S SCHEDULE
+              </Text>
+              <Text style={styles.loggedSuccessSub}>
+                Saved to today's schedule and marked as completed
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => setJustLoggedBannerVisible(false)}
+              hitSlop={8}
+              style={styles.loggedSuccessDismiss}
+              accessibilityRole="button"
+              accessibilityLabel="Dismiss confirmation"
+            >
+              <X size={14} color="#94A3B8" />
+            </Pressable>
+          </LinearGradient>
+        </View>
+      )}
+
+      {/* View Mode Switcher: Today's Schedule vs Week History */}
+      <View style={styles.tabSwitcher}>
+        <Pressable
+          style={[
+            styles.tabBtn,
+            viewMode === "today" && styles.tabBtnActive,
+          ]}
+          onPress={() => {
+            triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+            setViewMode("today");
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="View today's schedule"
+        >
+          <Utensils
+            size={13}
+            color={viewMode === "today" ? "#38BDF8" : "#64748B"}
+          />
+          <Text
+            style={[
+              styles.tabBtnText,
+              viewMode === "today" && styles.tabBtnTextActive,
+            ]}
+          >
+            TODAY'S SCHEDULE
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={[
+            styles.tabBtn,
+            viewMode === "week" && styles.tabBtnActive,
+          ]}
+          onPress={() => {
+            triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+            setViewMode("week");
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="View weekly history"
+        >
+          <Calendar
+            size={13}
+            color={viewMode === "week" ? "#38BDF8" : "#64748B"}
+          />
+          <Text
+            style={[
+              styles.tabBtnText,
+              viewMode === "week" && styles.tabBtnTextActive,
+            ]}
+          >
+            WEEK HISTORY
+          </Text>
+        </Pressable>
+      </View>
+    </>
+  );
+
+  const bottomActions = (
+    <View
+      style={styles.actionsContainer}
+      pointerEvents={isDraggingMeal ? "none" : "auto"}
+    >
+      <Pressable
+        style={({ pressed }) => [
+          styles.scanBtn,
+          pressed && { opacity: 0.92, transform: [{ scale: 0.99 }] },
+        ]}
+        onPress={() => {
+          triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+          router.push("/scan-meal");
+        }}
+        accessibilityRole="button"
+        accessibilityLabel="Scan food to log"
+      >
+        <LinearGradient
+          colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
+          style={styles.scanBtnGradient}
+        >
+          <Camera size={16} color="#FFFFFF" style={{ marginRight: 8 }} />
+          <Text style={styles.scanBtnText}>SCAN MEAL TO LOG</Text>
+        </LinearGradient>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.adjustBtn,
+          pressed && { opacity: 0.85, transform: [{ scale: 0.99 }] },
+        ]}
+        onPress={() => {
+          triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+          router.push("/coach?context=nutrition");
+        }}
+        accessibilityRole="button"
+        accessibilityLabel="Adjust meal plan with AI"
+      >
+        <LinearGradient
+          colors={["rgba(56, 189, 248, 0.14)", "rgba(2, 132, 199, 0.05)"]}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
+          style={styles.adjustBtnGradient}
+        >
+          <Sparkles size={15} color="#38BDF8" style={{ marginRight: 8 }} />
+          <Text style={styles.adjustBtnText}>ADJUST MEAL PLAN WITH AI</Text>
+        </LinearGradient>
+      </Pressable>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -343,150 +502,77 @@ export default function UnifiedMealPlanScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title Header */}
-        <View style={styles.titleSection}>
-          <View style={styles.titleBadge}>
-            <Sparkles size={11} color="#38BDF8" />
-            <Text style={styles.titleBadgeText}>AI NUTRITION MATRIX</Text>
-          </View>
-          <Text style={styles.mainTitle}>MEALS & LOGS</Text>
-        </View>
-
-        {/* Meal Logged Confirmation Banner */}
-        {justLoggedBannerVisible && (
-          <View style={styles.loggedSuccessBanner}>
-            <LinearGradient
-              colors={["rgba(45, 212, 191, 0.16)", "rgba(56, 189, 248, 0.08)"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.loggedSuccessGradient}
-            >
-              <View style={styles.loggedSuccessIconCircle}>
-                <Check size={13} color="#2DD4BF" strokeWidth={3} />
-              </View>
-              <View style={styles.loggedSuccessTextCol}>
-                <Text style={styles.loggedSuccessTitle}>
-                  MEAL LOGGED TO TODAY'S SCHEDULE
-                </Text>
-                <Text style={styles.loggedSuccessSub}>
-                  Saved to today's schedule and marked as completed
-                </Text>
-              </View>
-              <Pressable
-                onPress={() => setJustLoggedBannerVisible(false)}
-                hitSlop={8}
-                style={styles.loggedSuccessDismiss}
-                accessibilityRole="button"
-                accessibilityLabel="Dismiss confirmation"
-              >
-                <X size={14} color="#94A3B8" />
-              </Pressable>
-            </LinearGradient>
-          </View>
-        )}
-
-        {/* View Mode Switcher: Today's Schedule vs Week History */}
-        <View style={styles.tabSwitcher}>
-          <Pressable
-            style={[
-              styles.tabBtn,
-              viewMode === "today" && styles.tabBtnActive,
-            ]}
-            onPress={() => {
-              triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-              setViewMode("today");
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="View today's schedule"
-          >
-            <Utensils
-              size={13}
-              color={viewMode === "today" ? "#38BDF8" : "#64748B"}
-            />
-            <Text
-              style={[
-                styles.tabBtnText,
-                viewMode === "today" && styles.tabBtnTextActive,
-              ]}
-            >
-              TODAY'S SCHEDULE
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={[
-              styles.tabBtn,
-              viewMode === "week" && styles.tabBtnActive,
-            ]}
-            onPress={() => {
-              triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-              setViewMode("week");
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="View weekly history"
-          >
-            <Calendar
-              size={13}
-              color={viewMode === "week" ? "#38BDF8" : "#64748B"}
-            />
-            <Text
-              style={[
-                styles.tabBtnText,
-                viewMode === "week" && styles.tabBtnTextActive,
-              ]}
-            >
-              WEEK HISTORY
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* Dynamic Section Content */}
         {viewMode === "today" ? (
-          <>
-            {/* Meal Schedule Section Header */}
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionIconBadge}>
-                <Utensils size={12} color="#38BDF8" />
-              </View>
-              <Text style={styles.sectionTitle}>TODAY'S SCHEDULE</Text>
-              <View style={styles.sectionCountBadge}>
-                <Text style={styles.sectionCountText}>
-                  {loggedMeals.length}/{meals.length} LOGGED
-                </Text>
-              </View>
-            </View>
+          <NestableDraggableFlatList
+            data={meals}
+            keyExtractor={(meal) => String(meal.id)}
+            activationDistance={10}
+            autoscrollThreshold={100}
+            autoscrollSpeed={120}
+            dragItemOverflow
+            animationConfig={{ damping: 22, stiffness: 180, mass: 0.45 }}
+            contentContainerStyle={styles.mealList}
+            ListHeaderComponent={
+              <>
+                {commonHeader}
+                {/* Meal Schedule Section Header */}
+                <View style={styles.sectionHeader}>
+                  <View style={styles.sectionIconBadge}>
+                    <Utensils size={12} color="#38BDF8" />
+                  </View>
+                  <Text style={styles.sectionTitle}>TODAY'S SCHEDULE</Text>
+                  <View style={styles.sectionCountBadge}>
+                    <Text style={styles.sectionCountText}>
+                      {loggedMeals.length}/{meals.length} LOGGED
+                    </Text>
+                  </View>
+                </View>
+              </>
+            }
+            ListFooterComponent={bottomActions}
+            onDragBegin={() => setIsDraggingMeal(true)}
+            onRelease={() => {
+              setTimeout(() => {
+                setIsDraggingMeal(false);
+              }, 150);
+            }}
+            onDragEnd={({ data }) => {
+              handleMealReorder(data);
+              setTimeout(() => {
+                setIsDraggingMeal(false);
+              }, 150);
+            }}
+            renderItem={({
+              item: meal,
+              drag,
+              isActive,
+              getIndex,
+            }: RenderItemParams<UnifiedMeal>) => {
+              const index = getIndex() ?? 0;
+              const isFirstScanned =
+                meal.type === "SCANNED" &&
+                (index === 0 || meals[index - 1]?.type !== "SCANNED");
 
-            {/* Meals List */}
-            <NestableDraggableFlatList
-              data={meals}
-              keyExtractor={(meal) => String(meal.id)}
-              activationDistance={12}
-              autoscrollThreshold={170}
-              autoscrollSpeed={110}
-              dragItemOverflow
-              animationConfig={{ damping: 22, stiffness: 180, mass: 0.45 }}
-              contentContainerStyle={styles.mealList}
-              onDragEnd={({ data }) => handleMealReorder(data)}
-              renderItem={({ item: meal, drag, isActive, getIndex }: RenderItemParams<UnifiedMeal>) => {
-                const index = getIndex() ?? 0;
-                const isFirstScanned =
-                  meal.type === "SCANNED" &&
-                  (index === 0 || meals[index - 1]?.type !== "SCANNED");
-
-                return (
-                  <ScaleDecorator activeScale={1.025}>
-                    <React.Fragment key={meal.id}>
-                    {isFirstScanned && (
-                      <View style={styles.scannedDividerRow}>
-                        <View style={styles.scannedDividerLine} />
-                        <View style={styles.scannedDividerBadge}>
-                          <Camera size={11} color="#38BDF8" style={{ marginRight: 5 }} />
-                          <Text style={styles.scannedDividerText}>SCANNED MEALS QUEUE</Text>
-                        </View>
-                        <View style={styles.scannedDividerLine} />
+              return (
+                <View key={meal.id}>
+                  {isFirstScanned && (
+                    <View style={styles.scannedDividerRow}>
+                      <View style={styles.scannedDividerLine} />
+                      <View style={styles.scannedDividerBadge}>
+                        <Camera
+                          size={11}
+                          color="#38BDF8"
+                          style={{ marginRight: 5 }}
+                        />
+                        <Text style={styles.scannedDividerText}>
+                          SCANNED MEALS QUEUE
+                        </Text>
                       </View>
-                    )}
+                      <View style={styles.scannedDividerLine} />
+                    </View>
+                  )}
 
+                  <ScaleDecorator activeScale={1.025}>
                     <MealSwipeShell
                       mealName={meal.name}
                       onSwipeStart={() => activeSwipeCloserRef.current?.()}
@@ -521,17 +607,27 @@ export default function UnifiedMealPlanScreen() {
                             <View
                               style={[
                                 styles.typeBadge,
-                                meal.type === "SCANNED" && styles.scannedTypeBadge,
+                                meal.type === "SCANNED" &&
+                                  styles.scannedTypeBadge,
                               ]}
                             >
                               {meal.type === "SCANNED" ? (
                                 <View style={styles.scannedBadgeContent}>
-                                  <Camera size={10} color="#38BDF8" style={{ marginRight: 4 }} />
-                                  <Text style={styles.scannedTypeText}>SCANNED</Text>
+                                  <Camera
+                                    size={10}
+                                    color="#38BDF8"
+                                    style={{ marginRight: 4 }}
+                                  />
+                                  <Text style={styles.scannedTypeText}>
+                                    SCANNED
+                                  </Text>
                                 </View>
                               ) : (
                                 <Text
-                                  style={[styles.typeText, { color: meal.typeColor }]}
+                                  style={[
+                                    styles.typeText,
+                                    { color: meal.typeColor },
+                                  ]}
                                 >
                                   {meal.type}
                                 </Text>
@@ -542,7 +638,9 @@ export default function UnifiedMealPlanScreen() {
                               <Clock size={11} color="#64748B" />
                               <Text style={styles.timingText}>{meal.time}</Text>
                               <Text style={styles.prepTimeDot}>•</Text>
-                              <Text style={styles.prepTimeText}>{meal.prepTime}</Text>
+                              <Text style={styles.prepTimeText}>
+                                {meal.prepTime}
+                              </Text>
                             </View>
                           </View>
 
@@ -554,7 +652,11 @@ export default function UnifiedMealPlanScreen() {
                               accessibilityRole="button"
                               accessibilityLabel="Meal logged, tap to unmark"
                             >
-                              <Check size={12} color="#2DD4BF" strokeWidth={2.5} />
+                              <Check
+                                size={12}
+                                color="#2DD4BF"
+                                strokeWidth={2.5}
+                              />
                               <Text style={styles.completedBtnText}>LOGGED</Text>
                             </Pressable>
                           ) : (
@@ -564,7 +666,11 @@ export default function UnifiedMealPlanScreen() {
                               accessibilityRole="button"
                               accessibilityLabel="Log meal"
                             >
-                              <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
+                              <Plus
+                                size={12}
+                                color="#38BDF8"
+                                strokeWidth={2.5}
+                              />
                               <Text style={styles.logBtnText}>LOG</Text>
                             </Pressable>
                           )}
@@ -578,35 +684,40 @@ export default function UnifiedMealPlanScreen() {
                           {/* Calories badge */}
                           <View style={styles.kcalBadge}>
                             <Flame size={12} color="#38BDF8" />
-                            <Text style={styles.kcalNumber}>{meal.calories}</Text>
+                            <Text style={styles.kcalNumber}>
+                              {meal.calories}
+                            </Text>
                             <Text style={styles.kcalLabel}>KCAL</Text>
                           </View>
 
                           {/* Clean Macro Telemetry */}
                           <View style={styles.mealMacrosRow}>
                             <Text style={styles.macroVal}>
-                              {meal.protein}g <Text style={styles.macroKey}>P</Text>
+                              {meal.protein}g{" "}
+                              <Text style={styles.macroKey}>P</Text>
                             </Text>
                             <Text style={styles.macroDotDivider}>•</Text>
                             <Text style={styles.macroVal}>
-                              {meal.carbs}g <Text style={styles.macroKey}>C</Text>
+                              {meal.carbs}g{" "}
+                              <Text style={styles.macroKey}>C</Text>
                             </Text>
                             <Text style={styles.macroDotDivider}>•</Text>
                             <Text style={styles.macroVal}>
-                              {meal.fat}g <Text style={styles.macroKey}>F</Text>
+                              {meal.fat}g{" "}
+                              <Text style={styles.macroKey}>F</Text>
                             </Text>
                           </View>
                         </View>
                       </View>
                     </MealSwipeShell>
-                    </React.Fragment>
                   </ScaleDecorator>
-                );
-              }}
-            />
-          </>
+                </View>
+              );
+            }}
+          />
         ) : (
-          <>
+          <View>
+            {commonHeader}
             {/* Week History Section Header */}
             <View style={styles.sectionHeader}>
               <View style={styles.sectionIconBadge}>
@@ -760,57 +871,9 @@ export default function UnifiedMealPlanScreen() {
                 );
               })}
             </View>
-          </>
+            {bottomActions}
+          </View>
         )}
-
-        {/* Bottom Actions */}
-        <View style={styles.actionsContainer}>
-          <Pressable
-            style={({ pressed }) => [
-              styles.scanBtn,
-              pressed && { opacity: 0.92, transform: [{ scale: 0.99 }] },
-            ]}
-            onPress={() => {
-              triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-              router.push("/scan-meal");
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="Scan food to log"
-          >
-            <LinearGradient
-              colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={styles.scanBtnGradient}
-            >
-              <Camera size={16} color="#FFFFFF" style={{ marginRight: 8 }} />
-              <Text style={styles.scanBtnText}>SCAN MEAL TO LOG</Text>
-            </LinearGradient>
-          </Pressable>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.adjustBtn,
-              pressed && { opacity: 0.85, transform: [{ scale: 0.99 }] },
-            ]}
-            onPress={() => {
-              triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-              router.push("/coach?context=nutrition");
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="Adjust meal plan with AI"
-          >
-            <LinearGradient
-              colors={["rgba(56, 189, 248, 0.14)", "rgba(2, 132, 199, 0.05)"]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={styles.adjustBtnGradient}
-            >
-              <Sparkles size={15} color="#38BDF8" style={{ marginRight: 8 }} />
-              <Text style={styles.adjustBtnText}>ADJUST MEAL PLAN WITH AI</Text>
-            </LinearGradient>
-          </Pressable>
-        </View>
       </NestableScrollContainer>
     </View>
   );

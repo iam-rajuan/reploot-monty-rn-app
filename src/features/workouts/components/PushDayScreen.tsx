@@ -81,10 +81,6 @@ export const PushDayScreen: React.FC<PushDayScreenProps> = ({
           { paddingBottom: Math.max(insets.bottom, 16) + 90 },
         ]}
       >
-        <View style={styles.titleSection}>
-          <Text style={styles.mainTitle}>{PUSH_DAY_DATA.title}</Text>
-        </View>
-        <PushDayHeroCard />
         <PushDayExerciseList
           exercises={exercises}
           onExercisePress={handleExercisePress}
@@ -96,6 +92,14 @@ export const PushDayScreen: React.FC<PushDayScreenProps> = ({
               return exercise ? [exercise] : [];
             }));
           }}
+          ListHeaderComponent={
+            <>
+              <View style={styles.titleSection}>
+                <Text style={styles.mainTitle}>{PUSH_DAY_DATA.title}</Text>
+              </View>
+              <PushDayHeroCard />
+            </>
+          }
         />
       </NestableScrollContainer>
       <StartAiWorkoutButton onPress={handleStart} dragActive={isDraggingExercise} />

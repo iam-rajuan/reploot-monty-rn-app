@@ -307,7 +307,15 @@ export const workoutSlice = createSlice({
       action: PayloadAction<{ pathId: string; orderedExerciseIds: string[] }>
     ) => {
       const { pathId, orderedExerciseIds } = action.payload;
-      const currentWorkout = state.workoutsByPath[pathId.toLowerCase()];
+      const key = pathId.toLowerCase();
+      if (!state.workoutsByPath[key]) {
+        const fallback = WORKOUT_PATH_DETAILS_MAP[key] || WORKOUT_PATH_DETAILS_MAP.push;
+        state.workoutsByPath[key] = {
+          ...fallback,
+          exercises: [...fallback.exercises],
+        };
+      }
+      const currentWorkout = state.workoutsByPath[key];
       if (!currentWorkout) return;
 
       const exercisesById = new Map(

@@ -240,71 +240,6 @@ export const GenericWorkoutDetailScreen: React.FC<
           },
         ]}
       >
-        {/* Workout Category Selector Pills */}
-        <View style={styles.categoryTabsWrapper}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoryTabsScroll}
-          >
-            {WORKOUT_SPLIT_TABS.map((tab) => {
-              const isActive = tab.id === activePathId;
-              return (
-                <Pressable
-                  key={tab.id}
-                  onPress={() => handleTabChange(tab.id)}
-                  style={[
-                    styles.categoryPill,
-                    isActive && styles.categoryPillActive,
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityLabel={tab.label}
-                >
-                  <Dumbbell
-                    size={12}
-                    color={isActive ? "#00f2fe" : "#64748B"}
-                    style={{ marginRight: 6 }}
-                  />
-                  <Text
-                    style={[
-                      styles.categoryPillText,
-                      isActive && styles.categoryPillTextActive,
-                    ]}
-                  >
-                    {tab.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-        </View>
-
-        {/* Title Section matching clean Figma design */}
-        <View style={styles.titleSection}>
-          <Text style={styles.mainTitle}>{workout.title}</Text>
-        </View>
-
-        {/* Hero Card with Stats */}
-        <PushDayHeroCard
-          image={workout.heroImage}
-          xpText={workout.xpText}
-          durationText={workout.durationText}
-          caloriesText={workout.caloriesText}
-        />
-
-        {/* Completion Progress Pill (only shown when user has checked off exercises) */}
-        {visibleCompletedCount > 0 ? (
-          <View style={styles.completedHeaderRow}>
-            <View style={styles.completedPill}>
-              <Check size={12} color="#38EDD8" strokeWidth={3} />
-              <Text style={styles.completedCountText}>
-                {visibleCompletedCount} OF {visibleExercises.length} COMPLETED
-              </Text>
-            </View>
-          </View>
-        ) : null}
-
-        {/* Exercise List with Swipe-to-Reveal Actions */}
         <PushDayExerciseList
           exercises={visibleExercises}
           showRecommendationSections={shouldShowFullLibrary}
@@ -313,6 +248,73 @@ export const GenericWorkoutDetailScreen: React.FC<
           onDeleteExercise={handleDeleteExercise}
           onReorderExercises={handleReorderExercises}
           onDragStateChange={setIsDraggingExercise}
+          ListHeaderComponent={
+            <>
+              {/* Workout Category Selector Pills */}
+              <View style={styles.categoryTabsWrapper}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.categoryTabsScroll}
+                >
+                  {WORKOUT_SPLIT_TABS.map((tab) => {
+                    const isActive = tab.id === activePathId;
+                    return (
+                      <Pressable
+                        key={tab.id}
+                        onPress={() => handleTabChange(tab.id)}
+                        style={[
+                          styles.categoryPill,
+                          isActive && styles.categoryPillActive,
+                        ]}
+                        accessibilityRole="button"
+                        accessibilityLabel={tab.label}
+                      >
+                        <Dumbbell
+                          size={12}
+                          color={isActive ? "#00f2fe" : "#64748B"}
+                          style={{ marginRight: 6 }}
+                        />
+                        <Text
+                          style={[
+                            styles.categoryPillText,
+                            isActive && styles.categoryPillTextActive,
+                          ]}
+                        >
+                          {tab.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+
+              {/* Title Section matching clean Figma design */}
+              <View style={styles.titleSection}>
+                <Text style={styles.mainTitle}>{workout.title}</Text>
+              </View>
+
+              {/* Hero Card with Stats */}
+              <PushDayHeroCard
+                image={workout.heroImage}
+                xpText={workout.xpText}
+                durationText={workout.durationText}
+                caloriesText={workout.caloriesText}
+              />
+
+              {/* Completion Progress Pill (only shown when user has checked off exercises) */}
+              {visibleCompletedCount > 0 ? (
+                <View style={styles.completedHeaderRow}>
+                  <View style={styles.completedPill}>
+                    <Check size={12} color="#38EDD8" strokeWidth={3} />
+                    <Text style={styles.completedCountText}>
+                      {visibleCompletedCount} OF {visibleExercises.length} COMPLETED
+                    </Text>
+                  </View>
+                </View>
+              ) : null}
+            </>
+          }
         />
       </NestableScrollContainer>
 

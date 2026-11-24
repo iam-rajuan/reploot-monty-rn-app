@@ -6,6 +6,7 @@ import React, { useRef } from "react";
 import {
   NestableDraggableFlatList,
   ScaleDecorator,
+  useNestableScrollContainerContext,
   type RenderItemParams,
 } from "react-native-draggable-flatlist";
 import ReanimatedSwipeable, {
@@ -61,6 +62,8 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
   testID,
 }) => {
   const hasActions = Boolean(onReplace || onDelete);
+  const nestableContext = useNestableScrollContainerContext();
+  const scrollableRef = nestableContext?.scrollableRef;
   const xpReward = exercise?.xp ?? "+40 XP";
   const actionDrawerWidth = (onReplace ? 68 : 0) + (onDelete ? 68 : 0) + 8;
 
@@ -101,10 +104,120 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
     });
   };
 
+  const cardContent = (
+    <View style={styles.animatedCardContainer}>
+      <Pressable
+        onPress={handleCardPress}
+        onLongPress={onLongPress}
+        delayLongPress={450}
+        style={[
+          styles.exerciseCard,
+          isCompleted && styles.exerciseCardCompleted,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel={`${title}, ${isCompleted ? "Completed" : subtitle}`}
+      >
+        {/* Exercise Thumbnail */}
+        <View style={styles.thumbnailWrapper}>
+          {image && (
+            <Image
+              source={image}
+              style={[
+                styles.thumbnailImage,
+                isCompleted && styles.thumbnailImageCompleted,
+              ]}
+              contentFit="cover"
+            />
+          )}
+          {index ? (
+            <View
+              style={[
+                styles.indexBadge,
+                isCompleted && styles.indexBadgeCompleted,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.indexBadgeText,
+                  isCompleted && styles.indexBadgeTextCompleted,
+                ]}
+              >
+                {index}
+              </Text>
+            </View>
+          ) : null}
+
+          {isCompleted && (
+            <View style={styles.thumbnailCheckBadge}>
+              <Check size={11} color="#38EDD8" strokeWidth={3.5} />
+            </View>
+          )}
+        </View>
+
+        {/* Title & Sets/Reps */}
+        <View style={styles.exerciseTextContainer}>
+          <Text
+            style={[
+              styles.exerciseTitle,
+              isCompleted && styles.exerciseTitleCompleted,
+            ]}
+            numberOfLines={2}
+          >
+            {title}
+          </Text>
+
+          <View style={styles.exerciseMetaRow}>
+            {isCompleted ? (
+              <View style={styles.completedStatusRow}>
+                <View style={styles.completedDot} />
+                <Text style={styles.completedStatusText}>COMPLETED</Text>
+              </View>
+            ) : (
+              <Text style={styles.exerciseSubtitle} numberOfLines={1}>
+                {subtitle}
+              </Text>
+            )}
+            <View style={styles.xpReward}>
+              <Zap size={11} color="#79F0DD" strokeWidth={2.5} />
+              <Text style={styles.xpRewardText}>{xpReward}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Resting State Action Indicator (Play Button or Completed Checkmark) */}
+        <View style={styles.restingActionContainer}>
+          {isCompleted ? (
+            <View style={styles.completedCheckCircle}>
+              <Check size={16} color="#38EDD8" strokeWidth={3.2} />
+            </View>
+          ) : (
+            <View style={styles.playButton}>
+              <Play
+                size={13}
+                color="rgba(255, 255, 255, 0.85)"
+                fill="rgba(255, 255, 255, 0.85)"
+                style={styles.playIcon}
+              />
+            </View>
+          )}
+        </View>
+      </Pressable>
+    </View>
+  );
+
+  if (!hasActions) {
+    return (
+      <View style={[styles.cardWrapper, style]} testID={testID}>
+        {cardContent}
+      </View>
+    );
+  }
+
   return (
     <ReanimatedSwipeable
       ref={swipeableRef}
       enabled={hasActions}
+      simultaneousWithExternalGesture={scrollableRef}
       friction={1.5}
       rightThreshold={actionDrawerWidth * 0.32}
       dragOffsetFromRightEdge={8}
@@ -168,104 +281,7 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> = ({
       }}
       testID={testID}
     >
-      <View style={styles.animatedCardContainer}>
-        <Pressable
-          onPress={handleCardPress}
-          onLongPress={onLongPress}
-          delayLongPress={450}
-          style={[
-            styles.exerciseCard,
-            isCompleted && styles.exerciseCardCompleted,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel={`${title}, ${isCompleted ? "Completed" : subtitle}`}
-        >
-          {/* Exercise Thumbnail */}
-          <View style={styles.thumbnailWrapper}>
-            {image && (
-              <Image
-                source={image}
-                style={[
-                  styles.thumbnailImage,
-                  isCompleted && styles.thumbnailImageCompleted,
-                ]}
-                contentFit="cover"
-              />
-            )}
-            {index ? (
-              <View
-                style={[
-                  styles.indexBadge,
-                  isCompleted && styles.indexBadgeCompleted,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.indexBadgeText,
-                    isCompleted && styles.indexBadgeTextCompleted,
-                  ]}
-                >
-                  {index}
-                </Text>
-              </View>
-            ) : null}
-
-            {isCompleted && (
-              <View style={styles.thumbnailCheckBadge}>
-                <Check size={11} color="#38EDD8" strokeWidth={3.5} />
-              </View>
-            )}
-          </View>
-
-          {/* Title & Sets/Reps */}
-          <View style={styles.exerciseTextContainer}>
-            <Text
-              style={[
-                styles.exerciseTitle,
-                isCompleted && styles.exerciseTitleCompleted,
-              ]}
-              numberOfLines={2}
-            >
-              {title}
-            </Text>
-
-            <View style={styles.exerciseMetaRow}>
-              {isCompleted ? (
-                <View style={styles.completedStatusRow}>
-                  <View style={styles.completedDot} />
-                  <Text style={styles.completedStatusText}>COMPLETED</Text>
-                </View>
-              ) : (
-                <Text style={styles.exerciseSubtitle} numberOfLines={1}>
-                  {subtitle}
-                </Text>
-              )}
-              <View style={styles.xpReward}>
-                <Zap size={11} color="#79F0DD" strokeWidth={2.5} />
-                <Text style={styles.xpRewardText}>{xpReward}</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Resting State Action Indicator (Play Button or Completed Checkmark) */}
-          <View style={styles.restingActionContainer}>
-            {isCompleted ? (
-              <View style={styles.completedCheckCircle}>
-                <Check size={16} color="#38EDD8" strokeWidth={3.2} />
-              </View>
-            ) : (
-              <View style={styles.playButton}>
-                <Play
-                  size={13}
-                  color="rgba(255, 255, 255, 0.85)"
-                  fill="rgba(255, 255, 255, 0.85)"
-                  style={styles.playIcon}
-                />
-              </View>
-            )}
-          </View>
-        </Pressable>
-      </View>
+      {cardContent}
     </ReanimatedSwipeable>
   );
 };
@@ -280,6 +296,8 @@ export interface PushDayExerciseListProps {
   onReorderExercises?: (orderedExerciseIds: string[]) => void;
   onDragStateChange?: (isDragging: boolean) => void;
   style?: StyleProp<ViewStyle>;
+  ListHeaderComponent?: React.ReactElement | null;
+  ListFooterComponent?: React.ReactElement | null;
 }
 
 export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
@@ -292,6 +310,8 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
   onReorderExercises,
   onDragStateChange,
   style,
+  ListHeaderComponent,
+  ListFooterComponent,
 }) => {
   const activeSwipeCloserRef = useRef<(() => void) | null>(null);
 
@@ -313,42 +333,64 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
     <NestableDraggableFlatList
       data={exercises}
       keyExtractor={(exercise) => exercise.id}
-      activationDistance={18}
-      autoscrollThreshold={180}
-      autoscrollSpeed={110}
+      activationDistance={10}
+      autoscrollThreshold={100}
+      autoscrollSpeed={120}
       dragItemOverflow
       animationConfig={{ damping: 22, stiffness: 180, mass: 0.45 }}
       contentContainerStyle={[styles.exerciseList, style]}
-      ListHeaderComponent={showRecommendationSections ? (
-        <View style={styles.recommendationHeader}>
-          <View style={styles.recommendationHeaderLead}>
-            <View style={styles.recommendationIcon}>
-              <Sparkles size={13} color="#07131B" strokeWidth={2.8} />
+      ListHeaderComponent={
+        <>
+          {ListHeaderComponent}
+          {showRecommendationSections && aiRecommended.length > 0 ? (
+            <View style={styles.recommendationHeader}>
+              <View style={styles.recommendationHeaderLead}>
+                <View style={styles.recommendationIcon}>
+                  <Sparkles size={13} color="#07131B" strokeWidth={2.8} />
+                </View>
+                <Text style={styles.recommendationTitle}>AI RECOMMENDED</Text>
+              </View>
+              <Text style={styles.recommendationCount}>{aiRecommended.length} PICKS</Text>
             </View>
-            <Text style={styles.recommendationTitle}>AI RECOMMENDED</Text>
-          </View>
-          <Text style={styles.recommendationCount}>{aiRecommended.length} PICKS</Text>
-        </View>
-      ) : null}
+          ) : null}
+        </>
+      }
+      ListFooterComponent={ListFooterComponent}
       onDragBegin={() => onDragStateChange?.(true)}
-      onRelease={() => onDragStateChange?.(false)}
+      onRelease={() => {
+        setTimeout(() => {
+          onDragStateChange?.(false);
+        }, 150);
+      }}
       onDragEnd={({ data }) => {
         onReorderExercises?.(data.map((exercise) => exercise.id));
-        onDragStateChange?.(false);
+        setTimeout(() => {
+          onDragStateChange?.(false);
+        }, 150);
       }}
       renderItem={({ item, drag, isActive, getIndex }: RenderItemParams<PushDayExercise | WorkoutExerciseItem>) => {
         const index = getIndex() ?? 0;
-        const showRegularHeader = showRecommendationSections && regularExercises.length > 0 && index === aiRecommended.length;
+        const isAiRec = (item as WorkoutExerciseItem).isAiRecommended ?? index < 8;
+        const prevItem = index > 0 ? exercises[index - 1] : undefined;
+        const prevIsAiRec = prevItem
+          ? ((prevItem as WorkoutExerciseItem).isAiRecommended ?? (index - 1) < 8)
+          : true;
+        const showRegularHeader =
+          showRecommendationSections &&
+          regularExercises.length > 0 &&
+          !isAiRec &&
+          (index === 0 || prevIsAiRec);
+
         return (
-          <ScaleDecorator activeScale={1.025}>
-            <View>
-              {showRegularHeader ? (
-          <View style={styles.regularHeader}>
-            <Text style={styles.regularTitle}>REGULAR EXERCISES</Text>
-            <View style={styles.regularRule} />
-            <Text style={styles.recommendationCount}>{regularExercises.length} MORE</Text>
-          </View>
-              ) : null}
+          <View>
+            {showRegularHeader ? (
+              <View style={styles.regularHeader}>
+                <Text style={styles.regularTitle}>REGULAR EXERCISES</Text>
+                <View style={styles.regularRule} />
+                <Text style={styles.recommendationCount}>{regularExercises.length} MORE</Text>
+              </View>
+            ) : null}
+            <ScaleDecorator activeScale={1.025}>
               <PushDayExerciseCard
                 exercise={item}
                 isCompleted={completedIds.includes(item.id)}
@@ -371,8 +413,8 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
                 onReplace={onReplaceExercise ? () => onReplaceExercise(item.id) : undefined}
                 onDelete={onDeleteExercise ? () => onDeleteExercise(item.id) : undefined}
               />
-            </View>
-          </ScaleDecorator>
+            </ScaleDecorator>
+          </View>
         );
       }}
     />
