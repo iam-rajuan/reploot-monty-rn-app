@@ -4,15 +4,13 @@ import { useRouter } from "expo-router";
 import { Lock, Mail } from "lucide-react-native";
 import { useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
@@ -92,140 +90,137 @@ export default function SignInRoute() {
   return (
     <View style={styles.root}>
       <SignUpBackground />
-      <KeyboardAvoidingView
+      <KeyboardAwareScrollView
         style={styles.flexOne}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        bottomOffset={16}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: Math.max(insets.top, 16) + 8,
+            paddingBottom: Math.max(insets.bottom, 16) + 16,
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
-        <ScrollView
-          style={styles.flexOne}
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              paddingTop: Math.max(insets.top, 16) + 8,
-              paddingBottom: Math.max(insets.bottom, 16) + 16,
-            },
-          ]}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <AuthHeader onBack={handleBack} />
-          <View style={styles.heroSection}>
-            <View style={styles.titleRow}>
-              <Text style={styles.heroTitle}>WELCOME</Text>
-            </View>
-            <Text style={styles.heroTitle}>BACK</Text>
+        <AuthHeader onBack={handleBack} />
+        <View style={styles.heroSection}>
+          <View style={styles.titleRow}>
+            <Text style={styles.heroTitle}>WELCOME</Text>
+          </View>
+          <Text style={styles.heroTitle}>BACK</Text>
+          <LinearGradient
+            colors={["#FED7AA", "#FFEDD5", "rgba(254, 215, 170, 0)"]}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={styles.todayUnderline}
+          />
+        </View>
+        <View style={styles.cardContainer}>
+          <View style={styles.cardWrapper}>
             <LinearGradient
-              colors={["#FED7AA", "#FFEDD5", "rgba(254, 215, 170, 0)"]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={styles.todayUnderline}
-            />
-          </View>
-          <View style={styles.cardContainer}>
-            <View style={styles.cardWrapper}>
-              <LinearGradient
-                colors={["#462D24", "#2E2644", "#1B1D38"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.cardGradient}
-              >
-                <AuthDarkPillInput
-                  label="EMAIL"
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="alex@kinetic.ai"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  rightIcon={<Mail size={19} color="#CBD5E1" />}
-                />
-                <AuthDarkPillInput
-                  label="PASSWORD"
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="••••••••"
-                  secureTextEntry
-                  rightIcon={<Lock size={19} color="#CBD5E1" />}
-                />
-                <View style={styles.forgotPasswordWrapper}>
-                  <TouchableOpacity
-                    onPress={handleForgotPassword}
-                    activeOpacity={0.7}
-                    hitSlop={{ top: 12, bottom: 12, left: 16, right: 16 }}
-                  >
-                    <Text style={styles.forgotPasswordText}>
-                      Forgot password?
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.createAccountWrapper}>
-                  <TouchableOpacity
-                    onPress={handleLogin}
-                    activeOpacity={0.8}
-                    style={styles.fullWidth}
-                  >
-                    <LinearGradient
-                      colors={["#3568A5", "#4B85C4", "#69A6E3"]}
-                      start={{ x: 0, y: 0.5 }}
-                      end={{ x: 1, y: 0.5 }}
-                      style={styles.createAccountGradient}
-                    >
-                      <Text style={styles.createAccountText}>SIGN IN</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.dividerRow}>
-                  <View style={styles.dividerLine} />
-                  <Text style={styles.dividerText}>OR</Text>
-                  <View style={styles.dividerLine} />
-                </View>
-                <View style={styles.socialButtonWrapper}>
-                  <TouchableOpacity
-                    onPress={handleGoogleLogin}
-                    activeOpacity={0.7}
-                    style={styles.fullWidth}
-                  >
-                    <View style={styles.socialButtonContainer}>
-                      <View style={styles.socialIconBox}>
-                        <GoogleIcon size={19} />
-                      </View>
-                      <Text style={styles.socialButtonText}>
-                        Continue with Google
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.appleButtonWrapper}>
-                  <TouchableOpacity
-                    onPress={handleAppleLogin}
-                    activeOpacity={0.7}
-                    style={styles.fullWidth}
-                  >
-                    <View style={styles.socialButtonContainer}>
-                      <View style={styles.socialIconBox}>
-                        <AppleIcon size={20} color="#FFFFFF" />
-                      </View>
-                      <Text style={styles.socialButtonText}>
-                        Continue with Apple
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              </LinearGradient>
-            </View>
-          </View>
-          <View style={styles.bottomCtaContainer}>
-            <Text style={styles.bottomCtaText}>Don't have an account? </Text>
-            <TouchableOpacity
-              onPress={handleCreateAccount}
-              activeOpacity={0.7}
-              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              colors={["#462D24", "#2E2644", "#1B1D38"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.cardGradient}
             >
-              <Text style={styles.loginLink}>Sign Up</Text>
-            </TouchableOpacity>
+              <AuthDarkPillInput
+                label="EMAIL"
+                value={email}
+                onChangeText={setEmail}
+                placeholder="alex@kinetic.ai"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                rightIcon={<Mail size={19} color="#CBD5E1" />}
+              />
+              <AuthDarkPillInput
+                label="PASSWORD"
+                value={password}
+                onChangeText={setPassword}
+                placeholder="••••••••"
+                secureTextEntry
+                rightIcon={<Lock size={19} color="#CBD5E1" />}
+              />
+              <View style={styles.forgotPasswordWrapper}>
+                <TouchableOpacity
+                  onPress={handleForgotPassword}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 12, bottom: 12, left: 16, right: 16 }}
+                >
+                  <Text style={styles.forgotPasswordText}>
+                    Forgot password?
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.createAccountWrapper}>
+                <TouchableOpacity
+                  onPress={handleLogin}
+                  activeOpacity={0.8}
+                  style={styles.fullWidth}
+                >
+                  <LinearGradient
+                    colors={["#3568A5", "#4B85C4", "#69A6E3"]}
+                    start={{ x: 0, y: 0.5 }}
+                    end={{ x: 1, y: 0.5 }}
+                    style={styles.createAccountGradient}
+                  >
+                    <Text style={styles.createAccountText}>SIGN IN</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.dividerRow}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>OR</Text>
+                <View style={styles.dividerLine} />
+              </View>
+              <View style={styles.socialButtonWrapper}>
+                <TouchableOpacity
+                  onPress={handleGoogleLogin}
+                  activeOpacity={0.7}
+                  style={styles.fullWidth}
+                >
+                  <View style={styles.socialButtonContainer}>
+                    <View style={styles.socialIconBox}>
+                      <GoogleIcon size={19} />
+                    </View>
+                    <Text style={styles.socialButtonText}>
+                      Continue with Google
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.appleButtonWrapper}>
+                <TouchableOpacity
+                  onPress={handleAppleLogin}
+                  activeOpacity={0.7}
+                  style={styles.fullWidth}
+                >
+                  <View style={styles.socialButtonContainer}>
+                    <View style={styles.socialIconBox}>
+                      <AppleIcon size={20} color="#FFFFFF" />
+                    </View>
+                    <Text style={styles.socialButtonText}>
+                      Continue with Apple
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
+        <View style={styles.bottomCtaContainer}>
+          <Text style={styles.bottomCtaText}>Don't have an account? </Text>
+          <TouchableOpacity
+            onPress={handleCreateAccount}
+            activeOpacity={0.7}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Text style={styles.loginLink}>Sign Up</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAwareScrollView>
     </View>
   );
 }

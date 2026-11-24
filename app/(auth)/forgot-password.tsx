@@ -1,14 +1,8 @@
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import {
-  KeyboardAvoidingView,
-  Linking,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Linking, Platform, StyleSheet, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
@@ -90,55 +84,52 @@ export default function ForgotPasswordRoute() {
   return (
     <View style={styles.root}>
       <SignUpBackground />
-      <KeyboardAvoidingView
+      <KeyboardAwareScrollView
         style={styles.flexOne}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        bottomOffset={16}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: Math.max(insets.top, 16) + 8,
+            paddingBottom: Math.max(insets.bottom, 16) + 20,
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
-        <ScrollView
-          style={styles.flexOne}
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              paddingTop: Math.max(insets.top, 16) + 8,
-              paddingBottom: Math.max(insets.bottom, 16) + 20,
-            },
-          ]}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <AuthHeader onBack={handleBack} />
+        <AuthHeader onBack={handleBack} />
 
-          {step === "request" && (
-            <ForgotPasswordRequestStep
-              email={email}
-              setEmail={setEmail}
-              onSendResetLink={handleSendResetLink}
-            />
-          )}
+        {step === "request" && (
+          <ForgotPasswordRequestStep
+            email={email}
+            setEmail={setEmail}
+            onSendResetLink={handleSendResetLink}
+          />
+        )}
 
-          {step === "check_email" && (
-            <ForgotPasswordCheckEmailStep
-              onOpenMailApp={handleOpenMailApp}
-              onResendEmail={handleResendEmail}
-            />
-          )}
+        {step === "check_email" && (
+          <ForgotPasswordCheckEmailStep
+            onOpenMailApp={handleOpenMailApp}
+            onResendEmail={handleResendEmail}
+          />
+        )}
 
-          {step === "new_password" && (
-            <ForgotPasswordNewPasswordStep
-              newPassword={newPassword}
-              setNewPassword={setNewPassword}
-              confirmPassword={confirmPassword}
-              setConfirmPassword={setConfirmPassword}
-              showNewPassword={showNewPassword}
-              setShowNewPassword={setShowNewPassword}
-              showConfirmPassword={showConfirmPassword}
-              setShowConfirmPassword={setShowConfirmPassword}
-              onUpdatePassword={handleUpdatePassword}
-              onCancel={handleCancelAndReturn}
-            />
-          )}
-        </ScrollView>
-      </KeyboardAvoidingView>
+        {step === "new_password" && (
+          <ForgotPasswordNewPasswordStep
+            newPassword={newPassword}
+            setNewPassword={setNewPassword}
+            confirmPassword={confirmPassword}
+            setConfirmPassword={setConfirmPassword}
+            showNewPassword={showNewPassword}
+            setShowNewPassword={setShowNewPassword}
+            showConfirmPassword={showConfirmPassword}
+            setShowConfirmPassword={setShowConfirmPassword}
+            onUpdatePassword={handleUpdatePassword}
+            onCancel={handleCancelAndReturn}
+          />
+        )}
+      </KeyboardAwareScrollView>
     </View>
   );
 }

@@ -9,14 +9,8 @@ import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Check } from "lucide-react-native";
 import React, { useState } from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
 
@@ -55,52 +49,49 @@ export default function EditProfileRoute() {
         transparent={true}
       />
 
-      <KeyboardAvoidingView
+      <KeyboardAwareScrollView
         style={styles.keyboardView}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        bottomOffset={16}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: Math.max(insets.bottom + 80, 100) },
+        ]}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingBottom: Math.max(insets.bottom + 80, 100) },
-          ]}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Title Section with Masked Gradient Title & Description */}
-          <View style={styles.titleSection}>
-            <View style={styles.maskedTitleWrapper}>
-              <MaskedView
-                style={styles.maskedTitleView}
-                maskElement={
-                  <View style={styles.maskWrapper}>
-                    <Text
-                      style={styles.mainTitle}
-                      numberOfLines={1}
-                      adjustsFontSizeToFit
-                    >
-                      EDIT PROFILE
-                    </Text>
-                  </View>
-                }
-              >
-                <LinearGradient
-                  colors={["#00f2fe", "#4facfe"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.gradient}
-                />
-              </MaskedView>
-            </View>
+        {/* Title Section with Masked Gradient Title & Description */}
+        <View style={styles.titleSection}>
+          <View style={styles.maskedTitleWrapper}>
+            <MaskedView
+              style={styles.maskedTitleView}
+              maskElement={
+                <View style={styles.maskWrapper}>
+                  <Text
+                    style={styles.mainTitle}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                  >
+                    EDIT PROFILE
+                  </Text>
+                </View>
+              }
+            >
+              <LinearGradient
+                colors={["#00f2fe", "#4facfe"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.gradient}
+              />
+            </MaskedView>
           </View>
+        </View>
 
-          <EditProfileBanner />
-          <EditProfileForm />
-          <EditProfileSecurityBox />
-          <EditProfileActions onSave={handleSave} />
-        </ScrollView>
-      </KeyboardAvoidingView>
+        <EditProfileBanner />
+        <EditProfileForm />
+        <EditProfileSecurityBox />
+        <EditProfileActions onSave={handleSave} />
+      </KeyboardAwareScrollView>
 
       {/* Floating Cyber HUD Toast */}
       {toastMessage && (

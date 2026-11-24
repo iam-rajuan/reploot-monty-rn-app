@@ -25,10 +25,12 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
 
-type CategoryFilter = "ALL" | "WORKOUTS" | "MEALS" | "EXERCISES" | "AI PROTOCOLS";
+type CategoryFilter =
+  "ALL" | "WORKOUTS" | "MEALS" | "EXERCISES" | "AI PROTOCOLS";
 
 interface ProtocolItem {
   id: string;
@@ -265,7 +267,8 @@ export default function SearchRoute() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>("ALL");
+  const [selectedCategory, setSelectedCategory] =
+    useState<CategoryFilter>("ALL");
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
 
@@ -362,7 +365,8 @@ export default function SearchRoute() {
         transparent={true}
       />
 
-      <ScrollView
+      <KeyboardAwareScrollView
+        bottomOffset={16}
         contentContainerStyle={[
           styles.scrollContent,
           { paddingBottom: Math.max(insets.bottom + 24, 40) },
@@ -377,10 +381,7 @@ export default function SearchRoute() {
               style={styles.maskedTitleView}
               maskElement={
                 <View style={styles.maskWrapper}>
-                  <Text
-                    style={styles.mainTitle}
-                    numberOfLines={1}
-                  >
+                  <Text style={styles.mainTitle} numberOfLines={1}>
                     SEARCH PROTOCOLS
                   </Text>
                 </View>
@@ -478,10 +479,7 @@ export default function SearchRoute() {
                 <Pressable
                   key={tag}
                   onPress={() => handleSelectTag(tag)}
-                  style={[
-                    styles.tagChip,
-                    isSelected && styles.tagChipActive,
-                  ]}
+                  style={[styles.tagChip, isSelected && styles.tagChipActive]}
                 >
                   <Text
                     style={[
@@ -501,7 +499,9 @@ export default function SearchRoute() {
         <View style={styles.resultsHeaderRow}>
           <Text style={styles.resultsCount}>
             {filteredItems.length}{" "}
-            {filteredItems.length === 1 ? "PROTOCOL MATCH" : "PROTOCOLS MATCHED"}
+            {filteredItems.length === 1
+              ? "PROTOCOL MATCH"
+              : "PROTOCOLS MATCHED"}
           </Text>
           <View style={styles.sectionLine} />
         </View>
@@ -574,7 +574,8 @@ export default function SearchRoute() {
             </View>
             <Text style={styles.emptyTitle}>NO PROTOCOLS FOUND</Text>
             <Text style={styles.emptyDesc}>
-              No routines or metrics match &quot;{query}&quot;. Try exploring the trending tags above or reset the filter.
+              No routines or metrics match &quot;{query}&quot;. Try exploring
+              the trending tags above or reset the filter.
             </Text>
             <Pressable
               onPress={() => {
@@ -587,7 +588,7 @@ export default function SearchRoute() {
             </Pressable>
           </View>
         )}
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </View>
   );
 }

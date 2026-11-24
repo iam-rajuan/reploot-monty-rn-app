@@ -26,14 +26,15 @@ import {
   Animated,
   Easing,
   Modal,
+  KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, {
   Circle,
@@ -72,10 +73,46 @@ export default function NutritionTabRoute() {
   const [waterGoal, setWaterGoal] = useState(3.0);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [tempGoalInput, setTempGoalInput] = useState("3.0");
-  const hasGeneratedPlan = useNutritionPlanStore((state) => state.hasGeneratedPlan);
-  const resetGeneratedPlan = useNutritionPlanStore((state) => state.resetGeneratedPlan);
-  const lastApprovedAdjustment = useNutritionPlanStore((state) => state.lastApprovedAdjustment);
+  const hasGeneratedPlan = useNutritionPlanStore(
+    (state) => state.hasGeneratedPlan,
+  );
+  const hasHydrated = useNutritionPlanStore((state) => state.hasHydrated);
+  const lastApprovedAdjustment = useNutritionPlanStore(
+    (state) => state.lastApprovedAdjustment,
+  );
   const meals = useNutritionPlanStore((state) => state.meals);
+
+  const loggedNutrition = useMemo(
+    () =>
+      meals.reduce(
+        (totals, meal) => {
+          if (!meal.completed) return totals;
+          return {
+            calories: totals.calories + meal.calories,
+            protein: totals.protein + meal.protein,
+            carbs: totals.carbs + meal.carbs,
+            fat: totals.fat + meal.fat,
+          };
+        },
+        { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      ),
+    [meals],
+  );
+  const calorieTarget = hasGeneratedPlan ? 2300 : 0;
+  const proteinTarget = hasGeneratedPlan ? 180 : 0;
+  const carbsTarget = hasGeneratedPlan ? 250 : 0;
+  const fatTarget = hasGeneratedPlan ? 70 : 0;
+  const calorieProgress =
+    calorieTarget > 0
+      ? Math.min(
+          100,
+          Math.round((loggedNutrition.calories / calorieTarget) * 100),
+        )
+      : 0;
+  const caloriesRemaining = Math.max(
+    0,
+    calorieTarget - loggedNutrition.calories,
+  );
 
   const lunchMeal = useMemo(
     () => meals.find((m) => m.type.toUpperCase() === "LUNCH"),
@@ -158,7 +195,7 @@ export default function NutritionTabRoute() {
     const target = val !== undefined ? val : parseFloat(tempGoalInput);
     if (!isNaN(target) && target > 0 && target <= 10) {
       triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-      setWaterGoal(+(target.toFixed(1)));
+      setWaterGoal(+target.toFixed(1));
       setTempGoalInput(target.toFixed(1));
       setIsEditingGoal(false);
     }
@@ -197,17 +234,26 @@ export default function NutritionTabRoute() {
           pointerEvents="none"
         >
           <SvgLine
-            x1="420" y1="-20" x2="-40" y2="440"
+            x1="420"
+            y1="-20"
+            x2="-40"
+            y2="440"
             stroke="rgba(147, 164, 255, 0.04)"
             strokeWidth="1"
           />
           <SvgLine
-            x1="460" y1="260" x2="-40" y2="760"
+            x1="460"
+            y1="260"
+            x2="-40"
+            y2="760"
             stroke="rgba(78, 143, 255, 0.03)"
             strokeWidth="1"
           />
           <SvgLine
-            x1="480" y1="560" x2="-40" y2="1080"
+            x1="480"
+            y1="560"
+            x2="-40"
+            y2="1080"
             stroke="rgba(48, 211, 195, 0.025)"
             strokeWidth="1"
           />
@@ -216,7 +262,8 @@ export default function NutritionTabRoute() {
 
       <WorkoutHeader transparent={true} />
 
-      <ScrollView
+      <KeyboardAwareScrollView
+        bottomOffset={16}
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContainer,
@@ -247,171 +294,25 @@ export default function NutritionTabRoute() {
           </View>
         </View>
 
-        {hasGeneratedPlan ? (
-          <View style={styles.card}>
-            {/* Header: Badge + Actions */}
-            <View style={styles.cardHeaderRow}>
-              <View style={styles.budgetBadge}>
-                <Flame size={13} color="#38BDF8" />
-                <Text style={styles.budgetBadgeText}>DAILY ENERGY BUDGET</Text>
-              </View>
-              <View style={styles.cardActions}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Reset nutrition plan"
-                  onPress={() => {
-                    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-                    resetGeneratedPlan();
-                  }}
-                  style={({ pressed }) => [
-                    styles.resetPlanButton,
-                    pressed && { opacity: 0.7, transform: [{ scale: 0.96 }] },
-                  ]}
-                >
-                  <RotateCcw size={13} color="#94A3B8" />
-                </Pressable>
-                <Pressable
-                  onPress={() => {
-                    triggerHaptic();
-                    router.push("/meal-history");
-                  }}
-                  style={({ pressed }) => [
-                    styles.headerLink,
-                    pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityLabel="View meal logs"
-                >
-                  <Text style={styles.headerLinkText}>LOGS</Text>
-                  <ChevronRight size={11} color="#38BDF8" />
-                </Pressable>
-              </View>
-            </View>
-
-            {/* Calorie Telemetry Row */}
-            <View style={styles.budgetRow}>
-              <Text style={styles.budgetMain}>1,850</Text>
-              <Text style={styles.budgetTargetSlash}>/</Text>
-              <Text style={styles.budgetTargetTotal}>2,300</Text>
-              <Text style={styles.budgetTargetUnit}>KCAL</Text>
-            </View>
-
-            {/* Progress Meter */}
-            <View style={styles.progressContainer}>
-              <View style={styles.progressBarBg}>
-                <LinearGradient
-                  colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-                  start={{ x: 0, y: 0.5 }}
-                  end={{ x: 1, y: 0.5 }}
-                  style={[StyleSheet.absoluteFill, { width: "80%" }]}
-                />
-              </View>
-              <View style={styles.progressMeta}>
-                <View style={styles.progressMetaLeft}>
-                  <View style={styles.metaDot} />
-                  <Text style={styles.progressRemaining}>450 KCAL REMAINING</Text>
-                </View>
-                <Text style={styles.progressPercent}>80% CONSUMED</Text>
-              </View>
-            </View>
-
-            {/* 3 Macro Cards with Micro Progress */}
-            <View style={styles.macrosRow}>
-              {/* Protein */}
-              <View style={[styles.macroBox, { borderColor: "rgba(56, 189, 248, 0.22)" }]}>
-                <View style={styles.macroHeader}>
-                  <View style={[styles.macroDot, { backgroundColor: "#38BDF8" }]} />
-                  <Text style={[styles.macroLabel, { color: "#38BDF8" }]}>PROTEIN</Text>
-                </View>
-                <View style={styles.macroValueRow}>
-                  <Text style={styles.macroValue}>120</Text>
-                  <Text style={styles.macroUnit}>g</Text>
-                </View>
-                <Text style={styles.macroTarget}>of 180g</Text>
-                <View style={styles.macroTrackBg}>
-                  <View style={[styles.macroTrackFill, { width: "67%", backgroundColor: "#38BDF8" }]} />
-                </View>
-              </View>
-
-              {/* Carbs */}
-              <View style={[styles.macroBox, { borderColor: "rgba(251, 191, 36, 0.22)" }]}>
-                <View style={styles.macroHeader}>
-                  <View style={[styles.macroDot, { backgroundColor: "#FBBF24" }]} />
-                  <Text style={[styles.macroLabel, { color: "#FBBF24" }]}>CARBS</Text>
-                </View>
-                <View style={styles.macroValueRow}>
-                  <Text style={styles.macroValue}>180</Text>
-                  <Text style={styles.macroUnit}>g</Text>
-                </View>
-                <Text style={styles.macroTarget}>of 250g</Text>
-                <View style={styles.macroTrackBg}>
-                  <View style={[styles.macroTrackFill, { width: "72%", backgroundColor: "#FBBF24" }]} />
-                </View>
-              </View>
-
-              {/* Fat */}
-              <View style={[styles.macroBox, { borderColor: "rgba(251, 113, 133, 0.22)" }]}>
-                <View style={styles.macroHeader}>
-                  <View style={[styles.macroDot, { backgroundColor: "#FB7185" }]} />
-                  <Text style={[styles.macroLabel, { color: "#FB7185" }]}>FAT</Text>
-                </View>
-                <View style={styles.macroValueRow}>
-                  <Text style={styles.macroValue}>55</Text>
-                  <Text style={styles.macroUnit}>g</Text>
-                </View>
-                <Text style={styles.macroTarget}>of 70g</Text>
-                <View style={styles.macroTrackBg}>
-                  <View style={[styles.macroTrackFill, { width: "78%", backgroundColor: "#FB7185" }]} />
-                </View>
-              </View>
-            </View>
-
-            {/* CTA Button */}
-            <Pressable
-              style={({ pressed }) => [
-                styles.scanBtn,
-                pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] },
-              ]}
-              onPress={() => {
-                triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-                router.push("/scan-meal");
-              }}
-              accessibilityRole="button"
-              accessibilityLabel="Scan today's meal"
-            >
-              <LinearGradient
-                colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.scanBtnGradient}
-              >
-                <Camera color="#FFFFFF" size={16} style={{ marginRight: 8 }} />
-                <Text style={styles.scanBtnText}>SCAN TODAY'S MEAL</Text>
-              </LinearGradient>
-            </Pressable>
-          </View>
-        ) : (
+        {hasHydrated && !hasGeneratedPlan && (
           <LinearGradient
             colors={["rgba(14, 20, 36, 0.9)", "rgba(9, 13, 26, 0.9)"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.planHeroCard}
           >
-            {/* Header Row */}
             <View style={styles.planHeroHeader}>
               <View style={styles.planHeroBadge}>
                 <Sparkles size={12} color="#38BDF8" />
                 <Text style={styles.planHeroBadgeText}>AI NUTRITIONIST</Text>
               </View>
             </View>
-
-            {/* Title & Description */}
-            <Text style={styles.planHeroTitle}>Personalized Nutrition Plan</Text>
+            <Text style={styles.planHeroTitle}>
+              Personalized Nutrition Plan
+            </Text>
             <Text style={styles.planHeroBody}>
               Smart macros and meal timing calibrated to your goal.
             </Text>
-
-            {/* Call to Action Button */}
             <Pressable
               style={({ pressed }) => [
                 styles.planHeroBtn,
@@ -430,13 +331,213 @@ export default function NutritionTabRoute() {
                 end={{ x: 1, y: 0.5 }}
                 style={styles.planHeroBtnGradient}
               >
-                <Sparkles color="#FFFFFF" size={15} style={{ marginRight: 6 }} />
+                <Sparkles
+                  color="#FFFFFF"
+                  size={15}
+                  style={{ marginRight: 6 }}
+                />
                 <Text style={styles.planHeroBtnText}>GENERATE PLAN</Text>
-                <ArrowRight color="#FFFFFF" size={14} style={{ marginLeft: 6 }} />
+                <ArrowRight
+                  color="#FFFFFF"
+                  size={14}
+                  style={{ marginLeft: 6 }}
+                />
               </LinearGradient>
             </Pressable>
           </LinearGradient>
         )}
+
+        <View style={styles.card}>
+          {/* Header: Badge + Actions */}
+          <View style={styles.cardHeaderRow}>
+            <View style={styles.budgetBadge}>
+              <Flame size={13} color="#38BDF8" />
+              <Text style={styles.budgetBadgeText}>DAILY ENERGY BUDGET</Text>
+            </View>
+            <View style={styles.cardActions}>
+              <Pressable
+                onPress={() => {
+                  triggerHaptic();
+                  router.push("/meal-history");
+                }}
+                style={({ pressed }) => [
+                  styles.headerLink,
+                  pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel="View meal logs"
+              >
+                <Text style={styles.headerLinkText} numberOfLines={1}>
+                  LOGS <Text style={styles.headerLinkArrow}>›</Text>
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Calorie Telemetry Row */}
+          <View style={styles.budgetRow}>
+            <Text style={styles.budgetMain}>
+              {loggedNutrition.calories.toLocaleString()}
+            </Text>
+            <Text style={styles.budgetTargetSlash}>/</Text>
+            <Text style={styles.budgetTargetTotal}>
+              {calorieTarget.toLocaleString()}
+            </Text>
+            <Text style={styles.budgetTargetUnit}>KCAL</Text>
+          </View>
+
+          {/* Progress Meter */}
+          <View style={styles.progressContainer}>
+            <View style={styles.progressBarBg}>
+              <LinearGradient
+                colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={[
+                  StyleSheet.absoluteFill,
+                  { width: `${calorieProgress}%` },
+                ]}
+              />
+            </View>
+            <View style={styles.progressMeta}>
+              <View style={styles.progressMetaLeft}>
+                <View style={styles.metaDot} />
+                <Text style={styles.progressRemaining}>
+                  {caloriesRemaining.toLocaleString()} KCAL REMAINING
+                </Text>
+              </View>
+              <Text style={styles.progressPercent}>
+                {calorieProgress}% CONSUMED
+              </Text>
+            </View>
+          </View>
+
+          {/* 3 Macro Cards with Micro Progress */}
+          <View style={styles.macrosRow}>
+            {/* Protein */}
+            <View
+              style={[
+                styles.macroBox,
+                { borderColor: "rgba(56, 189, 248, 0.22)" },
+              ]}
+            >
+              <View style={styles.macroHeader}>
+                <View
+                  style={[styles.macroDot, { backgroundColor: "#38BDF8" }]}
+                />
+                <Text style={[styles.macroLabel, { color: "#38BDF8" }]}>
+                  PROTEIN
+                </Text>
+              </View>
+              <View style={styles.macroValueRow}>
+                <Text style={styles.macroValue}>{loggedNutrition.protein}</Text>
+                <Text style={styles.macroUnit}>g</Text>
+              </View>
+              <Text style={styles.macroTarget}>of {proteinTarget}g</Text>
+              <View style={styles.macroTrackBg}>
+                <View
+                  style={[
+                    styles.macroTrackFill,
+                    {
+                      width: `${proteinTarget > 0 ? Math.min(100, Math.round((loggedNutrition.protein / proteinTarget) * 100)) : 0}%`,
+                      backgroundColor: "#38BDF8",
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+
+            {/* Carbs */}
+            <View
+              style={[
+                styles.macroBox,
+                { borderColor: "rgba(251, 191, 36, 0.22)" },
+              ]}
+            >
+              <View style={styles.macroHeader}>
+                <View
+                  style={[styles.macroDot, { backgroundColor: "#FBBF24" }]}
+                />
+                <Text style={[styles.macroLabel, { color: "#FBBF24" }]}>
+                  CARBS
+                </Text>
+              </View>
+              <View style={styles.macroValueRow}>
+                <Text style={styles.macroValue}>{loggedNutrition.carbs}</Text>
+                <Text style={styles.macroUnit}>g</Text>
+              </View>
+              <Text style={styles.macroTarget}>of {carbsTarget}g</Text>
+              <View style={styles.macroTrackBg}>
+                <View
+                  style={[
+                    styles.macroTrackFill,
+                    {
+                      width: `${carbsTarget > 0 ? Math.min(100, Math.round((loggedNutrition.carbs / carbsTarget) * 100)) : 0}%`,
+                      backgroundColor: "#FBBF24",
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+
+            {/* Fat */}
+            <View
+              style={[
+                styles.macroBox,
+                { borderColor: "rgba(251, 113, 133, 0.22)" },
+              ]}
+            >
+              <View style={styles.macroHeader}>
+                <View
+                  style={[styles.macroDot, { backgroundColor: "#FB7185" }]}
+                />
+                <Text style={[styles.macroLabel, { color: "#FB7185" }]}>
+                  FAT
+                </Text>
+              </View>
+              <View style={styles.macroValueRow}>
+                <Text style={styles.macroValue}>{loggedNutrition.fat}</Text>
+                <Text style={styles.macroUnit}>g</Text>
+              </View>
+              <Text style={styles.macroTarget}>of {fatTarget}g</Text>
+              <View style={styles.macroTrackBg}>
+                <View
+                  style={[
+                    styles.macroTrackFill,
+                    {
+                      width: `${fatTarget > 0 ? Math.min(100, Math.round((loggedNutrition.fat / fatTarget) * 100)) : 0}%`,
+                      backgroundColor: "#FB7185",
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* CTA Button */}
+          <Pressable
+            style={({ pressed }) => [
+              styles.scanBtn,
+              pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] },
+            ]}
+            onPress={() => {
+              triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+              router.push("/scan-meal");
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Scan today's meal"
+          >
+            <LinearGradient
+              colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.scanBtnGradient}
+            >
+              <Camera color="#FFFFFF" size={16} style={{ marginRight: 8 }} />
+              <Text style={styles.scanBtnText}>SCAN TODAY'S MEAL</Text>
+            </LinearGradient>
+          </Pressable>
+        </View>
 
         {/* Water Intake Card (Hydration Telemetry) */}
         <LinearGradient
@@ -448,9 +549,7 @@ export default function NutritionTabRoute() {
           <View style={styles.cardHeaderRow}>
             <View style={styles.hydrationBadge}>
               <Droplet size={13} color="#38BDF8" />
-              <Text style={styles.hydrationBadgeText}>
-                HYDRATION TELEMETRY
-              </Text>
+              <Text style={styles.hydrationBadgeText}>HYDRATION TELEMETRY</Text>
             </View>
             <View style={styles.hydrationHeaderActions}>
               <Pressable
@@ -467,7 +566,10 @@ export default function NutritionTabRoute() {
                   pressed && styles.hydrationIconBtnPressed,
                 ]}
               >
-                <Pencil size={13} color={isEditingGoal ? "#38BDF8" : "#94A3B8"} />
+                <Pencil
+                  size={13}
+                  color={isEditingGoal ? "#38BDF8" : "#94A3B8"}
+                />
               </Pressable>
 
               <Pressable
@@ -562,7 +664,9 @@ export default function NutritionTabRoute() {
                 <Text style={styles.ringMain}>{waterTotal.toFixed(1)}</Text>
                 <Text style={styles.ringUnit}>L</Text>
               </View>
-              <Text style={styles.ringGoal}>GOAL: {waterGoal.toFixed(1)} L</Text>
+              <Text style={styles.ringGoal}>
+                GOAL: {waterGoal.toFixed(1)} L
+              </Text>
             </View>
           </Pressable>
 
@@ -691,7 +795,8 @@ export default function NutritionTabRoute() {
                 <Text style={styles.nutritionCoachLabel}>AI COACH</Text>
               </View>
               <Text style={styles.nutritionCoachText}>
-                Need <Text style={styles.nutritionProtein}>24g protein</Text> today
+                Need <Text style={styles.nutritionProtein}>24g protein</Text>{" "}
+                today
               </Text>
             </View>
           </View>
@@ -709,9 +814,7 @@ export default function NutritionTabRoute() {
           <View style={styles.nutritionLunch}>
             <View style={styles.nutritionLunchLabelRow}>
               <Utensils size={12} color="#2DD4BF" />
-              <Text style={styles.nutritionLunchLabel}>
-                RECOMMENDED LUNCH
-              </Text>
+              <Text style={styles.nutritionLunchLabel}>RECOMMENDED LUNCH</Text>
             </View>
 
             <Text style={styles.nutritionLunchText}>
@@ -751,7 +854,7 @@ export default function NutritionTabRoute() {
             </View>
           </Pressable>
         </LinearGradient>
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       {/* Daily Hydration Target Modal */}
       <Modal
@@ -760,10 +863,11 @@ export default function NutritionTabRoute() {
         animationType="fade"
         onRequestClose={() => setIsEditingGoal(false)}
       >
-        <Pressable
-          style={styles.modalBackdrop}
-          onPress={() => setIsEditingGoal(false)}
-        >
+        <KeyboardAvoidingView behavior="padding" style={styles.modalBackdrop}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setIsEditingGoal(false)}
+          />
           <Pressable
             style={styles.modalCard}
             onPress={(e) => e.stopPropagation()}
@@ -772,7 +876,9 @@ export default function NutritionTabRoute() {
             <View style={styles.modalHeaderRow}>
               <View style={styles.modalHeaderBadge}>
                 <Droplet size={15} color="#38BDF8" />
-                <Text style={styles.modalHeaderTitle}>DAILY HYDRATION GOAL</Text>
+                <Text style={styles.modalHeaderTitle}>
+                  DAILY HYDRATION GOAL
+                </Text>
               </View>
               <Pressable
                 onPress={() => setIsEditingGoal(false)}
@@ -857,12 +963,17 @@ export default function NutritionTabRoute() {
                 end={{ x: 1, y: 0.5 }}
                 style={styles.modalSaveBtnGradient}
               >
-                <Check size={18} color="#FFFFFF" strokeWidth={2.8} style={{ marginRight: 6 }} />
+                <Check
+                  size={18}
+                  color="#FFFFFF"
+                  strokeWidth={2.8}
+                  style={{ marginRight: 6 }}
+                />
                 <Text style={styles.modalSaveBtnText}>SET DAILY GOAL</Text>
               </LinearGradient>
             </Pressable>
           </Pressable>
-        </Pressable>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
@@ -977,8 +1088,13 @@ const styles = StyleSheet.create({
   headerLink: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    flexWrap: "nowrap",
+    width: 62,
+    minWidth: 62,
+    height: 28,
+    flexShrink: 0,
     gap: 3,
-    paddingVertical: 5,
     paddingHorizontal: 9,
     borderRadius: 8,
     backgroundColor: "rgba(56, 189, 248, 0.08)",
@@ -991,6 +1107,14 @@ const styles = StyleSheet.create({
     fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "800",
     letterSpacing: 0.8,
+    lineHeight: 12,
+    includeFontPadding: false,
+    flexShrink: 0,
+  },
+  headerLinkArrow: {
+    fontSize: 15,
+    lineHeight: 15,
+    fontWeight: "900",
   },
   statusPill: {
     backgroundColor: "rgba(45, 212, 191, 0.12)",
@@ -1163,6 +1287,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     height: 48,
+    borderRadius: 14,
+    overflow: "hidden",
   },
   scanBtnText: {
     color: "#FFFFFF",
@@ -1591,6 +1717,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: 9,
+    overflow: "hidden",
   },
   saveInlineText: {
     color: "#FFFFFF",
@@ -1686,7 +1814,10 @@ const styles = StyleSheet.create({
     fontSize: 14.5,
     lineHeight: 20,
     fontWeight: "800",
-    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+    fontFamily: Platform.select({
+      android: "sans-serif-medium",
+      ios: "System",
+    }),
   },
   nutritionProtein: {
     color: "#2DD4BF",
@@ -1718,7 +1849,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 18,
     fontWeight: "700",
-    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+    fontFamily: Platform.select({
+      android: "sans-serif-medium",
+      ios: "System",
+    }),
   },
   nutritionLunchMacrosRow: {
     flexDirection: "row",

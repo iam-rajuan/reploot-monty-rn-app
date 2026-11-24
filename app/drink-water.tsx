@@ -16,15 +16,19 @@ import {
   Dimensions,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
-import { HORIZONTAL_PADDING, clampFontSize, isSmallDevice } from "@/shared/utils/responsive";
+import {
+  HORIZONTAL_PADDING,
+  clampFontSize,
+  isSmallDevice,
+} from "@/shared/utils/responsive";
 
 const { width } = Dimensions.get("window");
 
@@ -90,7 +94,8 @@ export default function DrinkWaterScreen() {
         transparent={true}
       />
 
-      <ScrollView
+      <KeyboardAwareScrollView
+        bottomOffset={16}
         contentContainerStyle={[
           styles.scrollContent,
           { paddingBottom: Math.max(insets.bottom + 60, 80) },
@@ -233,7 +238,7 @@ export default function DrinkWaterScreen() {
             <Text style={styles.saveBtnText}>SAVE HYDRATION LOG</Text>
           </LinearGradient>
         </Pressable>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </View>
   );
 }
@@ -272,7 +277,10 @@ const styles = StyleSheet.create({
     fontSize: clampFontSize(30),
     lineHeight: 36,
     fontWeight: "900",
-    fontFamily: Platform.select({ android: "sans-serif-medium", ios: "System" }),
+    fontFamily: Platform.select({
+      android: "sans-serif-medium",
+      ios: "System",
+    }),
     letterSpacing: 1,
     textTransform: "uppercase",
   },

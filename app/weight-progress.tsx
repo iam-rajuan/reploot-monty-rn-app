@@ -23,14 +23,15 @@ import React, { useState } from "react";
 import {
   Dimensions,
   Modal,
+  KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, {
   Circle,
@@ -180,7 +181,8 @@ export default function WeightProgressScreen() {
         }}
       />
 
-      <ScrollView
+      <KeyboardAwareScrollView
+        bottomOffset={16}
         contentContainerStyle={[
           styles.scrollContainer,
           { paddingBottom: Math.max(insets.bottom + 140, 160) },
@@ -516,7 +518,7 @@ export default function WeightProgressScreen() {
             <Text style={styles.startWorkoutText}>+ LOG MORNING WEIGHT</Text>
           </LinearGradient>
         </Pressable>
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       {/* Interactive Log Weight Modal */}
       <Modal
@@ -525,7 +527,7 @@ export default function WeightProgressScreen() {
         animationType="fade"
         onRequestClose={() => setIsLogModalVisible(false)}
       >
-        <View style={styles.modalBackdrop}>
+        <KeyboardAvoidingView behavior="padding" style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Log Current Weight</Text>
@@ -571,7 +573,7 @@ export default function WeightProgressScreen() {
               </LinearGradient>
             </Pressable>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

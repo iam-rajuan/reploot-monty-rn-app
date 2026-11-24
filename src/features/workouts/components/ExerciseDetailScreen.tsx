@@ -13,7 +13,6 @@ import { StatusBar } from "expo-status-bar";
 import {
   Check,
   ChevronDown,
-  Eye,
   Flame,
   Minus,
   MoveDiagonal,
@@ -24,11 +23,9 @@ import {
   TrendingUp,
   Video,
 } from "lucide-react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
-  Keyboard,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -37,6 +34,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
 import {
@@ -59,7 +57,6 @@ interface EditableSetValueProps {
   label: string;
   allowDecimal?: boolean;
   onCommit: (value: number) => void;
-  onFocusField: (nativeTarget: number) => void;
 }
 
 function EditableSetValue({
@@ -67,7 +64,6 @@ function EditableSetValue({
   label,
   allowDecimal = false,
   onCommit,
-  onFocusField,
 }: EditableSetValueProps) {
   const [draft, setDraft] = useState(String(value));
   const [isEditing, setIsEditing] = useState(false);
@@ -97,7 +93,6 @@ function EditableSetValue({
       value={draft}
       onFocus={(event) => {
         setIsEditing(true);
-        onFocusField(event.nativeEvent.target);
       }}
       onChangeText={(text) => {
         const normalized = text.replace(",", ".");
@@ -134,36 +129,11 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
   exerciseData,
   onBack,
   onStartExercise,
-  onViewFullWorkout,
   onMarkDone,
 }) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const scrollViewRef = useRef<ScrollView>(null);
-  const isRestFieldFocusedRef = useRef(false);
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-
-  useEffect(() => {
-    const keyboardShown = Keyboard.addListener("keyboardDidShow", (event) => {
-      Keyboard.scheduleLayoutAnimation(event);
-      setIsKeyboardVisible(true);
-      if (!isRestFieldFocusedRef.current) return;
-
-      requestAnimationFrame(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-      });
-    });
-    const keyboardHidden = Keyboard.addListener("keyboardDidHide", (event) => {
-      Keyboard.scheduleLayoutAnimation(event);
-      setIsKeyboardVisible(false);
-    });
-
-    return () => {
-      keyboardShown.remove();
-      keyboardHidden.remove();
-    };
-  }, []);
 
   // Selected Step Tab (0, 1, 2)
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
@@ -210,17 +180,6 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
           exerciseId: exerciseData.id,
         },
       });
-    }
-  };
-
-  const handleViewFullWorkout = () => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    }
-    if (onViewFullWorkout) {
-      onViewFullWorkout();
-    } else if (router.canGoBack()) {
-      router.back();
     }
   };
 
@@ -306,24 +265,6 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
     );
   };
 
-  const handleSetFieldFocus = (nativeTarget: number) => {
-    // Wait for Android's keyboard resize before calculating the visible area.
-    setTimeout(() => {
-      scrollViewRef.current?.scrollResponderScrollNativeHandleToKeyboard(
-        nativeTarget,
-        120,
-        true,
-      );
-    }, 220);
-  };
-
-  const handleRestFieldFocus = () => {
-    isRestFieldFocusedRef.current = true;
-    requestAnimationFrame(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-    });
-  };
-
   const currentStep =
     exerciseData.executionSteps[activeStepIndex] ||
     exerciseData.executionSteps[0];
@@ -374,448 +315,421 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
         onPressBack={handleBack}
       />
 
-      <KeyboardAvoidingView
+      <KeyboardAwareScrollView
         style={styles.keyboardAvoidingView}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "android" ? 24 : 0}
+        bottomOffset={16}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: Math.max(insets.bottom + 40, 60) },
+        ]}
       >
-        <ScrollView
-          ref={scrollViewRef}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              paddingBottom: isKeyboardVisible
-                ? 0
-                : Math.max(insets.bottom + 40, 60),
-            },
-          ]}
-        >
-          {/* Title Section with Masked Gradient Title (Exact progress.tsx / GenericWorkoutDetailScreen pattern) */}
-          <View style={styles.titleSection}>
-            <Text style={styles.categoryBadge}>EXERCISE TELEMETRY</Text>
-            <View style={styles.maskedTitleWrapper}>
-              <MaskedView
-                style={styles.maskedTitleView}
-                maskElement={
-                  <View style={styles.maskWrapper}>
-                    <Text
-                      style={styles.mainTitle}
-                      numberOfLines={2}
-                      adjustsFontSizeToFit
-                    >
-                      {"EXERCISE DETAILS"}
-                    </Text>
-                  </View>
-                }
-              >
-                <LinearGradient
-                  colors={["#00f2fe", "#4facfe"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.gradient}
-                />
-              </MaskedView>
-            </View>
-          </View>
-
-          {/* Hero Poster Card: Big glowing image with Focus Tag & Exercise Title */}
-          <View style={styles.heroPosterCard}>
-            <Image
-              source={exerciseData.heroImage}
-              style={styles.heroPosterImage}
-              contentFit="cover"
-            />
-            <LinearGradient
-              colors={[
-                "transparent",
-                "rgba(7, 10, 17, 0.4)",
-                "rgba(7, 10, 17, 0.95)",
-              ]}
-              locations={[0.3, 0.65, 1]}
-              style={styles.heroPosterGradient}
-            />
-            <View style={styles.heroPosterContent}>
-              <Text style={styles.heroFocusTag}>
-                {exerciseData.focusBadge || "POWER FOCUS"}
-              </Text>
-              <Text style={styles.heroExerciseTitle}>{exerciseData.title}</Text>
-            </View>
-          </View>
-
-          {/* Primary Action 1: START EXERCISE (Gradient CTA) */}
-          <Pressable
-            style={styles.startExerciseButton}
-            onPress={handleStartExercise}
-          >
-            <LinearGradient
-              colors={["#3877E3", "#5C99F8"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.startExerciseGradient}
-            >
-              <View style={styles.playIconCircle}>
-                <Play size={14} color="#3877E3" fill="#3877E3" />
-              </View>
-              <Text style={styles.startExerciseText}>START EXERCISE</Text>
-            </LinearGradient>
-          </Pressable>
-
-          {/* Secondary Action 2: VIEW FULL WORKOUT */}
-          <Pressable
-            style={styles.secondaryOutlineButton}
-            onPress={handleViewFullWorkout}
-          >
-            <Eye size={17} color="#FFFFFF" />
-            <Text style={styles.secondaryButtonText}>VIEW FULL WORKOUT</Text>
-          </Pressable>
-
-          {/* Secondary Action 3: MARK AS DONE */}
-          <Pressable
-            style={[
-              styles.markDoneButton,
-              isMarkedDone && styles.markDoneButtonActive,
-            ]}
-            onPress={handleToggleMarkDone}
-          >
-            <View
-              style={[
-                styles.markDoneCheckCircle,
-                isMarkedDone && styles.markDoneCheckCircleActive,
-              ]}
-            >
-              <Check size={13} color="#070A11" strokeWidth={3} />
-            </View>
-            <Text
-              style={[
-                styles.markDoneText,
-                isMarkedDone && styles.markDoneTextActive,
-              ]}
-            >
-              {isMarkedDone ? "COMPLETED" : "MARK AS DONE"}
-            </Text>
-          </Pressable>
-
-          {/* Video Demo Section Header */}
-          <View style={styles.demoHeaderRow}>
-            <View style={styles.demoTitleLeft}>
-              <Video size={17} color="#44EAC3" />
-              <Text style={styles.demoHeaderTitle}>WATCH DEMO</Text>
-            </View>
-            <Text style={styles.demoTrackingText}>REAL-TIME AI TRACKING</Text>
-          </View>
-
-          {/* Video Demo Thumbnail Card with Play Overlay */}
-          <View style={styles.demoThumbnailCard}>
-            <Image
-              source={
-                exerciseData.demoVideoThumbnail ||
-                require("../../../../assets/workoutLibraryDetails/wld_hero.png")
-              }
-              style={styles.demoThumbnailImage}
-              contentFit="cover"
-            />
-            <LinearGradient
-              colors={["rgba(10, 14, 24, 0.2)", "rgba(10, 14, 24, 0.85)"]}
-              style={styles.demoThumbnailGradient}
-            />
-            <View style={styles.demoPlayCenter}>
-              <View style={styles.demoPlayOuterRing}>
-                <Play
-                  size={22}
-                  color="#44EAC3"
-                  fill="#44EAC3"
-                  style={{ marginLeft: 3 }}
-                />
-              </View>
-              <Text style={styles.demoCardTitle}>
-                {exerciseData.demoTitle || "POWER UP"}
-              </Text>
-              <Text style={styles.demoCardSubtitle}>
-                {exerciseData.demoSubtitle || "GEN-Z FIT APP DEMO"}
-              </Text>
-            </View>
-          </View>
-
-          {/* Execution Steps Card with Multi-Tab switcher */}
-          <View style={styles.stepsCard}>
-            <View style={styles.stepsHeaderRow}>
-              <View style={styles.stepsHeaderLeft}>
-                <View style={styles.stepsIconBadge}>
-                  <Sliders size={15} color="#818CF8" />
-                </View>
-                <Text style={styles.stepsHeaderText}>EXECUTION STEPS</Text>
-              </View>
-              <ChevronDown size={18} color="#94A3B8" />
-            </View>
-
-            {/* Steps Tabs (01 SETUP, 02 DESCENT, 03 PRESS) */}
-            <View style={styles.stepTabsRow}>
-              {exerciseData.executionSteps.map((step, idx) => {
-                const isSelected = idx === activeStepIndex;
-                return (
-                  <Pressable
-                    key={step.id}
-                    style={[
-                      styles.stepTabButton,
-                      isSelected && styles.stepTabButtonActive,
-                    ]}
-                    onPress={() => handleStepSelect(idx)}
+        {/* Title Section with Masked Gradient Title (Exact progress.tsx / GenericWorkoutDetailScreen pattern) */}
+        <View style={styles.titleSection}>
+          <Text style={styles.categoryBadge}>EXERCISE TELEMETRY</Text>
+          <View style={styles.maskedTitleWrapper}>
+            <MaskedView
+              style={styles.maskedTitleView}
+              maskElement={
+                <View style={styles.maskWrapper}>
+                  <Text
+                    style={styles.mainTitle}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
                   >
-                    <Text
-                      style={[
-                        styles.stepTabText,
-                        isSelected && styles.stepTabTextActive,
-                      ]}
-                    >
-                      {step.tabLabel}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* Step Detail Content Card */}
-            <View style={styles.stepDetailContentCard}>
-              <View style={styles.stepTitleRow}>
-                <View style={styles.stepNumberBadge}>
-                  <Text style={styles.stepNumberText}>
-                    {currentStep.stepNumber}
+                    {"EXERCISE DETAILS"}
                   </Text>
                 </View>
-                <Text style={styles.stepTitle}>{currentStep.title}</Text>
-              </View>
-
-              <Text style={styles.stepDescription}>
-                {currentStep.description}
-              </Text>
-
-              {/* Coach Cue */}
-              <View style={styles.coachCueRow}>
-                <Radio size={14} color="#44EAC3" />
-                <Text style={styles.coachCueText}>
-                  <Text style={styles.coachCueBold}>Coach Cue: </Text>
-                  {currentStep.coachCue}
-                </Text>
-              </View>
-            </View>
+              }
+            >
+              <LinearGradient
+                colors={["#00f2fe", "#4facfe"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.gradient}
+              />
+            </MaskedView>
           </View>
+        </View>
 
-          {/* Target Areas Card with Anatomical / Kinetic Thumbnail */}
-          <View style={styles.targetAreasCard}>
-            <View style={styles.targetBodyThumbBox}>
-              <Image
-                source={require("../../../../assets/workoutLibraryDetails/wld4.png")}
-                style={styles.targetBodyImage}
-                contentFit="cover"
+        {/* Hero Poster Card: Big glowing image with Focus Tag & Exercise Title */}
+        <View style={styles.heroPosterCard}>
+          <Image
+            source={exerciseData.heroImage}
+            style={styles.heroPosterImage}
+            contentFit="cover"
+          />
+          <LinearGradient
+            colors={[
+              "transparent",
+              "rgba(7, 10, 17, 0.4)",
+              "rgba(7, 10, 17, 0.95)",
+            ]}
+            locations={[0.3, 0.65, 1]}
+            style={styles.heroPosterGradient}
+          />
+          <View style={styles.heroPosterContent}>
+            <Text style={styles.heroFocusTag}>
+              {exerciseData.focusBadge || "POWER FOCUS"}
+            </Text>
+            <Text style={styles.heroExerciseTitle}>{exerciseData.title}</Text>
+          </View>
+        </View>
+
+        {/* Primary Action 1: START EXERCISE (Gradient CTA) */}
+        <Pressable
+          style={styles.startExerciseButton}
+          onPress={handleStartExercise}
+        >
+          <LinearGradient
+            colors={["#3877E3", "#5C99F8"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.startExerciseGradient}
+          >
+            <View style={styles.playIconCircle}>
+              <Play size={14} color="#3877E3" fill="#3877E3" />
+            </View>
+            <Text style={styles.startExerciseText}>START EXERCISE</Text>
+          </LinearGradient>
+        </Pressable>
+
+        {/* Secondary Action: MARK AS DONE */}
+        <Pressable
+          style={[
+            styles.markDoneButton,
+            isMarkedDone && styles.markDoneButtonActive,
+          ]}
+          onPress={handleToggleMarkDone}
+        >
+          <View
+            style={[
+              styles.markDoneCheckCircle,
+              isMarkedDone && styles.markDoneCheckCircleActive,
+            ]}
+          >
+            <Check size={13} color="#070A11" strokeWidth={3} />
+          </View>
+          <Text
+            style={[
+              styles.markDoneText,
+              isMarkedDone && styles.markDoneTextActive,
+            ]}
+          >
+            {isMarkedDone ? "COMPLETED" : "MARK AS DONE"}
+          </Text>
+        </Pressable>
+
+        {/* Video Demo Section Header */}
+        <View style={styles.demoHeaderRow}>
+          <View style={styles.demoTitleLeft}>
+            <Video size={17} color="#44EAC3" />
+            <Text style={styles.demoHeaderTitle}>WATCH DEMO</Text>
+          </View>
+          <Text style={styles.demoTrackingText}>REAL-TIME AI TRACKING</Text>
+        </View>
+
+        {/* Video Demo Thumbnail Card with Play Overlay */}
+        <View style={styles.demoThumbnailCard}>
+          <Image
+            source={
+              exerciseData.demoVideoThumbnail ||
+              require("../../../../assets/workoutLibraryDetails/wld_hero.png")
+            }
+            style={styles.demoThumbnailImage}
+            contentFit="cover"
+          />
+          <LinearGradient
+            colors={["rgba(10, 14, 24, 0.2)", "rgba(10, 14, 24, 0.85)"]}
+            style={styles.demoThumbnailGradient}
+          />
+          <View style={styles.demoPlayCenter}>
+            <View style={styles.demoPlayOuterRing}>
+              <Play
+                size={22}
+                color="#44EAC3"
+                fill="#44EAC3"
+                style={{ marginLeft: 3 }}
               />
             </View>
-            <View style={styles.targetInfoCol}>
-              <Text style={styles.targetAreasHeader}>Target Areas</Text>
-              <Text style={styles.targetMusclePrimary}>
-                {exerciseData.targetAreasTitle || "Chest & Triceps"}
-              </Text>
-              <View style={styles.muscleTagsRow}>
-                {exerciseData.targetTags.map((tag) => (
-                  <View key={tag} style={styles.muscleTagPill}>
-                    <Text style={styles.muscleTagText}>{tag}</Text>
-                  </View>
-                ))}
+            <Text style={styles.demoCardTitle}>
+              {exerciseData.demoTitle || "POWER UP"}
+            </Text>
+            <Text style={styles.demoCardSubtitle}>
+              {exerciseData.demoSubtitle || "GEN-Z FIT APP DEMO"}
+            </Text>
+          </View>
+        </View>
+
+        {/* Execution Steps Card with Multi-Tab switcher */}
+        <View style={styles.stepsCard}>
+          <View style={styles.stepsHeaderRow}>
+            <View style={styles.stepsHeaderLeft}>
+              <View style={styles.stepsIconBadge}>
+                <Sliders size={15} color="#818CF8" />
               </View>
+              <Text style={styles.stepsHeaderText}>EXECUTION STEPS</Text>
             </View>
+            <ChevronDown size={18} color="#94A3B8" />
           </View>
 
-          {/* 3-Col Meta Attributes (Equipment, Difficulty, Calories) */}
-          <View style={styles.metaStatsRow}>
-            <View style={styles.metaStatBox}>
-              <MoveDiagonal size={16} color="#818CF8" />
-              <Text style={styles.metaStatLabel}>EQUIPMENT</Text>
-              <Text style={styles.metaStatValue}>
-                {exerciseData.equipment || "Barbell"}
-              </Text>
-            </View>
-
-            <View style={styles.metaStatBox}>
-              <TrendingUp size={16} color="#34D399" />
-              <Text style={styles.metaStatLabel}>DIFFICULTY</Text>
-              <Text style={styles.metaStatValue}>
-                {exerciseData.difficulty || "Intm."}
-              </Text>
-            </View>
-
-            <View style={styles.metaStatBox}>
-              <Flame size={16} color="#FB923C" />
-              <Text style={styles.metaStatLabel}>CALORIES</Text>
-              <Text style={styles.metaStatValue}>
-                {exerciseData.calories || "120 kcal"}
-              </Text>
-            </View>
+          {/* Steps Tabs (01 SETUP, 02 DESCENT, 03 PRESS) */}
+          <View style={styles.stepTabsRow}>
+            {exerciseData.executionSteps.map((step, idx) => {
+              const isSelected = idx === activeStepIndex;
+              return (
+                <Pressable
+                  key={step.id}
+                  style={[
+                    styles.stepTabButton,
+                    isSelected && styles.stepTabButtonActive,
+                  ]}
+                  onPress={() => handleStepSelect(idx)}
+                >
+                  <Text
+                    style={[
+                      styles.stepTabText,
+                      isSelected && styles.stepTabTextActive,
+                    ]}
+                  >
+                    {step.tabLabel}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
 
-          {/* Sets & Reps Interactive Telemetry Card */}
-          <View style={styles.setsRepsCard}>
-            <View style={styles.setsRepsHeaderRow}>
-              <View style={styles.setsRepsHeaderLeft}>
-                <Sliders size={16} color="#818CF8" />
-                <Text style={styles.setsRepsHeaderText}>SETS & REPS</Text>
+          {/* Step Detail Content Card */}
+          <View style={styles.stepDetailContentCard}>
+            <View style={styles.stepTitleRow}>
+              <View style={styles.stepNumberBadge}>
+                <Text style={styles.stepNumberText}>
+                  {currentStep.stepNumber}
+                </Text>
               </View>
-              <View style={styles.targetBadge}>
-                <Text style={styles.targetBadgeText}>TARGET</Text>
-              </View>
+              <Text style={styles.stepTitle}>{currentStep.title}</Text>
             </View>
 
-            {/* Sets Incrementer Row */}
-            <View style={styles.setsCounterRow}>
-              <Pressable
-                style={styles.counterBtn}
-                onPress={() => handleModifySets(-1)}
-              >
-                <Minus size={16} color="#FFFFFF" />
-              </Pressable>
-              <View style={styles.setsDisplayNumber}>
-                <Text style={styles.setsNumberLarge}>{totalSetsCount}</Text>
-                <Text style={styles.setsNumberLabel}>SETS</Text>
-              </View>
-              <Pressable
-                style={styles.counterBtn}
-                onPress={() => handleModifySets(1)}
-              >
-                <Plus size={16} color="#FFFFFF" />
-              </Pressable>
-            </View>
-
-            <Text style={styles.pyramidProtocolText}>
-              TARGET REPS & WEIGHT PER SET:{" "}
-              <Text style={styles.pyramidProtocolCyan}>
-                PROGRESSIVE PYRAMID
-              </Text>
+            <Text style={styles.stepDescription}>
+              {currentStep.description}
             </Text>
 
-            {/* Interactive Columns for Sets (Horizontally scrollable when > 4 sets) */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={[
-                styles.setColumnsScrollContent,
-                sets.length <= 3 && styles.setColumnsScrollContentFit,
-              ]}
-            >
-              {sets.map((item, index) => (
-                <View
-                  key={item.setNumber}
-                  style={[
-                    styles.setColumnItem,
-                    sets.length <= 3 && styles.setColumnItemFlexible,
-                  ]}
-                >
-                  <Text style={styles.setColNumberLabel}>
-                    SET {item.setNumber}
-                  </Text>
-                  <Text style={styles.setColSubLabel}>REPS</Text>
+            {/* Coach Cue */}
+            <View style={styles.coachCueRow}>
+              <Radio size={14} color="#44EAC3" />
+              <Text style={styles.coachCueText}>
+                <Text style={styles.coachCueBold}>Coach Cue: </Text>
+                {currentStep.coachCue}
+              </Text>
+            </View>
+          </View>
+        </View>
 
-                  {/* Reps Counter */}
-                  <View style={styles.miniStepperRow}>
-                    <Pressable
-                      style={styles.miniStepperBtn}
-                      onPress={() => handleUpdateSet(index, "reps", -1)}
-                    >
-                      <Minus size={11} color="#94A3B8" />
-                    </Pressable>
-                    <EditableSetValue
-                      value={item.reps}
-                      label={`Reps for set ${item.setNumber}`}
-                      onCommit={(value) =>
-                        handleSetValueCommit(index, "reps", value)
-                      }
-                      onFocusField={handleSetFieldFocus}
-                    />
-                    <Pressable
-                      style={styles.miniStepperBtn}
-                      onPress={() => handleUpdateSet(index, "reps", 1)}
-                    >
-                      <Plus size={11} color="#94A3B8" />
-                    </Pressable>
-                  </View>
-
-                  <Text style={styles.setColSubLabel}>WEIGHT</Text>
-
-                  {/* Weight Counter */}
-                  <View style={styles.miniStepperRow}>
-                    <Pressable
-                      style={styles.miniStepperBtn}
-                      onPress={() => handleUpdateSet(index, "weightKg", -1)}
-                    >
-                      <Minus size={11} color="#94A3B8" />
-                    </Pressable>
-                    <EditableSetValue
-                      value={item.weightKg}
-                      label={`Weight for set ${item.setNumber}`}
-                      allowDecimal
-                      onCommit={(value) =>
-                        handleSetValueCommit(index, "weightKg", value)
-                      }
-                      onFocusField={handleSetFieldFocus}
-                    />
-                    <Pressable
-                      style={styles.miniStepperBtn}
-                      onPress={() => handleUpdateSet(index, "weightKg", 1)}
-                    >
-                      <Plus size={11} color="#94A3B8" />
-                    </Pressable>
-                  </View>
+        {/* Target Areas Card with Anatomical / Kinetic Thumbnail */}
+        <View style={styles.targetAreasCard}>
+          <View style={styles.targetBodyThumbBox}>
+            <Image
+              source={require("../../../../assets/workoutLibraryDetails/wld4.png")}
+              style={styles.targetBodyImage}
+              contentFit="cover"
+            />
+          </View>
+          <View style={styles.targetInfoCol}>
+            <Text style={styles.targetAreasHeader}>Target Areas</Text>
+            <Text style={styles.targetMusclePrimary}>
+              {exerciseData.targetAreasTitle || "Chest & Triceps"}
+            </Text>
+            <View style={styles.muscleTagsRow}>
+              {exerciseData.targetTags.map((tag) => (
+                <View key={tag} style={styles.muscleTagPill}>
+                  <Text style={styles.muscleTagText}>{tag}</Text>
                 </View>
               ))}
-            </ScrollView>
+            </View>
+          </View>
+        </View>
+
+        {/* 3-Col Meta Attributes (Equipment, Difficulty, Calories) */}
+        <View style={styles.metaStatsRow}>
+          <View style={styles.metaStatBox}>
+            <MoveDiagonal size={16} color="#818CF8" />
+            <Text style={styles.metaStatLabel}>EQUIPMENT</Text>
+            <Text style={styles.metaStatValue}>
+              {exerciseData.equipment || "Barbell"}
+            </Text>
           </View>
 
-          {/* Rest Period Customization Card */}
-          <View style={styles.restPeriodCard}>
-            <View style={styles.restHeaderRow}>
-              <Text style={styles.restHeaderTitle}>REST PERIOD</Text>
-              <Text style={styles.restTargetLabel}>TARGET</Text>
+          <View style={styles.metaStatBox}>
+            <TrendingUp size={16} color="#34D399" />
+            <Text style={styles.metaStatLabel}>DIFFICULTY</Text>
+            <Text style={styles.metaStatValue}>
+              {exerciseData.difficulty || "Intm."}
+            </Text>
+          </View>
+
+          <View style={styles.metaStatBox}>
+            <Flame size={16} color="#FB923C" />
+            <Text style={styles.metaStatLabel}>CALORIES</Text>
+            <Text style={styles.metaStatValue}>
+              {exerciseData.calories || "120 kcal"}
+            </Text>
+          </View>
+        </View>
+
+        {/* Sets & Reps Interactive Telemetry Card */}
+        <View style={styles.setsRepsCard}>
+          <View style={styles.setsRepsHeaderRow}>
+            <View style={styles.setsRepsHeaderLeft}>
+              <Sliders size={16} color="#818CF8" />
+              <Text style={styles.setsRepsHeaderText}>SETS & REPS</Text>
             </View>
+            <View style={styles.targetBadge}>
+              <Text style={styles.targetBadgeText}>TARGET</Text>
+            </View>
+          </View>
 
-            <View style={styles.restInputRow}>
-              <View style={styles.restInputBox}>
-                <TextInput
-                  value={restSeconds}
-                  onChangeText={setRestSeconds}
-                  onFocus={handleRestFieldFocus}
-                  onBlur={() => {
-                    isRestFieldFocusedRef.current = false;
-                  }}
-                  keyboardType="numeric"
-                  inputMode="numeric"
-                  showSoftInputOnFocus
-                  returnKeyType="done"
-                  selectTextOnFocus
-                  style={styles.restTextInput}
-                  placeholderTextColor="#64748B"
-                  placeholder="Custom sec"
-                />
-                <Text style={styles.restSecLabel}>SEC</Text>
-              </View>
+          {/* Sets Incrementer Row */}
+          <View style={styles.setsCounterRow}>
+            <Pressable
+              style={styles.counterBtn}
+              onPress={() => handleModifySets(-1)}
+            >
+              <Minus size={16} color="#FFFFFF" />
+            </Pressable>
+            <View style={styles.setsDisplayNumber}>
+              <Text style={styles.setsNumberLarge}>{totalSetsCount}</Text>
+              <Text style={styles.setsNumberLabel}>SETS</Text>
+            </View>
+            <Pressable
+              style={styles.counterBtn}
+              onPress={() => handleModifySets(1)}
+            >
+              <Plus size={16} color="#FFFFFF" />
+            </Pressable>
+          </View>
 
-              <Pressable
-                style={styles.setRestButton}
-                onPress={() => {
-                  if (Platform.OS !== "web") {
-                    Haptics.notificationAsync(
-                      Haptics.NotificationFeedbackType.Success,
-                    ).catch(() => {});
-                  }
-                }}
+          <Text style={styles.pyramidProtocolText}>
+            TARGET REPS & WEIGHT PER SET:{" "}
+            <Text style={styles.pyramidProtocolCyan}>PROGRESSIVE PYRAMID</Text>
+          </Text>
+
+          {/* Interactive Columns for Sets (Horizontally scrollable when > 4 sets) */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[
+              styles.setColumnsScrollContent,
+              sets.length <= 3 && styles.setColumnsScrollContentFit,
+            ]}
+          >
+            {sets.map((item, index) => (
+              <View
+                key={item.setNumber}
+                style={[
+                  styles.setColumnItem,
+                  sets.length <= 3 && styles.setColumnItemFlexible,
+                ]}
               >
-                <Check size={12} color="#070A11" strokeWidth={3} />
-                <Text style={styles.setRestButtonText}>SET</Text>
-              </Pressable>
-            </View>
+                <Text style={styles.setColNumberLabel}>
+                  SET {item.setNumber}
+                </Text>
+                <Text style={styles.setColSubLabel}>REPS</Text>
+
+                {/* Reps Counter */}
+                <View style={styles.miniStepperRow}>
+                  <Pressable
+                    style={styles.miniStepperBtn}
+                    onPress={() => handleUpdateSet(index, "reps", -1)}
+                  >
+                    <Minus size={11} color="#94A3B8" />
+                  </Pressable>
+                  <EditableSetValue
+                    value={item.reps}
+                    label={`Reps for set ${item.setNumber}`}
+                    onCommit={(value) =>
+                      handleSetValueCommit(index, "reps", value)
+                    }
+                  />
+                  <Pressable
+                    style={styles.miniStepperBtn}
+                    onPress={() => handleUpdateSet(index, "reps", 1)}
+                  >
+                    <Plus size={11} color="#94A3B8" />
+                  </Pressable>
+                </View>
+
+                <Text style={styles.setColSubLabel}>WEIGHT</Text>
+
+                {/* Weight Counter */}
+                <View style={styles.miniStepperRow}>
+                  <Pressable
+                    style={styles.miniStepperBtn}
+                    onPress={() => handleUpdateSet(index, "weightKg", -1)}
+                  >
+                    <Minus size={11} color="#94A3B8" />
+                  </Pressable>
+                  <EditableSetValue
+                    value={item.weightKg}
+                    label={`Weight for set ${item.setNumber}`}
+                    allowDecimal
+                    onCommit={(value) =>
+                      handleSetValueCommit(index, "weightKg", value)
+                    }
+                  />
+                  <Pressable
+                    style={styles.miniStepperBtn}
+                    onPress={() => handleUpdateSet(index, "weightKg", 1)}
+                  >
+                    <Plus size={11} color="#94A3B8" />
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Rest Period Customization Card */}
+        <View style={styles.restPeriodCard}>
+          <View style={styles.restHeaderRow}>
+            <Text style={styles.restHeaderTitle}>REST PERIOD</Text>
+            <Text style={styles.restTargetLabel}>TARGET</Text>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+          <View style={styles.restInputRow}>
+            <View style={styles.restInputBox}>
+              <TextInput
+                value={restSeconds}
+                onChangeText={setRestSeconds}
+                keyboardType="numeric"
+                inputMode="numeric"
+                showSoftInputOnFocus
+                returnKeyType="done"
+                selectTextOnFocus
+                style={styles.restTextInput}
+                placeholderTextColor="#64748B"
+                placeholder="Custom sec"
+              />
+              <Text style={styles.restSecLabel}>SEC</Text>
+            </View>
+
+            <Pressable
+              style={styles.setRestButton}
+              onPress={() => {
+                if (Platform.OS !== "web") {
+                  Haptics.notificationAsync(
+                    Haptics.NotificationFeedbackType.Success,
+                  ).catch(() => {});
+                }
+              }}
+            >
+              <Check size={12} color="#070A11" strokeWidth={3} />
+              <Text style={styles.setRestButtonText}>SET</Text>
+            </Pressable>
+          </View>
+        </View>
+      </KeyboardAwareScrollView>
     </View>
   );
 };
@@ -833,7 +747,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   titleSection: {
-    marginBottom: 20,
+    marginBottom: 14,
     marginTop: 4,
   },
   categoryBadge: {
@@ -846,7 +760,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   maskedTitleWrapper: {
-    height: 74,
+    height: 38,
     width: "100%",
     marginBottom: 4,
   },
@@ -864,8 +778,8 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 36,
+    fontSize: 24,
+    lineHeight: 30,
     fontWeight: "900",
     fontFamily: "monospace",
     letterSpacing: 1.2,
@@ -961,27 +875,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "monospace",
     fontWeight: "900",
-    letterSpacing: 1.2,
-  },
-
-  secondaryOutlineButton: {
-    width: "100%",
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 1.2,
-    borderColor: "rgba(255, 255, 255, 0.22)",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    marginBottom: 12,
-  },
-  secondaryButtonText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
     letterSpacing: 1.2,
   },
 

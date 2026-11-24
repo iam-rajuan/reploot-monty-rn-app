@@ -5,7 +5,8 @@ import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Check } from "lucide-react-native";
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
 import { BottomActions } from "./_components/BottomActions";
@@ -47,7 +48,8 @@ export default function AccountSettingsRoute() {
         transparent={true}
       />
 
-      <ScrollView
+      <KeyboardAwareScrollView
+        bottomOffset={16}
         contentContainerStyle={[
           styles.scrollContent,
           { paddingBottom: Math.max(insets.bottom + 40, 60) },
@@ -84,7 +86,7 @@ export default function AccountSettingsRoute() {
         <CredentialsCard onPasswordUpdated={handlePasswordUpdated} />
         <LinksCard />
         <BottomActions />
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       {/* Floating Cyber HUD Toast */}
       {toastMessage && (

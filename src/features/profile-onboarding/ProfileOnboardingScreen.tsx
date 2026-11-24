@@ -2,7 +2,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import {
+  KeyboardAwareScrollView,
+  type KeyboardAwareScrollViewRef,
+} from "react-native-keyboard-controller";
 import Animated, { FadeInLeft, FadeInRight } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
@@ -18,7 +22,7 @@ export function ProfileOnboardingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { currentStep, prevStep } = useProfileSetupStore();
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<KeyboardAwareScrollViewRef>(null);
   const prevStepRef = useRef(currentStep);
   const isForward = currentStep >= prevStepRef.current;
 
@@ -81,10 +85,12 @@ export function ProfileOnboardingScreen() {
           showBack={currentStep > 1}
         />
       </View>
-      <ScrollView
+      <KeyboardAwareScrollView
         ref={scrollRef}
+        bottomOffset={16}
         bounces={false}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled={true}
         style={styles.scrollView}
@@ -106,7 +112,7 @@ export function ProfileOnboardingScreen() {
           {currentStep === 4 && <Step4YourStyle />}
           {currentStep === 5 && <Step5YourCoach />}
         </Animated.View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </View>
   );
 }

@@ -1,14 +1,16 @@
 import React from "react";
 import {
   View,
-  ScrollView,
   KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   ViewStyle,
   StatusBar,
 } from "react-native";
-import { useSafeAreaInsets, SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import {
+  useSafeAreaInsets,
+  SafeAreaView,
+} from "react-native-safe-area-context";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { colors } from "@/theme/colors";
 
@@ -46,7 +48,8 @@ export const Screen: React.FC<ScreenProps> = ({
   };
 
   const content = scrollable ? (
-    <ScrollView
+    <KeyboardAwareScrollView
+      bottomOffset={16}
       style={{ flex: 1 }}
       contentContainerStyle={[
         innerStyle,
@@ -54,18 +57,21 @@ export const Screen: React.FC<ScreenProps> = ({
         contentContainerStyle,
       ]}
       keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
       showsVerticalScrollIndicator={false}
     >
       {children}
-    </ScrollView>
+    </KeyboardAwareScrollView>
   ) : (
-    <View style={[{ flex: 1 }, innerStyle, contentContainerStyle]}>{children}</View>
+    <View style={[{ flex: 1 }, innerStyle, contentContainerStyle]}>
+      {children}
+    </View>
   );
 
   return (
     <View style={[containerStyle, style]}>
       <ExpoStatusBar style={statusBarStyle} />
-      {keyboardAvoid && Platform.OS === "ios" ? (
+      {keyboardAvoid && !scrollable ? (
         <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
           {content}
         </KeyboardAvoidingView>

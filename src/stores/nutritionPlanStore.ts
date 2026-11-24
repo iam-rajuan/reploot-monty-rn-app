@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import * as SecureStore from "expo-secure-store";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 export interface UnifiedMeal {
   id: number;
@@ -27,7 +29,7 @@ export const INITIAL_MEALS: UnifiedMeal[] = [
     carbs: 34,
     fat: 16,
     prepTime: "10m",
-    completed: true,
+    completed: false,
   },
   {
     id: 2,
@@ -81,13 +83,14 @@ export interface ScannedMealInput {
 }
 
 interface NutritionPlanState {
+  hasHydrated: boolean;
   hasGeneratedPlan: boolean;
   lastApprovedAdjustment: string | null;
   meals: UnifiedMeal[];
   lastSavedMealId: number | null;
 
   activateGeneratedPlan: () => void;
-  resetGeneratedPlan: () => void;
+  setHasHydrated: (value: boolean) => void;
   approvePlanAdjustment: (summary: string) => void;
 
   toggleMealLog: (id: number) => void;
@@ -100,102 +103,142 @@ interface NutritionPlanState {
   logScannedMeal: (mealData: ScannedMealInput) => number;
 }
 
-export const useNutritionPlanStore = create<NutritionPlanState>((set, get) => ({
-  hasGeneratedPlan: false,
-  lastApprovedAdjustment: null,
-  meals: INITIAL_MEALS,
-  lastSavedMealId: null,
+export const useNutritionPlanStore = create<NutritionPlanState>()(
+  persist(
+    (set, get) => ({
+      hasHydrated: false,
+      hasGeneratedPlan: false,
+      lastApprovedAdjustment: null,
+      meals: INITIAL_MEALS,
+      lastSavedMealId: null,
 
-  activateGeneratedPlan: () => set({ hasGeneratedPlan: true }),
-  resetGeneratedPlan: () =>
-    set({ hasGeneratedPlan: false, lastApprovedAdjustment: null }),
-  approvePlanAdjustment: (summary: string) =>
-    set({ lastApprovedAdjustment: summary }),
+      activateGeneratedPlan: () => set({ hasGeneratedPlan: true }),
+      setHasHydrated: (value: boolean) => set({ hasHydrated: value }),
+      approvePlanAdjustment: (summary: string) =>
+        set({ lastApprovedAdjustment: summary }),
 
-  toggleMealLog: (id: number) =>
-    set((state) => ({
-      meals: state.meals.map((m) =>
-        m.id === id ? { ...m, completed: !m.completed } : m,
-      ),
-    })),
+      toggleMealLog: (id: number) =>
+        set((state) => ({
+          meals: state.meals.map((m) =>
+            m.id === id
+              ? {
+                  ...m,
+                  completed: !m.completed,
+                  loggedAt: !m.completed ? new Date().toISOString() : undefined,
+                }
+              : m,
+          ),
+        })),
 
-  regenerateMeal: (id: number) =>
-    set((state) => ({
-      meals: state.meals.map((meal) =>
-        meal.id === id
-          ? {
-              ...meal,
-              completed: false,
-              calories: Math.max(
-                100,
-                meal.calories + Math.floor(Math.random() * 81) - 40,
-              ),
-            }
-          : meal,
-      ),
-    })),
+      regenerateMeal: (id: number) =>
+        set((state) => ({
+          meals: state.meals.map((meal) =>
+            meal.id === id
+              ? {
+                  ...meal,
+                  completed: false,
+                  calories: Math.max(
+                    100,
+                    meal.calories + Math.floor(Math.random() * 81) - 40,
+                  ),
+                }
+              : meal,
+          ),
+        })),
 
-  deleteMeal: (id: number) =>
-    set((state) => ({
-      meals: state.meals.filter((m) => m.id !== id),
-    })),
+      deleteMeal: (id: number) =>
+        set((state) => ({
+          meals: state.meals.filter((m) => m.id !== id),
+        })),
 
-  reorderMeals: (orderedMealIds: number[]) =>
-    set((state) => {
-      const mealsById = new Map(state.meals.map((meal) => [meal.id, meal]));
-      const orderedMeals = orderedMealIds
-        .map((id) => mealsById.get(id))
-        .filter((meal): meal is UnifiedMeal => Boolean(meal));
-      const requestedIds = new Set(orderedMealIds);
+      reorderMeals: (orderedMealIds: number[]) =>
+        set((state) => {
+          const mealsById = new Map(state.meals.map((meal) => [meal.id, meal]));
+          const orderedMeals = orderedMealIds
+            .map((id) => mealsById.get(id))
+            .filter((meal): meal is UnifiedMeal => Boolean(meal));
+          const requestedIds = new Set(orderedMealIds);
 
-      return {
-        meals: [
-          ...orderedMeals,
-          ...state.meals.filter((meal) => !requestedIds.has(meal.id)),
-        ],
-      };
+          return {
+            meals: [
+              ...orderedMeals,
+              ...state.meals.filter((meal) => !requestedIds.has(meal.id)),
+            ],
+          };
+        }),
+
+      randomizeCalories: () =>
+        set((state) => ({
+          meals: state.meals.map((m) => ({
+            ...m,
+            calories: m.calories + Math.floor(Math.random() * 20) - 10,
+          })),
+        })),
+
+      resetMeals: () => set({ meals: INITIAL_MEALS, lastSavedMealId: null }),
+
+      logScannedMeal: (mealData: ScannedMealInput) => {
+        // Generate unique ID for this scanned meal
+        const targetId = Date.now();
+        const newScannedMeal: UnifiedMeal = {
+          id: targetId,
+          time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          type: "SCANNED",
+          typeColor: "#38BDF8",
+          name: mealData.name,
+          calories: mealData.calories,
+          protein: mealData.protein,
+          carbs: mealData.carbs,
+          fat: mealData.fat,
+          prepTime: "AI SCAN",
+          completed: true,
+          loggedAt: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        };
+
+        // Append to bottom queue without replacing any scheduled meal
+        set((state) => ({
+          meals: [...state.meals, newScannedMeal],
+          lastSavedMealId: targetId,
+        }));
+
+        return targetId;
+      },
     }),
-
-  randomizeCalories: () =>
-    set((state) => ({
-      meals: state.meals.map((m) => ({
-        ...m,
-        calories: m.calories + Math.floor(Math.random() * 20) - 10,
+    {
+      name: "reloot-nutrition-plan",
+      version: 1,
+      storage: createJSONStorage(() => ({
+        getItem: (name) => SecureStore.getItemAsync(name),
+        setItem: (name, value) => SecureStore.setItemAsync(name, value),
+        removeItem: (name) => SecureStore.deleteItemAsync(name),
       })),
-    })),
-
-  resetMeals: () => set({ meals: INITIAL_MEALS, lastSavedMealId: null }),
-
-  logScannedMeal: (mealData: ScannedMealInput) => {
-    // Generate unique ID for this scanned meal
-    const targetId = Date.now();
-    const newScannedMeal: UnifiedMeal = {
-      id: targetId,
-      time: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
+      partialize: (state) => ({
+        hasGeneratedPlan: state.hasGeneratedPlan,
+        lastApprovedAdjustment: state.lastApprovedAdjustment,
+        meals: state.meals,
+        lastSavedMealId: state.lastSavedMealId,
       }),
-      type: "SCANNED",
-      typeColor: "#38BDF8",
-      name: mealData.name,
-      calories: mealData.calories,
-      protein: mealData.protein,
-      carbs: mealData.carbs,
-      fat: mealData.fat,
-      prepTime: "AI SCAN",
-      completed: true,
-      loggedAt: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-
-    // Append to bottom queue without replacing any scheduled meal
-    set((state) => ({
-      meals: [...state.meals, newScannedMeal],
-      lastSavedMealId: targetId,
-    }));
-
-    return targetId;
-  },
-}));
+      migrate: (persistedState: any, version) => {
+        if (version < 1 && Array.isArray(persistedState?.meals)) {
+          return {
+            ...persistedState,
+            meals: persistedState.meals.map((meal: UnifiedMeal) => ({
+              ...meal,
+              completed: Boolean(meal.loggedAt && meal.completed),
+            })),
+          };
+        }
+        return persistedState;
+      },
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
+    },
+  ),
+);

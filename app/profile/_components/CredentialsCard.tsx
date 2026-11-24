@@ -2,6 +2,7 @@ import * as Haptics from "expo-haptics";
 import React, { useState } from "react";
 import {
   Modal,
+  KeyboardAvoidingView,
   Platform,
   Pressable,
   StyleSheet,
@@ -65,7 +66,7 @@ export function CredentialsCard({
         transparent={true}
         animationType="fade"
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView behavior="padding" style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>UPDATE PASSWORD</Text>
             <Text style={styles.modalSubtitle}>
@@ -110,7 +111,7 @@ export function CredentialsCard({
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

@@ -4,20 +4,62 @@ import { useNutritionPlanStore } from "@/stores/nutritionPlanStore";
 import { LinearGradient } from "expo-linear-gradient";
 import { ArrowLeft, Bot, Check, Send, Sparkles } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
-import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { HORIZONTAL_PADDING, clampFontSize, isSmallDevice } from "@/shared/utils/responsive";
+import {
+  HORIZONTAL_PADDING,
+  clampFontSize,
+  isSmallDevice,
+} from "@/shared/utils/responsive";
 
-type SetupStep = { key: string; question: string; helper: string; options: string[] };
+type SetupStep = {
+  key: string;
+  question: string;
+  helper: string;
+  options: string[];
+};
 
 const setupSteps: SetupStep[] = [
-  { key: "budget", question: "What weekly food budget feels comfortable?", helper: "I’ll keep the meal choices realistic for you.", options: ["Budget-friendly", "Balanced", "Flexible"] },
-  { key: "meals", question: "How many meals would you like each day?", helper: "We can include snacks inside the plan too.", options: ["3 meals", "4 meals", "5 meals"] },
-  { key: "focus", question: "What should the plan prioritize?", helper: "I’ll use this to shape portions and protein timing.", options: ["High protein", "Balanced energy", "Plant-forward"] },
-  { key: "prep", question: "How much time do you want to spend cooking?", helper: "No judgment—this should fit your real week.", options: ["Quick prep", "Mix of both", "I enjoy cooking"] },
+  {
+    key: "budget",
+    question: "What weekly food budget feels comfortable?",
+    helper: "I’ll keep the meal choices realistic for you.",
+    options: ["Budget-friendly", "Balanced", "Flexible"],
+  },
+  {
+    key: "meals",
+    question: "How many meals would you like each day?",
+    helper: "We can include snacks inside the plan too.",
+    options: ["3 meals", "4 meals", "5 meals"],
+  },
+  {
+    key: "focus",
+    question: "What should the plan prioritize?",
+    helper: "I’ll use this to shape portions and protein timing.",
+    options: ["High protein", "Balanced energy", "Plant-forward"],
+  },
+  {
+    key: "prep",
+    question: "How much time do you want to spend cooking?",
+    helper: "No judgment—this should fit your real week.",
+    options: ["Quick prep", "Mix of both", "I enjoy cooking"],
+  },
 ];
 
-const adjustOptions = ["Swap a meal", "Lower my budget", "Add more protein", "Change meal timing"];
+const adjustOptions = [
+  "Swap a meal",
+  "Lower my budget",
+  "Add more protein",
+  "Change meal timing",
+];
 
 export default function NutritionAiScreen() {
   const { mode } = useLocalSearchParams<{ mode?: string }>();
@@ -28,7 +70,9 @@ export default function NutritionAiScreen() {
   const [mealsInput, setMealsInput] = useState("");
   const [adjustment, setAdjustment] = useState("");
   const [isReady, setIsReady] = useState(false);
-  const activateGeneratedPlan = useNutritionPlanStore((state) => state.activateGeneratedPlan);
+  const activateGeneratedPlan = useNutritionPlanStore(
+    (state) => state.activateGeneratedPlan,
+  );
 
   const current = setupSteps[step];
   const summary = useMemo(() => Object.values(answers).join(" • "), [answers]);
@@ -87,39 +131,80 @@ export default function NutritionAiScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Go back" onPress={() => router.back()} style={styles.backButton}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <ArrowLeft color="#E2E8F0" size={22} />
         </Pressable>
         <View style={styles.headerIdentity}>
-          <View style={styles.botBadge}><Bot color="#44EAC3" size={16} /></View>
+          <View style={styles.botBadge}>
+            <Bot color="#44EAC3" size={16} />
+          </View>
           <Text style={styles.headerLabel}>AI NUTRITIONIST</Text>
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      <KeyboardAwareScrollView
+        bottomOffset={16}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+      >
         <Text style={styles.title}>{heading}</Text>
-        <Text style={styles.subtitle}>{isAdjustMode ? "Fine-tune your current meal plan" : "A personalized plan in under a minute"}</Text>
+        <Text style={styles.subtitle}>
+          {isAdjustMode
+            ? "Fine-tune your current meal plan"
+            : "A personalized plan in under a minute"}
+        </Text>
 
         <View style={styles.assistantRow}>
-          <View style={styles.avatar}><Bot color="#071018" size={20} /></View>
-          <View style={styles.assistantBubble}><Text style={styles.assistantText}>{opening}</Text></View>
+          <View style={styles.avatar}>
+            <Bot color="#071018" size={20} />
+          </View>
+          <View style={styles.assistantBubble}>
+            <Text style={styles.assistantText}>{opening}</Text>
+          </View>
         </View>
 
-        {!isAdjustMode && Object.entries(answers).map(([key, value]) => (
-          <View key={key} style={styles.answerRow}>
-            <View style={styles.userBubble}><Text style={styles.userText}>{value}</Text></View>
-          </View>
-        ))}
+        {!isAdjustMode &&
+          Object.entries(answers).map(([key, value]) => (
+            <View key={key} style={styles.answerRow}>
+              <View style={styles.userBubble}>
+                <Text style={styles.userText}>{value}</Text>
+              </View>
+            </View>
+          ))}
 
         {!isReady && !isAdjustMode && (
           <View style={styles.questionCard}>
-            <View style={styles.questionMeta}><Sparkles color="#44EAC3" size={14} /><Text style={styles.questionCount}>STEP {step + 1} OF {setupSteps.length}</Text></View>
+            <View style={styles.questionMeta}>
+              <Sparkles color="#44EAC3" size={14} />
+              <Text style={styles.questionCount}>
+                STEP {step + 1} OF {setupSteps.length}
+              </Text>
+            </View>
             <Text style={styles.question}>{current.question}</Text>
             <Text style={styles.helper}>{current.helper}</Text>
-            <View style={styles.options}>{current.options.map((option) => <Pressable key={option} onPress={() => chooseSetup(option)} style={styles.option}><Text style={styles.optionText}>{option}</Text></Pressable>)}</View>
+            <View style={styles.options}>
+              {current.options.map((option) => (
+                <Pressable
+                  key={option}
+                  onPress={() => chooseSetup(option)}
+                  style={styles.option}
+                >
+                  <Text style={styles.optionText}>{option}</Text>
+                </Pressable>
+              ))}
+            </View>
             {current.key === "budget" && (
               <View style={styles.customBudgetWrap}>
-                <Text style={styles.customBudgetLabel}>OR ENTER YOUR OWN WEEKLY BUDGET</Text>
+                <Text style={styles.customBudgetLabel}>
+                  OR ENTER YOUR OWN WEEKLY BUDGET
+                </Text>
                 <View style={styles.inputRow}>
                   <TextInput
                     value={budgetInput}
@@ -130,17 +215,31 @@ export default function NutritionAiScreen() {
                     style={styles.input}
                     returnKeyType="done"
                   />
-                  <Pressable accessibilityRole="button" accessibilityLabel="Continue with custom budget" onPress={submitCustomBudget} style={[styles.sendButton, !budgetInput.trim() && styles.sendButtonDisabled]}><Send color="#071018" size={16} /></Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Continue with custom budget"
+                    onPress={submitCustomBudget}
+                    style={[
+                      styles.sendButton,
+                      !budgetInput.trim() && styles.sendButtonDisabled,
+                    ]}
+                  >
+                    <Send color="#071018" size={16} />
+                  </Pressable>
                 </View>
               </View>
             )}
             {current.key === "meals" && (
               <View style={styles.customBudgetWrap}>
-                <Text style={styles.customBudgetLabel}>OR ENTER YOUR OWN MEALS PER DAY</Text>
+                <Text style={styles.customBudgetLabel}>
+                  OR ENTER YOUR OWN MEALS PER DAY
+                </Text>
                 <View style={styles.inputRow}>
                   <TextInput
                     value={mealsInput}
-                    onChangeText={(value) => setMealsInput(value.replace(/[^0-9]/g, ""))}
+                    onChangeText={(value) =>
+                      setMealsInput(value.replace(/[^0-9]/g, ""))
+                    }
                     onSubmitEditing={submitCustomMeals}
                     placeholder="e.g. 6"
                     placeholderTextColor="#64748B"
@@ -148,7 +247,17 @@ export default function NutritionAiScreen() {
                     keyboardType="number-pad"
                     returnKeyType="done"
                   />
-                  <Pressable accessibilityRole="button" accessibilityLabel="Continue with custom number of meals" onPress={submitCustomMeals} style={[styles.sendButton, !mealsInput.trim() && styles.sendButtonDisabled]}><Send color="#071018" size={16} /></Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Continue with custom number of meals"
+                    onPress={submitCustomMeals}
+                    style={[
+                      styles.sendButton,
+                      !mealsInput.trim() && styles.sendButtonDisabled,
+                    ]}
+                  >
+                    <Send color="#071018" size={16} />
+                  </Pressable>
                 </View>
               </View>
             )}
@@ -157,35 +266,102 @@ export default function NutritionAiScreen() {
 
         {!isReady && isAdjustMode && (
           <View style={styles.questionCard}>
-            <View style={styles.questionMeta}><Sparkles color="#44EAC3" size={14} /><Text style={styles.questionCount}>PLAN UPDATE</Text></View>
+            <View style={styles.questionMeta}>
+              <Sparkles color="#44EAC3" size={14} />
+              <Text style={styles.questionCount}>PLAN UPDATE</Text>
+            </View>
             <Text style={styles.question}>How can I help with your meals?</Text>
-            <Text style={styles.helper}>Choose a common adjustment or describe exactly what you need.</Text>
-            <View style={styles.options}>{adjustOptions.map((option) => <Pressable key={option} onPress={() => chooseAdjustment(option)} style={[styles.option, adjustment === option && styles.optionSelected]}><Text style={[styles.optionText, adjustment === option && styles.optionTextSelected]}>{option}</Text></Pressable>)}</View>
+            <Text style={styles.helper}>
+              Choose a common adjustment or describe exactly what you need.
+            </Text>
+            <View style={styles.options}>
+              {adjustOptions.map((option) => (
+                <Pressable
+                  key={option}
+                  onPress={() => chooseAdjustment(option)}
+                  style={[
+                    styles.option,
+                    adjustment === option && styles.optionSelected,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.optionText,
+                      adjustment === option && styles.optionTextSelected,
+                    ]}
+                  >
+                    {option}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
             <View style={styles.inputRow}>
-              <TextInput value={adjustment} onChangeText={setAdjustment} placeholder="e.g. make lunch easier to prep" placeholderTextColor="#64748B" style={styles.input} multiline />
-              <Pressable accessibilityRole="button" accessibilityLabel="Continue with adjustment" onPress={continueAdjustment} style={[styles.sendButton, !adjustment.trim() && styles.sendButtonDisabled]}><Send color="#071018" size={16} /></Pressable>
+              <TextInput
+                value={adjustment}
+                onChangeText={setAdjustment}
+                placeholder="e.g. make lunch easier to prep"
+                placeholderTextColor="#64748B"
+                style={styles.input}
+                multiline
+              />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Continue with adjustment"
+                onPress={continueAdjustment}
+                style={[
+                  styles.sendButton,
+                  !adjustment.trim() && styles.sendButtonDisabled,
+                ]}
+              >
+                <Send color="#071018" size={16} />
+              </Pressable>
             </View>
           </View>
         )}
 
         {isReady && (
           <View style={styles.readyCard}>
-            <View style={styles.readyIcon}><Check color="#071018" size={22} strokeWidth={3} /></View>
-            <Text style={styles.readyTitle}>{isAdjustMode ? "I’ve adjusted your plan." : "Your plan is ready to generate."}</Text>
-            <Text style={styles.readyText}>{isAdjustMode ? `I’ll update the plan for: ${adjustment}.` : `Built around ${summary}.`}</Text>
+            <View style={styles.readyIcon}>
+              <Check color="#071018" size={22} strokeWidth={3} />
+            </View>
+            <Text style={styles.readyTitle}>
+              {isAdjustMode
+                ? "I’ve adjusted your plan."
+                : "Your plan is ready to generate."}
+            </Text>
+            <Text style={styles.readyText}>
+              {isAdjustMode
+                ? `I’ll update the plan for: ${adjustment}.`
+                : `Built around ${summary}.`}
+            </Text>
             {!isAdjustMode && (
-              <Pressable accessibilityRole="button" accessibilityLabel="Edit plan answers" onPress={editAnswers} style={styles.editAnswersButton}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Edit plan answers"
+                onPress={editAnswers}
+                style={styles.editAnswersButton}
+              >
                 <Text style={styles.editAnswersText}>EDIT MY ANSWERS</Text>
               </Pressable>
             )}
             <Pressable onPress={finish} style={styles.primaryButton}>
-              <LinearGradient colors={["#00D9EA", "#3C9EFF"]} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.primaryGradient}>
-                <Sparkles color="#071018" size={17} /><Text style={styles.primaryText}>{isAdjustMode ? "APPLY UPDATES TO MY PLAN" : "GENERATE MY PERSONALIZED PLAN"}</Text>
+              <LinearGradient
+                colors={["#00D9EA", "#3C9EFF"]}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.primaryGradient}
+              >
+                <Sparkles color="#071018" size={17} />
+                <Text style={styles.primaryText}>
+                  {isAdjustMode
+                    ? "APPLY UPDATES TO MY PLAN"
+                    : "GENERATE MY PERSONALIZED PLAN"}
+                </Text>
               </LinearGradient>
             </Pressable>
           </View>
         )}
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -210,7 +386,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerIdentity: { flexDirection: "row", alignItems: "center", gap: 9, marginLeft: 12 },
+  headerIdentity: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+    marginLeft: 12,
+  },
   botBadge: {
     width: 30,
     height: 30,
@@ -269,7 +450,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 12,
   },
-  assistantText: { color: "#D5D9E2", fontSize: clampFontSize(13.5), lineHeight: 20, fontWeight: "600" },
+  assistantText: {
+    color: "#D5D9E2",
+    fontSize: clampFontSize(13.5),
+    lineHeight: 20,
+    fontWeight: "600",
+  },
   answerRow: { alignItems: "flex-end", marginBottom: 12 },
   userBubble: {
     maxWidth: "80%",
@@ -281,7 +467,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
-  userText: { color: "#DCEBFF", fontSize: clampFontSize(13), fontWeight: "700" },
+  userText: {
+    color: "#DCEBFF",
+    fontSize: clampFontSize(13),
+    fontWeight: "700",
+  },
   questionCard: {
     backgroundColor: "#14141C",
     borderRadius: 20,
@@ -289,15 +479,31 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,.08)",
     padding: isSmallDevice ? 16 : 18,
   },
-  questionMeta: { flexDirection: "row", alignItems: "center", gap: 7, marginBottom: 10 },
+  questionMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    marginBottom: 10,
+  },
   questionCount: {
     color: "#44EAC3",
     fontFamily: "JetBrainsMono_700Bold",
     fontSize: 10,
     letterSpacing: 1,
   },
-  question: { color: "#F8FAFC", fontSize: clampFontSize(18), lineHeight: 24, fontWeight: "800" },
-  helper: { color: "#94A3B8", fontSize: clampFontSize(12.5), lineHeight: 18, marginTop: 6, marginBottom: 15 },
+  question: {
+    color: "#F8FAFC",
+    fontSize: clampFontSize(18),
+    lineHeight: 24,
+    fontWeight: "800",
+  },
+  helper: {
+    color: "#94A3B8",
+    fontSize: clampFontSize(12.5),
+    lineHeight: 18,
+    marginTop: 6,
+    marginBottom: 15,
+  },
   options: { gap: 8 },
   option: {
     minHeight: 46,
@@ -308,8 +514,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,.08)",
   },
-  optionSelected: { backgroundColor: "rgba(68,234,195,.12)", borderColor: "rgba(68,234,195,.5)" },
-  optionText: { color: "#D5D9E2", fontSize: clampFontSize(13.5), fontWeight: "700" },
+  optionSelected: {
+    backgroundColor: "rgba(68,234,195,.12)",
+    borderColor: "rgba(68,234,195,.5)",
+  },
+  optionText: {
+    color: "#D5D9E2",
+    fontSize: clampFontSize(13.5),
+    fontWeight: "700",
+  },
   optionTextSelected: { color: "#44EAC3" },
   customBudgetWrap: {
     marginTop: 15,
@@ -323,7 +536,12 @@ const styles = StyleSheet.create({
     fontSize: 9.5,
     letterSpacing: 0.8,
   },
-  inputRow: { flexDirection: "row", alignItems: "flex-end", gap: 10, marginTop: 12 },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 10,
+    marginTop: 12,
+  },
   input: {
     flex: 1,
     minHeight: 50,
