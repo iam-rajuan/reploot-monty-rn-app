@@ -1,5 +1,4 @@
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
-import MaskedView from "@react-native-masked-view/masked-view";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -112,7 +111,10 @@ export const HomeWorkoutLibraryScreen: React.FC<
       });
     } else {
       // Default fallback for session cards to Upper Body screen
-      router.push({ pathname: "/workouts/upper" as any, params: { source: "home" } });
+      router.push({
+        pathname: "/workouts/upper" as any,
+        params: { source: "home" },
+      });
     }
   };
 
@@ -134,34 +136,22 @@ export const HomeWorkoutLibraryScreen: React.FC<
           { paddingBottom: Math.max(insets.bottom + 30, 60) },
         ]}
       >
-        {/* Title Section with Masked Gradient Title (Exact Gym Workout Path pattern) */}
+        {/* Match the clear, compact hierarchy used by Gym Workout. */}
         <View style={styles.titleSection}>
           <Text style={styles.categoryBadge}>HOME WORKOUT</Text>
-          <View style={styles.maskedTitleWrapper}>
-            <MaskedView
-              style={styles.maskedTitleView}
-              maskElement={
-                <View style={styles.maskWrapper}>
-                  <Text style={styles.mainTitle} numberOfLines={2}>
-                    {"SELECT YOUR\nPATH"}
-                  </Text>
-                </View>
-              }
-            >
-              <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradient}
-              />
-            </MaskedView>
-          </View>
+          <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
+            CHOOSE YOUR PATH
+          </Text>
         </View>
 
         {/* Current XP Progress Box with Neon Aura & Level Status */}
         <View style={styles.xpCardContainer}>
           <LinearGradient
-            colors={["rgba(129, 140, 248, 0.08)", "rgba(68, 234, 195, 0.04)", "transparent"]}
+            colors={[
+              "rgba(129, 140, 248, 0.08)",
+              "rgba(68, 234, 195, 0.04)",
+              "transparent",
+            ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={StyleSheet.absoluteFill}
@@ -241,13 +231,9 @@ export const HomeWorkoutLibraryScreen: React.FC<
           ))}
         </View>
 
-        {/* SESSIONS Header with description */}
-        <View style={[styles.sectionTitleRow, { marginTop: 32, marginBottom: 6 }]}>
+        <View style={[styles.sectionTitleRow, styles.sessionsHeader]}>
           <Text style={styles.sectionHeaderTitle}>SESSIONS</Text>
         </View>
-        <Text style={styles.sectionSubtitle}>
-          Select your training split to initiate tailored kinetic tracking and rep counts.
-        </Text>
 
         {/* 2-Column Sessions Grid - Like Gym Workout Path Screen */}
         <View style={styles.sessionsGrid}>
@@ -258,12 +244,17 @@ export const HomeWorkoutLibraryScreen: React.FC<
               onPress={() => handleSessionPress(session)}
               style={styles.sessionCard}
             >
-              {/* Radial Glow Overlay */}
-              <View
-                style={[
-                  styles.glowAura,
-                  { backgroundColor: session.glowAura || "rgba(56, 237, 216, 0.12)" },
+              <LinearGradient
+                colors={[
+                  "rgba(37, 215, 232, 0)",
+                  "rgba(37, 215, 232, 0)",
+                  "rgba(37, 215, 232, 0.025)",
+                  "rgba(37, 215, 232, 0.09)",
                 ]}
+                locations={[0, 0.34, 0.64, 1]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.sessionCardGradient}
                 pointerEvents="none"
               />
 
@@ -333,16 +324,8 @@ export const HomeWorkoutLibraryScreen: React.FC<
               {/* Title and Arrow Row */}
               <View style={styles.sessionTitleRow}>
                 <Text style={styles.sessionTitleText}>{session.title}</Text>
-                <ArrowRight
-                  size={16}
-                  color={session.arrowColor || "#38EDD8"}
-                />
+                <ArrowRight size={16} color={session.arrowColor || "#38EDD8"} />
               </View>
-
-              {/* Subtitle / Focus description */}
-              <Text style={styles.sessionCardSubtitle} numberOfLines={2}>
-                {session.subtitle || "Targeted split for strength & muscular endurance"}
-              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -358,49 +341,34 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingTop: 18,
   },
   titleSection: {
-    marginBottom: 26,
-    marginTop: 4,
+    marginBottom: 22,
+    marginTop: 8,
   },
   categoryBadge: {
-    color: "#44EAC3",
-    fontSize: 12,
+    color: "#94A3B8",
+    fontSize: 13,
+    lineHeight: 18,
     fontWeight: "800",
     letterSpacing: 1.5,
-    fontFamily: "monospace",
+    fontFamily: "JetBrainsMono_700Bold",
     textTransform: "uppercase",
-    marginBottom: 8,
-  },
-  maskedTitleWrapper: {
-    height: 84,
-    width: "100%",
     marginBottom: 4,
-    justifyContent: "center",
-  },
-  maskedTitleView: {
-    flex: 1,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "flex-start",
-  },
-  gradient: {
-    flex: 1,
   },
   mainTitle: {
-    color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 38,
+    color: "#F6F8FF",
+    fontSize: 33,
+    lineHeight: 40,
     fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 0.5,
+    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    letterSpacing: -0.8,
     textAlign: "left",
     textTransform: "uppercase",
+    textShadowColor: "rgba(37, 215, 232, 0.12)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
   },
   subtitle: {
     color: "#94A3B8",
@@ -705,24 +673,22 @@ const styles = StyleSheet.create({
   },
   sessionCard: {
     width: "48%",
-    height: 196,
-    backgroundColor: "rgba(18, 22, 33, 0.72)",
-    borderRadius: 22,
+    height: 154,
+    backgroundColor: "#111827",
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(86, 130, 166, 0.22)",
     padding: 14,
     justifyContent: "space-between",
     position: "relative",
     overflow: "hidden",
   },
-  glowAura: {
+  sessionCardGradient: {
     position: "absolute",
-    bottom: -30,
-    right: -30,
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    opacity: 0.15,
+    right: 0,
+    bottom: 0,
+    width: "100%",
+    height: "100%",
   },
   sessionTopRow: {
     flexDirection: "row",
@@ -730,9 +696,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   sessionIconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    width: 42,
+    height: 42,
+    borderRadius: 13,
     borderWidth: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -753,7 +719,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: "auto",
-    marginBottom: 4,
+    marginBottom: 0,
   },
   sessionTitleText: {
     color: "#FFFFFF",
@@ -763,11 +729,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     textTransform: "uppercase",
   },
-  sessionCardSubtitle: {
-    color: "#94A3B8",
-    fontSize: 10.5,
-    lineHeight: 15,
-    fontFamily: "monospace",
-    fontWeight: "600",
+  sessionsHeader: {
+    marginTop: 30,
+    marginBottom: 14,
   },
 });
