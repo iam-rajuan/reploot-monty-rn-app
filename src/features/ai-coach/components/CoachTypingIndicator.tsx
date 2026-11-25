@@ -12,11 +12,12 @@ import Animated, {
   withTiming,
   type SharedValue,
 } from "react-native-reanimated";
-import { CoachMascot } from "./CoachMascot";
+import { Text } from "@/shared/components/typography";
 
 /**
- * "The coach is typing" row: the 🐒 mascot swings gently in its avatar frame
- * while three dots ripple in the reply bubble.
+ * "The coach is typing" row: the phone's own 🐒 emoji swings gently in its
+ * avatar frame while three dots ripple in the reply bubble. The emoji is drawn
+ * by the OS, so it looks like Apple's monkey on iPhone and Google's on Android.
  *
  * Callers pass their existing avatar-frame and bubble styles so the row lines
  * up exactly with real assistant messages. Motion is skipped when the OS
@@ -35,7 +36,6 @@ interface CoachTypingIndicatorProps {
   bubbleStyle: StyleProp<ViewStyle>;
   rowStyle?: StyleProp<ViewStyle>;
   dotColor?: string;
-  mascotSize?: number;
 }
 
 const TypingDot = ({
@@ -57,7 +57,6 @@ export const CoachTypingIndicator = ({
   bubbleStyle,
   rowStyle,
   dotColor = "#35E5D0",
-  mascotSize = 22,
 }: CoachTypingIndicatorProps) => {
   const reduceMotion = useReducedMotion();
   const swing = useSharedValue(0);
@@ -123,7 +122,14 @@ export const CoachTypingIndicator = ({
     >
       <View style={avatarStyle}>
         <Animated.View style={[styles.mascot, mascotStyle]}>
-          <CoachMascot size={mascotSize} variant="typing" />
+          <Text
+            style={styles.emoji}
+            allowFontScaling={false}
+            accessible={false}
+            importantForAccessibility="no"
+          >
+            🐒
+          </Text>
         </Animated.View>
       </View>
       <View style={bubbleStyle}>
@@ -137,8 +143,15 @@ export const CoachTypingIndicator = ({
 
 const styles = StyleSheet.create({
   mascot: {
-    // Swing from just above centre so the head tilts like a busy typist.
-    transformOrigin: "50% 30%",
+    // Pivot near the feet so the monkey sways like it is hopping in place.
+    transformOrigin: "50% 80%",
+  },
+  emoji: {
+    // Emoji glyph only: the OS emoji font draws it, so no text role applies.
+    fontSize: 18,
+    lineHeight: 22,
+    textAlign: "center",
+    includeFontPadding: false,
   },
   dot: {
     width: 6,

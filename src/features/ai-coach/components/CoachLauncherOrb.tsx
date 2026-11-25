@@ -5,7 +5,7 @@ import { CoachMascot } from "./CoachMascot";
 
 /**
  * Floating AI Coach launcher artwork: a gradient orb with a soft violet glow,
- * a glossy highlight, the 🐵 mascot and an "online" status dot.
+ * a glossy highlight, the Classic Brown monkey mascot and an "online" status dot.
  *
  * It fills a fixed 100 × 100 footprint (the same box the previous bitmap
  * used), so swapping it in does not move the floating button. The parent
@@ -32,7 +32,7 @@ export const CoachLauncherOrb = ({ pressed = false }: { pressed?: boolean }) => 
           end={{ x: 0.5, y: 0.6 }}
           style={styles.gloss}
         />
-        <CoachMascot size={42} tone="light" />
+        <CoachMascot size={46} />
       </LinearGradient>
       <View style={styles.onlineDot} />
     </View>

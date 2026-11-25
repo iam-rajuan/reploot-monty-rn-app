@@ -319,7 +319,6 @@ export default function CoachRoute() {
               rowStyle={[styles.messageRow, styles.assistantRow]}
               avatarStyle={styles.messageAvatar}
               bubbleStyle={styles.typing}
-              mascotSize={22}
             />
           )}
         </ScrollView>
