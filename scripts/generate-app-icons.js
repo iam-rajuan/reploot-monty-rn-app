@@ -120,7 +120,7 @@ function isInsideEmblem(nx, ny) {
   }
 
   // 3. Cyber Diagonal Kick (Right Leg)
-  // Dynamic 45-degree angled pillar with floating kinetic gap from stem
+  // Dynamic 45-degree angled pillar with floating Reploot gap from stem
   const legPoly = [
     [-0.04, midY - 0.02],
     [0.12, midY - 0.02],

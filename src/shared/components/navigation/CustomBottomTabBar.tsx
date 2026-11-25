@@ -94,7 +94,7 @@ export function CustomBottomTabBar({
           const isFocused = state.index === index;
           const isCenterAction = route.name === "action";
 
-          // 1. Center Action: Kinetic Workout Launcher
+          // 1. Center Action: Reploot Workout Launcher
           if (isCenterAction) {
             return (
               <View key={route.key} style={styles.centerButtonOuterContainer}>
@@ -216,7 +216,7 @@ export function CustomBottomTabBar({
 // CRAFTED VECTOR ICONOGRAPHY (24x24 Optical Grid)
 // ==========================================
 
-/** 1. Home Icon: Architectural Kinetic Base */
+/** 1. Home Icon: Architectural Reploot Base */
 function HomeTabIcon({
   color,
   isFocused,

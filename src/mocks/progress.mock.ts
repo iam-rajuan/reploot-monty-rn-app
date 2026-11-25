@@ -58,7 +58,7 @@ export const mockAchievements: Achievement[] = [
   {
     id: "1",
     title: "Today Workout",
-    description: "Completed full kinetic workout routine for today.",
+    description: "Completed the full Reploot workout routine for today.",
     category: "workout",
     isUnlocked: true,
     unlockedAt: "2026-10-18T09:30:00Z",

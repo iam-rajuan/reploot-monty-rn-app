@@ -98,7 +98,7 @@ export const EXERCISE_DETAILS_DATABASE: Record<string, ExerciseDetailConfig> = {
     demoVideoThumbnail: require("../../../../assets/pushDay/pd1.png"),
     demoTag: "WATCH DEMO",
     demoTitle: "OVERHEAD STRENGTH",
-    demoSubtitle: "DELTA KINETIC SYSTEM",
+    demoSubtitle: "DELTA REPLOOT SYSTEM",
     targetAreasTitle: "Anterior & Lateral Delts",
     targetPrimary: "DELTOIDS",
     targetTags: ["DELTOIDS", "TRICEPS"],
@@ -150,7 +150,7 @@ export const EXERCISE_DETAILS_DATABASE: Record<string, ExerciseDetailConfig> = {
     demoVideoThumbnail: require("../../../../assets/pullDay/pld1.png"),
     demoTag: "WATCH DEMO",
     demoTitle: "RAW PULL DEMO",
-    demoSubtitle: "HINGE KINETICS",
+    demoSubtitle: "HINGE MECHANICS",
     targetAreasTitle: "Hamstrings, Glutes & Lats",
     targetPrimary: "POSTERIOR CHAIN",
     targetTags: ["GLUTES", "LATS", "CORE"],
@@ -240,7 +240,7 @@ export const getExerciseDetailById = (
         title: "Setup & Alignment",
         description:
           "Establish proper foundational posture. Set stable core intra-abdominal pressure and align your joints before applying initial load.",
-        coachCue: "Anchor your stance and align breath with kinetic posture",
+        coachCue: "Anchor your stance and align your breath with your posture",
       },
       {
         id: "step-2",

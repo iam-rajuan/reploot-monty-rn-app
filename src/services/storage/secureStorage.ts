@@ -49,25 +49,25 @@ export const secureStorage = {
 
   // Sensitive Auth Tokens convenience helpers
   async getAuthToken(): Promise<string | null> {
-    return this.getItem("kinetqx_auth_token");
+    return this.getItem("reploot_auth_token");
   },
 
   async setAuthToken(token: string): Promise<void> {
-    return this.setItem("kinetqx_auth_token", token);
+    return this.setItem("reploot_auth_token", token);
   },
 
   async getRefreshToken(): Promise<string | null> {
-    return this.getItem("kinetqx_refresh_token");
+    return this.getItem("reploot_refresh_token");
   },
 
   async setRefreshToken(token: string): Promise<void> {
-    return this.setItem("kinetqx_refresh_token", token);
+    return this.setItem("reploot_refresh_token", token);
   },
 
   async clearAuthTokens(): Promise<void> {
     await Promise.all([
-      this.removeItem("kinetqx_auth_token"),
-      this.removeItem("kinetqx_refresh_token"),
+      this.removeItem("reploot_auth_token"),
+      this.removeItem("reploot_refresh_token"),
     ]);
   },
 };

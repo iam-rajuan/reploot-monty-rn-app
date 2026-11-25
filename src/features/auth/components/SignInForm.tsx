@@ -38,7 +38,7 @@ export function SignInForm({
           label="EMAIL ADDRESS"
           value={email}
           onChangeText={setEmail}
-          placeholder="runner@kinetic.ai"
+          placeholder="runner@reploot.ai"
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}

@@ -1,19 +1,19 @@
 {
   "expo": {
-    "name": "REPLOOT",
-    "slug": "reloot",
+    "name": "Reploot",
+    "slug": "reploot",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "reloot",
+    "scheme": "reploot",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#070A11",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.reloot.app"
+      "bundleIdentifier": "com.reploot.app"
     },
     "android": {
-      "package": "com.reloot.app",
+      "package": "com.reploot.app",
       "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#070A11",
@@ -38,7 +38,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow KINETQX to access your camera for AI workout pose tracking and food scanning."
+          "cameraPermission": "Allow REPLOOT to access your camera for AI workout pose tracking and food scanning."
         }
       ]
     ],

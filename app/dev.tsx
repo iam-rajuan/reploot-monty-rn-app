@@ -309,7 +309,7 @@ export default function DevVerificationScreen() {
 
         <RoutePreviewButton
           title="Phase 1: Splash & Onboarding"
-          subtitle="4-slide tutorial & kinetic branding"
+          subtitle="4-slide tutorial & Reploot branding"
           onPress={() => router.push("/(onboarding)")}
         />
         <RoutePreviewButton

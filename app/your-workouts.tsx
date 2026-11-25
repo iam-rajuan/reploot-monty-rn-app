@@ -63,8 +63,8 @@ export default function YourWorkoutsScreen() {
     try {
       await Share.share({
         message:
-          "🔥 Milestone Achieved on Kinetic AI Fitness: 127 Total Workouts Completed! Keep pushing limits! 🚀 #KineticAI #FitnessMilestone",
-        title: "Kinetic AI Fitness Milestone",
+          "🔥 Milestone Achieved on Reploot AI Fitness: 127 Total Workouts Completed! Keep pushing limits! 🚀 #ReplootAI #FitnessMilestone",
+        title: "Reploot AI Fitness Milestone",
       });
     } catch {
       // dismissed
@@ -384,7 +384,7 @@ export default function YourWorkoutsScreen() {
               <Trophy color="#FFB68C" size={16} />
             </View>
             <View style={{ flex: 1, marginLeft: 10 }}>
-              <Text style={styles.milestoneTag}>KINETIC RECORD</Text>
+              <Text style={styles.milestoneTag}>REPLOOT RECORD</Text>
               <Text style={styles.milestoneMainTitle}>TOTAL WORKOUTS</Text>
             </View>
             <Text style={styles.milestoneNumber}>127</Text>

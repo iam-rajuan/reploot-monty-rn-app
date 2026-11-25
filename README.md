@@ -38,13 +38,13 @@ REPLOOTis a cross-platform mobile application designed for iOS and Android, offe
 ## 3. Directory Architecture
 
 ```
-kinetqx-app/
+reploot-app/
 ├── app/                               # EXPO ROUTER ROUTES ONLY (Thin delegates)
 │   ├── _layout.tsx                    # Root layout with AppProviders & dark theme Stack
 │   ├── index.tsx                      # Minimal REPLOOTDevelopment Verification Screen
 │   ├── (onboarding)/                  # Splash & Onboarding Tutorial route group
 │   ├── (auth)/                        # Authentication route group (sign-in, sign-up, reset)
-│   ├── (profile-setup)/               # 5-Step Kinetic Profile onboarding flow
+│   ├── (profile-setup)/               # 5-Step Reploot Profile onboarding flow
 │   ├── (tabs)/                        # Primary bottom tab navigation (Home, Nutrition, Action, Progress, Profile)
 │   ├── coach/                         # AI Coach chat interface
 │   ├── workouts/                      # Workout hub & real-time camera tracking
@@ -103,7 +103,7 @@ The design language follows the provided REPLOOTFigma cyber-fitness specificatio
 
 - **Backgrounds**: Deepest obsidian black (`#070A11`), dark navy canvas (`#0D111D`), elevated glass surfaces (`#131826`).
 - **Luminous CTAs**: Signature electric blue-to-cyan gradient (`linear-gradient(135deg, #0284C7, #0EA5E9, #22D3EE)`).
-- **Glow Accents**: Cyber cyan (`#22D3EE`), kinetic mint (`#10B981`), neural AI purple (`#8B5CF6`).
+- **Glow Accents**: Cyber cyan (`#22D3EE`), Reploot mint (`#10B981`), neural AI purple (`#8B5CF6`).
 - **Borders**: Subdued glass outlines (`rgba(255, 255, 255, 0.08)`) and luminous neon borders (`GlowCard`).
 - **Typography**: Heavy, tracked uppercase display headers (`displayXL`, `displayLG`) paired with legible, proportional body fonts and high-impact metric scales (`metricXL`).
 
@@ -124,7 +124,7 @@ Or via NativeWind classes:
 
 ```tsx
 <View className="bg-background-card border border-border-subtle rounded-2xl p-4">
-  <Text className="text-kinetic-primary font-bold text-lg">BENCH PRESS</Text>
+  <Text className="text-reploot-primary font-bold text-lg">BENCH PRESS</Text>
 </View>
 ```
 
@@ -161,7 +161,7 @@ Or via NativeWind classes:
 ### Installation
 
 ```bash
-cd kinetqx/kinetqx-app
+cd reploot/reploot-app
 npm install
 ```
 

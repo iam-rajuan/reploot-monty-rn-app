@@ -204,7 +204,7 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
     try {
       if (Platform.OS !== "web") {
         await Share.share({
-          message: `🔥 Just crushed ${workoutTitle}! Scored ${score} with ${accuracy}% form accuracy, burned ${caloriesBurned} kcal in ${durationFormatted} min on KINETQX!`,
+          message: `🔥 Just crushed ${workoutTitle}! Scored ${score} with ${accuracy}% form accuracy, burned ${caloriesBurned} kcal in ${durationFormatted} min on REPLOOT!`,
         });
       }
     } catch {}
@@ -437,7 +437,7 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
           </View>
 
           <Text style={styles.coachFeedbackBody}>
-            Outstanding kinetic form today. Your squat depth showed a{" "}
+            Outstanding movement quality today. Your squat depth showed a{" "}
             <Text style={styles.coachHighlightPill}>+12% gain</Text> compared to
             last session, while thoracic spine neutrality was maintained across
             all {totalExercisesCount} sets.

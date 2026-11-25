@@ -22,7 +22,7 @@ module.exports = {
           electric: "#38BDF8",
           dark: "#05070B",
         },
-        kinetic: {
+        reploot: {
           primary: "#FFFFFF",
           secondary: "#94A3B8",
           muted: "#64748B",

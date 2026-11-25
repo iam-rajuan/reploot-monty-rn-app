@@ -45,7 +45,7 @@ export default function SignInRoute() {
     dispatch(
       setUser({
         id: "1",
-        email: email || "runner@kinetic.ai",
+        email: email || "runner@reploot.ai",
         fullName: "Alex Runner",
         hasCompletedOnboarding: true,
         createdAt: new Date().toISOString(),
@@ -129,7 +129,7 @@ export default function SignInRoute() {
                 label="EMAIL"
                 value={email}
                 onChangeText={setEmail}
-                placeholder="alex@kinetic.ai"
+                placeholder="alex@reploot.ai"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}

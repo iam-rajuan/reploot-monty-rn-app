@@ -72,7 +72,7 @@ export function ForgotPasswordCheckEmailStep({
         </View>
       </View>
       <View style={styles.encryptionFooter}>
-        <Text style={styles.encryptionText}>KINETIC AI ENCRYPTION ACTIVE</Text>
+        <Text style={styles.encryptionText}>REPLOOT AI ENCRYPTION ACTIVE</Text>
       </View>
     </View>
   );

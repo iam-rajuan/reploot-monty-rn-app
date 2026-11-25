@@ -25,7 +25,7 @@ export default function TermsRoute() {
     {
       icon: <Scale size={18} color="#38BDF8" />,
       title: "ARTICLE I: ACCEPTANCE OF PROTOCOLS",
-      body: "By initializing and operating the Kinetqx application, the athlete agrees to abide by all operational guidelines, kinetic algorithmic telemetry standards, and safety advisories outlined within this document.",
+      body: "By initializing and operating the Reploot application, the athlete agrees to abide by all operational guidelines, algorithmic telemetry standards, and safety advisories outlined within this document.",
     },
     {
       icon: <FileCheck size={18} color="#38BDF8" />,
@@ -35,7 +35,7 @@ export default function TermsRoute() {
     {
       icon: <AlertCircle size={18} color="#38BDF8" />,
       title: "ARTICLE III: PHYSICAL READINESS & DISCLAIMER",
-      body: "Kinetqx provides AI-assisted conditioning guidance. Athletes should consult qualified medical physicians prior to engaging in high-intensity hypertrophy, plyometric, or cardiovascular routines.",
+      body: "Reploot provides AI-assisted conditioning guidance. Athletes should consult qualified medical physicians prior to engaging in high-intensity hypertrophy, plyometric, or cardiovascular routines.",
     },
   ];
 
@@ -102,7 +102,7 @@ export default function TermsRoute() {
 
         <View style={styles.footerBadge}>
           <Text style={styles.footerText}>
-            EFFECTIVE DATE: OCTOBER 2026 • ALL RIGHTS RESERVED KINETQX INC.
+            EFFECTIVE DATE: OCTOBER 2026 • ALL RIGHTS RESERVED REPLOOT INC.
           </Text>
         </View>
       </ScrollView>

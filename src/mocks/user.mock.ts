@@ -1,8 +1,8 @@
 import { User, FitnessProfile } from "@/shared/types/user";
 
 export const mockUser: User = {
-  id: "usr_kinetqx_001",
-  email: "alex@kinetqx.ai",
+  id: "usr_reploot_001",
+  email: "alex@reploot.ai",
   fullName: "Alex Sterling",
   avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
   phoneNumber: "+1 555-0199",
@@ -11,7 +11,7 @@ export const mockUser: User = {
 };
 
 export const mockFitnessProfile: FitnessProfile = {
-  userId: "usr_kinetqx_001",
+  userId: "usr_reploot_001",
   gender: "male",
   age: 24,
   heightCm: 180,

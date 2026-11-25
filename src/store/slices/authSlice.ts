@@ -11,7 +11,7 @@ interface AuthState {
 const initialState: AuthState = {
   user: {
     id: "1",
-    email: "alex@kinetic.ai",
+    email: "alex@reploot.ai",
     fullName: "Alex",
     hasCompletedOnboarding: true,
     createdAt: new Date().toISOString(),

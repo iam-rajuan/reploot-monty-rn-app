@@ -64,7 +64,7 @@ export const shadows = {
     },
   }),
 
-  // Kinetic Mint Glow (Rep milestones, completed sets)
+  // Reploot Mint Glow (rep milestones, completed sets)
   glowMint: Platform.select<ViewStyle>({
     ios: {
       shadowColor: "#10B981",

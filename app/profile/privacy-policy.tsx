@@ -25,7 +25,7 @@ export default function PrivacyPolicyRoute() {
     {
       icon: <ShieldCheck size={18} color="#38BDF8" />,
       title: "1. BIOMETRIC & TELEMETRY DATA",
-      body: "Kinetqx collects velocity, motion vector kinematics, and heart rate telemetry solely to optimize your personalized training algorithm. All sensor data is processed via zero-knowledge client cryptographic layers.",
+      body: "Reploot collects velocity, motion vector kinematics, and heart rate telemetry solely to optimize your personalized training algorithm. All sensor data is processed via zero-knowledge client cryptographic layers.",
     },
     {
       icon: <Lock size={18} color="#38BDF8" />,

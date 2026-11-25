@@ -57,7 +57,7 @@ export const QRCodeCard = () => {
   const { width } = useWindowDimensions();
   const qrSize = width <= 430 ? 200 : 220;
   const athleteId = "KX-8821";
-  const athleteUrl = `https://kinetqx.app/athlete/alex-rivers?id=${athleteId}`;
+  const athleteUrl = `https://reploot.app/athlete/alex-rivers?id=${athleteId}`;
 
   const handleShare = async () => {
     if (Platform.OS !== "web") {

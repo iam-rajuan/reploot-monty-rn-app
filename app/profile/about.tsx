@@ -24,7 +24,7 @@ export default function AboutRoute() {
   const specs = [
     {
       icon: <Cpu size={18} color="#38BDF8" />,
-      title: "KINETIC ENGINE V2.4",
+      title: "REPLOOT ENGINE V2.4",
       desc: "Hyper-accurate motion telemetry modeling running at 60 FPS on-device neural processing.",
     },
     {
@@ -73,7 +73,7 @@ export default function AboutRoute() {
                     numberOfLines={1}
                     adjustsFontSizeToFit
                   >
-                    ABOUT KINETQX
+                    ABOUT REPLOOT
                   </Text>
                 </View>
               }
@@ -109,7 +109,7 @@ export default function AboutRoute() {
           </View>
           <View style={styles.buildRow}>
             <Text style={styles.buildLabel}>NEURAL RUNTIME</Text>
-            <Text style={styles.buildValue}>KINETIC-CORE-V2</Text>
+            <Text style={styles.buildValue}>REPLOOT-CORE-V2</Text>
           </View>
           <View style={styles.buildRow}>
             <Text style={styles.buildLabel}>INFRASTRUCTURE</Text>

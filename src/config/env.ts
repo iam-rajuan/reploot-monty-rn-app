@@ -18,7 +18,7 @@ const appEnv = (process.env.EXPO_PUBLIC_APP_ENV ||
 
 export const env: AppEnvConfig = {
   apiBaseUrl:
-    process.env.EXPO_PUBLIC_API_BASE_URL || "https://api.kinetqx.com/v1",
+    process.env.EXPO_PUBLIC_API_BASE_URL || "https://api.reploot.com/v1",
   appEnv,
   enableMockApi:
     process.env.EXPO_PUBLIC_ENABLE_MOCK_API === "true" ||

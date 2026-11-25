@@ -12,7 +12,7 @@ import {
 
 export const EditProfileForm = () => {
   const [fullName, setFullName] = useState("Alex Rivers");
-  const [email, setEmail] = useState("alex.rivers@kinetic-ai.io");
+  const [email, setEmail] = useState("alex.rivers@reploot.ai");
   const [phone, setPhone] = useState("+1 (555) 092-8831");
   const [dob, setDob] = useState("05/12/1998");
   const [gender, setGender] = useState("Male");

@@ -527,7 +527,7 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
           </View>
         </View>
 
-        {/* Target Areas Card with Anatomical / Kinetic Thumbnail */}
+        {/* Target Areas Card with anatomical / movement thumbnail */}
         <View style={styles.targetAreasCard}>
           <View style={styles.targetBodyThumbBox}>
             <Image

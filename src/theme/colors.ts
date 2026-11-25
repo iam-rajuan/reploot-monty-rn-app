@@ -21,7 +21,7 @@ export const colors = {
     blueLight: "#38BDF8", // Light electric sky blue
     cyan: "#22D3EE", // Cyber cyan (primary glow and action color)
     cyanBright: "#06B6D4", // Vivid cyan
-    mint: "#10B981", // Kinetic energetic mint (accuracy, completed reps, streaks)
+    mint: "#10B981", // Reploot energetic mint (accuracy, completed reps, streaks)
     mintLight: "#34D399", // Soft mint
     purple: "#8B5CF6", // AI Neural purple
     violet: "#6366F1", // Indigo-violet accent

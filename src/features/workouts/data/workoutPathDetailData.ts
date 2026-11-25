@@ -496,7 +496,7 @@ export const WORKOUT_PATH_DETAILS_MAP: Record<string, DynamicWorkoutPathDetail> 
     xpText: "+750 XP",
     durationText: "70 MINS",
     caloriesText: "560 KCAL",
-    category: "Full Kinetic Chain",
+    category: "Full Movement Chain",
     exercises: [
       {
         id: "power-clean",

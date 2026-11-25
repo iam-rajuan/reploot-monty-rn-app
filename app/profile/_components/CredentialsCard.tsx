@@ -37,7 +37,7 @@ export function CredentialsCard({
       <View style={styles.cardRow}>
         <View style={styles.rowInfo}>
           <Text style={styles.label}>EMAIL ADDRESS</Text>
-          <Text style={styles.valueText}>alex.rivers@kinetqx.app</Text>
+          <Text style={styles.valueText}>alex.rivers@reploot.app</Text>
         </View>
       </View>
 

@@ -82,7 +82,7 @@ const WEEK_DATA: Record<
         minutes: 50,
         calories: 460,
         accuracy: 94,
-        workoutName: "Legs & Core Kinetic Squats",
+        workoutName: "Legs & Core Reploot Squats",
         isRest: false,
         barHeight: 56,
       },
@@ -342,8 +342,8 @@ export default function WeeklyProgressScreen() {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
     try {
       await Share.share({
-        message: `⚡ KINETQX Weekly Report: ${currentWeek.dateRange} — 5 Workouts Completed, 3h 35m Training Time, 1,980 kcal burned with 93% AI accuracy score! #Kinetqx #TrainSmarter`,
-        title: "Kinetqx Weekly Report",
+        message: `⚡ REPLOOT Weekly Report: ${currentWeek.dateRange} — 5 Workouts Completed, 3h 35m Training Time, 1,980 kcal burned with 93% AI accuracy score! #Reploot #TrainSmarter`,
+        title: "Reploot Weekly Report",
       });
     } catch {
       // dismissed
@@ -776,7 +776,7 @@ export default function WeeklyProgressScreen() {
           </View>
         </View>
 
-        {/* Kinetic AI Coach Weekly Insights */}
+        {/* Reploot AI Coach Weekly Insights */}
         <View style={[styles.card, styles.aiCardBorder]}>
           <View style={styles.cardHeader}>
             <View style={styles.headerTitleRow}>

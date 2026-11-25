@@ -223,7 +223,7 @@ export const useNutritionPlanStore = create<NutritionPlanState>()(
       },
     }),
     {
-      name: "reloot-nutrition-plan",
+      name: "reploot-nutrition-plan",
       version: 1,
       storage: createJSONStorage(() => ({
         getItem: (name) => SecureStore.getItemAsync(name),

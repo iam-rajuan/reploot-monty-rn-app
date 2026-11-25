@@ -119,9 +119,9 @@ export function Step5YourCoach() {
     dispatch(setHasSeenOnboarding(true));
     dispatch(
       setUser({
-        id: "user_kinetic_" + Date.now(),
-        email: data.email || "runner@kinetic.ai",
-        fullName: data.fullName || "Kinetic Runner",
+        id: "user_reploot_" + Date.now(),
+        email: data.email || "runner@reploot.ai",
+        fullName: data.fullName || "Reploot Athlete",
         avatarUrl: data.avatarUri,
         phoneNumber: data.phoneNumber,
         createdAt: new Date().toISOString(),
@@ -144,9 +144,9 @@ export function Step5YourCoach() {
 
   const statusMessages = [
     "Analyzing personal biomechanics...",
-    "Calibrating kinetic force vectors...",
+    "Calibrating Reploot force vectors...",
     "Building customized workout routine...",
-    "Optimizing your kinetic profile...",
+    "Optimizing your Reploot profile...",
     "Your AI Coach is ready!",
   ];
 

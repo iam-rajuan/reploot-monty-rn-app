@@ -34,7 +34,7 @@ export const mockUpcomingChallenges: Challenge[] = [
   {
     id: "titan-mobility",
     title: "TITAN MOBILITY FLOW",
-    description: "Deep kinetic joint lubrication, thoracic spine mobility & recovery.",
+    description: "Deep joint mobility, thoracic spine movement & recovery.",
     category: "mobility",
     difficulty: "intermediate",
     dayBadge: "WEEKEND SPECIAL",
