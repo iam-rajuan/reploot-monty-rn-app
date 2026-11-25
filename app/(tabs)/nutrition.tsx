@@ -2,7 +2,7 @@ import { WorkoutHeader } from "@/features/workouts";
 import { useNutritionPlanStore } from "@/stores/nutritionPlanStore";
 import { HORIZONTAL_PADDING, isSmallDevice } from "@/shared/utils/responsive";
 import MaskedView from "@react-native-masked-view/masked-view";
-import { Image } from "expo-image";
+import { CoachEmoji } from "@/features/ai-coach/components/CoachEmoji";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -57,7 +57,6 @@ interface LoggedMeal {
   time: string;
 }
 
-const nutritionCoachArtwork = require("../../assets/figma/nutrition/ai-nutrition-coach-figma.jpeg");
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -309,7 +308,7 @@ export default function NutritionTabRoute() {
             <View style={styles.planHeroHeader}>
               <View style={styles.planHeroBadge}>
                 <Sparkles size={12} color="#38BDF8" />
-                <Text style={styles.planHeroBadgeText}>AI NUTRITIONIST</Text>
+                <Text style={styles.planHeroBadgeText}>NUTRITION COACH</Text>
               </View>
             </View>
             <Text style={styles.planHeroTitle}>
@@ -806,11 +805,9 @@ export default function NutritionTabRoute() {
           <View style={styles.nutritionCoachTop}>
             <View style={styles.nutritionAvatarShell}>
               <View style={styles.nutritionAvatarPanel}>
-                <Image
-                  source={nutritionCoachArtwork}
-                  contentFit="cover"
-                  style={styles.nutritionAvatar}
-                />
+                <View style={styles.nutritionAvatarArtwork}>
+                  <CoachEmoji size="lg" />
+                </View>
               </View>
               <View style={styles.coachActiveDot} />
             </View>
@@ -818,7 +815,7 @@ export default function NutritionTabRoute() {
             <View style={styles.nutritionCoachCopy}>
               <View style={styles.coachBadgeRow}>
                 <Sparkles size={11} color="#38BDF8" />
-                <Text style={styles.nutritionCoachLabel}>AI COACH</Text>
+                <Text style={styles.nutritionCoachLabel}>NUTRITION COACH</Text>
               </View>
               <Text style={styles.nutritionCoachText}>
                 Need <Text style={styles.nutritionProtein}>24g protein</Text>{" "}
@@ -1928,15 +1925,20 @@ const styles = StyleSheet.create({
   nutritionAvatarPanel: {
     width: 44,
     height: 44,
-    borderRadius: 12,
-    overflow: "hidden",
-    backgroundColor: "#131E33",
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,.10)",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
+    borderColor: "rgba(56,189,248,.22)",
+    overflow: "hidden",
   },
-  nutritionAvatar: {
-    width: 44,
-    height: 44,
+  nutritionAvatarArtwork: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    transform: [{ translateX: 1 }, { scale: 0.86 }],
   },
   coachActiveDot: {
     position: "absolute",

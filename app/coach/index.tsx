@@ -1,4 +1,4 @@
-import { CoachMascot } from "@/features/ai-coach/components/CoachMascot";
+import { CoachEmoji } from "@/features/ai-coach/components/CoachEmoji";
 import { CoachTypingIndicator } from "@/features/ai-coach/components/CoachTypingIndicator";
 import {
   useChatStore,
@@ -184,7 +184,7 @@ export default function CoachRoute() {
         </Pressable>
         <View style={styles.identity}>
           <View style={styles.identityIcon}>
-            <CoachMascot size={26} />
+            <CoachEmoji size="md" />
           </View>
           <View>
             <Text style={styles.headerTitle}>AI COACH</Text>
@@ -235,7 +235,7 @@ export default function CoachRoute() {
           ) && (
             <View style={styles.welcome}>
               <View style={styles.welcomeIcon}>
-                <CoachMascot size={36} />
+                <CoachEmoji size="lg" />
               </View>
               <Text style={styles.welcomeTitle}>How can I help today?</Text>
               <Text style={styles.welcomeText}>
@@ -269,7 +269,7 @@ export default function CoachRoute() {
               >
                 {!user && (
                   <View style={styles.messageAvatar}>
-                    <CoachMascot size={22} />
+                    <CoachEmoji size="sm" />
                   </View>
                 )}
                 <View
@@ -506,14 +506,14 @@ const styles = StyleSheet.create({
   },
   identity: { flex: 1, flexDirection: "row", alignItems: "center", gap: 10 },
   identityIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 11,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(53,229,208,.12)",
+    backgroundColor: "rgba(56,189,248,.10)",
     borderWidth: 1,
-    borderColor: "rgba(53,229,208,.24)",
+    borderColor: "rgba(56,189,248,.22)",
   },
   headerTitle: {
     ...typography.pageTitleCompact,
@@ -542,12 +542,8 @@ const styles = StyleSheet.create({
   welcomeIcon: {
     width: 48,
     height: 48,
-    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(53,229,208,.1)",
-    borderWidth: 1,
-    borderColor: "rgba(53,229,208,.22)",
     marginBottom: 15,
   },
   welcomeTitle: { color: "#F8FAFC", fontSize: 20, fontWeight: "800" },
@@ -584,12 +580,8 @@ const styles = StyleSheet.create({
   messageAvatar: {
     width: 28,
     height: 28,
-    borderRadius: 9,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(53,229,208,.1)",
-    borderWidth: 1,
-    borderColor: "rgba(53,229,208,.18)",
   },
   assistantMessage: {
     backgroundColor: "#111A25",

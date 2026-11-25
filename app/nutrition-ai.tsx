@@ -2,7 +2,8 @@ import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { useNutritionPlanStore } from "@/stores/nutritionPlanStore";
 import { LinearGradient } from "expo-linear-gradient";
-import { ArrowLeft, Bot, Check, Send, Sparkles } from "lucide-react-native";
+import { ArrowLeft, Check, Send, Sparkles } from "lucide-react-native";
+import { CoachEmoji } from "@/features/ai-coach/components/CoachEmoji";
 import React, { useMemo, useState } from "react";
 import {
   Pressable,
@@ -122,7 +123,7 @@ export default function NutritionAiScreen() {
     setIsReady(false);
   };
 
-  const heading = isAdjustMode ? "ADJUST WITH AI" : "AI NUTRITIONIST";
+  const heading = isAdjustMode ? "ADJUST YOUR PLAN" : "NUTRITION COACH";
   const opening = isAdjustMode
     ? "Tell me what you’d like to change. I’ll update the plan while keeping your goals and routine in mind."
     : "I’ll build a practical plan around your life—not an unrealistic food list.";
@@ -140,9 +141,9 @@ export default function NutritionAiScreen() {
         </Pressable>
         <View style={styles.headerIdentity}>
           <View style={styles.botBadge}>
-            <Bot color="#44EAC3" size={16} />
+            <CoachEmoji size="md" />
           </View>
-          <Text style={styles.headerLabel}>AI NUTRITIONIST</Text>
+          <Text style={styles.headerLabel}>NUTRITION COACH</Text>
         </View>
       </View>
 
@@ -162,7 +163,7 @@ export default function NutritionAiScreen() {
 
         <View style={styles.assistantRow}>
           <View style={styles.avatar}>
-            <Bot color="#071018" size={20} />
+            <CoachEmoji size="lg" />
           </View>
           <View style={styles.assistantBubble}>
             <Text style={styles.assistantText}>{opening}</Text>
@@ -392,10 +393,12 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   botBadge: {
-    width: 30,
-    height: 30,
-    borderRadius: 10,
-    backgroundColor: "rgba(68,234,195,.12)",
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(56,189,248,.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,.22)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -429,8 +432,6 @@ const styles = StyleSheet.create({
   avatar: {
     width: 36,
     height: 36,
-    borderRadius: 12,
-    backgroundColor: "#44EAC3",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,

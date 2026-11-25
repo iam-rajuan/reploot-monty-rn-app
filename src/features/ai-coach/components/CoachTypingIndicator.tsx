@@ -12,12 +12,11 @@ import Animated, {
   withTiming,
   type SharedValue,
 } from "react-native-reanimated";
-import { Text } from "@/shared/components/typography";
+import { CoachEmoji } from "./CoachEmoji";
 
 /**
- * "The coach is typing" row: the phone's own 🐒 emoji swings gently in its
- * avatar frame while three dots ripple in the reply bubble. The emoji is drawn
- * by the OS, so it looks like Apple's monkey on iPhone and Google's on Android.
+ * "The coach is typing" row: the 🐒 coach (see CoachEmoji) swings gently in its
+ * avatar frame while three dots ripple in the reply bubble.
  *
  * Callers pass their existing avatar-frame and bubble styles so the row lines
  * up exactly with real assistant messages. Motion is skipped when the OS
@@ -122,14 +121,7 @@ export const CoachTypingIndicator = ({
     >
       <View style={avatarStyle}>
         <Animated.View style={[styles.mascot, mascotStyle]}>
-          <Text
-            style={styles.emoji}
-            allowFontScaling={false}
-            accessible={false}
-            importantForAccessibility="no"
-          >
-            🐒
-          </Text>
+          <CoachEmoji size="sm" />
         </Animated.View>
       </View>
       <View style={bubbleStyle}>
@@ -145,13 +137,6 @@ const styles = StyleSheet.create({
   mascot: {
     // Pivot near the feet so the monkey sways like it is hopping in place.
     transformOrigin: "50% 80%",
-  },
-  emoji: {
-    // Emoji glyph only: the OS emoji font draws it, so no text role applies.
-    fontSize: 18,
-    lineHeight: 22,
-    textAlign: "center",
-    includeFontPadding: false,
   },
   dot: {
     width: 6,
