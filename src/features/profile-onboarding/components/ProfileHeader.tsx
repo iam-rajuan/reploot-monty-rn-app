@@ -1,7 +1,8 @@
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -100,16 +101,14 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 12,
     lineHeight: 16,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1.8,
+    fontWeight: "700",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
   },
   progressPercentText: {
     color: "#22D3EE",
     fontSize: 12,
     lineHeight: 16,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 0.4,
   },

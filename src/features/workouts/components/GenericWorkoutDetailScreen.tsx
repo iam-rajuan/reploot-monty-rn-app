@@ -19,9 +19,9 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   DynamicWorkoutPathDetail,
@@ -30,6 +30,7 @@ import {
 } from "../data/workoutPathDetailData";
 import { PushDayExerciseList } from "./PushDayExerciseCard";
 import { PushDayHeroCard } from "./PushDayHeroCard";
+import { typography } from "@/theme/typography";
 
 export interface GenericWorkoutDetailScreenProps {
   workout?: DynamicWorkoutPathDetail;
@@ -443,7 +444,7 @@ const styles = StyleSheet.create({
   },
   categoryPillText: {
     color: "#64748B",
-    fontSize: 9.5,
+    fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.5,
   },
@@ -455,12 +456,8 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 27,
-    lineHeight: 32,
-    fontWeight: "900",
-    letterSpacing: -0.5,
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
@@ -487,7 +484,7 @@ const styles = StyleSheet.create({
   completedCountText: {
     color: "#38EDD8",
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   hudToast: {
@@ -510,9 +507,8 @@ const styles = StyleSheet.create({
   },
   hudToastText: {
     color: "#00f2fe",
-    fontSize: 10.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 11,
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   fadeGradient: {
@@ -572,8 +568,7 @@ const styles = StyleSheet.create({
   regenerateBtnText: {
     color: "#D7F8FF",
     fontSize: 11,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   startWorkoutBtn: {
@@ -608,8 +603,7 @@ const styles = StyleSheet.create({
   startWorkoutText: {
     color: "#050811",
     fontSize: 11,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
 });

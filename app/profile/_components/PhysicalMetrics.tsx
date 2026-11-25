@@ -1,7 +1,8 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export function PhysicalMetrics() {
   return (
@@ -68,9 +69,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 2,
+    fontWeight: "700",
+    letterSpacing: 1.2,
   },
   metricsRow: {
     flexDirection: "row",
@@ -95,27 +95,23 @@ const styles = StyleSheet.create({
   metricLabel: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
     fontWeight: "700",
-    letterSpacing: 1.5,
+    letterSpacing: 1.2,
     marginBottom: 8,
   },
   metricValue: {
     color: "#C5C0FF",
     fontSize: 22,
-    fontFamily: "monospace",
     fontWeight: "800",
   },
   metricUnit: {
     fontSize: 12,
-    fontFamily: "monospace",
     fontWeight: "700",
   },
   metricSub: {
     color: "#C5C0FF",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
     marginTop: 4,
   },

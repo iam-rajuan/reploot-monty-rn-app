@@ -6,11 +6,11 @@ import {
   Platform,
   StyleProp,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
   ViewStyle,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { CircuitExerciseItem } from "../data/upperBodySessionData";
 
 export interface CircuitExerciseCardProps {
@@ -123,9 +123,8 @@ const styles = StyleSheet.create({
   indexBadgeText: {
     color: "#44EAC3",
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
-    fontFamily: "monospace",
   },
   textContainer: {
     flex: 1,
@@ -144,15 +143,14 @@ const styles = StyleSheet.create({
   },
   xpPillText: {
     color: "#44EAC3",
-    fontSize: 10.5,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontSize: 11,
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   titleText: {
     color: "#FFFFFF",
-    fontSize: 15,
-    lineHeight: 19,
+    fontSize: 16,
+    lineHeight: 20,
     fontWeight: "700",
     letterSpacing: 0.1,
     marginBottom: 4,

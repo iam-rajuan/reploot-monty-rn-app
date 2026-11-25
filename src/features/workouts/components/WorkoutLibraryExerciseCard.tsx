@@ -7,10 +7,10 @@ import {
   Pressable,
   StyleProp,
   StyleSheet,
-  Text,
   View,
   ViewStyle,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { WorkoutDetailExercise } from "../data/workoutLibraryDetailData";
 
 export interface WorkoutLibraryExerciseCardProps {
@@ -143,17 +143,15 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#FFFFFF",
-    fontSize: 15.5,
+    fontSize: 16,
     fontWeight: "800",
-    fontFamily: "monospace",
     letterSpacing: 0.3,
     marginBottom: 4,
   },
   setsReps: {
     color: "#8E95A5",
-    fontSize: 11.5,
+    fontSize: 12,
     fontWeight: "700",
-    fontFamily: "monospace",
     letterSpacing: 0.6,
     textTransform: "uppercase",
     marginBottom: 6,
@@ -192,15 +190,13 @@ const styles = StyleSheet.create({
   },
   diffBadgeText: {
     fontSize: 10,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   xpText: {
     color: "#C4C9D6",
     fontSize: 11,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontWeight: "700",
   },
   starButton: {
     padding: 6,

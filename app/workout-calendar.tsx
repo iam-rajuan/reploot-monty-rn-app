@@ -28,10 +28,10 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import Svg, { Line as SvgLine } from "react-native-svg";
 import {
   Gesture,
@@ -53,6 +53,7 @@ import {
   setSelectedWorkoutCategory,
 } from "@/store/slices/workoutSlice";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { typography } from "@/theme/typography";
 
 const { width } = Dimensions.get("window");
 
@@ -1181,7 +1182,7 @@ export default function WorkoutCalendarScreen() {
                 <Text
                   style={{
                     color: activeSelectedSplit.color,
-                    fontWeight: "900",
+                    fontWeight: "800",
                   }}
                 >
                   {activeSelectedSplit.name}
@@ -1657,7 +1658,7 @@ export default function WorkoutCalendarScreen() {
                           <Text
                             style={[
                               styles.modalSplitCardName,
-                              isCurrent && { color: "#FFFFFF", fontWeight: "900" },
+                              isCurrent && { color: "#FFFFFF", fontWeight: "800" },
                             ]}
                           >
                             {split.name}
@@ -1767,9 +1768,8 @@ const styles = StyleSheet.create({
   },
   titleBadgeText: {
     color: "#00f2fe",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   maskedTitleWrapper: {
@@ -1789,19 +1789,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 26,
-    lineHeight: 32,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 12,
     lineHeight: 17,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
   },
@@ -1833,14 +1827,12 @@ const styles = StyleSheet.create({
   trayBadgeText: {
     color: "#38BDF8",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
   },
   traySubText: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "monospace",
   },
   clearActiveBtn: {
     flexDirection: "row",
@@ -1854,7 +1846,6 @@ const styles = StyleSheet.create({
   clearActiveText: {
     color: "#94A3B8",
     fontSize: 9,
-    fontFamily: "monospace",
     fontWeight: "700",
   },
   splitsGridContainer: {
@@ -1888,9 +1879,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   splitBadgeText: {
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.2,
   },
   splitActiveCheck: {
@@ -1913,7 +1903,6 @@ const styles = StyleSheet.create({
   placementHintText: {
     color: "#94A3B8",
     fontSize: 10,
-    fontFamily: "monospace",
   },
 
   /* Unified Cyberpunk Month Navigator */
@@ -1940,8 +1929,7 @@ const styles = StyleSheet.create({
   monthNavAdjacentText: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
     marginHorizontal: 3,
   },
@@ -1958,8 +1946,7 @@ const styles = StyleSheet.create({
   monthNavTitle: {
     color: "#E2E8F0",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1,
   },
 
@@ -1987,8 +1974,7 @@ const styles = StyleSheet.create({
   dayHeaderText: {
     color: "#64748B",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   gridContainer: {
@@ -2041,25 +2027,21 @@ const styles = StyleSheet.create({
   dateText: {
     color: "#FFFFFF",
     fontSize: 14,
-    fontFamily: "monospace",
     fontWeight: "800",
   },
   dateTextInactive: {
     color: "#334155",
     fontSize: 13,
-    fontFamily: "monospace",
     fontWeight: "600",
   },
   dateTextToday: {
     color: "#050811",
-    fontWeight: "900",
+    fontWeight: "800",
     fontSize: 14,
-    fontFamily: "monospace",
   },
   dateTextRest: {
     color: "#64748B",
     fontSize: 13,
-    fontFamily: "monospace",
     fontWeight: "700",
   },
   restDayDotMini: {
@@ -2076,9 +2058,8 @@ const styles = StyleSheet.create({
     tintColor: "#050811",
   },
   labelText: {
-    fontSize: 8.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 9,
+    fontWeight: "700",
     letterSpacing: 0.5,
     textAlign: "center",
     height: 12,
@@ -2110,8 +2091,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#00f2fe",
   },
   legendText: {
-    fontSize: 10.5,
-    fontFamily: "monospace",
+    fontSize: 11,
     fontWeight: "700",
     letterSpacing: 0.3,
   },
@@ -2139,8 +2119,7 @@ const styles = StyleSheet.create({
   updateButtonText: {
     color: "#050811",
     fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     textAlign: "center",
     letterSpacing: 0.8,
   },
@@ -2202,8 +2181,7 @@ const styles = StyleSheet.create({
   loadingTitle: {
     color: "#FFFFFF",
     fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 1,
     textAlign: "center",
     marginBottom: 6,
@@ -2211,7 +2189,6 @@ const styles = StyleSheet.create({
   loadingSubtitle: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
     textAlign: "center",
   },
 
@@ -2236,8 +2213,7 @@ const styles = StyleSheet.create({
   floatingDragText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
 
@@ -2303,16 +2279,14 @@ const styles = StyleSheet.create({
   },
   modalMicroText: {
     color: "#38BDF8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 1,
   },
   modalTitle: {
     color: "#FFFFFF",
-    fontSize: 19,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 20,
+    fontWeight: "800",
     letterSpacing: 0.4,
   },
   modalStatusCapsule: {
@@ -2332,9 +2306,8 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   modalStatusText: {
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.4,
   },
   modalRestCapsule: {
@@ -2358,8 +2331,7 @@ const styles = StyleSheet.create({
   },
   modalRestText: {
     color: "#94A3B8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
+    fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.4,
   },
@@ -2382,15 +2354,13 @@ const styles = StyleSheet.create({
   },
   modalSectionLabel: {
     color: "#94A3B8",
-    fontSize: 10.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 11,
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   modalSectionSub: {
     color: "#64748B",
     fontSize: 9,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 0.5,
   },
@@ -2419,8 +2389,7 @@ const styles = StyleSheet.create({
   },
   modalSplitCardName: {
     color: "#CBD5E1",
-    fontSize: 11.5,
-    fontFamily: "monospace",
+    fontSize: 12,
     fontWeight: "700",
     flex: 1,
   },
@@ -2448,9 +2417,8 @@ const styles = StyleSheet.create({
   },
   modalOpenRoutineText: {
     color: "#050811",
-    fontSize: 11.5,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 12,
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   modalClearBtn: {
@@ -2467,15 +2435,13 @@ const styles = StyleSheet.create({
   },
   modalClearText: {
     color: "#F43F5E",
-    fontSize: 10.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 11,
+    fontWeight: "700",
     letterSpacing: 0.4,
   },
   modalHelperText: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "monospace",
     textAlign: "center",
     marginTop: 6,
     marginBottom: 2,
@@ -2518,8 +2484,7 @@ const styles = StyleSheet.create({
   alertTitle: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 0.5,
     marginBottom: 8,
     textAlign: "center",
@@ -2528,7 +2493,6 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 12,
     lineHeight: 18,
-    fontFamily: "monospace",
     textAlign: "center",
     marginBottom: 14,
   },
@@ -2555,13 +2519,11 @@ const styles = StyleSheet.create({
   alertSwapTargetText: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
     fontWeight: "700",
   },
   alertSwapSourceText: {
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   alertActionsRow: {
     flexDirection: "row",
@@ -2581,8 +2543,7 @@ const styles = StyleSheet.create({
   alertCancelBtnText: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   alertConfirmBtn: {
@@ -2600,8 +2561,7 @@ const styles = StyleSheet.create({
   alertConfirmBtnText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
 });

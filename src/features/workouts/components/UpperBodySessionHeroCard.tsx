@@ -10,13 +10,12 @@ import {
 } from "lucide-react-native";
 import React from "react";
 import {
-  Platform,
   StyleProp,
   StyleSheet,
-  Text,
   View,
   ViewStyle,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import Svg, { Path } from "react-native-svg";
 
 export interface UpperBodySessionHeroCardProps {
@@ -143,9 +142,8 @@ const styles = StyleSheet.create({
   apexBadgeText: {
     color: "#44EAC3",
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.1,
-    fontFamily: "monospace",
     textTransform: "uppercase",
   },
   xpBadge: {
@@ -172,10 +170,9 @@ const styles = StyleSheet.create({
   },
   xpBadgeText: {
     color: "#FFFFFF",
-    fontSize: 11.5,
-    fontWeight: "800",
+    fontSize: 12,
+    fontWeight: "700",
     letterSpacing: 0.6,
-    fontFamily: "monospace",
   },
   bottomContent: {
     position: "absolute",
@@ -186,20 +183,18 @@ const styles = StyleSheet.create({
   },
   subtitleText: {
     color: "#94A3B8",
-    fontSize: 11.5,
-    fontWeight: "800",
+    fontSize: 12,
+    fontWeight: "700",
     letterSpacing: 1.2,
-    fontFamily: "monospace",
     textTransform: "uppercase",
     marginBottom: 6,
   },
   titleText: {
     color: "#FFFFFF",
-    fontSize: 27,
+    fontSize: 28,
     lineHeight: 31,
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 0.5,
-    fontFamily: "monospace",
     textTransform: "uppercase",
     marginBottom: 14,
   },
@@ -222,10 +217,9 @@ const styles = StyleSheet.create({
   },
   statPillText: {
     color: "#FFFFFF",
-    fontSize: 11.5,
-    fontWeight: "800",
+    fontSize: 12,
+    fontWeight: "700",
     letterSpacing: 0.8,
-    fontFamily: "monospace",
     textTransform: "uppercase",
   },
 });

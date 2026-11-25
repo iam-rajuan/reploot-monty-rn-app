@@ -1,6 +1,8 @@
 import { Calendar } from "lucide-react-native";
 import React from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
+import { typography } from "@/theme/typography";
 
 export interface HomeGreetingProps {
   name: string;
@@ -50,8 +52,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     fontWeight: "700",
-    letterSpacing: 1.5,
-    fontFamily: "JetBrainsMono_700Bold",
+    letterSpacing: 1.2,
     marginBottom: 4,
   },
   titleWrapper: {
@@ -60,12 +61,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   titleLine: {
+    ...typography.pageTitle,
     color: "#F6F8FF",
-    fontSize: 34,
-    lineHeight: 38,
-    fontWeight: "900",
-    letterSpacing: -0.8,
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
     textShadowColor: "rgba(120, 145, 255, 0.22)",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 6,
@@ -82,6 +79,5 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     fontWeight: "700",
     letterSpacing: 1,
-    fontFamily: "JetBrainsMono_700Bold",
   },
 });

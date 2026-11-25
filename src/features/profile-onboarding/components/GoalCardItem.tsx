@@ -1,7 +1,8 @@
 import { FitnessGoal } from "@/shared/types/user";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export interface GoalOption {
   id: FitnessGoal;
@@ -115,7 +116,6 @@ const styles = StyleSheet.create({
     color: "#CBD5E1",
     fontSize: 13,
     lineHeight: 16,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 1.2,
     textAlign: "center",
@@ -125,8 +125,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 13,
     lineHeight: 16,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 1.2,
     textAlign: "center",
     textTransform: "uppercase",

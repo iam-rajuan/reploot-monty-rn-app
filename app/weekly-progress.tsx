@@ -28,10 +28,10 @@ import {
   ScrollView,
   Share,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
 import {
@@ -39,6 +39,7 @@ import {
   clampFontSize,
   isSmallDevice,
 } from "@/shared/utils/responsive";
+import { typography } from "@/theme/typography";
 
 const { width } = Dimensions.get("window");
 
@@ -950,14 +951,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: clampFontSize(28),
-    lineHeight: 34,
-    fontWeight: "900",
-    fontStyle: "italic",
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
   },
   titleDateRow: {
     flexDirection: "row",
@@ -967,7 +962,6 @@ const styles = StyleSheet.create({
   subtitle: {
     color: "#38EDD8",
     fontSize: clampFontSize(11),
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
   },
   tabContainer: {
@@ -997,9 +991,8 @@ const styles = StyleSheet.create({
   tabText: {
     color: "#8E9BAE",
     fontSize: clampFontSize(11),
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   tabTextActive: {
     color: "#FFFFFF",
@@ -1044,18 +1037,16 @@ const styles = StyleSheet.create({
   },
   streakNumber: {
     color: "#FFFFFF",
-    fontSize: clampFontSize(26),
-    fontWeight: "900",
+    fontSize: clampFontSize(24),
+    fontWeight: "800",
     lineHeight: 30,
     letterSpacing: -0.5,
-    fontFamily: "JetBrainsMono_700Bold",
   },
   streakLabel: {
     color: "#8E9BAE",
     fontSize: clampFontSize(9),
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   xpRow: {
     flexDirection: "row",
@@ -1067,7 +1058,6 @@ const styles = StyleSheet.create({
     fontSize: clampFontSize(11),
     fontWeight: "700",
     letterSpacing: 0.5,
-    fontFamily: "JetBrainsMono_700Bold",
   },
   progressBarTrack: {
     height: 7,
@@ -1083,7 +1073,6 @@ const styles = StyleSheet.create({
   xpTargetText: {
     color: "#38EDD8",
     fontSize: clampFontSize(11),
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     fontWeight: "700",
     letterSpacing: 0.3,
   },
@@ -1108,23 +1097,20 @@ const styles = StyleSheet.create({
   metricLabel: {
     color: "#8E9BAE",
     fontSize: clampFontSize(10),
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   metricValue: {
     color: "#FFFFFF",
     fontSize: clampFontSize(22),
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: -0.5,
-    fontFamily: "JetBrainsMono_700Bold",
     marginBottom: 2,
   },
   metricSub: {
     color: "#64748B",
     fontSize: clampFontSize(11),
     fontWeight: "600",
-    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
   },
   metricVerticalDivider: {
     width: 1,
@@ -1138,7 +1124,6 @@ const styles = StyleSheet.create({
     color: "#2DD4BF",
     fontSize: clampFontSize(11),
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
     marginTop: 4,
   },
   cardHeader: {
@@ -1165,8 +1150,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: "#FFFFFF",
     fontSize: clampFontSize(12),
-    fontWeight: "800",
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
+    fontWeight: "700",
     letterSpacing: 1,
   },
   chartLegend: {
@@ -1183,7 +1167,6 @@ const styles = StyleSheet.create({
   legendText: {
     color: "#8E9BAE",
     fontSize: clampFontSize(9),
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     letterSpacing: 0.8,
   },
   chartContainer: {
@@ -1205,7 +1188,6 @@ const styles = StyleSheet.create({
     color: "#8E9BAE",
     fontSize: clampFontSize(10),
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
   },
   barBackground: {
     width: 36,
@@ -1242,8 +1224,7 @@ const styles = StyleSheet.create({
   dayLabel: {
     color: "#8E9BAE",
     fontSize: clampFontSize(11),
-    fontWeight: "800",
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
+    fontWeight: "700",
   },
   dayLabelActive: {
     color: "#FFFFFF",
@@ -1264,8 +1245,7 @@ const styles = StyleSheet.create({
   selectedDayTitle: {
     color: "#38EDD8",
     fontSize: clampFontSize(11),
-    fontWeight: "800",
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
+    fontWeight: "700",
     letterSpacing: 1,
     marginBottom: 2,
   },
@@ -1273,10 +1253,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: clampFontSize(14),
     fontWeight: "700",
-    fontFamily: Platform.select({
-      android: "sans-serif-medium",
-      ios: "System",
-    }),
   },
   scoreBadge: {
     backgroundColor: "rgba(56, 237, 216, 0.15)",
@@ -1289,8 +1265,7 @@ const styles = StyleSheet.create({
   scoreBadgeText: {
     color: "#38EDD8",
     fontSize: clampFontSize(10),
-    fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "700",
   },
   restBadge: {
     backgroundColor: "rgba(148, 163, 184, 0.15)",
@@ -1303,8 +1278,7 @@ const styles = StyleSheet.create({
   restBadgeText: {
     color: "#94A3B8",
     fontSize: clampFontSize(10),
-    fontWeight: "800",
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
+    fontWeight: "700",
   },
   selectedDayStatsRow: {
     flexDirection: "row",
@@ -1322,13 +1296,11 @@ const styles = StyleSheet.create({
     color: "#CBD5E1",
     fontSize: clampFontSize(10),
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
   },
   tonnageHighlight: {
     color: "#38EDD8",
     fontSize: clampFontSize(11),
-    fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "700",
     letterSpacing: 1,
   },
   tonnageSummaryRow: {
@@ -1341,15 +1313,13 @@ const styles = StyleSheet.create({
     color: "#8E9BAE",
     fontSize: clampFontSize(10),
     fontWeight: "700",
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     letterSpacing: 1,
     marginBottom: 4,
   },
   tonnageValue: {
     color: "#FFFFFF",
-    fontSize: clampFontSize(26),
-    fontWeight: "900",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: clampFontSize(24),
+    fontWeight: "800",
     letterSpacing: -0.5,
   },
   tonnageUnit: {
@@ -1370,8 +1340,7 @@ const styles = StyleSheet.create({
   tonnageBadgeText: {
     color: "#2DD4BF",
     fontSize: clampFontSize(10),
-    fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   muscleList: {
@@ -1387,13 +1356,11 @@ const styles = StyleSheet.create({
     color: "#CBD5E1",
     fontSize: clampFontSize(11),
     fontWeight: "700",
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   musclePercent: {
     color: "#8E9BAE",
     fontSize: clampFontSize(11),
-    fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "700",
   },
   muscleTrack: {
     height: 8,
@@ -1416,8 +1383,7 @@ const styles = StyleSheet.create({
   aiPillText: {
     color: "#38BDF8",
     fontSize: clampFontSize(9),
-    fontWeight: "800",
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   insightsList: {
@@ -1439,7 +1405,6 @@ const styles = StyleSheet.create({
     color: "#CBD5E1",
     fontSize: clampFontSize(12),
     lineHeight: 18,
-    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "500",
     flex: 1,
   },
@@ -1450,8 +1415,7 @@ const styles = StyleSheet.create({
   badgesCount: {
     color: "#8E9BAE",
     fontSize: clampFontSize(10),
-    fontWeight: "800",
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
+    fontWeight: "700",
   },
   badgesRow: {
     flexDirection: "row",
@@ -1479,8 +1443,7 @@ const styles = StyleSheet.create({
   badgeTitle: {
     color: "#FFFFFF",
     fontSize: clampFontSize(10),
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
-    fontWeight: "800",
+    fontWeight: "700",
     textAlign: "center",
     marginBottom: 3,
     letterSpacing: 0.3,
@@ -1488,7 +1451,6 @@ const styles = StyleSheet.create({
   badgeSub: {
     color: "#8E9BAE",
     fontSize: clampFontSize(9),
-    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "600",
     textAlign: "center",
   },
@@ -1512,9 +1474,8 @@ const styles = StyleSheet.create({
   shareBtnText: {
     color: "#38EDD8",
     fontSize: clampFontSize(12),
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   workoutBtn: {
     flex: 1,
@@ -1536,8 +1497,7 @@ const styles = StyleSheet.create({
   workoutBtnText: {
     color: "#050811",
     fontSize: clampFontSize(12),
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1,
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
   },
 });

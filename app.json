@@ -40,7 +40,8 @@
         {
           "cameraPermission": "Allow REPLOOT to access your camera for AI workout pose tracking and food scanning."
         }
-      ]
+      ],
+      "expo-splash-screen"
     ],
     "extra": {
       "router": {

@@ -17,9 +17,9 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Line, Path } from "react-native-svg";
 import {
@@ -31,6 +31,7 @@ import { setSelectedWorkoutCategory } from "@/store/slices/workoutSlice";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { GenericWorkoutDetailScreen } from "./GenericWorkoutDetailScreen";
 import { WorkoutLibraryScreen } from "./WorkoutLibraryScreen";
+import { typography } from "@/theme/typography";
 
 const { width } = Dimensions.get("window");
 
@@ -412,20 +413,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     fontWeight: "800",
-    letterSpacing: 1.5,
-    fontFamily: "JetBrainsMono_700Bold",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 4,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#F6F8FF",
-    fontSize: 33,
-    lineHeight: 40,
-    fontWeight: "900",
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    letterSpacing: -0.8,
-    textAlign: "left",
-    textTransform: "uppercase",
     textShadowColor: "rgba(37, 215, 232, 0.12)",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 6,
@@ -434,7 +428,6 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 19,
-    fontFamily: "JetBrainsMono_500Medium",
     fontWeight: "500",
     marginTop: 4,
   },
@@ -492,8 +485,7 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 9,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   titleRow: {
@@ -506,8 +498,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: "#F6F8FF",
     fontSize: 13,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 0.8,
     textTransform: "uppercase",
   },
@@ -515,7 +506,6 @@ const styles = StyleSheet.create({
     color: "#91A0B9",
     fontSize: 10,
     lineHeight: 15,
-    fontFamily: "JetBrainsMono_500Medium",
     fontWeight: "500",
   },
 });

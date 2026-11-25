@@ -2,7 +2,8 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { HORIZONTAL_PADDING } from "@/shared/utils/responsive";
 
 import { MacrosGrid } from "./MacrosGrid";
@@ -126,7 +127,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 22,
     fontWeight: "700",
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
   },
   headerRight: {
     height: 24,
@@ -142,14 +142,13 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     fontWeight: "700",
     letterSpacing: 0.2,
-    fontFamily: "JetBrainsMono_700Bold",
     includeFontPadding: false,
     textAlign: "right",
   },
   headerLinkArrow: {
     color: "#3FDEC9",
     fontSize: 16,
-    lineHeight: 15,
+    lineHeight: 20,
     fontWeight: "800",
   },
 });

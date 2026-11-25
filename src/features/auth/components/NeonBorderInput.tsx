@@ -1,13 +1,12 @@
 import React from "react";
 import {
   View,
-  Text,
-  TextInput as RNTextInput,
   TextInputProps as RNTextInputProps,
   StyleSheet,
   ViewStyle,
   Platform,
 } from "react-native";
+import { Text, TextInput as RNTextInput } from "@/shared/components/typography";
 import { LinearGradient } from "expo-linear-gradient";
 
 export interface NeonBorderInputProps extends RNTextInputProps {
@@ -63,7 +62,7 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 11,
     fontWeight: "700",
-    letterSpacing: 1.4,
+    letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 10,
     marginLeft: 4,
@@ -95,7 +94,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: "#F8FAFC",
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "500",
     height: "100%",
     paddingVertical: 0,

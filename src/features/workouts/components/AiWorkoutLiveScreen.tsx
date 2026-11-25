@@ -26,9 +26,9 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle as SvgCircle, Line as SvgLine } from "react-native-svg";
 import { WorkoutExerciseItem } from "../data/workoutPathDetailData";
@@ -453,18 +453,16 @@ const styles = StyleSheet.create({
   headerCategory: {
     color: "#FFF",
     fontSize: 20,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1.4,
+    fontWeight: "800",
+    letterSpacing: 0.8,
     textTransform: "uppercase",
   },
   headerTitle: {
     color: "#FFFFFF",
     fontSize: 22,
     lineHeight: 26,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1.2,
+    fontWeight: "800",
+    letterSpacing: 0.8,
     textTransform: "uppercase",
   },
   pauseBtn: {
@@ -485,8 +483,7 @@ const styles = StyleSheet.create({
   pauseBtnText: {
     color: "#38EDD8",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   pauseBtnTextActive: {
     color: "#FFFFFF",
@@ -534,8 +531,7 @@ const styles = StyleSheet.create({
   indexBadgeText: {
     color: "#38EDD8",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   heroTextCol: {
     flex: 1,
@@ -564,30 +560,26 @@ const styles = StyleSheet.create({
   },
   activePillText: {
     color: "#38EDD8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   progressCounterText: {
     color: "#94A3B8",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   exerciseNameText: {
     color: "#FFFFFF",
     fontSize: 16,
     lineHeight: 20,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   exerciseSubtitleText: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
     fontWeight: "500",
     marginTop: 2,
   },
@@ -616,8 +608,7 @@ const styles = StyleSheet.create({
   statCardLabel: {
     color: "#94A3B8",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   repsDisplayRow: {
@@ -627,15 +618,13 @@ const styles = StyleSheet.create({
   },
   repsMainNumber: {
     color: "#FFFFFF",
-    fontSize: 38,
-    lineHeight: 42,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 40,
+    lineHeight: 44,
+    fontWeight: "800",
   },
   repsTargetText: {
     color: "#64748B",
     fontSize: 16,
-    fontFamily: "monospace",
     fontWeight: "800",
   },
   repsProgressBarTrack: {
@@ -653,8 +642,7 @@ const styles = StyleSheet.create({
   repsProgressSub: {
     color: "#38EDD8",
     fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   repAdjustRow: {
@@ -689,9 +677,8 @@ const styles = StyleSheet.create({
   },
   accuracyNumberText: {
     color: "#FFFFFF",
-    fontSize: 18,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 20,
+    fontWeight: "800",
   },
   accuracyRatingPill: {
     alignSelf: "center",
@@ -703,15 +690,13 @@ const styles = StyleSheet.create({
   },
   accuracyRatingText: {
     color: "#38EDD8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   accuracySubText: {
     color: "#64748B",
-    fontSize: 8.5,
-    fontFamily: "monospace",
+    fontSize: 9,
     fontWeight: "700",
     textAlign: "center",
     marginTop: 4,
@@ -723,13 +708,11 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 32,
     lineHeight: 36,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   timerSubText: {
     color: "#94A3B8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
+    fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.5,
     marginTop: 2,
@@ -750,8 +733,7 @@ const styles = StyleSheet.create({
   quickTimerText: {
     color: "#FFFFFF",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
 
   // Metric Pair
@@ -762,21 +744,18 @@ const styles = StyleSheet.create({
   },
   burnNumber: {
     color: "#FFFFFF",
-    fontSize: 34,
+    fontSize: 32,
     lineHeight: 38,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   burnUnit: {
     color: "#F59E0B",
     fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   burnSubText: {
     color: "#94A3B8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
+    fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.5,
     marginTop: 2,
@@ -789,9 +768,8 @@ const styles = StyleSheet.create({
   },
   volumeMiniText: {
     color: "#38EDD8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
 
@@ -818,8 +796,7 @@ const styles = StyleSheet.create({
   aiBadgeText: {
     color: "#38EDD8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
   },
   aiLiveTag: {
@@ -834,15 +811,13 @@ const styles = StyleSheet.create({
   aiLiveTagText: {
     color: "#FBBF24",
     fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   aiCueText: {
     color: "#E2E8F0",
-    fontSize: 12.5,
+    fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "500",
     marginBottom: 12,
   },
@@ -861,16 +836,14 @@ const styles = StyleSheet.create({
   },
   aiMetricChipLabel: {
     color: "#94A3B8",
-    fontSize: 8.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 9,
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   aiMetricChipVal: {
     color: "#FFFFFF",
     fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     marginTop: 2,
   },
 
@@ -892,16 +865,14 @@ const styles = StyleSheet.create({
   setsTableTitle: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
     textTransform: "uppercase",
   },
   setsTableSubtitle: {
     color: "#38EDD8",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   setsListWrapper: {
@@ -949,8 +920,7 @@ const styles = StyleSheet.create({
   setNumberText: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   setNumberTextCurrent: {
     color: "#0B0F19",
@@ -958,8 +928,7 @@ const styles = StyleSheet.create({
   setLabelText: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   setLabelTextCurrent: {
@@ -972,8 +941,7 @@ const styles = StyleSheet.create({
   },
   setMetricText: {
     color: "#E2E8F0",
-    fontSize: 11.5,
-    fontFamily: "monospace",
+    fontSize: 12,
     fontWeight: "700",
   },
   setDotDivider: {
@@ -983,7 +951,6 @@ const styles = StyleSheet.create({
   setMetricAcc: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
     fontWeight: "600",
   },
   setMetricAccCompleted: {
@@ -1001,9 +968,8 @@ const styles = StyleSheet.create({
   },
   statusDoneText: {
     color: "#38EDD8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   statusActiveBadge: {
@@ -1014,15 +980,13 @@ const styles = StyleSheet.create({
   },
   statusActiveText: {
     color: "#38BDF8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   statusPendingText: {
     color: "#64748B",
-    fontSize: 9.5,
-    fontFamily: "monospace",
+    fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.5,
   },
@@ -1059,7 +1023,6 @@ const styles = StyleSheet.create({
   nextButtonText: {
     color: "#FFFFFF",
     fontSize: 14,
-    fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 0.8,
   },
@@ -1077,8 +1040,7 @@ const styles = StyleSheet.create({
   exitLinkText: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
 });

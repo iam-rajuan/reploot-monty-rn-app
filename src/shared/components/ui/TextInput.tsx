@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import {
   View,
-  TextInput as RNTextInput,
   TextInputProps as RNTextInputProps,
   Pressable,
   StyleSheet,
   ViewStyle,
 } from "react-native";
+import { TextInput as RNTextInput } from "@/shared/components/typography";
 import { Eye, EyeOff } from "lucide-react-native";
 import { colors } from "@/theme/colors";
 import { AppText } from "./AppText";
+import { typography } from "@/theme/typography";
 
 export interface TextInputProps extends RNTextInputProps {
   label?: string;
@@ -39,7 +40,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   return (
     <View style={[styles.wrapper, containerStyle]}>
       {label && (
-        <AppText variant="caption" color="secondary" style={styles.label}>
+        <AppText variant="formLabel" color="secondary" style={styles.label}>
           {label}
         </AppText>
       )}
@@ -98,7 +99,6 @@ const styles = StyleSheet.create({
   },
   label: {
     marginBottom: 8,
-    letterSpacing: 1.2,
   },
   inputContainer: {
     flexDirection: "row",
@@ -123,8 +123,8 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
+    ...typography.input,
     color: colors.text.primary,
-    fontSize: 15,
     height: "100%",
   },
   leftIconContainer: {

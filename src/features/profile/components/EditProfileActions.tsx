@@ -4,10 +4,10 @@ import React from "react";
 import {
   Platform,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 interface EditProfileActionsProps {
   onSave?: () => void;
@@ -87,7 +87,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 13,
     fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1.2,
   },
   deleteBtn: {
@@ -103,7 +102,6 @@ const styles = StyleSheet.create({
     color: "#F87171",
     fontSize: 13,
     fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1.2,
   },
 });

@@ -2,7 +2,8 @@ import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { Camera, User as UserIcon } from "lucide-react-native";
-import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import Svg, { Path } from "react-native-svg";
 import { useProfileSetupStore } from "../store/profileSetupStore";
 
@@ -162,9 +163,9 @@ const styles = StyleSheet.create({
   uploadPhotoText: {
     color: "#94A3B8",
     fontSize: 14,
-    lineHeight: 12,
+    lineHeight: 17,
     fontWeight: "400",
-    letterSpacing: 2,
+    letterSpacing: 1.2,
     marginTop: 20,
   },
   pressed: {

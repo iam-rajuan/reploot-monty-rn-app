@@ -17,10 +17,9 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from "react-native";
+import { Text, TextInput } from "@/shared/components/typography";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
@@ -29,6 +28,7 @@ import {
   clampFontSize,
   isSmallDevice,
 } from "@/shared/utils/responsive";
+import { typography } from "@/theme/typography";
 
 const { width } = Dimensions.get("window");
 
@@ -273,22 +273,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: clampFontSize(30),
-    lineHeight: 36,
-    fontWeight: "900",
-    fontFamily: Platform.select({
-      android: "sans-serif-medium",
-      ios: "System",
-    }),
-    letterSpacing: 1,
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
-    fontSize: clampFontSize(12.5),
+    fontSize: clampFontSize(13),
     lineHeight: 18,
-    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "500",
     marginTop: 4,
   },
@@ -328,7 +319,6 @@ const styles = StyleSheet.create({
   badgeText: {
     color: "#2DD4BF",
     fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1,
   },
   statusPill: {
@@ -342,7 +332,6 @@ const styles = StyleSheet.create({
   statusPillText: {
     color: "#38BDF8",
     fontSize: clampFontSize(9),
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   amountRow: {
@@ -353,14 +342,12 @@ const styles = StyleSheet.create({
   mainAmount: {
     color: "#FFFFFF",
     fontSize: clampFontSize(58),
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.5,
     lineHeight: 66,
   },
   unitAmount: {
     color: "#38BDF8",
     fontSize: clampFontSize(20),
-    fontFamily: "JetBrainsMono_700Bold",
     marginLeft: 6,
   },
   progressContainer: {
@@ -382,17 +369,14 @@ const styles = StyleSheet.create({
   metaLabel: {
     color: "#64748B",
     fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
   },
   metaPercent: {
     color: "#38BDF8",
     fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
   },
   metaRemaining: {
     color: "#2DD4BF",
     fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
   },
   sectionHeader: {
     flexDirection: "row",
@@ -413,14 +397,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: "#94A3B8",
     fontSize: clampFontSize(11),
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1.2,
     flex: 1,
   },
   sectionSub: {
     color: "#64748B",
     fontSize: clampFontSize(9),
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   quickAddGrid: {
@@ -453,15 +435,13 @@ const styles = StyleSheet.create({
   },
   quickAddAmount: {
     color: "#FFFFFF",
-    fontSize: clampFontSize(13.5),
-    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: clampFontSize(14),
     letterSpacing: 0.5,
     marginBottom: 2,
   },
   quickAddDesc: {
     color: "#64748B",
     fontSize: clampFontSize(10),
-    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "600",
   },
   customInputContainer: {
@@ -478,14 +458,12 @@ const styles = StyleSheet.create({
   customInput: {
     flex: 1,
     color: "#FFFFFF",
-    fontSize: clampFontSize(15),
-    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: clampFontSize(16),
     marginLeft: 10,
   },
   customInputUnit: {
     color: "#64748B",
     fontSize: clampFontSize(11),
-    fontFamily: "JetBrainsMono_700Bold",
     marginRight: 12,
   },
   inlineAddBtn: {
@@ -499,7 +477,7 @@ const styles = StyleSheet.create({
   inlineAddText: {
     color: "#050811",
     fontSize: clampFontSize(10),
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   saveBtnWrapper: {
@@ -514,8 +492,8 @@ const styles = StyleSheet.create({
   },
   saveBtnText: {
     color: "#050811",
-    fontSize: clampFontSize(12.5),
-    fontWeight: "900",
+    fontSize: clampFontSize(13),
+    fontWeight: "800",
     letterSpacing: 1,
   },
 });

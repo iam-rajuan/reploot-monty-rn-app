@@ -4,10 +4,10 @@ import {
   Alert,
   Platform,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { Trash2 } from "lucide-react-native";
 import React from "react";
 
@@ -98,8 +98,7 @@ const styles = StyleSheet.create({
   logoutText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   deleteAccountBtn: {
@@ -117,16 +116,14 @@ const styles = StyleSheet.create({
   deleteAccountText: {
     color: "#EF4444",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
   },
   footerVersion: {
     color: "#475569",
     fontSize: 10,
-    fontFamily: "monospace",
     fontWeight: "700",
-    letterSpacing: 1.5,
+    letterSpacing: 1.2,
   },
 });
 

@@ -7,10 +7,10 @@ import {
   Pressable,
   StyleProp,
   StyleSheet,
-  Text,
   View,
   ViewStyle,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export interface StartAiWorkoutButtonProps {
@@ -147,9 +147,8 @@ const styles = StyleSheet.create({
   ctaText: {
     color: "#050811",
     fontSize: 14,
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 1.2,
-    fontFamily: "JetBrainsMono_700Bold",
     textTransform: "uppercase",
   },
 });

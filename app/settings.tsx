@@ -1,13 +1,13 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
   Platform,
   ActivityIndicator,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -32,6 +32,7 @@ import {
   autoGenerateCalendarPlan,
   updateTrainingSettings,
 } from "@/store/slices/workoutSlice";
+import { typography } from "@/theme/typography";
 
 const FREQUENCY_OPTIONS = [
   { id: 3, label: "3 DAYS" },
@@ -572,25 +573,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 30,
-    lineHeight: 36,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
   },
   sectionTitle: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
     marginTop: 20,
     marginBottom: 10,
@@ -598,8 +593,7 @@ const styles = StyleSheet.create({
   sectionTitleNoMargin: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
   },
   frequencyRow: {
@@ -624,12 +618,11 @@ const styles = StyleSheet.create({
   freqText: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
     fontWeight: "700",
   },
   freqTextSelected: {
     color: "#00f2fe",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   segmentRow: {
     flexDirection: "row",
@@ -654,13 +647,12 @@ const styles = StyleSheet.create({
   segmentText: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 0.4,
   },
   segmentTextSelected: {
     color: "#00f2fe",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   grid2: {
     flexDirection: "row",
@@ -686,7 +678,6 @@ const styles = StyleSheet.create({
   goalText: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
     fontWeight: "700",
     marginLeft: 10,
     flex: 1,
@@ -713,7 +704,6 @@ const styles = StyleSheet.create({
   splitsCountText: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "monospace",
     fontWeight: "700",
   },
   splitChip: {
@@ -736,7 +726,6 @@ const styles = StyleSheet.create({
   splitChipText: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
     fontWeight: "700",
   },
   summaryCard: {
@@ -761,8 +750,7 @@ const styles = StyleSheet.create({
   summaryMonth: {
     color: "#E2E8F0",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   summaryBadge: {
     backgroundColor: "rgba(0, 242, 254, 0.12)",
@@ -773,13 +761,11 @@ const styles = StyleSheet.create({
   summaryBadgeText: {
     color: "#00f2fe",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
   },
   summaryFlowText: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "monospace",
     letterSpacing: 0.5,
   },
   ctaButtonWrapper: {
@@ -802,9 +788,8 @@ const styles = StyleSheet.create({
   },
   ctaButtonText: {
     color: "#050811",
-    fontSize: 12.5,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 13,
+    fontWeight: "800",
     letterSpacing: 0.8,
   },
   calendarLinkBtn: {
@@ -818,8 +803,7 @@ const styles = StyleSheet.create({
   calendarLinkText: {
     color: "#00f2fe",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
 });

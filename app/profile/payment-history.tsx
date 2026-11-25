@@ -10,12 +10,13 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
+import { typography } from "@/theme/typography";
 
 interface Transaction {
   id: string;
@@ -253,19 +254,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 34,
-    lineHeight: 40,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
   },
@@ -278,9 +273,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 1.5,
+    fontWeight: "700",
+    letterSpacing: 1.2,
   },
   sectionLine: {
     flex: 1,
@@ -312,7 +306,6 @@ const styles = StyleSheet.create({
   txTitle: {
     color: "#FFFFFF",
     fontSize: 13,
-    fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 0.5,
     marginBottom: 4,
@@ -320,13 +313,11 @@ const styles = StyleSheet.create({
   txMeta: {
     color: "#64748B",
     fontSize: 11,
-    fontFamily: "monospace",
   },
   txPrice: {
     color: "#38BDF8",
     fontSize: 16,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   txBottomRow: {
     flexDirection: "row",
@@ -341,7 +332,6 @@ const styles = StyleSheet.create({
   txMethodText: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
     fontWeight: "600",
   },
   txActionsRight: {
@@ -360,8 +350,7 @@ const styles = StyleSheet.create({
   statusText: {
     color: "#2DD4BF",
     fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   invoiceBtn: {
@@ -378,8 +367,7 @@ const styles = StyleSheet.create({
   invoiceBtnText: {
     color: "#38BDF8",
     fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   savedToast: {
     position: "absolute",
@@ -405,8 +393,7 @@ const styles = StyleSheet.create({
   savedToastText: {
     color: "#00f2fe",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
 });

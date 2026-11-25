@@ -1,12 +1,12 @@
 import React from "react";
 import {
   View,
-  Text,
   StyleSheet,
   Pressable,
   Platform,
   Image,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
@@ -483,11 +483,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   tabLabel: {
-    fontSize: 9.5,
+    fontSize: 10,
     lineHeight: 12,
     textAlign: "center",
     alignSelf: "center",
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
     fontWeight: "700",
     letterSpacing: 0.5,
     includeFontPadding: false,

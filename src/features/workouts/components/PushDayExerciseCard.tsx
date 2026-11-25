@@ -34,10 +34,10 @@ import {
   type LayoutChangeEvent,
   StyleProp,
   StyleSheet,
-  Text,
   View,
   ViewStyle,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { PushDayExercise } from "../data/pushDayData";
 import { WorkoutExerciseItem } from "../data/workoutPathDetailData";
 
@@ -750,13 +750,13 @@ const styles = StyleSheet.create({
   recommendationTitle: {
     color: "#42E8D1",
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.15,
   },
   recommendationCount: {
     color: "#718096",
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   regularHeader: {
@@ -771,7 +771,7 @@ const styles = StyleSheet.create({
   regularTitle: {
     color: "#CBD5E1",
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.1,
   },
   regularRule: {
@@ -894,7 +894,7 @@ const styles = StyleSheet.create({
   indexBadgeText: {
     color: "#FFFFFF",
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   indexBadgeTextCompleted: {
@@ -921,7 +921,7 @@ const styles = StyleSheet.create({
   },
   exerciseTitle: {
     color: "#FFFFFF",
-    fontSize: 12.5,
+    fontSize: 13,
     lineHeight: 16,
     fontWeight: "800",
     letterSpacing: 0.2,
@@ -956,10 +956,9 @@ const styles = StyleSheet.create({
   },
   xpRewardText: {
     color: "#8AF4E2",
-    fontSize: 9.5,
+    fontSize: 10,
     lineHeight: 12,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.1,
   },
   completedStatusRow: {

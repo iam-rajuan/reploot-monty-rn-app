@@ -2,7 +2,8 @@ import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export const CommunityRankCard = () => {
   const router = useRouter();
@@ -105,6 +106,6 @@ const styles = StyleSheet.create({
     color: "#C5C0FF",
     fontSize: 14,
     fontWeight: "600",
-    letterSpacing: 1.5,
+    letterSpacing: 1.2,
   },
 });

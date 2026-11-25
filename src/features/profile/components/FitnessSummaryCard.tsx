@@ -2,7 +2,8 @@ import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export const FitnessSummaryCard = () => {
   const router = useRouter();
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 20,
     fontWeight: "600",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
     marginLeft: 8,
   },
   summaryGrid: {
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
   },
   summaryValueWhite: {
     color: "#44EAC3",
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "400",
   },
   summaryValueTeal: {
@@ -113,12 +114,12 @@ const styles = StyleSheet.create({
   },
   summaryValuePurple: {
     color: "#44EAC3",
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "400",
   },
   summaryValueOrange: {
     color: "#FF8E80",
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "400",
   },
   summaryUnit: {
@@ -143,6 +144,6 @@ const styles = StyleSheet.create({
     color: "#E2E8F0",
     fontSize: 14,
     fontWeight: "400",
-    letterSpacing: 1.5,
+    letterSpacing: 1.2,
   },
 });

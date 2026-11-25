@@ -7,10 +7,10 @@ import {
   Pressable,
   StyleProp,
   StyleSheet,
-  Text,
   View,
   ViewStyle,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { WorkoutCategoryItem } from "../data/workoutLibraryData";
 
 export interface WorkoutLibraryCardProps {
@@ -126,12 +126,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4.5,
   },
   badgeText: {
-    fontFamily: Platform.select({
-      web: "'JetBrains Mono', monospace",
-      default: "JetBrainsMono_700Bold",
-    }),
     color: "#44EAC3",
-    fontSize: 10.5,
+    fontSize: 11,
     fontWeight: "700",
     letterSpacing: 0.7,
     textTransform: "uppercase",
@@ -145,16 +141,14 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "800",
-    fontFamily: "monospace",
     letterSpacing: 0.5,
     marginBottom: 5,
     textTransform: "uppercase",
   },
   subtitle: {
     color: "#8E9AA8",
-    fontSize: 11.5,
+    fontSize: 12,
     lineHeight: 16,
-    fontFamily: "monospace",
     fontWeight: "500",
   },
 });

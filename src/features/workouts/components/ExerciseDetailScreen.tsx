@@ -30,10 +30,9 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from "react-native";
+import { Text, TextInput } from "@/shared/components/typography";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
@@ -41,6 +40,7 @@ import {
   ExerciseDetailConfig,
   SetDetailItem,
 } from "../data/exerciseDetailsData";
+import { typography } from "@/theme/typography";
 
 const { width } = Dimensions.get("window");
 
@@ -753,9 +753,8 @@ const styles = StyleSheet.create({
   categoryBadge: {
     color: "#44EAC3",
     fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1.5,
-    fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 8,
   },
@@ -777,19 +776,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 24,
-    lineHeight: 30,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
   },
 
@@ -825,9 +818,8 @@ const styles = StyleSheet.create({
   heroFocusTag: {
     color: "#38EDD8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 1.5,
+    fontWeight: "700",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 6,
   },
@@ -835,9 +827,8 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 28,
     lineHeight: 32,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1,
+    fontWeight: "800",
+    letterSpacing: 0.5,
     textTransform: "uppercase",
   },
 
@@ -873,8 +864,7 @@ const styles = StyleSheet.create({
   startExerciseText: {
     color: "#FFFFFF",
     fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 1.2,
   },
 
@@ -909,8 +899,7 @@ const styles = StyleSheet.create({
   markDoneText: {
     color: "#38EDD8",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   markDoneTextActive: {
@@ -933,15 +922,13 @@ const styles = StyleSheet.create({
   demoHeaderTitle: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   demoTrackingText: {
     color: "#64748B",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   demoThumbnailCard: {
@@ -985,14 +972,12 @@ const styles = StyleSheet.create({
   demoCardTitle: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1.2,
+    fontWeight: "800",
+    letterSpacing: 0.8,
   },
   demoCardSubtitle: {
     color: "#38EDD8",
     fontSize: 10,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 1,
     marginTop: 2,
@@ -1029,8 +1014,7 @@ const styles = StyleSheet.create({
   stepsHeaderText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   stepTabsRow: {
@@ -1053,9 +1037,8 @@ const styles = StyleSheet.create({
   },
   stepTabText: {
     color: "#64748B",
-    fontSize: 10.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 11,
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   stepTabTextActive: {
@@ -1085,8 +1068,7 @@ const styles = StyleSheet.create({
   stepNumberText: {
     color: "#818CF8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
   },
   stepTitle: {
     color: "#FFFFFF",
@@ -1095,7 +1077,7 @@ const styles = StyleSheet.create({
   },
   stepDescription: {
     color: "#94A3B8",
-    fontSize: 12.5,
+    fontSize: 13,
     lineHeight: 18,
     marginBottom: 14,
   },
@@ -1109,13 +1091,12 @@ const styles = StyleSheet.create({
   },
   coachCueBold: {
     color: "#38EDD8",
-    fontFamily: "monospace",
     fontWeight: "800",
   },
   coachCueText: {
     flex: 1,
     color: "#CBD5E1",
-    fontSize: 11.5,
+    fontSize: 12,
     lineHeight: 16,
   },
 
@@ -1153,7 +1134,7 @@ const styles = StyleSheet.create({
   },
   targetMusclePrimary: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "800",
     marginBottom: 8,
   },
@@ -1171,9 +1152,8 @@ const styles = StyleSheet.create({
   },
   muscleTagText: {
     color: "#44EAC3",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
 
@@ -1195,9 +1175,8 @@ const styles = StyleSheet.create({
   },
   metaStatLabel: {
     color: "#64748B",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.8,
     marginTop: 6,
     marginBottom: 3,
@@ -1205,8 +1184,7 @@ const styles = StyleSheet.create({
   metaStatValue: {
     color: "#FFFFFF",
     fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
   },
 
   // Sets & Reps Card
@@ -1233,8 +1211,7 @@ const styles = StyleSheet.create({
   setsRepsHeaderText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   targetBadge: {
@@ -1245,9 +1222,8 @@ const styles = StyleSheet.create({
   },
   targetBadgeText: {
     color: "#94A3B8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   setsCounterRow: {
@@ -1275,21 +1251,18 @@ const styles = StyleSheet.create({
   },
   setsNumberLarge: {
     color: "#FFFFFF",
-    fontSize: 26,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 24,
+    fontWeight: "800",
   },
   setsNumberLabel: {
     color: "#64748B",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   pyramidProtocolText: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
     marginBottom: 12,
     textAlign: "center",
@@ -1321,16 +1294,14 @@ const styles = StyleSheet.create({
   },
   setColNumberLabel: {
     color: "#38EDD8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.6,
     marginBottom: 4,
   },
   setColSubLabel: {
     color: "#64748B",
-    fontSize: 8.5,
-    fontFamily: "monospace",
+    fontSize: 9,
     fontWeight: "700",
     marginTop: 4,
     marginBottom: 2,
@@ -1360,8 +1331,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     color: "#FFFFFF",
     fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     textAlign: "center",
     includeFontPadding: false,
   },
@@ -1384,16 +1354,14 @@ const styles = StyleSheet.create({
   restHeaderTitle: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   restTargetLabel: {
     width: 64,
     color: "#64748B",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     textAlign: "center",
   },
   restInputRow: {
@@ -1416,14 +1384,12 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "#FFFFFF",
     fontSize: 13,
-    fontFamily: "monospace",
     fontWeight: "700",
   },
   restSecLabel: {
     color: "#64748B",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     marginLeft: 6,
   },
   setRestButton: {
@@ -1439,8 +1405,7 @@ const styles = StyleSheet.create({
   setRestButtonText: {
     color: "#070A11",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
 });

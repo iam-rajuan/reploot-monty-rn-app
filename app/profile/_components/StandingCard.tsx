@@ -3,7 +3,8 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Crosshair, Sparkles } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export function StandingCard({
   entry,
@@ -87,9 +88,8 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "#A7F3E8",
     fontSize: 10,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.3,
+    fontWeight: "700",
+    letterSpacing: 1.2,
   },
   content: { flexDirection: "row", alignItems: "center" },
   avatarWrap: { position: "relative", marginRight: 12 },
@@ -114,39 +114,34 @@ const styles = StyleSheet.create({
   },
   youText: {
     color: "#061018",
-    fontSize: 7,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontSize: 9,
+    fontWeight: "700",
   },
   identity: { flex: 1, minWidth: 0 },
   name: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 16,
     lineHeight: 20,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontWeight: "800",
   },
   score: {
     color: "#94A3B8",
     fontSize: 11,
     fontWeight: "700",
-    fontFamily: "monospace",
     marginTop: 3,
   },
   rankBlock: { alignItems: "flex-end", paddingLeft: 10 },
   rankLabel: {
     color: "#64748B",
     fontSize: 9,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontWeight: "700",
     letterSpacing: 1,
   },
   rank: {
     color: "#FFFFFF",
-    fontSize: 26,
+    fontSize: 24,
     lineHeight: 31,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontWeight: "800",
   },
   unrankedRow: { flexDirection: "row", alignItems: "center" },
   crosshair: {
@@ -162,7 +157,6 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 11,
     lineHeight: 16,
-    fontFamily: "monospace",
     marginTop: 3,
   },
 });

@@ -48,26 +48,26 @@ export default function DevVerificationScreen() {
         <View style={styles.badgeRow}>
           <View style={styles.statusPill}>
             <View style={styles.onlineDot} />
-            <AppText variant="caption" color="accent">
+            <AppText variant="overline" color="accent">
               FOUNDATION READY
             </AppText>
           </View>
-          <AppText variant="caption" color="muted">
+          <AppText variant="overline" color="muted">
             SDK 57 • EXPO ROUTER
           </AppText>
         </View>
 
-        <AppText variant="displayXL" color="primary" style={styles.brandTitle}>
+        <AppText variant="pageTitle" color="primary" style={styles.brandTitle}>
           REPLOOT
         </AppText>
-        <AppText variant="label" color="accent" style={styles.tagline}>
+        <AppText variant="overline" color="accent" style={styles.tagline}>
           TRAIN SMARTER WITH AI
         </AppText>
       </View>
 
       {/* Screen Flow Navigator */}
       <View style={{ marginBottom: 16, gap: 8 }}>
-        <AppText variant="label" color="accent">
+        <AppText variant="overline" color="accent">
           SCREEN FLOW AUDIT & PREVIEW
         </AppText>
         <View style={{ flexDirection: "row", gap: 8 }}>
@@ -220,7 +220,7 @@ export default function DevVerificationScreen() {
       <GlowCard glowColor="gradient" style={styles.cardSpacing}>
         <View style={styles.cardHeader}>
           <Sparkles size={20} color={colors.brand.cyan} />
-          <AppText variant="headingMD" color="primary" style={styles.cardTitle}>
+          <AppText variant="cardTitle" color="primary" style={styles.cardTitle}>
             System Initialization Verified
           </AppText>
         </View>
@@ -243,16 +243,16 @@ export default function DevVerificationScreen() {
       <GlassCard style={styles.cardSpacing}>
         <View style={styles.cardHeader}>
           <Zap size={18} color={colors.brand.mint} />
-          <AppText variant="headingMD" color="primary" style={styles.cardTitle}>
+          <AppText variant="cardTitle" color="primary" style={styles.cardTitle}>
             Zustand Client State
           </AppText>
         </View>
 
         <View style={styles.stateRow}>
-          <AppText variant="bodyMD" color="secondary">
+          <AppText variant="body" color="secondary">
             Onboarding Completed:
           </AppText>
-          <AppText variant="label" color={hasSeenOnboarding ? "mint" : "muted"}>
+          <AppText variant="badge" color={hasSeenOnboarding ? "mint" : "muted"}>
             {hasSeenOnboarding ? "COMPLETED" : "NOT STARTED"}
           </AppText>
         </View>
@@ -274,26 +274,26 @@ export default function DevVerificationScreen() {
       <GlassCard style={styles.cardSpacing}>
         <View style={styles.cardHeader}>
           <Shield size={18} color={colors.brand.purple} />
-          <AppText variant="headingMD" color="primary" style={styles.cardTitle}>
+          <AppText variant="cardTitle" color="primary" style={styles.cardTitle}>
             TanStack React Query Server State
           </AppText>
         </View>
 
         <View style={styles.stateRow}>
-          <AppText variant="bodyMD" color="secondary">
+          <AppText variant="body" color="secondary">
             User Mock Query:
           </AppText>
-          <AppText variant="bodyMD" color="primary">
+          <AppText variant="body" color="primary">
             {isLoading ? "Fetching..." : user?.fullName}
           </AppText>
         </View>
 
         <View style={styles.progressContainer}>
           <View style={styles.progressHeader}>
-            <AppText variant="caption" color="muted">
+            <AppText variant="overline" color="muted">
               SYSTEM READINESS
             </AppText>
-            <AppText variant="caption" color="accent">
+            <AppText variant="overline" color="accent">
               100%
             </AppText>
           </View>
@@ -303,7 +303,7 @@ export default function DevVerificationScreen() {
 
       {/* Route Navigation Links */}
       <View style={styles.routesSection}>
-        <AppText variant="label" color="muted" style={styles.sectionLabel}>
+        <AppText variant="overline" color="muted" style={styles.sectionLabel}>
           READY FOR FEATURE DEVELOPMENT
         </AppText>
 
@@ -365,7 +365,7 @@ function VerificationItem({ label, ok }: { label: string; ok: boolean }) {
         color={ok ? colors.brand.mint : colors.text.muted}
       />
       <AppText
-        variant="bodySM"
+        variant="bodySmall"
         color={ok ? "primary" : "muted"}
         style={styles.verifyLabel}
       >
@@ -425,10 +425,10 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   brandTitle: {
-    letterSpacing: 2,
+    letterSpacing: 1.2,
   },
   tagline: {
-    letterSpacing: 3,
+    letterSpacing: 1.2,
     marginTop: 2,
   },
   cardSpacing: {

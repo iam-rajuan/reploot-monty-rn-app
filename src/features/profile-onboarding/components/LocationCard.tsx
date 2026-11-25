@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { CheckCircleIcon } from "./CheckCircleIcon";
 
 export interface LocationCardProps {
@@ -94,12 +95,12 @@ const styles = StyleSheet.create({
     color: "#CBD5E1",
     fontSize: 16,
     fontWeight: "800",
-    letterSpacing: 1.2,
+    letterSpacing: 0.8,
     marginBottom: 4,
   },
   locationTitleActive: {
     color: "#FFFFFF",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   locationSubtitle: {
     color: "#94A3B8",

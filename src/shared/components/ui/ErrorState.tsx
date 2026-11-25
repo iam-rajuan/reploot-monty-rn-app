@@ -24,11 +24,11 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
         <AlertCircle size={32} color={colors.status.danger} />
       </View>
 
-      <AppText variant="headingLG" color="primary" style={styles.title}>
+      <AppText variant="cardTitle" color="primary" style={styles.title}>
         {title}
       </AppText>
 
-      <AppText variant="bodyMD" color="secondary" style={styles.message}>
+      <AppText variant="body" color="secondary" style={styles.message}>
         {message}
       </AppText>
 

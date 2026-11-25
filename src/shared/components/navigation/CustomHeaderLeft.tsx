@@ -1,7 +1,9 @@
 import { Image } from "expo-image";
 import { ArrowLeft } from "lucide-react-native";
 import React from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Text } from "@/shared/components/typography";
+import { typography } from "@/theme/typography";
 
 interface CustomHeaderLeftProps {
   leftContent?: React.ReactNode;
@@ -107,17 +109,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   pageTitle: {
+    ...typography.pageTitleCompact,
     color: "#FFFFFF",
-    fontSize: 20,
-    fontWeight: "800",
-    letterSpacing: -0.3,
-    fontFamily: "monospace",
   },
   pageSubtitle: {
     color: "#94A3B8",
     fontSize: 12,
     fontWeight: "500",
-    fontFamily: "monospace",
     marginTop: 2,
     letterSpacing: 0.2,
   },

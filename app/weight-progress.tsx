@@ -27,10 +27,9 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from "react-native";
+import { Text, TextInput } from "@/shared/components/typography";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, {
@@ -43,6 +42,8 @@ import Svg, {
   Stop,
   Text as SvgText,
 } from "react-native-svg";
+import { typography } from "@/theme/typography";
+import { fontFamilies } from "@/theme/fonts";
 
 const { width } = Dimensions.get("window");
 
@@ -434,7 +435,7 @@ export default function WeightProgressScreen() {
                       y={Math.max(17, pts[selectedPointIndex].y - 12) + 1}
                       fill="rgba(7, 16, 24, 0.95)"
                       fontSize="13"
-                      fontWeight="900"
+                      fontFamily={fontFamilies.inter[700]}
                       textAnchor="middle"
                     >
                       {currentPoints[selectedPointIndex].weight.toFixed(1)} KG
@@ -447,7 +448,7 @@ export default function WeightProgressScreen() {
                       y={Math.max(17, pts[selectedPointIndex].y - 12)}
                       fill="#38EDD8"
                       fontSize="12"
-                      fontWeight="900"
+                      fontFamily={fontFamilies.inter[700]}
                       textAnchor="middle"
                     >
                       {currentPoints[selectedPointIndex].weight.toFixed(1)} KG
@@ -611,20 +612,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 28,
-    lineHeight: 36,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 0.5,
-    textAlign: "left",
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
   },
@@ -669,9 +663,8 @@ const styles = StyleSheet.create({
   statusLabel: {
     color: "#94A3B8",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 1.5,
+    fontWeight: "700",
+    letterSpacing: 1.2,
     marginBottom: 2,
   },
   weightNumberRow: {
@@ -680,15 +673,13 @@ const styles = StyleSheet.create({
   },
   levelMainText: {
     color: "#FFFFFF",
-    fontSize: 26,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1,
+    fontSize: 24,
+    fontWeight: "800",
+    letterSpacing: 0.5,
   },
   weightUnit: {
     color: "#38BDF8",
     fontSize: 14,
-    fontFamily: "monospace",
     fontWeight: "800",
     marginLeft: 6,
   },
@@ -719,10 +710,9 @@ const styles = StyleSheet.create({
   bodyMetricLabel: {
     flexShrink: 1,
     color: "#94A3B8",
-    fontSize: 8.5,
+    fontSize: 9,
     lineHeight: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.7,
   },
   bodyMetricValueRow: {
@@ -733,8 +723,7 @@ const styles = StyleSheet.create({
     color: "#F8FAFC",
     fontSize: 22,
     lineHeight: 27,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   bmiMetricValue: {
     color: "#2DD4BF",
@@ -742,25 +731,22 @@ const styles = StyleSheet.create({
   bodyMetricUnit: {
     color: "#64748B",
     fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     marginLeft: 5,
   },
   bodyMetricHint: {
     color: "#64748B",
-    fontSize: 7.5,
-    lineHeight: 10,
-    fontFamily: "monospace",
+    fontSize: 9,
+    lineHeight: 11,
     fontWeight: "700",
     letterSpacing: 0.35,
     marginTop: 4,
   },
   bmiStatus: {
     color: "#2DD4BF",
-    fontSize: 7.5,
-    lineHeight: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 9,
+    lineHeight: 11,
+    fontWeight: "700",
     letterSpacing: 0.45,
     marginTop: 4,
   },
@@ -777,8 +763,7 @@ const styles = StyleSheet.create({
   tierPillText: {
     color: "#2DD4BF",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   prProgressRowFull: {
@@ -803,20 +788,17 @@ const styles = StyleSheet.create({
   prProgressLabel: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 0.8,
   },
   targetNumber: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontFamily: "monospace",
     fontWeight: "800",
   },
   remainingNumber: {
     color: "#FFB68C",
     fontSize: 16,
-    fontFamily: "monospace",
     fontWeight: "800",
   },
   unitSmall: {
@@ -846,13 +828,11 @@ const styles = StyleSheet.create({
   xpValue: {
     color: "#FFFFFF",
     fontSize: 14,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   xpTotal: {
     color: "#64748B",
     fontSize: 11,
-    fontFamily: "monospace",
     fontWeight: "700",
   },
   xpRightCol: {
@@ -862,8 +842,7 @@ const styles = StyleSheet.create({
   xpNotice: {
     color: "#2DD4BF",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   prHeaderFull: {
@@ -878,14 +857,12 @@ const styles = StyleSheet.create({
   prCardTitle: {
     color: "#FFFFFF",
     fontSize: 13,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 0.8,
   },
   prCardSub: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "monospace",
     marginTop: 2,
   },
   colIconBadge: {
@@ -929,16 +906,14 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: "#FFFFFF",
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
-    fontFamily: "monospace",
   },
   tabTextInactive: {
     color: "#64748B",
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.8,
-    fontFamily: "monospace",
   },
   chartWrapper: {
     position: "relative",
@@ -966,7 +941,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.8,
-    fontFamily: "monospace",
   },
   /* Insight Card matching screenshot */
   insightCard: {
@@ -1018,7 +992,6 @@ const styles = StyleSheet.create({
   insightSubText: {
     color: "#64748B",
     fontSize: 12,
-    fontFamily: "monospace",
     fontWeight: "500",
     lineHeight: 16,
     letterSpacing: 0.4,
@@ -1036,8 +1009,7 @@ const styles = StyleSheet.create({
   startWorkoutText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   modalBackdrop: {
@@ -1064,7 +1036,6 @@ const styles = StyleSheet.create({
   modalTitle: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 0.5,
   },
@@ -1074,7 +1045,6 @@ const styles = StyleSheet.create({
   modalSubtitle: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
     marginBottom: 20,
   },
   modalInputRow: {
@@ -1092,13 +1062,11 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "#FFFFFF",
     fontSize: 20,
-    fontFamily: "monospace",
     fontWeight: "800",
   },
   modalInputUnit: {
     color: "#38BDF8",
     fontSize: 14,
-    fontFamily: "monospace",
     fontWeight: "700",
   },
   modalSubmitBtn: {
@@ -1115,8 +1083,7 @@ const styles = StyleSheet.create({
   modalSubmitText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
 });

@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Ruler } from "lucide-react-native";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { VerticalWheelPicker } from "./VerticalWheelPicker";
 
 interface HeightSelectionCardProps {
@@ -113,8 +114,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: "#CBD5E1",
     fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1.5,
+    fontWeight: "700",
+    letterSpacing: 1.2,
   },
   togglePill: {
     flexDirection: "row",
@@ -130,7 +131,7 @@ const styles = StyleSheet.create({
   toggleText: {
     color: "#64748B",
     fontSize: 10,
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.8,
     includeFontPadding: false,
   },

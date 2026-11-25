@@ -3,7 +3,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Lock, Mail, ShieldCheck, User } from "lucide-react-native";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -16,6 +17,7 @@ import {
   SignUpBackground,
   WarmSparkleDecoration,
 } from "@/features/auth";
+import { typography } from "@/theme/typography";
 
 export default function SignUpRoute() {
   const router = useRouter();
@@ -253,12 +255,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   heroTitle: {
+    ...typography.pageTitleHero,
     color: "#FFFFFF",
-    fontSize: 38,
-    lineHeight: 42,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
     textShadowColor: "rgba(34, 211, 238, 0.65)",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 16,
@@ -323,7 +321,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 14,
     fontWeight: "400",
-    letterSpacing: 2.2,
+    letterSpacing: 1.2,
     textTransform: "uppercase",
   },
 
@@ -343,7 +341,7 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 11,
     fontWeight: "700",
-    letterSpacing: 1.8,
+    letterSpacing: 1.2,
     marginHorizontal: 16,
   },
 
@@ -376,7 +374,7 @@ const styles = StyleSheet.create({
   },
   socialButtonText: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "600",
   },
 

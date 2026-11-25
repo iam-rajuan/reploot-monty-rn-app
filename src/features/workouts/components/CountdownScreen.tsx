@@ -3,7 +3,8 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { Dimensions, Platform, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Platform, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import Svg, { Line as SvgLine } from "react-native-svg";
 
 const { width } = Dimensions.get("window");
@@ -105,9 +106,8 @@ const styles = StyleSheet.create({
   protocolTag: {
     color: "#38EDD8",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 2.2,
+    fontWeight: "700",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 40,
   },
@@ -119,9 +119,8 @@ const styles = StyleSheet.create({
   },
   countdownBigNumber: {
     fontSize: 130,
-    lineHeight: 140,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    lineHeight: 143,
+    fontWeight: "800",
     color: "#4FACFE",
     textShadowColor: "rgba(0, 242, 254, 0.75)",
     textShadowOffset: { width: 0, height: 0 },
@@ -158,7 +157,6 @@ const styles = StyleSheet.create({
   footerText: {
     color: "#94A3B8",
     fontSize: 14,
-    fontFamily: "monospace",
     fontWeight: "600",
   },
 });

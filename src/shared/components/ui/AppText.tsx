@@ -1,7 +1,19 @@
 import React from "react";
-import { Text, TextProps, TextStyle } from "react-native";
+import type { TextStyle } from "react-native";
+import { Text, type TextProps } from "@/shared/components/typography";
 import { typography, TypographyVariant } from "@/theme/typography";
 import { colors } from "@/theme/colors";
+
+/**
+ * Semantic text component.
+ *
+ * Reploot uses only Montserrat for primary page titles and Inter for all
+ * other user-visible text. No additional text font families may be
+ * introduced in current or future features.
+ *
+ * The default variant is `body` (Inter). Montserrat is only used when you
+ * explicitly ask for a `pageTitle*` variant.
+ */
 
 export type TextColor =
   | "primary"
@@ -16,7 +28,6 @@ export interface AppTextProps extends TextProps {
   variant?: TypographyVariant;
   color?: TextColor;
   className?: string;
-  italic?: boolean;
 }
 
 const colorMap: Record<TextColor, string> = {
@@ -31,16 +42,14 @@ const colorMap: Record<TextColor, string> = {
 
 export const AppText: React.FC<AppTextProps> = ({
   children,
-  variant = "bodyMD",
+  variant = "body",
   color = "primary",
   style,
-  italic = false,
   ...props
 }) => {
   const baseStyle: TextStyle = {
     ...typography[variant],
     color: colorMap[color],
-    fontStyle: italic ? "italic" : "normal",
   };
 
   return (

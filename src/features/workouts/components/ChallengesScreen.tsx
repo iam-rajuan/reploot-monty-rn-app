@@ -19,15 +19,16 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   HOME_WORKOUT_LIBRARY_DATA,
   HomeChallengeItem,
 } from "../data/homeWorkoutLibraryData";
+import { typography } from "@/theme/typography";
 
 export interface ChallengesScreenProps {
   onBack?: () => void;
@@ -216,9 +217,8 @@ const styles = StyleSheet.create({
   categoryBadge: {
     color: "#44EAC3",
     fontSize: 11,
-    fontWeight: "800",
-    letterSpacing: 1.5,
-    fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 8,
   },
@@ -242,28 +242,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 38,
-    fontWeight: "900",
-    letterSpacing: 0.5,
-    fontFamily: "monospace",
-    textAlign: "left",
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
   },
   challengesContainer: {
     gap: 16,
   },
   rankingLink: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderRadius: 18, borderWidth: 1, borderColor: "rgba(56,237,216,0.25)", backgroundColor: "rgba(56,237,216,0.07)", padding: 16, marginBottom: 20 },
-  rankingLinkTitle: { color: "#FFFFFF", fontSize: 13, fontWeight: "900", fontFamily: "monospace", marginBottom: 4 },
-  rankingLinkBody: { color: "#94A3B8", fontSize: 11, fontFamily: "monospace" },
+  rankingLinkTitle: { color: "#FFFFFF", fontSize: 13, fontWeight: "800", marginBottom: 4 },
+  rankingLinkBody: { color: "#94A3B8", fontSize: 11 },
   challengeCard: {
     width: "100%",
     height: 180,
@@ -295,9 +288,8 @@ const styles = StyleSheet.create({
   dayBadgeText: {
     color: "#94A3B8",
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
-    fontFamily: "monospace",
     textTransform: "uppercase",
   },
   xpPill: {
@@ -314,8 +306,7 @@ const styles = StyleSheet.create({
   xpText: {
     color: "#44EAC3",
     fontSize: 11,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   bottomSection: {
@@ -324,8 +315,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: "#FFFFFF",
     fontSize: 20,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontWeight: "800",
     letterSpacing: 0.4,
     textTransform: "uppercase",
   },
@@ -343,7 +333,6 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 11,
     fontWeight: "700",
-    fontFamily: "monospace",
     letterSpacing: 0.5,
   },
 });

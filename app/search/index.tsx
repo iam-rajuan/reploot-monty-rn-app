@@ -21,13 +21,13 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from "react-native";
+import { Text, TextInput } from "@/shared/components/typography";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
+import { typography } from "@/theme/typography";
 
 type CategoryFilter =
   "ALL" | "WORKOUTS" | "MEALS" | "EXERCISES" | "AI PROTOCOLS";
@@ -623,19 +623,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 34,
-    lineHeight: 40,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
   },
@@ -663,7 +657,6 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "#FFFFFF",
     fontSize: 13,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 0.5,
     paddingVertical: 0,
@@ -705,7 +698,6 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 11,
     fontWeight: "700",
-    fontFamily: "monospace",
     letterSpacing: 1,
   },
   categoryTextActive: {
@@ -726,7 +718,6 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 11,
     fontWeight: "700",
-    fontFamily: "monospace",
     letterSpacing: 1.2,
   },
   tagChipsWrap: {
@@ -753,7 +744,6 @@ const styles = StyleSheet.create({
     color: "#CBD5E1",
     fontSize: 11,
     fontWeight: "600",
-    fontFamily: "monospace",
     letterSpacing: 0.6,
   },
   tagChipTextActive: {
@@ -771,7 +761,6 @@ const styles = StyleSheet.create({
     color: "#64748B",
     fontSize: 11,
     fontWeight: "700",
-    fontFamily: "monospace",
     letterSpacing: 1.2,
     marginRight: 12,
   },
@@ -825,15 +814,13 @@ const styles = StyleSheet.create({
   },
   categoryBadgeText: {
     fontSize: 9,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   itemTitle: {
     color: "#FFFFFF",
     fontSize: 14,
     fontWeight: "800",
-    fontFamily: "monospace",
     letterSpacing: 0.5,
     marginBottom: 3,
   },
@@ -841,13 +828,11 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 11,
     lineHeight: 15,
-    fontFamily: "monospace",
     marginBottom: 4,
   },
   itemMeta: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 0.5,
   },
@@ -875,14 +860,12 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "800",
-    fontFamily: "monospace",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
     marginBottom: 8,
   },
   emptyDesc: {
     color: "#64748B",
     fontSize: 12,
-    fontFamily: "monospace",
     textAlign: "center",
     lineHeight: 18,
     marginBottom: 20,
@@ -901,8 +884,7 @@ const styles = StyleSheet.create({
   resetButtonText: {
     color: "#38BDF8",
     fontSize: 11,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontWeight: "700",
     letterSpacing: 1,
   },
 });

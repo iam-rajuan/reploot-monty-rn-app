@@ -2,13 +2,12 @@ import { Image, ImageSource } from "expo-image";
 import { Clock, Flame, Zap } from "lucide-react-native";
 import React from "react";
 import {
-  Platform,
   StyleProp,
   StyleSheet,
-  Text,
   View,
   ViewStyle,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { PULL_DAY_DATA } from "../data/pullDayData";
 
 export interface PullDayHeroCardProps {
@@ -100,13 +99,9 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   xpBadgeText: {
-    fontFamily: Platform.select({
-      web: "'JetBrains Mono', monospace",
-      default: "JetBrainsMono_700Bold",
-    }),
     color: "#070A11",
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   heroBottomBadgesRow: {
@@ -130,10 +125,6 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
   },
   statPillText: {
-    fontFamily: Platform.select({
-      web: "'JetBrains Mono', monospace",
-      default: "JetBrainsMono_700Bold",
-    }),
     color: "#FFFFFF",
     fontSize: 12,
     fontWeight: "700",

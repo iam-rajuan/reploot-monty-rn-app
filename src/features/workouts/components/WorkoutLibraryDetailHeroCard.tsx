@@ -7,10 +7,11 @@ import {
   Platform,
   StyleProp,
   StyleSheet,
-  Text,
   View,
   ViewStyle,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
+import { typography } from "@/theme/typography";
 
 export interface WorkoutLibraryDetailHeroCardProps {
   image?: ImageSource | number | string;
@@ -147,9 +148,8 @@ const styles = StyleSheet.create({
   badgeText: {
     color: "#44EAC3",
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
-    fontFamily: "monospace",
     textTransform: "uppercase",
   },
   bookmarkBtn: {
@@ -182,14 +182,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   heroTitleItalic: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 24,
-    lineHeight: 28,
-    // fontStyle: "italic",
-    fontWeight: "900",
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-    fontFamily: "monospace",
   },
   statsRow: {
     flexDirection: "row",
@@ -206,7 +200,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "700",
     letterSpacing: 0.8,
-    fontFamily: "monospace",
     textTransform: "uppercase",
   },
 });

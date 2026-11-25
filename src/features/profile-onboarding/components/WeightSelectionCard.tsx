@@ -1,7 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Scale } from "lucide-react-native";
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { VerticalWheelPicker } from "./VerticalWheelPicker";
 
 interface WeightSelectionCardProps {
@@ -118,8 +119,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: "#CBD5E1",
     fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1.5,
+    fontWeight: "700",
+    letterSpacing: 1.2,
   },
   togglePill: {
     flexDirection: "row",
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
   toggleText: {
     color: "#64748B",
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
     includeFontPadding: false,
   },

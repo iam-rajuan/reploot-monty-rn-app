@@ -14,15 +14,16 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, {
   Circle as SvgCircle,
   Line as SvgLine,
   Path as SvgPath,
 } from "react-native-svg";
+import { typography } from "@/theme/typography";
 
 const { width } = Dimensions.get("window");
 
@@ -326,9 +327,8 @@ const styles = StyleSheet.create({
   categoryBadge: {
     color: "#44EAC3",
     fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1.5,
-    fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 6,
   },
@@ -350,19 +350,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 38,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
   },
 
@@ -456,9 +450,8 @@ const styles = StyleSheet.create({
   bodyDetectedText: {
     color: "#38EDD8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 1.5,
+    fontWeight: "700",
+    letterSpacing: 1.2,
   },
 
   flipButton: {
@@ -513,9 +506,8 @@ const styles = StyleSheet.create({
   },
   enableCameraText: {
     color: "#38EDD8",
-    fontSize: 11.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 12,
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
 
@@ -556,7 +548,6 @@ const styles = StyleSheet.create({
   requirementText: {
     color: "#64748B",
     fontSize: 13,
-    fontFamily: "monospace",
     fontWeight: "600",
     letterSpacing: 0.3,
   },
@@ -588,7 +579,6 @@ const styles = StyleSheet.create({
   readyButtonText: {
     color: "#FFFFFF",
     fontSize: 14,
-    fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 0.8,
   },

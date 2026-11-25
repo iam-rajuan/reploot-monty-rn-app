@@ -21,10 +21,10 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   HOME_WORKOUT_LIBRARY_DATA,
@@ -32,6 +32,7 @@ import {
   HomeWorkoutLibraryData,
   HomeWorkoutSessionItem,
 } from "../data/homeWorkoutLibraryData";
+import { typography } from "@/theme/typography";
 
 export interface HomeWorkoutLibraryScreenProps {
   data?: HomeWorkoutLibraryData;
@@ -352,20 +353,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     fontWeight: "800",
-    letterSpacing: 1.5,
-    fontFamily: "JetBrainsMono_700Bold",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 4,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#F6F8FF",
-    fontSize: 33,
-    lineHeight: 40,
-    fontWeight: "900",
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    letterSpacing: -0.8,
-    textAlign: "left",
-    textTransform: "uppercase",
     textShadowColor: "rgba(37, 215, 232, 0.12)",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 6,
@@ -374,7 +368,6 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
   },
   xpCardContainer: {
@@ -416,18 +409,16 @@ const styles = StyleSheet.create({
   currentXpLabel: {
     color: "#94A3B8",
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
-    fontFamily: "monospace",
     textTransform: "uppercase",
   },
   rankUpLabel: {
     color: "#44EAC3",
     fontSize: 11,
     lineHeight: 14,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.1,
-    fontFamily: "monospace",
     textAlign: "right",
     textTransform: "uppercase",
   },
@@ -438,23 +429,20 @@ const styles = StyleSheet.create({
   },
   xpMainValue: {
     color: "#FFFFFF",
-    fontSize: 42,
+    fontSize: 40,
     lineHeight: 46,
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: -0.5,
-    fontFamily: "monospace",
   },
   xpSlash: {
     color: "#64748B",
     fontSize: 24,
     fontWeight: "700",
-    fontFamily: "monospace",
   },
   xpTotalValue: {
     color: "#94A3B8",
     fontSize: 22,
     fontWeight: "800",
-    fontFamily: "monospace",
   },
   progressBarTrack: {
     width: "100%",
@@ -469,10 +457,9 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     color: "#94A3B8",
-    fontSize: 11.5,
-    fontWeight: "800",
-    letterSpacing: 1.4,
-    fontFamily: "monospace",
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 14,
   },
@@ -511,17 +498,15 @@ const styles = StyleSheet.create({
   questXpText: {
     color: "#44EAC3",
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
-    fontFamily: "monospace",
   },
   questTitle: {
     color: "#FFFFFF",
-    fontSize: 30,
+    fontSize: 28,
     lineHeight: 34,
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: -0.3,
-    fontFamily: "monospace",
     textTransform: "uppercase",
     marginBottom: 14,
   },
@@ -546,9 +531,8 @@ const styles = StyleSheet.create({
   questStatText: {
     color: "#FFFFFF",
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.6,
-    fontFamily: "monospace",
     textTransform: "uppercase",
   },
   questCtaButton: {
@@ -566,10 +550,9 @@ const styles = StyleSheet.create({
   },
   questCtaText: {
     color: "#FFFFFF",
-    fontSize: 14.5,
+    fontSize: 16,
     fontWeight: "800",
     letterSpacing: 0.8,
-    fontFamily: "monospace",
     textTransform: "uppercase",
   },
   sectionTitleRow: {
@@ -581,9 +564,8 @@ const styles = StyleSheet.create({
   sectionHeaderTitle: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontWeight: "900",
-    letterSpacing: 1.3,
-    fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
   },
   viewAllRow: {
@@ -594,9 +576,8 @@ const styles = StyleSheet.create({
   viewAllText: {
     color: "#44EAC3",
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
-    fontFamily: "monospace",
     textTransform: "uppercase",
   },
   challengesGrid: {
@@ -631,17 +612,15 @@ const styles = StyleSheet.create({
   challengeDayBadge: {
     color: "#94A3B8",
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
-    fontFamily: "monospace",
     textTransform: "uppercase",
     marginBottom: 4,
   },
   challengeTitle: {
     color: "#FFFFFF",
-    fontSize: 12.5,
+    fontSize: 13,
     fontWeight: "800",
-    fontFamily: "monospace",
     letterSpacing: 0.4,
     textTransform: "uppercase",
     marginBottom: 6,
@@ -653,15 +632,13 @@ const styles = StyleSheet.create({
   },
   challengeXpText: {
     color: "#44EAC3",
-    fontSize: 10.5,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontSize: 11,
+    fontWeight: "700",
   },
   sectionSubtitle: {
     color: "#94A3B8",
-    fontSize: 11.5,
+    fontSize: 12,
     lineHeight: 16,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginBottom: 16,
   },
@@ -710,8 +687,7 @@ const styles = StyleSheet.create({
   },
   sessionTagText: {
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   sessionTitleRow: {
@@ -723,9 +699,8 @@ const styles = StyleSheet.create({
   },
   sessionTitleText: {
     color: "#FFFFFF",
-    fontSize: 13.5,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 14,
+    fontWeight: "800",
     letterSpacing: 0.6,
     textTransform: "uppercase",
   },

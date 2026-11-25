@@ -6,10 +6,10 @@ import {
   Pressable,
   StyleProp,
   StyleSheet,
-  Text,
   View,
   ViewStyle,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import Svg, { Circle, Defs, RadialGradient, Stop } from "react-native-svg";
 import { CircleGlowConfig } from "../data/workoutPaths";
 
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#FFFFFF",
-    fontSize: 16.5,
+    fontSize: 18,
     lineHeight: 22,
     fontWeight: "600",
     letterSpacing: 0.4,

@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export interface DayPillItemProps {
   days: number;
@@ -69,15 +70,13 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 13,
     fontWeight: "800",
-    letterSpacing: 1.5,
-    fontFamily: "monospace",
+    letterSpacing: 1.2,
   },
   dayTextInactive: {
     color: "#94A3B8",
     fontSize: 13,
     fontWeight: "800",
-    letterSpacing: 1.5,
-    fontFamily: "monospace",
+    letterSpacing: 1.2,
   },
   pressed: {
     opacity: 0.85,

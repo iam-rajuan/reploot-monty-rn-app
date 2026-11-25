@@ -4,11 +4,11 @@ import React from "react";
 import {
   Pressable,
   StyleSheet,
-  Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useProfileSetupStore } from "../store/profileSetupStore";
 import { OnboardingButton } from "@/features/onboarding/components/OnboardingButton";
 
@@ -16,6 +16,7 @@ import { DayPillItem } from "./DayPillItem";
 import { GymDumbbellIcon } from "./GymDumbbellIcon";
 import { HomeRoofIcon } from "./HomeRoofIcon";
 import { LocationCard } from "./LocationCard";
+import { typography } from "@/theme/typography";
 
 const DAY_ROWS: number[][] = [
   [2, 3, 4],
@@ -145,14 +146,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   title: {
+    ...typography.pageTitle,
     color: "#22D3EE",
-    fontSize: 24,
-    lineHeight: 30,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1,
-    textAlign: "left",
-    textTransform: "uppercase",
   },
   locationGroup: {
     width: "100%",
@@ -165,7 +160,7 @@ const styles = StyleSheet.create({
   },
   frequencyTitle: {
     color: "#E2E8F0",
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "500",
     marginBottom: 16,
   },
@@ -204,15 +199,13 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 13,
     fontWeight: "800",
-    letterSpacing: 1.5,
-    fontFamily: "monospace",
+    letterSpacing: 1.2,
   },
   dayTextInactive: {
     color: "#94A3B8",
     fontSize: 13,
     fontWeight: "800",
-    letterSpacing: 1.5,
-    fontFamily: "monospace",
+    letterSpacing: 1.2,
   },
   ctaContainer: {
     width: "100%",

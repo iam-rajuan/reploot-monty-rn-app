@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { AtSign, Lock } from "lucide-react-native";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { AppleIcon } from "./AppleIcon";
 import { AuthPillInput } from "./AuthPillInput";
 import { GoogleIcon } from "./GoogleIcon";
@@ -184,9 +185,8 @@ const styles = StyleSheet.create({
   continueText: {
     color: "#11131E",
     fontSize: 16,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 2.2,
+    fontWeight: "800",
+    letterSpacing: 0.8,
     textTransform: "uppercase",
   },
   dividerRow: {
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 11,
     fontWeight: "700",
-    letterSpacing: 2,
+    letterSpacing: 1.2,
     marginHorizontal: 16,
   },
   socialButtonWrapper: {
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   },
   socialButtonText: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "600",
   },
   fullWidth: {

@@ -10,12 +10,13 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
+import { typography } from "@/theme/typography";
 
 export default function ManagePlanRoute() {
   const router = useRouter();
@@ -367,19 +368,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 34,
-    lineHeight: 40,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
   },
@@ -409,8 +404,7 @@ const styles = StyleSheet.create({
   cycleText: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
   },
   cycleTextActive: {
@@ -427,8 +421,7 @@ const styles = StyleSheet.create({
   discountText: {
     color: "#2DD4BF",
     fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   plansList: {
     gap: 16,
@@ -459,10 +452,9 @@ const styles = StyleSheet.create({
   },
   planName: {
     color: "#FFFFFF",
-    fontSize: 18,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1,
+    fontSize: 20,
+    fontWeight: "800",
+    letterSpacing: 0.8,
   },
   badgePill: {
     flexDirection: "row",
@@ -482,8 +474,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   priceRow: {
@@ -495,20 +486,17 @@ const styles = StyleSheet.create({
   priceText: {
     color: "#FFFFFF",
     fontSize: 32,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 0.5,
   },
   periodText: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
     fontWeight: "600",
   },
   descriptionText: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
     lineHeight: 16,
     marginBottom: 16,
   },
@@ -543,7 +531,6 @@ const styles = StyleSheet.create({
   featureLabel: {
     color: "#CBD5E1",
     fontSize: 12,
-    fontFamily: "monospace",
     fontWeight: "600",
     flex: 1,
   },
@@ -563,8 +550,7 @@ const styles = StyleSheet.create({
   ctaBtnText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   currentPlanBtn: {
@@ -579,8 +565,7 @@ const styles = StyleSheet.create({
   currentPlanBtnText: {
     color: "#38BDF8",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   savedToast: {
@@ -607,8 +592,7 @@ const styles = StyleSheet.create({
   savedToastText: {
     color: "#00f2fe",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
 });

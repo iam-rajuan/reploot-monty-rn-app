@@ -3,14 +3,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Zap } from "lucide-react-native";
 import React from "react";
 import {
-  Platform,
   StyleSheet,
-  Text,
   useWindowDimensions,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { OnboardingSlideItem } from "../data/onboardingData";
+import { typography } from "@/theme/typography";
 
 interface OnboardingSlideProps {
   slide: OnboardingSlideItem;
@@ -169,16 +169,9 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   titleLine: {
+    ...typography.pageTitleHero,
     color: "#FFFFFF",
-    fontSize: 46,
-    lineHeight: 50,
-    fontFamily: Platform.select({
-      web: "'JetBrains Mono', monospace",
-      default: "JetBrainsMono_800ExtraBold",
-    }),
-    letterSpacing: 1,
     textAlign: "center",
-    textTransform: "uppercase",
     textShadowColor: "rgba(0, 0, 0, 0.95)",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 10,
@@ -204,19 +197,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 14,
     lineHeight: 22,
-    fontFamily: Platform.select({
-      web: "'JetBrains Mono', monospace",
-      default: "JetBrainsMono_700Bold",
-    }),
   },
   subtitlePartDefault: {
     color: "#E2E8F0",
     fontSize: 14,
     lineHeight: 22,
-    fontFamily: Platform.select({
-      web: "'JetBrains Mono', monospace",
-      default: "JetBrainsMono_700Bold",
-    }),
     textShadowColor: "rgba(0, 0, 0, 0.9)",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 6,

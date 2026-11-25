@@ -21,11 +21,12 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
+import { typography } from "@/theme/typography";
 
 const { width } = Dimensions.get("window");
 
@@ -114,21 +115,21 @@ export default function AchievementsScreen() {
   const renderBadgeIcon = (type: BadgeItem["type"]) => {
     switch (type) {
       case "medal":
-        return <Text style={{ fontSize: 26 }}>🏅</Text>;
+        return <Text style={{ fontSize: 24 }}>🏅</Text>;
       case "lightning":
-        return <Text style={{ fontSize: 26 }}>⚡</Text>;
+        return <Text style={{ fontSize: 24 }}>⚡</Text>;
       case "drop":
-        return <Text style={{ fontSize: 26 }}>💧</Text>;
+        return <Text style={{ fontSize: 24 }}>💧</Text>;
       case "flame":
-        return <Text style={{ fontSize: 26 }}>🔥</Text>;
+        return <Text style={{ fontSize: 24 }}>🔥</Text>;
       case "arm":
-        return <Text style={{ fontSize: 26 }}>💪</Text>;
+        return <Text style={{ fontSize: 24 }}>💪</Text>;
       case "salad":
-        return <Text style={{ fontSize: 26 }}>🥗</Text>;
+        return <Text style={{ fontSize: 24 }}>🥗</Text>;
       case "ribbon":
-        return <Text style={{ fontSize: 26 }}>🎖️</Text>;
+        return <Text style={{ fontSize: 24 }}>🎖️</Text>;
       case "trophy":
-        return <Text style={{ fontSize: 26 }}>🏆</Text>;
+        return <Text style={{ fontSize: 24 }}>🏆</Text>;
       default:
         return <Trophy size={24} color="#FBBF24" />;
     }
@@ -349,20 +350,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 28,
-    lineHeight: 36,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 0.5,
-    textAlign: "left",
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
   },
@@ -390,26 +384,22 @@ const styles = StyleSheet.create({
   nextUnlockLabel: {
     color: "#2DD4BF",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   nextUnlockTitle: {
     color: "#FFFFFF",
-    fontSize: 18,
-    fontFamily: "monospace",
+    fontSize: 20,
     fontWeight: "800",
   },
   sessionsNumber: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontWeight: "800",
   },
   sessionsLabel: {
     color: "#64748B",
     fontSize: 9,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 0.8,
     marginTop: 2,
@@ -432,7 +422,6 @@ const styles = StyleSheet.create({
   infoText: {
     color: "#94A3B8",
     fontSize: 10,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 0.8,
   },
@@ -447,9 +436,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 1.5,
+    fontWeight: "700",
+    letterSpacing: 1.2,
   },
   badgesCountPill: {
     backgroundColor: "rgba(45, 212, 191, 0.12)",
@@ -463,8 +451,7 @@ const styles = StyleSheet.create({
   badgesCountText: {
     color: "#2DD4BF",
     fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   sectionLine: {
@@ -504,7 +491,6 @@ const styles = StyleSheet.create({
   badgeName: {
     color: "#FFFFFF",
     fontSize: 11,
-    fontFamily: "monospace",
     fontWeight: "700",
     textAlign: "center",
   },
@@ -535,8 +521,7 @@ const styles = StyleSheet.create({
   upcomingTitle: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   upcomingXpRow: {
@@ -546,13 +531,11 @@ const styles = StyleSheet.create({
   },
   upcomingXpText: {
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   upcomingRatio: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "monospace",
   },
   upcomingProgressTrack: {
     height: 4,
@@ -578,8 +561,7 @@ const styles = StyleSheet.create({
   startWorkoutText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
 });

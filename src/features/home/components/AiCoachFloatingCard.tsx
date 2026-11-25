@@ -4,7 +4,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { ArrowRight } from "lucide-react-native";
 import React from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { HORIZONTAL_PADDING } from "@/shared/utils/responsive";
 
 export const AiCoachFloatingCard = () => {
@@ -131,10 +132,9 @@ const styles = StyleSheet.create({
   },
   onlineText: {
     color: "#3FDEC9",
-    fontSize: 10.5,
-    fontWeight: "800",
+    fontSize: 11,
+    fontWeight: "700",
     letterSpacing: 1,
-    fontFamily: "JetBrainsMono_700Bold",
   },
   topRobotCircle: {
     width: 36,
@@ -152,20 +152,19 @@ const styles = StyleSheet.create({
   },
   messageText: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 16,
     lineHeight: 22,
     fontWeight: "800",
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     marginBottom: 18,
     maxWidth: "85%",
   },
   highlightTextCyan: {
     color: "#3FDEC9",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   highlightTextPurple: {
     color: "#A7B8FF",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   bottomRow: {
     flexDirection: "row",
@@ -190,9 +189,8 @@ const styles = StyleSheet.create({
   askButtonText: {
     color: "#050811",
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1,
-    fontFamily: "JetBrainsMono_700Bold",
   },
   buttonPressed: {
     opacity: 0.88,

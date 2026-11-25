@@ -3,7 +3,8 @@ import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CHEST_WORKOUT_DETAIL_DATA,
@@ -133,10 +134,9 @@ const styles = StyleSheet.create({
   sectionHeader: {
     color: "#94A3B8",
     fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1.5,
+    fontWeight: "700",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
-    fontFamily: "monospace",
     marginTop: 22,
     marginBottom: 12,
   },

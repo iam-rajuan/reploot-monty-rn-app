@@ -1,5 +1,6 @@
 import React from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export interface MacroBoxProps {
   icon: React.ReactNode;
@@ -103,15 +104,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   macroPercentText: {
-    fontSize: 8.5,
-    fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: 9,
+    fontWeight: "700",
   },
   macroLabel: {
-    fontSize: 9.5,
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.3,
-    fontFamily: "JetBrainsMono_700Bold",
     marginBottom: 2,
   },
   macroValues: {
@@ -120,13 +119,11 @@ const styles = StyleSheet.create({
   macroCurrent: {
     fontSize: 13,
     fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
   },
   macroSlash: {
     color: "#94A3B8",
-    fontSize: 10.5,
+    fontSize: 11,
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
   },
   macroProgressBar: {
     height: 5,

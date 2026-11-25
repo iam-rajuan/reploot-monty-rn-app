@@ -2,13 +2,12 @@ import { Image, ImageSource } from "expo-image";
 import { Clock, Flame, Zap } from "lucide-react-native";
 import React from "react";
 import {
-  Platform,
   StyleProp,
   StyleSheet,
-  Text,
   View,
   ViewStyle,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { PUSH_DAY_DATA } from "../data/pushDayData";
 
 export interface PushDayHeroCardProps {
@@ -97,7 +96,7 @@ const styles = StyleSheet.create({
   xpBadgeText: {
     color: "#070A11",
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   heroBottomBadgesRow: {

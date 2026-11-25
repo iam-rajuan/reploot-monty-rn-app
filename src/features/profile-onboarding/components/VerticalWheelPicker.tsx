@@ -7,9 +7,9 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 interface VerticalWheelPickerProps {
   value: number;
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   },
   numberText: {
     color: "#FFFFFF",
-    fontSize: 27,
+    fontSize: 28,
     lineHeight: 32,
     fontWeight: "700",
     fontVariant: ["tabular-nums"],

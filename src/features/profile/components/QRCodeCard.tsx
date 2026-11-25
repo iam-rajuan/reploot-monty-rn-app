@@ -7,11 +7,11 @@ import {
   Platform,
   Share,
   StyleSheet,
-  Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 const QR_GRADIENT = {
   type: "radial" as const,
@@ -172,7 +172,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 13,
     fontWeight: "800",
-    fontFamily: "monospace",
     letterSpacing: 1,
   },
   statusBadge: {
@@ -195,8 +194,7 @@ const styles = StyleSheet.create({
   statusText: {
     color: "#2DD4BF",
     fontSize: 10,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   qrContainer: {
@@ -232,8 +230,7 @@ const styles = StyleSheet.create({
   passIdText: {
     color: "#38BDF8",
     fontSize: 11,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   passDivider: {
@@ -244,7 +241,6 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 11,
     fontWeight: "600",
-    fontFamily: "monospace",
     letterSpacing: 0.5,
   },
   buttonWrapper: {
@@ -271,7 +267,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 13,
     fontWeight: "800",
-    fontFamily: "monospace",
     letterSpacing: 1.2,
   },
 });

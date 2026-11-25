@@ -4,6 +4,13 @@ module.exports = {
   content: ["./app/**/*.{js,jsx,ts,tsx}", "./src/**/*.{js,jsx,ts,tsx}"],
   presets: [require("nativewind/preset")],
   theme: {
+    // Two-font policy: Montserrat for primary page titles, Inter for everything
+    // else. Replacing (not extending) the defaults removes font-mono/font-serif.
+    // Prefer typography roles (src/theme/typography.ts) over font classes.
+    fontFamily: {
+      sans: ["Inter_400Regular"],
+      "page-title": ["Montserrat_800ExtraBold"],
+    },
     extend: {
       colors: {
         background: {

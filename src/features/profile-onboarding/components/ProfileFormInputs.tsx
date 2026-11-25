@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Mail, Phone, User as UserIcon } from "lucide-react-native";
-import { StyleSheet, TextInput, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { TextInput } from "@/shared/components/typography";
 import { useProfileSetupStore } from "../store/profileSetupStore";
 
 export function ProfileFormInputs() {

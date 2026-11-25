@@ -7,7 +7,8 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Clock3, Gamepad2, ShieldCheck } from "lucide-react-native";
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
@@ -15,6 +16,7 @@ import { LeaderboardList } from "./_components/LeaderboardList";
 import { SearchInput } from "./_components/SearchInput";
 import { StandingCard } from "./_components/StandingCard";
 import { WorkoutTabs } from "./_components/WorkoutTabs";
+import { typography } from "@/theme/typography";
 
 export default function GlobalRankingsRoute() {
   const router = useRouter();
@@ -205,9 +207,8 @@ const styles = StyleSheet.create({
   titleEyebrowText: {
     color: "#38EDD8",
     fontSize: 10,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
+    fontWeight: "700",
+    letterSpacing: 1.2,
     marginLeft: 7,
   },
   mockPill: {
@@ -221,9 +222,8 @@ const styles = StyleSheet.create({
   },
   mockPillText: {
     color: "#64748B",
-    fontSize: 7,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontSize: 9,
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   maskedTitleWrapper: {
@@ -243,19 +243,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 30,
-    lineHeight: 36,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 11,
     lineHeight: 17,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
   },
@@ -283,16 +277,14 @@ const styles = StyleSheet.create({
   pendingKicker: {
     color: "#38EDD8",
     fontSize: 9,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.3,
+    fontWeight: "700",
+    letterSpacing: 1.2,
     marginBottom: 7,
   },
   pendingTitle: {
     color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontSize: 18,
+    fontWeight: "800",
     textAlign: "center",
     marginBottom: 10,
   },
@@ -300,7 +292,6 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 11,
     lineHeight: 18,
-    fontFamily: "monospace",
     textAlign: "center",
   },
   pendingSafety: {
@@ -314,16 +305,14 @@ const styles = StyleSheet.create({
   },
   pendingSafetyText: {
     color: "#A7F3E8",
-    fontSize: 8,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontSize: 9,
+    fontWeight: "700",
     letterSpacing: 0.6,
     marginLeft: 6,
   },
   loading: {
     color: "#94A3B8",
     textAlign: "center",
-    fontFamily: "monospace",
     padding: 24,
   },
 });

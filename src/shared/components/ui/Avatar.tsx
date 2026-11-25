@@ -49,7 +49,7 @@ export const Avatar: React.FC<AvatarProps> = ({
           { width: size, height: size, borderRadius: size / 2 },
         ]}
       >
-        <AppText variant="label" color="primary">
+        <AppText variant="badge" color="primary">
           {initials}
         </AppText>
       </View>

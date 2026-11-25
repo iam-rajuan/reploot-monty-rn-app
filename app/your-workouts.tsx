@@ -23,11 +23,12 @@ import {
   ScrollView,
   Share,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Line as SvgLine } from "react-native-svg";
+import { typography } from "@/theme/typography";
 
 const { width } = Dimensions.get("window");
 
@@ -453,20 +454,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 28,
-    lineHeight: 36,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 0.5,
-    textAlign: "left",
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
   },
@@ -503,16 +497,14 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: "#FFFFFF",
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
-    fontFamily: "monospace",
   },
   tabTextInactive: {
     color: "#64748B",
     fontSize: 11,
     fontWeight: "700",
     letterSpacing: 0.8,
-    fontFamily: "monospace",
   },
 
   /* Section Header */
@@ -525,9 +517,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 1.5,
+    fontWeight: "700",
+    letterSpacing: 1.2,
   },
   sectionLine: {
     flex: 1,
@@ -555,8 +546,7 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     color: "#FFFFFF",
-    fontSize: 15,
-    fontFamily: "monospace",
+    fontSize: 16,
     fontWeight: "800",
     letterSpacing: 0.5,
     marginBottom: 3,
@@ -564,7 +554,6 @@ const styles = StyleSheet.create({
   summarySub: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "monospace",
   },
   goalBadgeContainer: {
     width: 52,
@@ -580,13 +569,11 @@ const styles = StyleSheet.create({
   goalPercent: {
     color: "#FFFFFF",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   goalSub: {
     color: "#94A3B8",
-    fontSize: 8,
-    fontFamily: "monospace",
+    fontSize: 9,
     fontWeight: "700",
     letterSpacing: 0.5,
   },
@@ -618,16 +605,14 @@ const styles = StyleSheet.create({
   },
   statValue: {
     color: "#FFFFFF",
-    fontSize: 18,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 20,
+    fontWeight: "800",
     marginBottom: 2,
     letterSpacing: -0.3,
   },
   statLabel: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 0.8,
   },
@@ -651,23 +636,20 @@ const styles = StyleSheet.create({
   milestoneTag: {
     color: "#FFB68C",
     fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
     marginBottom: 2,
   },
   milestoneMainTitle: {
     color: "#FFFFFF",
     fontSize: 14,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 0.8,
   },
   milestoneNumber: {
     color: "#38BDF8",
     fontSize: 32,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: -1,
   },
   milestoneImageContainer: {
@@ -698,8 +680,7 @@ const styles = StyleSheet.create({
   shareWorkoutText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
 });

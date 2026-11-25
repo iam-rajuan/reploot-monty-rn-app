@@ -1,7 +1,8 @@
 import React, { useCallback } from "react";
 import { FitnessGoal } from "@/shared/types/user";
 import * as Haptics from "expo-haptics";
-import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useProfileSetupStore } from "../store/profileSetupStore";
 import { OnboardingButton } from "@/features/onboarding/components/OnboardingButton";
 
@@ -12,6 +13,7 @@ import { MeditationIcon } from "./MeditationIcon";
 import { ScaleBoxIcon } from "./ScaleBoxIcon";
 import { StopwatchIcon } from "./StopwatchIcon";
 import { GoalCardItem, GoalOption } from "./GoalCardItem";
+import { typography } from "@/theme/typography";
 
 const GOAL_PAIRS: [GoalOption, GoalOption][] = [
   [
@@ -124,14 +126,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   title: {
+    ...typography.pageTitle,
     color: "#22D3EE",
-    fontSize: 24,
-    lineHeight: 30,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1,
-    textAlign: "left",
-    textTransform: "uppercase",
   },
   gridContainer: {
     marginBottom: 2,

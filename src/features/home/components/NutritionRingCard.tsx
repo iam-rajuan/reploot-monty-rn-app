@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import React from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export const NutritionRingCard = () => {
   return (
@@ -79,10 +80,9 @@ const styles = StyleSheet.create({
   },
   ringSubtext: {
     color: "#2EE5C5",
-    fontSize: 9.5,
+    fontSize: 10,
     fontWeight: "700",
     letterSpacing: 1,
-    fontFamily: "JetBrainsMono_700Bold",
     marginBottom: 2,
   },
   ringValueRow: {
@@ -94,22 +94,19 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 22,
     lineHeight: 26,
-    fontWeight: "900",
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    fontWeight: "800",
   },
   ringUnit: {
     fontSize: 13,
     lineHeight: 18,
     fontWeight: "800",
     color: "#2EE5C5",
-    fontFamily: "JetBrainsMono_700Bold",
     marginLeft: 4,
   },
   ringTarget: {
     color: "#AAB5CB",
-    fontSize: 9.5,
+    fontSize: 10,
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
     marginTop: 2,
     letterSpacing: 0.5,
   },
@@ -142,9 +139,8 @@ const styles = StyleSheet.create({
   },
   dailyGoalText: {
     color: "#FFFFFF",
-    fontSize: 9.5,
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.5,
-    fontFamily: "JetBrainsMono_700Bold",
   },
 });

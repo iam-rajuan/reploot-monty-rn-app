@@ -4,10 +4,10 @@ import React from "react";
 import {
   Platform,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 interface FitnessGoalProps {
   selectedGoal: string;
@@ -158,15 +158,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 2,
+    fontWeight: "700",
+    letterSpacing: 1.2,
     flex: 1,
   },
   counterText: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 1,
   },
@@ -213,7 +211,6 @@ const styles = StyleSheet.create({
     color: "#CBD5E1",
     fontSize: 14,
     fontWeight: "800",
-    fontFamily: "monospace",
     letterSpacing: 0.8,
     marginBottom: 2,
   },
@@ -223,7 +220,6 @@ const styles = StyleSheet.create({
   goalDesc: {
     color: "#64748B",
     fontSize: 11,
-    fontFamily: "monospace",
     fontWeight: "500",
     lineHeight: 15,
   },

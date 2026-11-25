@@ -5,13 +5,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ArrowLeft, Bot, Check, Send, Sparkles } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
 import {
-  Platform,
   Pressable,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from "react-native";
+import { Text, TextInput } from "@/shared/components/typography";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -19,6 +17,7 @@ import {
   clampFontSize,
   isSmallDevice,
 } from "@/shared/utils/responsive";
+import { typography } from "@/theme/typography";
 
 type SetupStep = {
   key: string;
@@ -402,7 +401,6 @@ const styles = StyleSheet.create({
   },
   headerLabel: {
     color: "#C5C0FF",
-    fontFamily: "JetBrainsMono_700Bold",
     fontSize: 11,
     letterSpacing: 1.2,
   },
@@ -412,11 +410,8 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   title: {
+    ...typography.pageTitle,
     color: "#F8FAFC",
-    fontSize: clampFontSize(27),
-    lineHeight: 33,
-    fontWeight: "900",
-    letterSpacing: 0.3,
   },
   subtitle: {
     color: "#94A3B8",
@@ -452,7 +447,7 @@ const styles = StyleSheet.create({
   },
   assistantText: {
     color: "#D5D9E2",
-    fontSize: clampFontSize(13.5),
+    fontSize: clampFontSize(14),
     lineHeight: 20,
     fontWeight: "600",
   },
@@ -487,19 +482,18 @@ const styles = StyleSheet.create({
   },
   questionCount: {
     color: "#44EAC3",
-    fontFamily: "JetBrainsMono_700Bold",
     fontSize: 10,
     letterSpacing: 1,
   },
   question: {
     color: "#F8FAFC",
-    fontSize: clampFontSize(18),
+    fontSize: clampFontSize(20),
     lineHeight: 24,
     fontWeight: "800",
   },
   helper: {
     color: "#94A3B8",
-    fontSize: clampFontSize(12.5),
+    fontSize: clampFontSize(13),
     lineHeight: 18,
     marginTop: 6,
     marginBottom: 15,
@@ -520,7 +514,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     color: "#D5D9E2",
-    fontSize: clampFontSize(13.5),
+    fontSize: clampFontSize(14),
     fontWeight: "700",
   },
   optionTextSelected: { color: "#44EAC3" },
@@ -532,8 +526,7 @@ const styles = StyleSheet.create({
   },
   customBudgetLabel: {
     color: "#64748B",
-    fontFamily: "JetBrainsMono_700Bold",
-    fontSize: 9.5,
+    fontSize: 10,
     letterSpacing: 0.8,
   },
   inputRow: {
@@ -584,7 +577,7 @@ const styles = StyleSheet.create({
   readyTitle: {
     color: "#F8FAFC",
     fontSize: clampFontSize(20),
-    fontWeight: "900",
+    fontWeight: "800",
     textAlign: "center",
   },
   readyText: {
@@ -608,7 +601,6 @@ const styles = StyleSheet.create({
   },
   editAnswersText: {
     color: "#D5D9E2",
-    fontFamily: "JetBrainsMono_700Bold",
     fontSize: 11,
     letterSpacing: 0.8,
   },
@@ -623,8 +615,8 @@ const styles = StyleSheet.create({
   },
   primaryText: {
     color: "#071018",
-    fontSize: clampFontSize(12.5),
-    fontWeight: "900",
+    fontSize: clampFontSize(13),
+    fontWeight: "800",
     letterSpacing: 0.8,
     textAlign: "center",
   },

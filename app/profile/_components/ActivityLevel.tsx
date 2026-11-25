@@ -4,10 +4,10 @@ import React from "react";
 import {
   Platform,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 interface ActivityLevelProps {
   activityLevel: string;
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontWeight: "400",
-    letterSpacing: 2,
+    letterSpacing: 1.2,
   },
   activityContainer: {
     flexDirection: "row",

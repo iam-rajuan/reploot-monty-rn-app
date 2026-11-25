@@ -10,9 +10,9 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
 import {
@@ -21,6 +21,7 @@ import {
 } from "../data/workoutLibraryData";
 import { WorkoutLibraryCard } from "./WorkoutLibraryCard";
 import { WorkoutLibraryDetailScreen } from "./WorkoutLibraryDetailScreen";
+import { typography } from "@/theme/typography";
 
 export interface WorkoutLibraryScreenProps {
   onBack?: () => void;
@@ -168,9 +169,8 @@ const styles = StyleSheet.create({
   categoryBadge: {
     color: "#44EAC3",
     fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1.5,
-    fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 8,
   },
@@ -192,19 +192,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 38,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
   },
   gridContainer: {

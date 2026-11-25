@@ -2,7 +2,8 @@ import { useAppSelector } from "@/store/hooks";
 import { Image } from "expo-image";
 import { Bell, Search } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export const HomeHeaderNav = () => {
   const user = useAppSelector((state) => state.auth.user);

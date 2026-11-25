@@ -5,9 +5,11 @@ import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Cpu, Globe, Sparkles } from "lucide-react-native";
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
+import { typography } from "@/theme/typography";
 
 export default function AboutRoute() {
   const router = useRouter();
@@ -157,19 +159,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 34,
-    lineHeight: 40,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
   },
@@ -203,15 +199,13 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
     flex: 1,
   },
   cardBody: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
     lineHeight: 18,
   },
   buildCard: {
@@ -231,15 +225,13 @@ const styles = StyleSheet.create({
   buildLabel: {
     color: "#64748B",
     fontSize: 11,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 1,
   },
   buildValue: {
     color: "#38BDF8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   footerBadge: {
     alignItems: "center",
@@ -248,7 +240,6 @@ const styles = StyleSheet.create({
   footerText: {
     color: "#475569",
     fontSize: 9,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 1,
     textAlign: "center",

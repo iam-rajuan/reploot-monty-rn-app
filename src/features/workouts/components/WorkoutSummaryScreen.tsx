@@ -29,12 +29,13 @@ import {
   ScrollView,
   Share,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle as SvgCircle, Line as SvgLine } from "react-native-svg";
 import { WorkoutExerciseItem } from "../data/workoutPathDetailData";
+import { typography } from "@/theme/typography";
 
 const { width } = Dimensions.get("window");
 
@@ -633,8 +634,7 @@ const styles = StyleSheet.create({
   routinePillText: {
     color: "#38EDD8",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
     textTransform: "uppercase",
   },
@@ -651,25 +651,18 @@ const styles = StyleSheet.create({
   },
   clearedPillText: {
     color: "#10B981",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
   },
   summaryDescription: {
     color: "#94A3B8",
-    fontSize: 12.5,
+    fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "500",
     letterSpacing: 0.2,
     marginTop: 6,
@@ -684,8 +677,7 @@ const styles = StyleSheet.create({
   dateText: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
   },
 
@@ -705,8 +697,7 @@ const styles = StyleSheet.create({
   sectionHeaderText: {
     color: "#E2E8F0",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   exerciseCounterBadge: {
@@ -720,9 +711,8 @@ const styles = StyleSheet.create({
   },
   exerciseCounterBadgeText: {
     color: "#38EDD8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
 
@@ -744,9 +734,8 @@ const styles = StyleSheet.create({
   scoreNumberLarge: {
     color: "#FFFFFF",
     fontSize: 48,
-    lineHeight: 52,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    lineHeight: 53,
+    fontWeight: "800",
   },
   xpRow: {
     flexDirection: "row",
@@ -757,10 +746,8 @@ const styles = StyleSheet.create({
   scoreXpPill: {
     color: "#C084FC",
     fontSize: 13,
-    fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 0.8,
-    fontStyle: "italic",
   },
   tierPill: {
     backgroundColor: "rgba(56, 237, 216, 0.14)",
@@ -772,8 +759,7 @@ const styles = StyleSheet.create({
   tierPillText: {
     color: "#38EDD8",
     fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
 
@@ -802,16 +788,14 @@ const styles = StyleSheet.create({
     borderColor: "rgba(192, 132, 252, 0.3)",
   },
   metricPillLabel: {
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.8,
     marginBottom: 4,
   },
   metricPillValue: {
-    fontSize: 15,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 16,
+    fontWeight: "800",
   },
 
   // Pace Card
@@ -845,21 +829,18 @@ const styles = StyleSheet.create({
   paceHeaderLabel: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "monospace",
     fontWeight: "700",
     textTransform: "uppercase",
   },
   paceMainValue: {
     color: "#FFFFFF",
-    fontSize: 15,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 16,
+    fontWeight: "800",
     marginTop: 2,
   },
   paceSubText: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
     fontWeight: "600",
   },
   steadyBadge: {
@@ -876,8 +857,7 @@ const styles = StyleSheet.create({
   steadyText: {
     color: "#38EDD8",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   paceBarTrack: {
     width: "100%",
@@ -925,16 +905,14 @@ const styles = StyleSheet.create({
   },
   statBigValue: {
     color: "#FFFFFF",
-    fontSize: 26,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 24,
+    fontWeight: "800",
     marginBottom: 2,
   },
   statUnitLabel: {
     color: "#64748B",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
 
@@ -964,8 +942,7 @@ const styles = StyleSheet.create({
   coachHeaderText: {
     color: "#FFFFFF",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   coachDot: {
@@ -976,13 +953,11 @@ const styles = StyleSheet.create({
   },
   coachFeedbackBody: {
     color: "#94A3B8",
-    fontSize: 12.5,
-    fontFamily: "monospace",
+    fontSize: 13,
     lineHeight: 18,
   },
   coachHighlightPill: {
     color: "#38EDD8",
-    fontFamily: "monospace",
     fontWeight: "800",
   },
   coachChipsRow: {
@@ -1004,9 +979,8 @@ const styles = StyleSheet.create({
   },
   coachChipText: {
     color: "#CBD5E1",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
 
@@ -1058,9 +1032,8 @@ const styles = StyleSheet.create({
   },
   exerciseIndexPillText: {
     color: "#38EDD8",
-    fontSize: 8.5,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 9,
+    fontWeight: "700",
   },
   exerciseInfoCol: {
     flex: 1,
@@ -1068,14 +1041,12 @@ const styles = StyleSheet.create({
   exerciseTitle: {
     color: "#FFFFFF",
     fontSize: 13,
-    fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 0.3,
   },
   exerciseSubtitle: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
     marginTop: 2,
   },
   exerciseAccCol: {
@@ -1085,8 +1056,7 @@ const styles = StyleSheet.create({
   exerciseAccNumber: {
     color: "#CBD5E1",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
   },
   completedMiniPill: {
     flexDirection: "row",
@@ -1102,8 +1072,7 @@ const styles = StyleSheet.create({
   completedMiniText: {
     color: "#38EDD8",
     fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
   },
   toggleMoreBtn: {
     flexDirection: "row",
@@ -1118,8 +1087,7 @@ const styles = StyleSheet.create({
   toggleMoreText: {
     color: "#38EDD8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
 
@@ -1147,9 +1115,8 @@ const styles = StyleSheet.create({
   },
   homeButtonText: {
     color: "#FFFFFF",
-    fontSize: 13.5,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 14,
+    fontWeight: "800",
     letterSpacing: 1.2,
   },
   repeatButton: {
@@ -1172,8 +1139,7 @@ const styles = StyleSheet.create({
   },
   repeatButtonText: {
     color: "#FFFFFF",
-    fontSize: 12.5,
-    fontFamily: "monospace",
+    fontSize: 13,
     fontWeight: "800",
     letterSpacing: 1.2,
   },

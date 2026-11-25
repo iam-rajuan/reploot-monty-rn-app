@@ -25,18 +25,17 @@ import {
   Alert,
   KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from "react-native";
+import { Text, TextInput } from "@/shared/components/typography";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import { typography } from "@/theme/typography";
 
 const suggestions: Record<AssistantContext, string[]> = {
   fitness: ["Plan my workout", "Help with recovery", "Improve my training"],
@@ -522,15 +521,12 @@ const styles = StyleSheet.create({
     borderColor: "rgba(53,229,208,.24)",
   },
   headerTitle: {
+    ...typography.pageTitleCompact,
     color: "#F1F5F9",
-    fontSize: 13,
-    fontFamily: "JetBrainsMono_700Bold",
-    letterSpacing: 0.7,
   },
   headerSubtitle: {
     color: "#35E5D0",
-    fontSize: 8,
-    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: 9,
     letterSpacing: 1,
     marginTop: 2,
   },
@@ -559,7 +555,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(53,229,208,.22)",
     marginBottom: 15,
   },
-  welcomeTitle: { color: "#F8FAFC", fontSize: 21, fontWeight: "800" },
+  welcomeTitle: { color: "#F8FAFC", fontSize: 20, fontWeight: "800" },
   welcomeText: {
     color: "#98A8BA",
     fontSize: 14,
@@ -581,7 +577,6 @@ const styles = StyleSheet.create({
   suggestionText: {
     color: "#BCEFF1",
     fontSize: 12,
-    fontFamily: "JetBrainsMono_700Bold",
   },
   messageRow: {
     flexDirection: "row",
@@ -652,7 +647,6 @@ const styles = StyleSheet.create({
   proposalLabel: {
     color: "#35E5D0",
     fontSize: 9,
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   proposalTitle: {
@@ -680,7 +674,6 @@ const styles = StyleSheet.create({
   proposalButtonText: {
     color: "#071018",
     fontSize: 10,
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.4,
   },
   composerArea: {
@@ -742,8 +735,7 @@ const styles = StyleSheet.create({
   },
   historyTitle: {
     color: "#F8FAFC",
-    fontSize: 15,
-    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: 16,
     letterSpacing: 0.5,
   },
   historySub: { color: "#718096", fontSize: 11, marginTop: 5 },
@@ -760,7 +752,6 @@ const styles = StyleSheet.create({
   newChatText: {
     color: "#071018",
     fontSize: 11,
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   historyList: { gap: 8, paddingBottom: 22 },
@@ -802,7 +793,6 @@ const styles = StyleSheet.create({
   },
   renameTitle: {
     color: "#F8FAFC",
-    fontFamily: "JetBrainsMono_700Bold",
     fontSize: 13,
     letterSpacing: 0.6,
   },
@@ -831,7 +821,6 @@ const styles = StyleSheet.create({
   },
   renameSecondaryText: {
     color: "#AAB7C8",
-    fontFamily: "JetBrainsMono_700Bold",
     fontSize: 10,
   },
   renamePrimary: {
@@ -843,7 +832,6 @@ const styles = StyleSheet.create({
   },
   renamePrimaryText: {
     color: "#071018",
-    fontFamily: "JetBrainsMono_700Bold",
     fontSize: 10,
   },
 });

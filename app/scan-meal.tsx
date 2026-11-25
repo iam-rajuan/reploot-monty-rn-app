@@ -19,11 +19,12 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HORIZONTAL_PADDING, clampFontSize, isSmallDevice } from "@/shared/utils/responsive";
+import { typography } from "@/theme/typography";
 
 const { width } = Dimensions.get("window");
 const FRAME_SIZE = width * 0.82;
@@ -312,8 +313,8 @@ const styles = StyleSheet.create({
   },
   permissionTitle: {
     color: "#FFFFFF",
-    fontSize: clampFontSize(18),
-    fontWeight: "900",
+    fontSize: clampFontSize(20),
+    fontWeight: "800",
     letterSpacing: 0.8,
     textAlign: "center",
     marginBottom: 10,
@@ -394,10 +395,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   headerTitle: {
+    ...typography.pageTitleCompact,
     color: "#FFFFFF",
-    fontSize: clampFontSize(12),
-    fontFamily: "JetBrainsMono_700Bold",
-    letterSpacing: 1,
   },
   placeholderBox: {
     width: 40,
@@ -425,7 +424,6 @@ const styles = StyleSheet.create({
   instructionText: {
     color: "#E2E8F0",
     fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.5,
   },
   frameContainer: {
@@ -496,7 +494,6 @@ const styles = StyleSheet.create({
   hudText: {
     color: "rgba(56, 189, 248, 0.7)",
     fontSize: clampFontSize(9),
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   hudBottomTag: {
@@ -507,7 +504,6 @@ const styles = StyleSheet.create({
   hudSubText: {
     color: "rgba(45, 212, 191, 0.7)",
     fontSize: clampFontSize(9),
-    fontFamily: "JetBrainsMono_700Bold",
   },
   bottomControls: {
     flexDirection: "row",
@@ -533,7 +529,6 @@ const styles = StyleSheet.create({
   controlLabel: {
     color: "#94A3B8",
     fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
   shutterWrapper: {
@@ -564,7 +559,6 @@ const styles = StyleSheet.create({
   shutterLabel: {
     color: "#38BDF8",
     fontSize: clampFontSize(10),
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.8,
   },
 });

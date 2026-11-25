@@ -1,7 +1,9 @@
 import { Image } from "expo-image";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
+import { typography } from "@/theme/typography";
 
 export interface AuthHeroProps {
   line1?: string;
@@ -73,13 +75,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroTitle: {
+    ...typography.pageTitleHero,
     color: "#FFFFFF",
-    fontSize: 42,
-    lineHeight: 44,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1,
-    textTransform: "uppercase",
     textShadowColor: "#FFFFFF",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 1,

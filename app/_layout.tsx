@@ -1,12 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { AppProviders } from "@/providers/AppProviders";
 import { colors } from "@/theme/colors";
-import {
-  JetBrainsMono_700Bold,
-  JetBrainsMono_800ExtraBold,
-  useFonts,
-} from "@expo-google-fonts/jetbrains-mono";
+import { fontAssets } from "@/theme/fonts";
+import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { LogBox } from "react-native";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -16,17 +14,33 @@ import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 
 LogBox.ignoreAllLogs(true);
 
+// Keep the native splash screen up until the typography fonts are ready, so
+// text never renders in a fallback font first (see src/theme/fonts.ts).
+SplashScreen.preventAutoHideAsync().catch(() => {});
+
 function AuthGuard() {
   useProtectedRoute();
   return null;
 }
 
 export default function RootLayout() {
-  useFonts({
-    JetBrainsMono_700Bold,
-    JetBrainsMono_800ExtraBold,
-    JetBrainsMono_900Bold: JetBrainsMono_800ExtraBold,
-  });
+  // Reploot uses only Montserrat for primary page titles and Inter for all
+  // other user-visible text. Every face used by the type system loads here.
+  const [fontsLoaded, fontError] = useFonts(fontAssets);
+
+  useEffect(() => {
+    if (fontError) {
+      // Never fail silently: a missing face would break the two-font policy.
+      console.error("[typography] Failed to load Inter/Montserrat fonts", fontError);
+    }
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
 
   return (
     <KeyboardProvider>

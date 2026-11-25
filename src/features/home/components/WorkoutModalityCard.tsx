@@ -7,10 +7,10 @@ import {
   Pressable,
   StyleProp,
   StyleSheet,
-  Text,
   View,
   ViewStyle,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 const defaultArrowAsset = require("../../../../assets/figma/modalities/workout-card-arrow.svg");
 
@@ -161,9 +161,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 28,
     lineHeight: 32,
-    fontWeight: "900",
-    fontStyle: "italic",
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    fontWeight: "800",
     letterSpacing: -0.75,
     textTransform: "uppercase",
   },
@@ -171,7 +169,6 @@ const styles = StyleSheet.create({
     color: "#B6C0D6",
     fontSize: 14,
     lineHeight: 20,
-    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "400",
   },
   arrowButtonWrapper: {

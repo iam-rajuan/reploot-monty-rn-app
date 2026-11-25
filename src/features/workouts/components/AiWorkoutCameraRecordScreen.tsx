@@ -9,7 +9,8 @@ import {
   RotateCcw,
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WorkoutExerciseItem } from "../data/workoutPathDetailData";
 
@@ -252,8 +253,7 @@ const styles = StyleSheet.create({
   recText: {
     color: "#FFFFFF",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
   },
   headerRightActions: {
@@ -322,9 +322,8 @@ const styles = StyleSheet.create({
   },
   cueText: {
     color: "#FFFFFF",
-    fontSize: 11.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 12,
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
 
@@ -352,16 +351,14 @@ const styles = StyleSheet.create({
   exerciseTag: {
     color: "#94A3B8",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
     textTransform: "uppercase",
   },
   exerciseTitleText: {
     color: "#FFFFFF",
     fontSize: 20,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 0.6,
     textTransform: "uppercase",
   },
@@ -384,8 +381,7 @@ const styles = StyleSheet.create({
   cardMiniLabel: {
     color: "#94A3B8",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   cardTopFlex: {
@@ -401,30 +397,26 @@ const styles = StyleSheet.create({
   },
   repsLargeNum: {
     color: "#FFFFFF",
-    fontSize: 38,
-    lineHeight: 42,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 40,
+    lineHeight: 44,
+    fontWeight: "800",
   },
   repsTargetNum: {
     color: "#64748B",
     fontSize: 16,
-    fontFamily: "monospace",
     fontWeight: "800",
   },
   cardHelperText: {
     color: "#38EDD8",
     fontSize: 9,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   accuracyLargeNum: {
     color: "#FFFFFF",
-    fontSize: 34,
+    fontSize: 32,
     lineHeight: 38,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
     marginVertical: 4,
   },
   optimalFormBadge: {
@@ -436,9 +428,8 @@ const styles = StyleSheet.create({
   },
   optimalFormText: {
     color: "#38EDD8",
-    fontSize: 9.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
 
@@ -465,7 +456,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#FFFFFF",
     fontSize: 14,
-    fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 0.8,
   },
@@ -475,9 +465,8 @@ const styles = StyleSheet.create({
   },
   skipLinkText: {
     color: "#94A3B8",
-    fontSize: 10.5,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontSize: 11,
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   cameraFallbackContainer: {
@@ -507,17 +496,15 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     lineHeight: 20,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1.2,
+    fontWeight: "800",
+    letterSpacing: 0.8,
     textAlign: "center",
     marginBottom: 8,
   },
   cameraFallbackText: {
     color: "#94A3B8",
-    fontSize: 12.5,
+    fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "500",
     textAlign: "center",
     marginBottom: 20,
@@ -542,8 +529,7 @@ const styles = StyleSheet.create({
   enableCameraBtnText: {
     color: "#38EDD8",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
   },
 });

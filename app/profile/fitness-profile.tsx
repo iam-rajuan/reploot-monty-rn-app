@@ -11,15 +11,16 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
 import { ActivityLevel } from "./_components/ActivityLevel";
 import { FitnessGoal } from "./_components/FitnessGoal";
 import { PhysicalMetrics } from "./_components/PhysicalMetrics";
+import { typography } from "@/theme/typography";
 
 export default function FitnessProfileRoute() {
   const router = useRouter();
@@ -162,19 +163,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 34,
-    lineHeight: 40,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
   },
@@ -197,7 +192,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 13,
     fontWeight: "800",
-    fontFamily: "monospace",
     letterSpacing: 1.2,
   },
   savedToast: {
@@ -224,8 +218,7 @@ const styles = StyleSheet.create({
   savedToastText: {
     color: "#00f2fe",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
 });

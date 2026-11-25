@@ -2,12 +2,11 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { ArrowRight } from "lucide-react-native";
 import {
-  Platform,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export interface OnboardingButtonProps {
   isFinalSlide?: boolean;
@@ -137,19 +136,15 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    letterSpacing: 2,
+    letterSpacing: 0.8,
     textTransform: "uppercase",
-    fontFamily: Platform.select({
-      web: "'JetBrains Mono', monospace",
-      default: "JetBrainsMono_700Bold",
-    }),
   },
   buttonTextDisabled: {
     color: "rgba(255, 255, 255, 0.5)",
   },
   buttonTextCompact: {
     fontSize: 14,
-    letterSpacing: 1.6,
+    letterSpacing: 1.2,
   },
   arrowIcon: {
     marginLeft: 8,
@@ -160,9 +155,5 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     textAlign: "center",
     marginTop: 8,
-    fontFamily: Platform.select({
-      web: "'JetBrains Mono', monospace",
-      default: "JetBrainsMono_700Bold",
-    }),
   },
 });

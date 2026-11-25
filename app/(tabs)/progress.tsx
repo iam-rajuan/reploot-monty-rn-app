@@ -29,10 +29,11 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { typography } from "@/theme/typography";
 
 const MOTIVATION = [
   "Consistency turns effort into strength.",
@@ -265,12 +266,8 @@ const styles = StyleSheet.create({
   header: { backgroundColor: "#121318" },
   content: { paddingHorizontal: 24, paddingTop: 16, gap: 24 },
   title: {
+    ...typography.pageTitle,
     color: "#F6F8FF",
-    fontSize: 34,
-    lineHeight: 38,
-    fontWeight: "900",
-    letterSpacing: -0.8,
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
     textShadowColor: "rgba(120, 145, 255, 0.22)",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 6,
@@ -301,7 +298,6 @@ const styles = StyleSheet.create({
   },
   label: {
     color: "rgba(255,255,255,0.72)",
-    fontFamily: "monospace",
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 1,
@@ -310,28 +306,26 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: 28,
     lineHeight: 32,
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: -0.8,
     marginTop: 2,
   },
   tier: {
-    fontFamily: "monospace",
     fontSize: 9,
     lineHeight: 13,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
     marginTop: 3,
   },
   streak: { flexDirection: "row", alignItems: "center", gap: 5 },
   streakValue: {
     color: "#FFB68C",
-    fontSize: 25,
+    fontSize: 24,
     lineHeight: 30,
-    fontWeight: "900",
+    fontWeight: "800",
   },
   streakText: {
     color: "#C8C4D8",
-    fontFamily: "monospace",
     fontSize: 9,
     lineHeight: 12,
     fontWeight: "700",
@@ -347,7 +341,6 @@ const styles = StyleSheet.create({
   },
   xpValue: {
     color: "#C5C0FF",
-    fontFamily: "monospace",
     fontSize: 12,
     fontWeight: "700",
     flexShrink: 1,
@@ -355,7 +348,6 @@ const styles = StyleSheet.create({
   },
   xpRemaining: {
     color: "#C5C0FF",
-    fontFamily: "monospace",
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.8,
@@ -369,17 +361,16 @@ const styles = StyleSheet.create({
   },
   quote: {
     color: "#44EAC3",
-    fontSize: 30,
+    fontSize: 28,
     height: 24,
-    lineHeight: 30,
+    lineHeight: 31,
     fontWeight: "800",
   },
   motivationText: {
     color: "#E3E1E9",
     textAlign: "center",
-    fontSize: 18,
+    fontSize: 20,
     lineHeight: 25,
-    fontStyle: "italic",
     fontWeight: "600",
   },
   competitionCard: {
@@ -398,10 +389,10 @@ const styles = StyleSheet.create({
   },
   rank: {
     color: "#FFF",
-    fontSize: 42,
+    fontSize: 40,
     lineHeight: 44,
-    fontWeight: "900",
-    letterSpacing: -1.5,
+    fontWeight: "800",
+    letterSpacing: -1,
     marginTop: 2,
   },
   rankButton: {
@@ -413,7 +404,6 @@ const styles = StyleSheet.create({
   },
   rankButtonText: {
     color: "#FFB68C",
-    fontFamily: "monospace",
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.5,
@@ -433,7 +423,6 @@ const styles = StyleSheet.create({
   statLabel: { flexDirection: "row", alignItems: "center", gap: 6 },
   personalLabel: {
     color: "#C5C0FF",
-    fontFamily: "monospace",
     fontSize: 9,
     fontWeight: "700",
     letterSpacing: 0.7,
@@ -441,30 +430,28 @@ const styles = StyleSheet.create({
   },
   challengeLabel: {
     color: "#FFB68C",
-    fontFamily: "monospace",
     fontSize: 9,
     fontWeight: "700",
     letterSpacing: 0.7,
   },
   statTitle: {
     color: "#FFF",
-    fontSize: 15,
+    fontSize: 16,
     lineHeight: 20,
     fontWeight: "800",
     marginTop: 8,
   },
   statSub: {
     color: "#C8C4D8",
-    fontFamily: "monospace",
     fontSize: 9,
     lineHeight: 14,
     marginTop: 3,
   },
   challengeXP: {
     color: "#FFB68C",
-    fontSize: 18,
-    lineHeight: 21,
-    fontWeight: "900",
+    fontSize: 20,
+    lineHeight: 22,
+    fontWeight: "800",
     marginTop: 8,
   },
   challenge: {
@@ -481,7 +468,7 @@ const styles = StyleSheet.create({
   },
   challengeTitle: {
     color: "#FFF",
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "800",
     marginTop: 4,
   },
@@ -495,7 +482,6 @@ const styles = StyleSheet.create({
   },
   rewardText: {
     color: "#FFB68C",
-    fontFamily: "monospace",
     fontSize: 10,
     fontWeight: "700",
   },
@@ -519,7 +505,6 @@ const styles = StyleSheet.create({
   },
   challengeProgress: {
     color: "#FFB68C",
-    fontFamily: "monospace",
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.7,
@@ -534,7 +519,6 @@ const styles = StyleSheet.create({
   },
   achievementsText: {
     color: "#C5C0FF",
-    fontFamily: "monospace",
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.8,
@@ -542,7 +526,6 @@ const styles = StyleSheet.create({
   tracking: { gap: 10 },
   trackingTitle: {
     color: "#94A3B8",
-    fontFamily: "monospace",
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 1.2,
@@ -571,7 +554,6 @@ const styles = StyleSheet.create({
   navText: {
     flex: 1,
     color: "#E3E1E9",
-    fontFamily: "monospace",
     fontSize: 12,
     fontWeight: "700",
     letterSpacing: 0.6,

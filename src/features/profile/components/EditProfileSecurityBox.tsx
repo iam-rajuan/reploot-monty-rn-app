@@ -1,6 +1,7 @@
 import { ShieldCheck } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export const EditProfileSecurityBox = () => {
   return (
@@ -47,8 +48,7 @@ const styles = StyleSheet.create({
   securityTitle: {
     color: "#FFFFFF",
     fontSize: 11,
-    fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "700",
     letterSpacing: 0.8,
     marginBottom: 3,
   },
@@ -56,6 +56,5 @@ const styles = StyleSheet.create({
     color: "#8E9AB4",
     fontSize: 10,
     lineHeight: 15,
-    fontFamily: "JetBrainsMono_500Medium",
   },
 });

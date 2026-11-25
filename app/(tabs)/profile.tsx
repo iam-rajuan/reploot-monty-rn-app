@@ -16,13 +16,14 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
+import { typography } from "@/theme/typography";
 
 export default function ProfileTabRoute() {
   const router = useRouter();
@@ -217,26 +218,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 34,
-    lineHeight: 38,
-    fontWeight: "900",
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    letterSpacing: -0.8,
     textShadowColor: "rgba(120, 145, 255, 0.22)",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 6,
-    textTransform: "uppercase",
   },
-  mainTitleCompact: {
-    fontSize: 30,
-    lineHeight: 34,
-  },
+  // Compact layouts keep the standard page-title role for consistency.
+  mainTitleCompact: {},
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 4,
   },
@@ -250,8 +243,7 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 11,
     fontWeight: "700",
-    fontFamily: "monospace",
-    letterSpacing: 1.5,
+    letterSpacing: 1.2,
     marginRight: 14,
   },
   sectionLine: {
@@ -298,9 +290,8 @@ const styles = StyleSheet.create({
   },
   listItemText: {
     color: "#FFFFFF",
-    fontSize: 12.5,
+    fontSize: 13,
     fontWeight: "800",
-    fontFamily: "monospace",
     letterSpacing: 0.5,
   },
   chevronWrapper: {
@@ -334,9 +325,8 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: "#FB7185",
-    fontSize: 11.5,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontSize: 12,
+    fontWeight: "700",
     letterSpacing: 1,
   },
   logoutDisabled: {

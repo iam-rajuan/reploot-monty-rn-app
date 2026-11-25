@@ -2,7 +2,8 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { Dumbbell, House } from "lucide-react-native";
 import React from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 interface WorkoutTabsProps {
   activeTab: string;
@@ -102,9 +103,8 @@ const styles = StyleSheet.create({
   label: {
     color: "#94A3B8",
     fontSize: 12,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.3,
+    fontWeight: "700",
+    letterSpacing: 1.2,
   },
   activeLabel: { color: "#061018" },
 });

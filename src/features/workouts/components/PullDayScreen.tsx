@@ -3,12 +3,14 @@ import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { NestableScrollContainer } from "react-native-draggable-flatlist";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PULL_DAY_DATA, PullDayExercise } from "../data/pullDayData";
 import { PullDayHeroCard } from "./PullDayHeroCard";
 import { PushDayExerciseList } from "./PushDayExerciseCard";
 import { StartAiWorkoutButton } from "./StartAiWorkoutButton";
+import { typography } from "@/theme/typography";
 
 export interface PullDayScreenProps {
   onBack?: () => void;
@@ -105,12 +107,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 34,
-    lineHeight: 38,
-    fontWeight: "900",
-    letterSpacing: -0.5,
-    textTransform: "uppercase",
     marginBottom: 6,
     textShadowColor: "rgba(68, 234, 195, 0.55)",
     textShadowOffset: { width: 0, height: 0 },

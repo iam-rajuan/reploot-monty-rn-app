@@ -1,6 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface OnboardingHeaderProps {
@@ -79,12 +80,8 @@ const styles = StyleSheet.create({
   skipText: {
     color: "#CBD5E1",
     fontSize: 13,
-    letterSpacing: 2.5,
+    letterSpacing: 1.2,
     textTransform: "uppercase",
-    fontFamily: Platform.select({
-      web: "'JetBrains Mono', monospace",
-      default: "JetBrainsMono_700Bold",
-    }),
   },
   skipPlaceholder: {
     width: 40,

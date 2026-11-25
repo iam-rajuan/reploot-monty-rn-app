@@ -2,11 +2,11 @@ import * as Haptics from "expo-haptics";
 import { Check } from "lucide-react-native";
 import {
   StyleSheet,
-  Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import Svg, { Path } from "react-native-svg";
 import { useProfileSetupStore } from "../store/profileSetupStore";
 
@@ -154,9 +154,8 @@ const styles = StyleSheet.create({
   },
   genderLabel: {
     fontSize: 14,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 2,
+    fontWeight: "800",
+    letterSpacing: 1.2,
     color: "#FFFFFF",
   },
   pressed: {

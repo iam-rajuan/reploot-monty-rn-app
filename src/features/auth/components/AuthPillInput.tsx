@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import {
   Platform,
-  TextInput as RNTextInput,
   TextInputProps as RNTextInputProps,
   StyleSheet,
-  Text,
   View,
   ViewStyle,
 } from "react-native";
+import { TextInput as RNTextInput, Text } from "@/shared/components/typography";
 
 export interface AuthPillInputProps extends RNTextInputProps {
   label: string;
@@ -53,7 +52,7 @@ const styles = StyleSheet.create({
     color: "#CBD5E1",
     fontSize: 12,
     fontWeight: "400",
-    letterSpacing: 1.4,
+    letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 8,
     marginLeft: 6,
@@ -81,7 +80,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: "#0F172A",
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "500",
     height: "100%",
     paddingVertical: 0,

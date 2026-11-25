@@ -1,7 +1,8 @@
 import { ActivityLevel } from "@/shared/types/user";
 import { Check } from "lucide-react-native";
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export interface ActivityOptionItemProps {
   id: ActivityLevel;

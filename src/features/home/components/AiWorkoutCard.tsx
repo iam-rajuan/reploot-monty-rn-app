@@ -3,7 +3,8 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { HORIZONTAL_PADDING } from "@/shared/utils/responsive";
 
 const bgAsset = require("../../../../assets/figma/ai-workout/hero-workout-background.jpeg");
@@ -199,9 +200,8 @@ const styles = StyleSheet.create({
   },
   badgeSolidText: {
     color: "#CAD2FF",
-    fontSize: 9.5,
+    fontSize: 10,
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0,
   },
   badgeOutline: {
@@ -214,9 +214,8 @@ const styles = StyleSheet.create({
   },
   badgeOutlineText: {
     color: "#EAF0FF",
-    fontSize: 9.5,
+    fontSize: 10,
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0,
   },
   badgeGreenOutline: {
@@ -236,9 +235,8 @@ const styles = StyleSheet.create({
   },
   badgeGreenOutlineText: {
     color: "#3FDEC9",
-    fontSize: 9.5,
+    fontSize: 10,
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0,
   },
   workoutInfoBlock: {
@@ -248,18 +246,15 @@ const styles = StyleSheet.create({
     color: "#B6C0D6",
     fontSize: 11,
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0.5,
     marginBottom: 4,
     textTransform: "uppercase",
   },
   workoutTitle: {
     color: "#F4F7FF",
-    fontSize: 26,
+    fontSize: 24,
     lineHeight: 30,
-    fontWeight: "900",
-    fontStyle: "italic",
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    fontWeight: "800",
     letterSpacing: -0.6,
     textTransform: "uppercase",
   },
@@ -277,7 +272,6 @@ const styles = StyleSheet.create({
     color: "#B6C0D6",
     fontSize: 11,
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0,
   },
   toggleCapsule: {
@@ -305,7 +299,6 @@ const styles = StyleSheet.create({
     color: "#C8C4D8",
     fontSize: 10,
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 0,
   },
   toggleTabTextActive: {
@@ -333,10 +326,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "800",
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
-    letterSpacing: 1.5,
+    letterSpacing: 0.8,
   },
   startArrow: {
     width: 14,

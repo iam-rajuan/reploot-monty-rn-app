@@ -12,6 +12,7 @@ import * as Haptics from "expo-haptics";
 import { colors } from "@/theme/colors";
 import { gradients } from "@/theme/gradients";
 import { shadows } from "@/theme/shadows";
+import { typography } from "@/theme/typography";
 import { AppText } from "./AppText";
 
 export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "ai";
@@ -60,15 +61,15 @@ export const Button: React.FC<ButtonProps> = ({
   const sizeStyles: Record<ButtonSize, { container: ViewStyle; text: TextStyle }> = {
     sm: {
       container: { height: 38, paddingHorizontal: 16, borderRadius: 19 },
-      text: { fontSize: 13, fontWeight: "700" },
+      text: typography.buttonSmall,
     },
     md: {
       container: { height: 50, paddingHorizontal: 24, borderRadius: 25 },
-      text: { fontSize: 15, fontWeight: "800", letterSpacing: 0.8 },
+      text: typography.button,
     },
     lg: {
       container: { height: 56, paddingHorizontal: 28, borderRadius: 28 },
-      text: { fontSize: 16, fontWeight: "800", letterSpacing: 1 },
+      text: typography.buttonLarge,
     },
   };
 
@@ -83,7 +84,7 @@ export const Button: React.FC<ButtonProps> = ({
         <>
           {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
           <AppText
-            variant="label"
+            variant="button"
             style={[
               sizeStyles[size].text,
               isPrimary ? styles.primaryText : styles.defaultText,

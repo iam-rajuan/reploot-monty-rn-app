@@ -8,13 +8,13 @@ export default function ModalRoute() {
   return (
     <Screen padded>
       <View style={styles.container}>
-        <AppText variant="caption" color="accent">
+        <AppText variant="overline" color="accent">
           MODAL CONTAINER
         </AppText>
-        <AppText variant="displayLG" color="primary" style={styles.title}>
+        <AppText variant="pageTitle" color="primary" style={styles.title}>
           ACTION MODAL
         </AppText>
-        <AppText variant="bodyMD" color="secondary" style={styles.description}>
+        <AppText variant="body" color="secondary" style={styles.description}>
           Standardized modal container for quick actions, hydration logs, and
           filters.
         </AppText>

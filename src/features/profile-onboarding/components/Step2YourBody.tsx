@@ -1,12 +1,14 @@
 import { ActivityLevel } from "@/shared/types/user";
 import * as Haptics from "expo-haptics";
 import { useCallback, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useProfileSetupStore } from "../store/profileSetupStore";
 import { ActivityLevelCard } from "./ActivityLevelCard";
 import { HeightSelectionCard } from "./HeightSelectionCard";
 import { OnboardingButton } from "@/features/onboarding/components/OnboardingButton";
 import { WeightSelectionCard } from "./WeightSelectionCard";
+import { typography } from "@/theme/typography";
 
 export function Step2YourBody() {
   const heightCm = useProfileSetupStore((s) => s.data.heightCm);
@@ -136,14 +138,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   title: {
+    ...typography.pageTitle,
     color: "#22D3EE",
-    fontSize: 24,
-    lineHeight: 30,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1,
-    textAlign: "left",
-    textTransform: "uppercase",
   },
 
   ctaContainer: {

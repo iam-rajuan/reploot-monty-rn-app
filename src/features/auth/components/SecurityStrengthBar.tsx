@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { LinearGradient } from "expo-linear-gradient";
 
 interface SecurityStrengthBarProps {
@@ -70,14 +71,14 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 11,
     fontWeight: "700",
-    letterSpacing: 1.4,
+    letterSpacing: 1.2,
     textTransform: "uppercase",
   },
   strengthText: {
     color: "#2DD4BF",
     fontSize: 11,
-    fontWeight: "800",
-    letterSpacing: 1.4,
+    fontWeight: "700",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
   },
   barRow: {

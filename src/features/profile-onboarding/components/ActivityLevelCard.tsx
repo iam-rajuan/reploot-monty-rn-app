@@ -1,7 +1,8 @@
 import { ActivityLevel } from "@/shared/types/user";
 import { Zap } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { ActivityOptionItem } from "./ActivityOptionItem";
 
 const ACTIVITY_OPTIONS: {
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: "#E2E8F0",
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1.2,
     includeFontPadding: false,
   },

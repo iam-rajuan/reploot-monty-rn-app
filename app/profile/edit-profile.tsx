@@ -7,9 +7,11 @@ import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Check } from "lucide-react-native";
 import React, { useState } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { typography } from "@/theme/typography";
 
 export default function EditProfileRoute() {
   const router = useRouter();
@@ -99,19 +101,13 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 12,
     lineHeight: 17,
-    fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
-    letterSpacing: 1.4,
+    fontWeight: "700",
+    letterSpacing: 1.2,
     marginBottom: 3,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#F6F8FF",
-    fontSize: 30,
-    lineHeight: 36,
-    fontWeight: "900",
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    letterSpacing: -0.6,
-    textTransform: "uppercase",
   },
   savedToast: {
     position: "absolute",
@@ -137,8 +133,7 @@ const styles = StyleSheet.create({
   savedToastText: {
     color: "#8CECF4",
     fontSize: 12,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
 });

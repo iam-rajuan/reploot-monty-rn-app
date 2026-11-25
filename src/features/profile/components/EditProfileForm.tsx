@@ -4,11 +4,10 @@ import React, { useState } from "react";
 import {
   Platform,
   StyleSheet,
-  Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text, TextInput } from "@/shared/components/typography";
 
 export const EditProfileForm = () => {
   const [fullName, setFullName] = useState("Alex Rivers");
@@ -145,8 +144,7 @@ const styles = StyleSheet.create({
     color: "#F6F8FF",
     fontSize: 12,
     lineHeight: 17,
-    fontWeight: "800",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontWeight: "700",
     letterSpacing: 1,
     marginBottom: 14,
   },
@@ -163,7 +161,6 @@ const styles = StyleSheet.create({
     color: "#8E9AB4",
     fontSize: 10,
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
     letterSpacing: 1.1,
     marginBottom: 7,
     marginLeft: 2,
@@ -183,7 +180,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 14,
     fontWeight: "600",
-    fontFamily: "JetBrainsMono_500Medium",
     ...(Platform.OS === "web" ? { outlineStyle: "none" } : {}),
   } as any,
   dropdownMenu: {
@@ -211,7 +207,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 13,
     fontWeight: "700",
-    fontFamily: "JetBrainsMono_700Bold",
   },
   dropdownDivider: {
     height: 1,

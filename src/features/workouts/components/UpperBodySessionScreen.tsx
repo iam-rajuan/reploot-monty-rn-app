@@ -10,9 +10,9 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import {
@@ -23,6 +23,7 @@ import {
 import { CircuitExerciseCard } from "./CircuitExerciseCard";
 import { StartAiWorkoutButton } from "./StartAiWorkoutButton";
 import { UpperBodySessionHeroCard } from "./UpperBodySessionHeroCard";
+import { typography } from "@/theme/typography";
 
 export interface UpperBodySessionScreenProps {
   data?: UpperBodySessionData;
@@ -190,9 +191,8 @@ const styles = StyleSheet.create({
   categoryBadge: {
     color: "#44EAC3",
     fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1.5,
-    fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 8,
   },
@@ -214,19 +214,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 38,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
   },
   subtitle: {
     color: "#94A3B8",
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "monospace",
     fontWeight: "600",
   },
   filterRow: {
@@ -255,10 +249,9 @@ const styles = StyleSheet.create({
   },
   filterPillText: {
     color: "#94A3B8",
-    fontSize: 11.5,
-    fontWeight: "800",
+    fontSize: 12,
+    fontWeight: "700",
     letterSpacing: 0.8,
-    fontFamily: "monospace",
     textTransform: "uppercase",
   },
   filterPillTextActive: {
@@ -284,17 +277,15 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: "#FFFFFF",
     fontSize: 13,
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 1.1,
-    fontFamily: "monospace",
     textTransform: "uppercase",
   },
   targetLoadText: {
     color: "#64748B",
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
-    fontFamily: "monospace",
     textTransform: "uppercase",
   },
   targetLoadValue: {

@@ -2,7 +2,8 @@ import { LeaderboardEntry } from "@/shared/types/progress";
 import { Image } from "expo-image";
 import { Crown, Medal } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 interface Props {
   entries: LeaderboardEntry[];
@@ -191,15 +192,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontWeight: "700",
     letterSpacing: 1.1,
   },
   sectionMeta: {
     color: "#64748B",
-    fontSize: 8,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontSize: 9,
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   podiumSection: { marginBottom: 20 },
@@ -262,32 +261,28 @@ const styles = StyleSheet.create({
   podiumRankText: {
     color: "#111827",
     fontSize: 10,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontWeight: "700",
   },
   winnerRankText: { color: "#392600" },
   podiumName: {
     width: "94%",
     color: "#E5E7EB",
     fontSize: 10,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontWeight: "700",
     textAlign: "center",
     marginTop: 3,
   },
   podiumScore: {
     color: "#CBD5E1",
     fontSize: 11,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontWeight: "700",
     marginTop: 5,
   },
   winnerScore: { color: "#FFD166" },
   podiumUnit: {
     color: "#64748B",
-    fontSize: 7,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontSize: 9,
+    fontWeight: "700",
     marginTop: 1,
   },
   boardSection: { width: "100%" },
@@ -318,9 +313,8 @@ const styles = StyleSheet.create({
   rowRank: {
     width: 30,
     color: "#94A3B8",
-    fontSize: 15,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontSize: 16,
+    fontWeight: "800",
     textAlign: "center",
     marginRight: 9,
   },
@@ -338,14 +332,12 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     color: "#F8FAFC",
     fontSize: 12,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontWeight: "700",
   },
   you: {
     color: "#38BDF8",
-    fontSize: 7,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontSize: 9,
+    fontWeight: "700",
     marginLeft: 6,
     paddingHorizontal: 5,
     paddingVertical: 2,
@@ -356,14 +348,12 @@ const styles = StyleSheet.create({
   rowScoreValue: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontWeight: "700",
   },
   rowScoreUnit: {
     color: "#64748B",
-    fontSize: 8,
-    fontWeight: "800",
-    fontFamily: "monospace",
+    fontSize: 9,
+    fontWeight: "700",
     marginTop: 1,
   },
   accentText: { color: "#38EDD8" },
@@ -382,8 +372,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     color: "#FFFFFF",
     fontSize: 13,
-    fontWeight: "900",
-    fontFamily: "monospace",
+    fontWeight: "800",
     letterSpacing: 1,
     marginTop: 12,
   },
@@ -393,7 +382,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 17,
     textAlign: "center",
-    fontFamily: "monospace",
     marginTop: 7,
   },
 });

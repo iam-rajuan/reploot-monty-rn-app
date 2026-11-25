@@ -2,12 +2,11 @@ import { Image } from "expo-image";
 import { useEffect, useRef } from "react";
 import {
   Animated,
-  Platform,
   Pressable,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface SplashScreenProps {
@@ -117,11 +116,7 @@ const styles = StyleSheet.create({
   tagline: {
     color: "#94A3B8",
     fontSize: 12,
-    letterSpacing: 4,
+    letterSpacing: 1.2,
     textTransform: "uppercase",
-    fontFamily: Platform.select({
-      web: "'JetBrains Mono', monospace",
-      default: "JetBrainsMono_800ExtraBold",
-    }),
   },
 });

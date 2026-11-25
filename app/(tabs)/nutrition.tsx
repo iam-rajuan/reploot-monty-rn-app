@@ -30,11 +30,10 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text, TextInput } from "@/shared/components/typography";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, {
@@ -44,6 +43,7 @@ import Svg, {
   Line as SvgLine,
   Stop,
 } from "react-native-svg";
+import { typography } from "@/theme/typography";
 
 interface LoggedMeal {
   id: number;
@@ -1089,23 +1089,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: 34,
-    lineHeight: 38,
-    fontWeight: "900",
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    letterSpacing: -0.8,
     textShadowColor: "rgba(120, 145, 255, 0.22)",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 6,
-    textAlign: "left",
-    textTransform: "uppercase",
   },
   heroSubtitle: {
     color: "#94A3B8",
-    fontSize: 12.5,
+    fontSize: 13,
     lineHeight: 18,
-    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "500",
     marginTop: 4,
   },
@@ -1141,9 +1134,8 @@ const styles = StyleSheet.create({
   },
   budgetBadgeText: {
     color: "#38BDF8",
-    fontSize: 9.5,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 1,
   },
   cardActions: {
@@ -1180,17 +1172,16 @@ const styles = StyleSheet.create({
   headerLinkText: {
     color: "#38BDF8",
     fontSize: 10,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
     lineHeight: 12,
     includeFontPadding: false,
     flexShrink: 0,
   },
   headerLinkArrow: {
-    fontSize: 15,
-    lineHeight: 15,
-    fontWeight: "900",
+    fontSize: 16,
+    lineHeight: 20,
+    fontWeight: "800",
   },
   statusPill: {
     backgroundColor: "rgba(45, 212, 191, 0.12)",
@@ -1203,8 +1194,7 @@ const styles = StyleSheet.create({
   statusPillText: {
     color: "#2DD4BF",
     fontSize: 9,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   energySummary: {
@@ -1219,9 +1209,8 @@ const styles = StyleSheet.create({
   },
   energySummaryLabel: {
     color: "#64748B",
-    fontSize: 8.5,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontSize: 9,
+    fontWeight: "700",
     letterSpacing: 1.2,
     textAlign: "center",
   },
@@ -1234,29 +1223,25 @@ const styles = StyleSheet.create({
   },
   budgetMain: {
     color: "#FFFFFF",
-    fontSize: 36,
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    fontWeight: "900",
+    fontSize: 40,
+    fontWeight: "800",
     letterSpacing: -0.5,
   },
   budgetTargetSlash: {
     color: "#475569",
-    fontSize: 18,
-    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: 20,
     fontWeight: "700",
     marginHorizontal: 6,
   },
   budgetTargetTotal: {
     color: "#94A3B8",
-    fontSize: 18,
-    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: 20,
     fontWeight: "800",
   },
   budgetTargetUnit: {
     color: "#64748B",
     fontSize: 11,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
     marginLeft: 4,
   },
@@ -1289,14 +1274,12 @@ const styles = StyleSheet.create({
   progressRemaining: {
     color: "#38BDF8",
     fontSize: 10,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   progressPercent: {
     color: "#94A3B8",
     fontSize: 10,
-    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
   },
   macrosRow: {
@@ -1326,9 +1309,8 @@ const styles = StyleSheet.create({
     borderRadius: 2.5,
   },
   macroLabel: {
-    fontSize: 9.5,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   macroValueRow: {
@@ -1338,21 +1320,18 @@ const styles = StyleSheet.create({
   },
   macroValue: {
     color: "#FFFFFF",
-    fontSize: 17,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "900",
+    fontSize: 18,
+    fontWeight: "800",
   },
   macroUnit: {
     color: "#94A3B8",
     fontSize: 10,
-    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
     marginLeft: 1,
   },
   macroTarget: {
     color: "#64748B",
     fontSize: 9,
-    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
     marginBottom: 6,
   },
@@ -1387,8 +1366,7 @@ const styles = StyleSheet.create({
   scanBtnText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   planHeroCard: {
@@ -1422,17 +1400,15 @@ const styles = StyleSheet.create({
   },
   planHeroBadgeText: {
     color: "#38BDF8",
-    fontSize: 9.5,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 1,
   },
   planHeroTitle: {
     color: "#F8FAFC",
-    fontSize: 18,
+    fontSize: 20,
     lineHeight: 24,
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: -0.3,
     marginBottom: 4,
   },
@@ -1440,7 +1416,6 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 12,
     lineHeight: 18,
-    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "500",
     marginBottom: 14,
   },
@@ -1468,9 +1443,8 @@ const styles = StyleSheet.create({
   },
   planHeroBtnText: {
     color: "#FFFFFF",
-    fontSize: 11.5,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "900",
+    fontSize: 12,
+    fontWeight: "700",
     letterSpacing: 1,
     textAlign: "center",
   },
@@ -1499,9 +1473,8 @@ const styles = StyleSheet.create({
   },
   hydrationBadgeText: {
     color: "#38BDF8",
-    fontSize: 9.5,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 1,
   },
   hydrationHeaderActions: {
@@ -1587,8 +1560,7 @@ const styles = StyleSheet.create({
   resetModalTitle: {
     color: "#F8FAFC",
     fontSize: 13,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 0.7,
   },
   resetModalText: {
@@ -1628,15 +1600,13 @@ const styles = StyleSheet.create({
   resetModalCancelText: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   resetModalConfirmText: {
     color: "#FFFFFF",
-    fontSize: 11.5,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "900",
+    fontSize: 12,
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   modalCard: {
@@ -1666,9 +1636,8 @@ const styles = StyleSheet.create({
   },
   modalHeaderTitle: {
     color: "#38BDF8",
-    fontSize: 11.5,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "900",
+    fontSize: 12,
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   modalCloseBtn: {
@@ -1718,15 +1687,14 @@ const styles = StyleSheet.create({
   modalPresetText: {
     color: "#E0F2FE",
     fontSize: 11,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontWeight: "700",
     textAlign: "center",
     textAlignVertical: "center",
     includeFontPadding: false,
   },
   modalPresetTextActive: {
     color: "#FFFFFF",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   modalInputRow: {
     flexDirection: "row",
@@ -1741,17 +1709,15 @@ const styles = StyleSheet.create({
   modalTextInput: {
     flex: 1,
     color: "#FFFFFF",
-    fontSize: 15,
-    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: 16,
     fontWeight: "800",
     marginLeft: 10,
     paddingVertical: 0,
   },
   modalInputUnit: {
     color: "#64748B",
-    fontSize: 10.5,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontSize: 11,
+    fontWeight: "700",
     marginRight: 14,
     letterSpacing: 0.8,
   },
@@ -1779,8 +1745,7 @@ const styles = StyleSheet.create({
   modalSaveBtnText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   ringContainer: {
@@ -1807,22 +1772,19 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 40,
     lineHeight: 44,
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: -0.5,
   },
   ringUnit: {
     color: "#38BDF8",
-    fontSize: 18,
+    fontSize: 20,
     lineHeight: 22,
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
-    fontWeight: "900",
+    fontWeight: "800",
     marginLeft: 3,
   },
   ringGoal: {
     color: "#64748B",
     fontSize: 10,
-    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
     letterSpacing: 1.2,
     marginTop: 2,
@@ -1867,8 +1829,7 @@ const styles = StyleSheet.create({
   quickAddText: {
     color: "#FFFFFF",
     fontSize: 11,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
     textAlign: "center",
     textAlignVertical: "center",
@@ -1877,7 +1838,7 @@ const styles = StyleSheet.create({
   },
   quickAddPlus: {
     color: "#38BDF8",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   customWaterRow: {
     backgroundColor: "rgba(255, 255, 255, 0.03)",
@@ -1893,16 +1854,14 @@ const styles = StyleSheet.create({
   waterInput: {
     flex: 1,
     color: "#FFFFFF",
-    fontSize: 13.5,
-    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: 14,
     fontWeight: "700",
     marginLeft: 8,
     paddingVertical: 0,
   },
   waterInputUnit: {
     color: "#64748B",
-    fontSize: 10.5,
-    fontFamily: "JetBrainsMono_700Bold",
+    fontSize: 11,
     fontWeight: "700",
     marginRight: 8,
   },
@@ -1926,8 +1885,7 @@ const styles = StyleSheet.create({
   saveInlineText: {
     color: "#FFFFFF",
     fontSize: 11,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   nutritionCoachCard: {
@@ -1962,7 +1920,6 @@ const styles = StyleSheet.create({
   approvedAdjustmentText: {
     flex: 1,
     color: "#9FEBDD",
-    fontFamily: "JetBrainsMono_700Bold",
     fontSize: 9,
     lineHeight: 13,
     letterSpacing: 0.35,
@@ -2007,24 +1964,19 @@ const styles = StyleSheet.create({
   },
   nutritionCoachLabel: {
     color: "#38BDF8",
-    fontFamily: "JetBrainsMono_700Bold",
-    fontSize: 9.5,
-    fontWeight: "800",
+    fontSize: 10,
+    fontWeight: "700",
     letterSpacing: 1.2,
   },
   nutritionCoachText: {
     color: "#E2E8F0",
-    fontSize: 14.5,
+    fontSize: 16,
     lineHeight: 20,
     fontWeight: "800",
-    fontFamily: Platform.select({
-      android: "sans-serif-medium",
-      ios: "System",
-    }),
   },
   nutritionProtein: {
     color: "#2DD4BF",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   nutritionLunch: {
     backgroundColor: "rgba(7, 12, 19, 0.42)",
@@ -2042,9 +1994,8 @@ const styles = StyleSheet.create({
   },
   nutritionLunchLabel: {
     color: "#2DD4BF",
-    fontFamily: "JetBrainsMono_700Bold",
     fontSize: 9,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   nutritionLunchText: {
@@ -2052,10 +2003,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 18,
     fontWeight: "700",
-    fontFamily: Platform.select({
-      android: "sans-serif-medium",
-      ios: "System",
-    }),
   },
   nutritionLunchMacrosRow: {
     flexDirection: "row",
@@ -2065,9 +2012,8 @@ const styles = StyleSheet.create({
   },
   lunchKcalText: {
     color: "#38BDF8",
-    fontSize: 10.5,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontSize: 11,
+    fontWeight: "700",
   },
   lunchDivider: {
     color: "#475569",
@@ -2075,9 +2021,8 @@ const styles = StyleSheet.create({
   },
   lunchProteinHighlight: {
     color: "#2DD4BF",
-    fontSize: 10.5,
-    fontFamily: "JetBrainsMono_700Bold",
-    fontWeight: "800",
+    fontSize: 11,
+    fontWeight: "700",
   },
   nutritionPlan: {
     width: "100%",
@@ -2103,9 +2048,8 @@ const styles = StyleSheet.create({
   },
   nutritionPlanText: {
     color: "#38BDF8",
-    fontFamily: "JetBrainsMono_700Bold",
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1,
   },
 });

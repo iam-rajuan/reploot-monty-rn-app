@@ -1,10 +1,12 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useProfileSetupStore } from "../store/profileSetupStore";
 import { AgeSlider } from "./AgeSlider";
 import { AvatarUploadSection } from "./AvatarUploadSection";
 import { GenderSelectionRow } from "./GenderSelectionRow";
 import { ProfileFormInputs } from "./ProfileFormInputs";
 import { OnboardingButton } from "@/features/onboarding/components/OnboardingButton";
+import { typography } from "@/theme/typography";
 
 export function Step1LetsStart() {
   const { data, updateData, nextStep } = useProfileSetupStore();
@@ -55,14 +57,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   title: {
+    ...typography.pageTitle,
     color: "#22D3EE",
-    fontSize: 24,
-    lineHeight: 30,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1,
-    textAlign: "left",
-    textTransform: "uppercase",
   },
 
   ageCard: {
@@ -92,16 +88,14 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 9,
     lineHeight: 12,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1.2,
     textTransform: "uppercase",
   },
   ageSubtitle: {
     color: "#22D3EE",
-    fontSize: 9.5,
+    fontSize: 10,
     lineHeight: 13,
-    fontFamily: "monospace",
     fontWeight: "600",
     marginTop: 3,
   },

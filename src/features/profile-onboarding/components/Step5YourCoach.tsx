@@ -8,10 +8,10 @@ import { useEffect, useState } from "react";
 import {
   Image,
   StyleSheet,
-  Text,
   useWindowDimensions,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import Svg, {
   Circle,
   Defs,
@@ -21,6 +21,7 @@ import Svg, {
 } from "react-native-svg";
 import { useProfileSetupStore } from "../store/profileSetupStore";
 import { OnboardingButton } from "@/features/onboarding/components/OnboardingButton";
+import { typography } from "@/theme/typography";
 
 const brainAsset = require("../../../../assets/profile-setup/ai-brain-neural.jpg");
 
@@ -278,14 +279,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   title: {
+    ...typography.pageTitle,
     color: "#22D3EE",
-    fontSize: 24,
-    lineHeight: 30,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1,
-    textAlign: "left",
-    textTransform: "uppercase",
   },
   chamberContainer: {
     position: "relative",
@@ -341,9 +336,8 @@ const styles = StyleSheet.create({
   routineText: {
     color: "#2DD4BF",
     fontSize: 13,
-    fontWeight: "900",
-    letterSpacing: 2,
-    fontFamily: "monospace",
+    fontWeight: "800",
+    letterSpacing: 1.2,
   },
   statusDivider: {
     width: "60%",

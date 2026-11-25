@@ -6,10 +6,10 @@ import React, { useState } from "react";
 import {
   Platform,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import Svg, { Path } from "react-native-svg";
 import { HORIZONTAL_PADDING } from "@/shared/utils/responsive";
 import { useProgressionSnapshot } from "@/features/progression";
@@ -235,19 +235,17 @@ const styles = StyleSheet.create({
   levelLabel: {
     color: "rgba(255, 255, 255, 0.85)",
     fontSize: 12,
-    lineHeight: 14,
-    fontWeight: "800",
+    lineHeight: 15,
+    fontWeight: "700",
     letterSpacing: 1.2,
-    fontFamily: "JetBrainsMono_700Bold",
     textAlign: "center",
   },
   levelNumber: {
     color: "#FFFFFF",
-    fontSize: 26,
+    fontSize: 24,
     lineHeight: 28,
-    fontWeight: "900",
+    fontWeight: "800",
     letterSpacing: 0,
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
     textAlign: "center",
   },
   levelCluster: {
@@ -280,7 +278,6 @@ const styles = StyleSheet.create({
     color: "#AAB5CB",
     fontSize: 11,
     lineHeight: 15,
-    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
     letterSpacing: 1,
   },
@@ -295,16 +292,14 @@ const styles = StyleSheet.create({
   streakNumber: {
     color: "#3FDEC9",
     fontSize: 28,
-    fontWeight: "900",
-    lineHeight: 30,
+    fontWeight: "800",
+    lineHeight: 31,
     letterSpacing: 0,
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
   },
   streakLabel: {
     color: "#AAB5CB",
     fontSize: 10,
     lineHeight: 14,
-    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
     letterSpacing: 0.5,
     marginTop: 1,
@@ -319,7 +314,6 @@ const styles = StyleSheet.create({
     color: "#C8C4D8",
     fontSize: 11,
     lineHeight: 16,
-    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
     letterSpacing: 0,
   },
@@ -363,7 +357,6 @@ const styles = StyleSheet.create({
     color: "#8FA0BD",
     fontSize: 9,
     lineHeight: 14,
-    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
     letterSpacing: -0.3,
     textAlign: "center",
@@ -400,12 +393,11 @@ const styles = StyleSheet.create({
     color: "#AAB5CB",
     fontSize: 9,
     lineHeight: 13,
-    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
   },
   dayLabelActive: {
     color: "#3FDEC9",
-    fontWeight: "900",
+    fontWeight: "800",
   },
   linkRow: {
     flexDirection: "row",
@@ -419,7 +411,6 @@ const styles = StyleSheet.create({
     color: "#3FDEC9",
     fontSize: 12,
     lineHeight: 16,
-    fontFamily: "JetBrainsMono_700Bold",
     fontWeight: "700",
     letterSpacing: 0.2,
   },

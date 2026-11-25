@@ -14,10 +14,10 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   useWindowDimensions,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 interface AgeSliderProps {
   value: number;
@@ -269,9 +269,8 @@ const styles = StyleSheet.create({
   },
   ageText: {
     color: "#FFFFFF",
-    fontSize: 34,
+    fontSize: 32,
     lineHeight: 38,
-    fontFamily: "monospace",
-    fontWeight: "900",
+    fontWeight: "800",
   },
 });

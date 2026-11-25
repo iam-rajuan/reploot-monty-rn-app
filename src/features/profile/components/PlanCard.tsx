@@ -3,7 +3,8 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export const PlanCard = () => {
   const router = useRouter();
@@ -71,9 +72,8 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 2,
+    fontWeight: "700",
+    letterSpacing: 1.2,
     marginLeft: 8,
   },
   activePill: {
@@ -87,8 +87,7 @@ const styles = StyleSheet.create({
   activePillText: {
     color: "#2DD4BF",
     fontSize: 10,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   planContent: {
@@ -96,16 +95,14 @@ const styles = StyleSheet.create({
   },
   planName: {
     color: "#38BDF8",
-    fontSize: 18,
-    fontWeight: "900",
-    fontFamily: "monospace",
-    letterSpacing: 1,
+    fontSize: 20,
+    fontWeight: "800",
+    letterSpacing: 0.8,
     marginBottom: 4,
   },
   planDate: {
     color: "#94A3B8",
     fontSize: 13,
-    fontFamily: "monospace",
     fontWeight: "500",
   },
   buttonWrapper: {
@@ -122,7 +119,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 13,
     fontWeight: "800",
-    fontFamily: "monospace",
     letterSpacing: 1.2,
   },
 });

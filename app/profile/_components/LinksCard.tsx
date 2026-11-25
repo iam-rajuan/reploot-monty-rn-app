@@ -5,10 +5,10 @@ import React from "react";
 import {
   Platform,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 export function LinksCard() {
   const router = useRouter();
@@ -131,7 +131,6 @@ const styles = StyleSheet.create({
   linkTitle: {
     color: "#FFFFFF",
     fontSize: 13,
-    fontFamily: "monospace",
     fontWeight: "800",
     letterSpacing: 0.8,
     marginBottom: 2,
@@ -139,7 +138,6 @@ const styles = StyleSheet.create({
   linkSubtitle: {
     color: "#64748B",
     fontSize: 11,
-    fontFamily: "monospace",
   },
   chevronWrapper: {
     width: 28,

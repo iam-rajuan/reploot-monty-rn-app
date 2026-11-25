@@ -29,11 +29,12 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
+import { typography } from "@/theme/typography";
 
 const { width } = Dimensions.get("window");
 
@@ -604,8 +605,7 @@ const styles = StyleSheet.create({
   },
   metaBadgeText: {
     color: "#38BDF8",
-    fontSize: clampFontSize(9.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
+    fontSize: clampFontSize(10),
     fontWeight: "700",
     letterSpacing: 0.8,
   },
@@ -615,17 +615,13 @@ const styles = StyleSheet.create({
   },
   metaBadgeConfidence: {
     color: "#2DD4BF",
-    fontSize: clampFontSize(9.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
+    fontSize: clampFontSize(10),
     fontWeight: "700",
     letterSpacing: 0.5,
   },
   mainTitle: {
+    ...typography.pageTitle,
     color: "#FFFFFF",
-    fontSize: clampFontSize(26),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "900",
-    letterSpacing: 0.5,
   },
   heroCard: {
     borderRadius: 22,
@@ -672,9 +668,8 @@ const styles = StyleSheet.create({
   },
   aiStatusText: {
     color: "#FFFFFF",
-    fontSize: clampFontSize(9.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "800",
+    fontSize: clampFontSize(10),
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   heroBottomScrim: {
@@ -685,7 +680,7 @@ const styles = StyleSheet.create({
   },
   dishName: {
     color: "#FFFFFF",
-    fontSize: clampFontSize(17),
+    fontSize: clampFontSize(18),
     fontWeight: "800",
     letterSpacing: 0.3,
     marginBottom: 10,
@@ -709,14 +704,12 @@ const styles = StyleSheet.create({
   },
   dishPillValue: {
     color: "#FFFFFF",
-    fontSize: clampFontSize(11.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "800",
+    fontSize: clampFontSize(12),
+    fontWeight: "700",
   },
   dishPillLabel: {
     color: "#94A3B8",
     fontSize: clampFontSize(9),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
     fontWeight: "700",
   },
   dishPillCyan: {
@@ -725,14 +718,12 @@ const styles = StyleSheet.create({
   },
   dishPillValueCyan: {
     color: "#38BDF8",
-    fontSize: clampFontSize(11.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "900",
+    fontSize: clampFontSize(12),
+    fontWeight: "700",
   },
   dishPillLabelCyan: {
     color: "#38BDF8",
     fontSize: clampFontSize(9),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
     fontWeight: "700",
   },
   dishTag: {
@@ -745,9 +736,8 @@ const styles = StyleSheet.create({
   },
   dishTagText: {
     color: "#2DD4BF",
-    fontSize: clampFontSize(9.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "800",
+    fontSize: clampFontSize(10),
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   card: {
@@ -777,8 +767,7 @@ const styles = StyleSheet.create({
   cardBadgeText: {
     color: "#94A3B8",
     fontSize: clampFontSize(10),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
   caloriePill: {
@@ -795,14 +784,12 @@ const styles = StyleSheet.create({
   caloriePillNumber: {
     color: "#FFFFFF",
     fontSize: clampFontSize(13),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "900",
+    fontWeight: "800",
   },
   caloriePillUnit: {
     color: "#38BDF8",
-    fontSize: clampFontSize(9.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "800",
+    fontSize: clampFontSize(10),
+    fontWeight: "700",
   },
   macroTrackContainer: {
     marginBottom: 14,
@@ -841,8 +828,7 @@ const styles = StyleSheet.create({
   },
   macroLabel: {
     fontSize: clampFontSize(9),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   macroValueRow: {
@@ -853,20 +839,17 @@ const styles = StyleSheet.create({
   },
   macroValue: {
     color: "#FFFFFF",
-    fontSize: clampFontSize(18),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "900",
+    fontSize: clampFontSize(20),
+    fontWeight: "800",
   },
   macroUnit: {
     color: "#94A3B8",
     fontSize: clampFontSize(11),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
     fontWeight: "700",
   },
   macroPercent: {
     color: "#64748B",
-    fontSize: clampFontSize(9.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
+    fontSize: clampFontSize(10),
     fontWeight: "700",
   },
   adjustTogglePressable: {
@@ -893,9 +876,8 @@ const styles = StyleSheet.create({
   },
   adjustToggleText: {
     color: "#94A3B8",
-    fontSize: clampFontSize(9.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "800",
+    fontSize: clampFontSize(10),
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   adjustToggleTextActive: {
@@ -932,8 +914,7 @@ const styles = StyleSheet.create({
   },
   ingredientKcal: {
     color: "#94A3B8",
-    fontSize: clampFontSize(10.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
+    fontSize: clampFontSize(11),
     fontWeight: "700",
   },
   portionPill: {
@@ -947,8 +928,7 @@ const styles = StyleSheet.create({
   portionPillText: {
     color: "#38BDF8",
     fontSize: clampFontSize(11),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "800",
+    fontWeight: "700",
   },
   stepperContainer: {
     flexDirection: "row",
@@ -979,9 +959,8 @@ const styles = StyleSheet.create({
   },
   stepperValue: {
     color: "#FFFFFF",
-    fontSize: clampFontSize(11.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "800",
+    fontSize: clampFontSize(12),
+    fontWeight: "700",
     minWidth: 38,
     textAlign: "center",
   },
@@ -1009,8 +988,7 @@ const styles = StyleSheet.create({
   telemetryLabel: {
     color: "#94A3B8",
     fontSize: clampFontSize(9),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   telemetryValueRow: {
@@ -1021,20 +999,17 @@ const styles = StyleSheet.create({
   },
   telemetryValue: {
     color: "#FFFFFF",
-    fontSize: clampFontSize(19),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "900",
+    fontSize: clampFontSize(20),
+    fontWeight: "800",
   },
   telemetryUnit: {
     color: "#94A3B8",
-    fontSize: clampFontSize(10.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
+    fontSize: clampFontSize(11),
     fontWeight: "700",
   },
   telemetryMeta: {
     color: "#64748B",
-    fontSize: clampFontSize(9.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
+    fontSize: clampFontSize(10),
     fontWeight: "700",
   },
   telemetryDivider: {
@@ -1076,8 +1051,7 @@ const styles = StyleSheet.create({
   saveBtnText: {
     color: "#FFFFFF",
     fontSize: clampFontSize(12),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1,
   },
   scanAgainPressable: {
@@ -1104,9 +1078,8 @@ const styles = StyleSheet.create({
   },
   scanAgainText: {
     color: "#38BDF8",
-    fontSize: clampFontSize(11.5),
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace" }),
-    fontWeight: "800",
+    fontSize: clampFontSize(12),
+    fontWeight: "700",
     letterSpacing: 0.8,
   },
 });

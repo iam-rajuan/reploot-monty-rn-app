@@ -6,11 +6,10 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text, TextInput } from "@/shared/components/typography";
 
 interface CredentialsCardProps {
   onPasswordUpdated?: () => void;
@@ -137,15 +136,13 @@ const styles = StyleSheet.create({
   label: {
     color: "#94A3B8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
-    letterSpacing: 1.5,
+    fontWeight: "700",
+    letterSpacing: 1.2,
     marginBottom: 6,
   },
   valueText: {
     color: "#FFFFFF",
     fontSize: 14,
-    fontFamily: "monospace",
     fontWeight: "700",
   },
   passwordDots: {
@@ -171,8 +168,7 @@ const styles = StyleSheet.create({
   actionBtnText: {
     color: "#38BDF8",
     fontSize: 11,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
   },
   divider: {
@@ -198,15 +194,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontFamily: "monospace",
-    fontWeight: "900",
-    letterSpacing: 1,
+    fontWeight: "800",
+    letterSpacing: 0.8,
     marginBottom: 4,
   },
   modalSubtitle: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
     marginBottom: 20,
   },
   modalInput: {
@@ -218,7 +212,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 13,
-    fontFamily: "monospace",
   },
   modalActions: {
     flexDirection: "row",
@@ -235,7 +228,6 @@ const styles = StyleSheet.create({
   modalCancelText: {
     color: "#94A3B8",
     fontSize: 12,
-    fontFamily: "monospace",
     fontWeight: "700",
     letterSpacing: 1,
   },
@@ -249,8 +241,7 @@ const styles = StyleSheet.create({
   modalSaveText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: "monospace",
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 1,
   },
 });

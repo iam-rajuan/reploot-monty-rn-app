@@ -1,6 +1,7 @@
 import { Search } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, TextInput, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { TextInput } from "@/shared/components/typography";
 
 export function SearchInput({
   value,
@@ -42,7 +43,6 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "#FFFFFF",
     fontSize: 14,
-    fontFamily: "monospace",
     ...({ outlineStyle: "none" } as any),
   },
 });

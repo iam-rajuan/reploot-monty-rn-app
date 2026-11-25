@@ -8,6 +8,13 @@
   box-shadow: none !important;
 }
 
+/* Two-font policy: Inter is the base for any web text not rendered by the
+   typography primitives (faces are registered by expo-font at startup). */
+html,
+body {
+  font-family: "Inter_400Regular";
+}
+
 html,
 body,
 #root {

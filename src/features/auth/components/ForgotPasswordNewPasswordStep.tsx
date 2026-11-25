@@ -1,9 +1,11 @@
 import React from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Eye, EyeOff } from "lucide-react-native";
-import { Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 import { AuthDarkPillInput } from "./AuthDarkPillInput";
 import { SecurityStrengthBar } from "./SecurityStrengthBar";
+import { typography } from "@/theme/typography";
 
 export interface ForgotPasswordNewPasswordStepProps {
   newPassword: string;
@@ -142,12 +144,8 @@ const styles = StyleSheet.create({
     paddingLeft: 2,
   },
   heroTitle: {
+    ...typography.pageTitleHero,
     color: "#FFFFFF",
-    fontSize: 38,
-    lineHeight: 42,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
     textShadowColor: "rgba(34, 211, 238, 0.75)",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 16,
@@ -161,7 +159,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: "#94A3B8",
-    fontSize: 15,
+    fontSize: 16,
     lineHeight: 22,
     marginTop: 14,
     maxWidth: 320,
@@ -214,7 +212,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 14,
     fontWeight: "400",
-    letterSpacing: 2.2,
+    letterSpacing: 1.2,
     textTransform: "uppercase",
   },
   cancelButton: {
@@ -227,7 +225,7 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 12,
     fontWeight: "700",
-    letterSpacing: 1.8,
+    letterSpacing: 1.2,
     textTransform: "uppercase",
   },
 });

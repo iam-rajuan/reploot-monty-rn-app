@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 interface Props { currentXp: number; thresholdXp: number; lifetimeXp?: number; compact?: boolean; }
 
@@ -16,5 +17,5 @@ export function XPProgressBar({ currentXp, thresholdXp, lifetimeXp, compact = fa
 
 const styles = StyleSheet.create({
   container: { width: "100%" }, track: { height: 9, borderRadius: 6, overflow: "hidden", backgroundColor: "rgba(255,255,255,0.08)", borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }, compactTrack: { height: 7 }, fill: { height: "100%", borderRadius: 6 },
-  values: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 9 }, current: { color: "#FFFFFF", fontSize: 11, fontWeight: "900", fontFamily: "monospace" }, muted: { color: "#94A3B8", fontWeight: "700" }, lifetime: { color: "#64748B", fontSize: 8, fontWeight: "800", fontFamily: "monospace", letterSpacing: 0.5 },
+  values: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 9 }, current: { color: "#FFFFFF", fontSize: 11, fontWeight: "700" }, muted: { color: "#94A3B8", fontWeight: "700" }, lifetime: { color: "#64748B", fontSize: 9, fontWeight: "700", letterSpacing: 0.5 },
 });

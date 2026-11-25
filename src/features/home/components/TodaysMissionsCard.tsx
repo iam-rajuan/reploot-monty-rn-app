@@ -9,7 +9,8 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/typography";
 
 const missionBackground = require("../../../../assets/figma/missions/todays-missions-background.jpeg");
 const calendarIcon = require("../../../../assets/figma/missions/mission-calendar.svg");
@@ -221,9 +222,7 @@ const styles = StyleSheet.create({
     color: "#F4F7FF",
     fontSize: 24,
     lineHeight: 28,
-    fontWeight: "900",
-    fontStyle: "italic",
-    fontFamily: Platform.select({ android: "sans-serif-black", ios: "System" }),
+    fontWeight: "800",
     letterSpacing: -0.4,
   },
   missionCopy: {
@@ -234,7 +233,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 24,
     fontWeight: "700",
-    fontFamily: Platform.select({ android: "sans-serif-bold", ios: "System" }),
     letterSpacing: -0.2,
     marginBottom: 4,
   },
@@ -242,7 +240,6 @@ const styles = StyleSheet.create({
     color: "#B0BAD0",
     fontSize: 12,
     lineHeight: 16,
-    fontFamily: Platform.select({ android: "sans-serif", ios: "System" }),
     fontWeight: "400",
   },
   actions: {
