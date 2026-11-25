@@ -9,10 +9,11 @@ import {
   ArrowRight,
   Calendar,
   Check,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Dumbbell,
-  GripHorizontal,
+  GripVertical,
   Plus,
   RefreshCw,
   Trash2,
@@ -175,7 +176,14 @@ export const WORKOUT_SPLITS: WorkoutTemplate[] = [
 
 const DRAG_ACCENT = "#38BDF8";
 const DRAG_BACKGROUND = "rgba(56, 189, 248, 0.22)";
-const DRAG_GRADIENT = ["#0284C7", "#38BDF8"] as const;
+const DRAG_GRADIENT = ["#38BDF8", "#0284C7"] as const;
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.07)",
+  "rgba(255,255,255,0.02)",
+] as const;
 
 interface CalendarCell {
   date: number;
@@ -291,7 +299,7 @@ function generateInitialCalendar(
   return data;
 }
 
-// Draggable Chip Component using Gesture.Pan() and Reanimated
+// Draggable workout chip (tray). Hold to drag onto a day, or tap to select.
 function DraggableSplitChip({
   split,
   isActive,
@@ -330,61 +338,44 @@ function DraggableSplitChip({
   return (
     <GestureDetector gesture={panGesture}>
       <TouchableOpacity
-        activeOpacity={0.75}
+        activeOpacity={0.8}
         onPress={onPress}
-        style={[
-          styles.splitBadge,
-          { borderColor: DRAG_ACCENT },
-          isActive && styles.splitBadgeActive,
-        ]}
+        accessibilityRole="button"
+        accessibilityState={{ selected: isActive }}
+        accessibilityLabel={`${split.name}. Hold and drag onto a day, or tap to select.`}
+        style={[styles.chip, isActive && styles.chipActive]}
       >
-        <LinearGradient
-          colors={
-            isActive
-              ? DRAG_GRADIENT
-              : ["rgba(255, 255, 255, 0.05)", "rgba(255, 255, 255, 0.02)"]
-          }
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.splitBadgeGrad}
-        >
-          <Dumbbell
-            size={11}
-            color={isActive ? "#FFFFFF" : DRAG_ACCENT}
-            style={{ marginRight: 5 }}
+        {isActive && (
+          <LinearGradient
+            colors={DRAG_GRADIENT}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
           />
-          <Text
-            numberOfLines={1}
-            style={[
-              styles.splitBadgeText,
-              { color: isActive ? "#FFFFFF" : DRAG_ACCENT },
-            ]}
-          >
-            {split.name}
-          </Text>
-          {isActive && (
-            <View style={styles.splitActiveCheck}>
-              <Check size={9} color="#FFFFFF" />
-            </View>
-          )}
-        </LinearGradient>
+        )}
+        <GripVertical size={11} color={isActive ? "rgba(255,255,255,0.8)" : "#64748B"} />
+        <Text
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}
+          style={[styles.chipText, isActive && styles.chipTextActive]}
+        >
+          {split.name}
+        </Text>
       </TouchableOpacity>
     </GestureDetector>
   );
 }
 
-// Draggable Calendar Grid Cell - Supports Tap to view/assign AND Pan to move scheduled days
+// Calendar day cell: tap to view/assign, hold to move a scheduled workout.
 interface DraggableCalendarCellProps {
   item: CalendarCell;
   isToday: boolean;
+  isPast: boolean;
   isCompleted: boolean;
   isScheduled: boolean;
   isHovered: boolean;
   isCellDragging: boolean;
-  cellBgColor: string;
-  cellBorderColor: string;
-  cellTextColor: string;
-  dumbbellColor: string;
   onPress: (item: CalendarCell) => void;
   onDragStart: (item: CalendarCell, startX: number, startY: number) => void;
   onDragMove: (x: number, y: number) => void;
@@ -394,14 +385,11 @@ interface DraggableCalendarCellProps {
 const DraggableCalendarCell = React.memo(function DraggableCalendarCell({
   item,
   isToday,
+  isPast,
   isCompleted,
   isScheduled,
   isHovered,
   isCellDragging,
-  cellBgColor,
-  cellBorderColor,
-  cellTextColor,
-  dumbbellColor,
   onPress,
   onDragStart,
   onDragMove,
@@ -440,100 +428,66 @@ const DraggableCalendarCell = React.memo(function DraggableCalendarCell({
 
   if (!item.currentMonth) {
     return (
-      <View style={styles.cellContainer}>
-        <View style={styles.dateBoxInactive}>
-          <Text style={styles.dateTextInactive}>
-            {item.date}
-          </Text>
+      <View style={styles.cell}>
+        <View style={styles.dayBox}>
+          <Text style={styles.dayNumberOther}>{item.date}</Text>
         </View>
-        <Text style={styles.labelTextPlaceholder}>{" "}</Text>
       </View>
     );
   }
 
-  const isRestDay = !hasWorkout && !isToday;
+  const boxStyle = isToday
+    ? styles.dayBoxToday
+    : hasWorkout
+      ? isPast
+        ? styles.dayBoxPast
+        : styles.dayBoxScheduled
+      : styles.dayBoxRest;
+  const numberStyle = isToday
+    ? styles.dayNumberToday
+    : hasWorkout
+      ? isPast
+        ? styles.dayNumberPast
+        : styles.dayNumberScheduled
+      : styles.dayNumberRest;
 
   return (
-    <View style={styles.cellContainer}>
+    <View style={styles.cell}>
       <GestureDetector gesture={panGesture}>
         <TouchableOpacity
-          activeOpacity={0.75}
+          activeOpacity={0.78}
           onPress={() => onPress(item)}
+          accessibilityRole="button"
+          accessibilityLabel={`${item.date}${splitTag ? `, ${splitTag}` : ", rest day"}`}
           style={[
-            { alignItems: "center" },
-            isCellDragging && { opacity: 0.3 },
+            styles.dayBox,
+            boxStyle,
+            isHovered && styles.dayBoxHovered,
+            isCellDragging && styles.dayBoxDragging,
           ]}
         >
-          {isToday ? (
+          {isToday && (
             <LinearGradient
-              colors={["#0284C7", "#2DD4BF"]}
+              colors={DRAG_GRADIENT}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={[
-                styles.dateBox,
-                styles.dateBoxToday,
-                isHovered && styles.dateBoxHovered,
-              ]}
-            >
-              <Text style={[styles.dateText, styles.dateTextToday]}>
-                {item.date}
-              </Text>
-              {Boolean(item.label || isCompleted || isScheduled) && (
-                <Image
-                  source={require("../assets/dumble.svg")}
-                  style={styles.todayDumbbellIcon}
-                  contentFit="contain"
-                />
-              )}
-            </LinearGradient>
-          ) : isRestDay ? (
-            <View
-              style={[
-                styles.dateBox,
-                styles.dateBoxRest,
-                isHovered && styles.dateBoxHovered,
-              ]}
-            >
-              <Text style={styles.dateTextRest}>{item.date}</Text>
-              <View style={styles.restDayDotMini} />
-            </View>
-          ) : (
-            <View
-              style={[
-                styles.dateBox,
-                {
-                  backgroundColor: cellBgColor,
-                  borderColor: cellBorderColor,
-                  borderWidth: 1.5,
-                },
-                isHovered && styles.dateBoxHovered,
-              ]}
-            >
-              <Text style={[styles.dateText, { color: cellTextColor }]}>
-                {item.date}
-              </Text>
-              <Image
-                source={require("../assets/dumble.svg")}
-                style={{
-                  width: 14,
-                  height: 14,
-                  marginTop: 3,
-                  tintColor: dumbbellColor,
-                }}
-                contentFit="contain"
-              />
-            </View>
+              style={StyleSheet.absoluteFill}
+            />
           )}
-
-          <Text
-            style={[
-              styles.labelText,
-              { color: isToday ? "#00f2fe" : cellTextColor },
-            ]}
-            numberOfLines={1}
-          >
-            {splitTag ? splitTag : " "}
-          </Text>
+          <Text style={[styles.dayNumber, numberStyle]}>{item.date}</Text>
+          {splitTag ? (
+            <Text
+              style={[
+                styles.dayTag,
+                isToday ? styles.dayTagToday : isPast ? styles.dayTagPast : null,
+              ]}
+              numberOfLines={1}
+            >
+              {splitTag}
+            </Text>
+          ) : (
+            <View style={[styles.restDot, isToday && styles.restDotToday]} />
+          )}
         </TouchableOpacity>
       </GestureDetector>
     </View>
@@ -1041,6 +995,16 @@ export default function WorkoutCalendarScreen() {
     setDateModalCell(item);
   };
 
+  const scheduledCount = useMemo(
+    () =>
+      calendarData.filter(
+        (c) =>
+          c.currentMonth &&
+          (Boolean(c.label) || c.type === "scheduled" || c.type === "completed"),
+      ).length,
+    [calendarData],
+  );
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <StatusBar style="light" />
@@ -1082,14 +1046,24 @@ export default function WorkoutCalendarScreen() {
           </View>
         </View>
 
-        {/* WORKOUT SPLITS TRAY: REANIMATED & GESTURE HANDLER DRAG & DROP */}
-        <View style={styles.trayCard}>
-          <View style={styles.trayHeaderRow}>
-            <View style={styles.trayTitleCol}>
-              <View style={styles.trayBadgeRow}>
-                <GripHorizontal size={13} color="#38BDF8" />
-                <Text style={styles.trayBadgeText}>
-                  DRAG & DROP TO SCHEDULE
+        {/* Workout tray: hold & drag a workout onto a day, or tap to select */}
+        <View style={styles.card}>
+          <LinearGradient
+            pointerEvents="none"
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <View style={styles.cardHeader}>
+            <View style={styles.cardHeaderTitle}>
+              <View style={styles.iconChip}>
+                <Dumbbell size={14} color={DRAG_ACCENT} strokeWidth={2.3} />
+              </View>
+              <View style={styles.headerCopy}>
+                <Text style={styles.cardTitle}>WORKOUTS</Text>
+                <Text style={styles.cardHint} numberOfLines={1}>
+                  Hold & drag onto a day · tap to select
                 </Text>
               </View>
             </View>
@@ -1100,284 +1074,183 @@ export default function WorkoutCalendarScreen() {
                   triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
                   setActiveSelectedSplit(null);
                 }}
-                style={styles.clearActiveBtn}
-                activeOpacity={0.7}
+                style={styles.clearBtn}
+                activeOpacity={0.75}
+                accessibilityRole="button"
+                accessibilityLabel="Clear selected workout"
               >
-                <X size={12} color="#94A3B8" />
-                <Text style={styles.clearActiveText}>CLEAR</Text>
+                <X size={12} color="#CBD5E1" strokeWidth={2.6} />
+                <Text style={styles.clearBtnText}>CLEAR</Text>
               </TouchableOpacity>
             )}
           </View>
 
-          {/* Draggable split chips: Symmetrical 3x2 Grid */}
-          <View style={styles.splitsGridContainer}>
-            <View style={styles.splitsRow}>
-              {WORKOUT_SPLITS.slice(0, 3).map((split) => {
-                const isActive = activeSelectedSplit?.id === split.id;
-
-                return (
-                  <View key={split.id} style={styles.splitItemWrap}>
-                    <DraggableSplitChip
-                      split={split}
-                      isActive={isActive}
-                      onPress={() => {
-                        triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-                        setActiveSelectedSplit((prev) =>
-                          prev?.id === split.id ? null : split,
-                        );
-                      }}
-                      onDragStart={handleDragStart}
-                      onDragMove={handleDragMove}
-                      onDragEnd={handleDragEnd}
-                    />
-                  </View>
-                );
-              })}
-            </View>
-
-            <View style={styles.splitsRow}>
-              {WORKOUT_SPLITS.slice(3, 6).map((split) => {
-                const isActive = activeSelectedSplit?.id === split.id;
-
-                return (
-                  <View key={split.id} style={styles.splitItemWrap}>
-                    <DraggableSplitChip
-                      split={split}
-                      isActive={isActive}
-                      onPress={() => {
-                        triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-                        setActiveSelectedSplit((prev) =>
-                          prev?.id === split.id ? null : split,
-                        );
-                      }}
-                      onDragStart={handleDragStart}
-                      onDragMove={handleDragMove}
-                      onDragEnd={handleDragEnd}
-                    />
-                  </View>
-                );
-              })}
-            </View>
+          <View style={styles.chipGrid}>
+            {WORKOUT_SPLITS.map((split) => {
+              const isActive = activeSelectedSplit?.id === split.id;
+              return (
+                <View key={split.id} style={styles.chipCell}>
+                  <DraggableSplitChip
+                    split={split}
+                    isActive={isActive}
+                    onPress={() => {
+                      triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+                      setActiveSelectedSplit((prev) =>
+                        prev?.id === split.id ? null : split,
+                      );
+                    }}
+                    onDragStart={handleDragStart}
+                    onDragMove={handleDragMove}
+                    onDragEnd={handleDragEnd}
+                  />
+                </View>
+              );
+            })}
           </View>
 
           {activeSelectedSplit && (
-            <View style={styles.placementHintBanner}>
-              <Plus size={12} color="#38BDF8" style={{ marginRight: 6 }} />
-              <Text style={styles.placementHintText}>
-                Active: Tap any calendar date to assign{" "}
-                <Text
-                  style={{
-                    color: activeSelectedSplit.color,
-                    fontWeight: "800",
-                  }}
-                >
-                  {activeSelectedSplit.name}
-                </Text>
+            <View style={styles.hintBanner}>
+              <Plus size={13} color={DRAG_ACCENT} strokeWidth={2.6} />
+              <Text style={styles.hintText}>
+                Tap any day to add{" "}
+                <Text style={styles.hintStrong}>{activeSelectedSplit.name}</Text>
               </Text>
             </View>
           )}
         </View>
 
-        {/* Unified Cyberpunk Month Navigator */}
-        <View style={styles.monthNavigatorCard}>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={handlePrevMonth}
-            style={styles.monthNavArrowBtn}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <ChevronLeft color="#94A3B8" size={15} />
-            <Text style={styles.monthNavAdjacentText}>{prevMonthName}</Text>
-          </TouchableOpacity>
+        {/* Calendar */}
+        <View style={styles.card}>
+          <LinearGradient
+            pointerEvents="none"
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
 
-          <View style={styles.monthNavCenterPill}>
-            <Calendar size={13} color="#00f2fe" style={{ marginRight: 6 }} />
-            <Text style={styles.monthNavTitle}>
-              {`${MONTH_NAMES[currentMonthIdx]} ${currentYear}`}
-            </Text>
+          {/* Month switcher */}
+          <View style={styles.monthRow}>
+            <TouchableOpacity
+              activeOpacity={0.75}
+              onPress={handlePrevMonth}
+              style={styles.monthArrow}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessibilityRole="button"
+              accessibilityLabel={`Previous month, ${prevMonthName}`}
+            >
+              <ChevronLeft color="#CBD5E1" size={16} strokeWidth={2.4} />
+            </TouchableOpacity>
+
+            <View style={styles.monthCenter}>
+              <Text style={styles.monthTitle}>
+                {`${MONTH_NAMES[currentMonthIdx]} ${currentYear}`}
+              </Text>
+              <Text style={styles.monthSub}>
+                {scheduledCount} {scheduledCount === 1 ? "workout" : "workouts"} planned
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              activeOpacity={0.75}
+              onPress={handleNextMonth}
+              style={styles.monthArrow}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessibilityRole="button"
+              accessibilityLabel={`Next month, ${nextMonthName}`}
+            >
+              <ChevronRight color="#CBD5E1" size={16} strokeWidth={2.4} />
+            </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={handleNextMonth}
-            style={styles.monthNavArrowBtn}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          {/* Weekday header */}
+          <View style={styles.weekHeader}>
+            {daysOfWeek.map((day) => (
+              <View key={day} style={styles.weekHeaderCol}>
+                <Text style={styles.weekHeaderText}>{day}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Grid (measured in window for drop hit-testing) */}
+          <View
+            ref={calendarGridRef}
+            onLayout={measureCalendarGrid}
+            style={styles.grid}
           >
-            <Text style={styles.monthNavAdjacentText}>{nextMonthName}</Text>
-            <ChevronRight color="#94A3B8" size={15} />
-          </TouchableOpacity>
+            {calendarData.map((item, index) => {
+              const isCompleted = item.type === "completed";
+              const isScheduled = item.type === "scheduled";
+              const isToday = item.type === "today";
+              const isHovered = hoveredDate === item.date && item.currentMonth;
+              const isCellDragging = dragSourceDate === item.date;
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const isPast =
+                new Date(currentYear, currentMonthIdx, item.date) < today;
+
+              return (
+                <DraggableCalendarCell
+                  key={`${currentYear}-${currentMonthIdx}-${item.date}-${index}`}
+                  item={item}
+                  isToday={isToday}
+                  isPast={isPast}
+                  isCompleted={isCompleted}
+                  isScheduled={isScheduled}
+                  isHovered={isHovered}
+                  isCellDragging={isCellDragging}
+                  onPress={handleCellPress}
+                  onDragStart={handleCellDragStart}
+                  onDragMove={handleDragMove}
+                  onDragEnd={handleCellDragEnd}
+                />
+              );
+            })}
+          </View>
+
+          {/* Legend */}
+          <View style={styles.legend}>
+            <View style={styles.legendItem}>
+              <View style={[styles.legendSwatch, styles.legendSwatchToday]} />
+              <Text style={styles.legendText}>Today</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View style={[styles.legendSwatch, styles.legendSwatchPlanned]} />
+              <Text style={styles.legendText}>Planned</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View style={[styles.legendSwatch, styles.legendSwatchRest]} />
+              <Text style={styles.legendText}>Rest</Text>
+            </View>
+          </View>
         </View>
 
-        {/* Calendar Grid Container with Vibrant Gradient Border */}
-        <LinearGradient
-          colors={["#0284C7", "#0F766E"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.calendarGradientBorder}
-        >
-          <View style={styles.calendarInner}>
-            {/* Days of Week Header - Precision Column Aligned */}
-            <View style={styles.daysHeader}>
-              {daysOfWeek.map((day) => (
-                <View key={day} style={styles.dayHeaderCol}>
-                  <Text style={styles.dayHeaderText}>{day}</Text>
-                </View>
-              ))}
-            </View>
-
-            {/* Calendar Grid Container measured in window */}
-            <View
-              ref={calendarGridRef}
-              onLayout={measureCalendarGrid}
-              style={styles.gridContainer}
-            >
-              {calendarData.map((item, index) => {
-                const isCompleted = item.type === "completed";
-                const isScheduled = item.type === "scheduled";
-                const isToday = item.type === "today";
-                const isHovered =
-                  hoveredDate === item.date && item.currentMonth;
-                const isCellDragging = dragSourceDate === item.date;
-
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const cellDate = new Date(
-                  currentYear,
-                  currentMonthIdx,
-                  item.date,
-                );
-                const periodTheme =
-                  cellDate < today
-                    ? {
-                        color: "#38BDF8",
-                        bgColor: "rgba(56, 189, 248, 0.22)",
-                        borderColor: "#38BDF8",
-                      }
-                    : cellDate > today
-                      ? {
-                          color: "#2DD4BF",
-                          bgColor: "rgba(45, 212, 191, 0.22)",
-                          borderColor: "#2DD4BF",
-                        }
-                      : null;
-
-                // Dynamic colors for assigned or scheduled workout splits
-                const categoryTheme = getCategoryColors(item.label);
-
-                const cellBorderColor =
-                  isHovered && activeDragSplit
-                    ? DRAG_ACCENT
-                    : periodTheme?.borderColor ||
-                      item.borderColor ||
-                      categoryTheme?.borderColor ||
-                      (isCompleted
-                        ? "#1B6A56"
-                        : isScheduled
-                          ? "#2DD4BF"
-                          : "rgba(255, 255, 255, 0.04)");
-
-                const cellBgColor =
-                  isHovered && activeDragSplit
-                    ? DRAG_BACKGROUND
-                    : periodTheme?.bgColor ||
-                      item.bgColor ||
-                      categoryTheme?.bgColor ||
-                      (isCompleted
-                        ? "#1C332D"
-                        : isScheduled
-                          ? "rgba(45, 212, 191, 0.22)"
-                          : "#25252D");
-
-                const cellTextColor =
-                  isHovered && activeDragSplit
-                    ? DRAG_ACCENT
-                    : periodTheme?.color ||
-                      item.color ||
-                      categoryTheme?.color ||
-                      (isCompleted
-                        ? "#2EE8B3"
-                        : isScheduled
-                          ? "#2DD4BF"
-                          : "#FFFFFF");
-
-                const dumbbellColor =
-                  isHovered && activeDragSplit
-                    ? DRAG_ACCENT
-                    : periodTheme?.color ||
-                      item.color ||
-                      categoryTheme?.color ||
-                      cellTextColor;
-
-                return (
-                  <DraggableCalendarCell
-                    key={`${currentYear}-${currentMonthIdx}-${item.date}-${index}`}
-                    item={item}
-                    isToday={isToday}
-                    isCompleted={isCompleted}
-                    isScheduled={isScheduled}
-                    isHovered={isHovered}
-                    isCellDragging={isCellDragging}
-                    cellBgColor={cellBgColor}
-                    cellBorderColor={cellBorderColor}
-                    cellTextColor={cellTextColor}
-                    dumbbellColor={dumbbellColor}
-                    onPress={handleCellPress}
-                    onDragStart={handleCellDragStart}
-                    onDragMove={handleDragMove}
-                    onDragEnd={handleCellDragEnd}
-                  />
-                );
-              })}
-            </View>
-
-            {/* HUD Calendar Legend */}
-            <View style={styles.legendContainer}>
-              <View style={styles.legendItem}>
-                <View style={styles.legendTodayDot} />
-                <Text style={[styles.legendText, { color: "#00f2fe" }]}>
-                  Today
-                </Text>
-              </View>
-              <View style={styles.legendItem}>
-                <Image
-                  source={require("../assets/dumble.svg")}
-                  style={{ width: 12, height: 12, tintColor: "#38BDF8" }}
-                  contentFit="contain"
-                />
-                <Text style={[styles.legendText, { color: "#94A3B8" }]}>
-                  Scheduled
-                </Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View style={styles.restDayDot} />
-                <Text style={[styles.legendText, { color: "#64748B" }]}>
-                  Rest
-                </Text>
-              </View>
-            </View>
-          </View>
-        </LinearGradient>
-
-        {/* Bottom Update Schedule Button with Dynamic In-Button Status Feedback */}
+        {/* Save */}
         <TouchableOpacity
-          activeOpacity={0.8}
-          style={styles.updateButtonContainer}
+          activeOpacity={0.88}
+          style={styles.ctaShadow}
           disabled={isUpdatingSchedule}
           onPress={handleUpdateSchedule}
+          accessibilityRole="button"
+          accessibilityLabel="Update workout schedule"
         >
           <LinearGradient
-            colors={["#00f2fe", "#4facfe"]}
+            colors={BUTTON_GRADIENT}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.updateButton}
+            end={{ x: 1, y: 1 }}
+            style={styles.ctaButton}
           >
+            <LinearGradient
+              pointerEvents="none"
+              colors={SHEEN}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={styles.ctaSheen}
+            />
             {buttonFeedbackMessage ? (
               <>
-                <View style={styles.feedbackPlaceholder} />
-                <Text
-                  style={[styles.updateButtonText, styles.updateButtonFeedbackText]}
-                  numberOfLines={1}
-                >
+                <CheckCircle2 color="#FFFFFF" size={17} strokeWidth={2.4} />
+                <Text style={styles.ctaText} numberOfLines={1}>
                   {buttonFeedbackMessage}
                 </Text>
                 <TouchableOpacity
@@ -1387,16 +1260,20 @@ export default function WorkoutCalendarScreen() {
                     handleUndo();
                   }}
                   hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-                  style={styles.undoCrossBtn}
+                  style={styles.ctaTrail}
+                  accessibilityRole="button"
+                  accessibilityLabel="Undo"
                 >
-                  <X color="#050811" size={17} strokeWidth={2.8} />
+                  <X color="#FFFFFF" size={14} strokeWidth={2.8} />
                 </TouchableOpacity>
               </>
             ) : (
               <>
-                <RefreshCw color="#050811" size={18} />
-                <Text style={styles.updateButtonText}>UPDATE WORKOUT SCHEDULE</Text>
-                <ArrowRight color="#050811" size={18} />
+                <RefreshCw color="#FFFFFF" size={17} strokeWidth={2.4} />
+                <Text style={styles.ctaText}>UPDATE SCHEDULE</Text>
+                <View style={styles.ctaTrail}>
+                  <ArrowRight color="#FFFFFF" size={14} strokeWidth={2.6} />
+                </View>
               </>
             )}
           </LinearGradient>
@@ -1516,7 +1393,7 @@ export default function WorkoutCalendarScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.floatingDragGrad}
           >
-            <Dumbbell size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
+            <GripVertical size={14} color="rgba(255,255,255,0.85)" style={{ marginRight: 6 }} />
             <Text style={styles.floatingDragText}>{activeDragSplit.name}</Text>
           </LinearGradient>
         </Animated.View>
@@ -1765,29 +1642,11 @@ const styles = StyleSheet.create({
 
   /* Title Section */
   titleSection: {
-    marginTop: 4,
-    marginBottom: 16,
-  },
-  titleBadgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 6,
-  },
-  titleBadgeDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: "#00f2fe",
-  },
-  titleBadgeText: {
-    color: "#00f2fe",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.2,
+    marginTop: 0,
+    marginBottom: 8,
   },
   maskedTitleWrapper: {
-    height: 48,
+    height: 40,
     width: "100%",
   },
   maskedTitleView: {
@@ -1799,364 +1658,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
   },
-  gradient: {
-    flex: 1,
-  },
   mainTitle: {
     ...typography.pageTitle,
     color: "#FFFFFF",
     fontSize: 24,
     lineHeight: 30,
   },
-  subtitle: {
-    color: "#94A3B8",
-    fontSize: 12,
-    lineHeight: 17,
-    fontWeight: "600",
-    marginTop: 4,
-  },
 
   /* Drag Tray Card */
-  trayCard: {
-    backgroundColor: "rgba(17, 20, 28, 0.95)",
-    borderRadius: 20,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    marginBottom: 16,
-  },
-  trayHeaderRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  trayTitleCol: {
-    flex: 1,
-  },
-  trayBadgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 2,
-  },
-  trayBadgeText: {
-    color: "#38BDF8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
-  traySubText: {
-    color: "#64748B",
-    fontSize: 10,
-  },
-  clearActiveBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  clearActiveText: {
-    color: "#94A3B8",
-    fontSize: 9,
-    fontWeight: "700",
-  },
-  splitsGridContainer: {
-    gap: 8,
-    paddingVertical: 4,
-  },
-  splitsRow: {
-    flexDirection: "row",
-    gap: 6,
-  },
-  splitItemWrap: {
-    flex: 1,
-  },
-  splitBadge: {
-    borderRadius: 12,
-    borderWidth: 1,
-    overflow: "hidden",
-  },
-  splitBadgeActive: {
-    shadowColor: "#38BDF8",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.6,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  splitBadgeGrad: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 4,
-    paddingVertical: 8,
-  },
-  splitBadgeText: {
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.2,
-  },
-  splitActiveCheck: {
-    marginLeft: 4,
-    width: 13,
-    height: 13,
-    borderRadius: 6.5,
-    backgroundColor: "rgba(0, 0, 0, 0.35)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  placementHintBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.05)",
-  },
-  placementHintText: {
-    color: "#94A3B8",
-    fontSize: 10,
-  },
 
-  /* Unified Cyberpunk Month Navigator */
-  monthNavigatorCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "rgba(17, 20, 28, 0.9)",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    marginBottom: 16,
-  },
-  monthNavArrowBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-  },
-  monthNavAdjacentText: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-    marginHorizontal: 3,
-  },
-  monthNavCenterPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 10,
-    backgroundColor: "rgba(0, 242, 254, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(0, 242, 254, 0.22)",
-  },
-  monthNavTitle: {
-    color: "#E2E8F0",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
-
-  /* Calendar Card */
-  calendarGradientBorder: {
-    padding: 1.5,
-    borderRadius: 24,
-    marginBottom: 20,
-  },
-  calendarInner: {
-    backgroundColor: "#11141C",
-    borderRadius: 22.5,
-    padding: 12,
-    paddingTop: 16,
-  },
-  daysHeader: {
-    flexDirection: "row",
-    marginBottom: 10,
-  },
-  dayHeaderCol: {
-    width: "14.285%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  dayHeaderText: {
-    color: "#64748B",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-  gridContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
-  },
-  cellContainer: {
-    width: "14.285%",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  dateBox: {
-    width: 40,
-    height: 46,
-    borderRadius: 11,
-    backgroundColor: "#25252D",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 3,
-  },
-  dateBoxInactive: {
-    width: 40,
-    height: 46,
-    borderRadius: 11,
-    backgroundColor: "transparent",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 3,
-  },
-  dateBoxToday: {
-    borderRadius: 11,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.48)",
-    shadowColor: "#2DD4BF",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.34,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  dateBoxHovered: {
-    borderWidth: 2,
-    transform: [{ scale: 1.15 }],
-  },
-  dateBoxRest: {
-    backgroundColor: "rgba(255, 255, 255, 0.025)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.05)",
-  },
-  dateText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "800",
-  },
-  dateTextInactive: {
-    color: "#334155",
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  dateTextToday: {
-    color: "#FFFFFF",
-    fontWeight: "800",
-    fontSize: 14,
-  },
-  dateTextRest: {
-    color: "#64748B",
-    fontSize: 13,
-    fontWeight: "700",
-  },
-  restDayDotMini: {
-    width: 3.5,
-    height: 3.5,
-    borderRadius: 2,
-    backgroundColor: "rgba(100, 116, 139, 0.45)",
-    marginTop: 4,
-  },
-  todayDumbbellIcon: {
-    width: 13,
-    height: 13,
-    marginTop: 3,
-    tintColor: "#FFFFFF",
-  },
-  labelText: {
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-    textAlign: "center",
-    height: 12,
-    marginTop: 1,
-  },
-  labelTextPlaceholder: {
-    height: 12,
-    marginTop: 1,
-  },
-  legendContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 4,
-    paddingTop: 14,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.05)",
-    gap: 20,
-  },
-  legendItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  legendTodayDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
-    backgroundColor: "#00f2fe",
-  },
-  legendText: {
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.3,
-  },
-  restDayDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#64748B",
-  },
-
-  /* Bottom CTA */
-  updateButtonContainer: {
-    borderRadius: 18,
-    overflow: "hidden",
-    elevation: 8,
-  },
-  updateButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderRadius: 18,
-  },
-  updateButtonText: {
-    color: "#050811",
-    fontSize: 13,
-    fontWeight: "800",
-    textAlign: "center",
-    letterSpacing: 0.8,
-  },
-  updateButtonFeedbackText: {
-    fontSize: 12,
-    letterSpacing: 0.5,
-    flex: 1,
-    marginHorizontal: 8,
-  },
-  feedbackPlaceholder: {
-    width: 28,
-    height: 28,
-  },
-  undoCrossBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "rgba(5, 8, 17, 0.12)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
 
   /* Centered Circular Loading Overlay */
   loadingOverlay: {
@@ -2579,5 +2089,345 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     letterSpacing: 0.5,
+  },
+  // ---- Cards ----
+  card: {
+    backgroundColor: "#111A25",
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.18)",
+    padding: 12,
+    gap: 10,
+    marginBottom: 10,
+    overflow: "hidden",
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  cardHeaderTitle: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  headerCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 1,
+  },
+  iconChip: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
+  },
+  cardTitle: {
+    ...typography.sectionTitle,
+    color: "#E5EEF8",
+  },
+  cardHint: {
+    ...typography.caption,
+    color: "#8B9AB0",
+  },
+  clearBtn: {
+    height: 30,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.2)",
+  },
+  clearBtnText: {
+    ...typography.badge,
+    color: "#CBD5E1",
+  },
+
+  // ---- Workout chips ----
+  chipGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    rowGap: 6,
+  },
+  chipCell: {
+    width: "32.4%",
+  },
+  chip: {
+    height: 36,
+    borderRadius: 11,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 6,
+    overflow: "hidden",
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
+  },
+  chipActive: {
+    borderColor: "rgba(255,255,255,0.25)",
+  },
+  chipText: {
+    ...typography.caption,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "600",
+    color: "#E2E8F0",
+    flex: 1,
+  },
+  chipTextActive: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+  },
+  hintBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: "rgba(56,189,248,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
+  },
+  hintText: {
+    ...typography.bodySmall,
+    color: "#CBD5E1",
+    flex: 1,
+  },
+  hintStrong: {
+    fontWeight: "700",
+    color: "#7DD3FC",
+  },
+
+  // ---- Month switcher ----
+  monthRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  monthArrow: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.18)",
+  },
+  monthCenter: {
+    flex: 1,
+    alignItems: "center",
+    gap: 0,
+  },
+  monthTitle: {
+    ...typography.cardTitle,
+    color: "#F8FAFC",
+    letterSpacing: 0.6,
+  },
+  monthSub: {
+    ...typography.caption,
+    color: "#7DD3FC",
+  },
+
+  // ---- Grid ----
+  weekHeader: {
+    flexDirection: "row",
+    marginBottom: -4,
+  },
+  weekHeaderCol: {
+    width: "14.2857%",
+    alignItems: "center",
+  },
+  weekHeaderText: {
+    ...typography.overline,
+    color: "#64748B",
+  },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  cell: {
+    width: "14.2857%",
+    height: 46,
+    padding: 2,
+  },
+  dayBox: {
+    flex: 1,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 1,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "transparent",
+  },
+  dayBoxRest: {
+    backgroundColor: "rgba(255,255,255,0.025)",
+    borderColor: "rgba(148,163,184,0.10)",
+  },
+  dayBoxScheduled: {
+    backgroundColor: "rgba(56,189,248,0.14)",
+    borderColor: "rgba(56,189,248,0.45)",
+  },
+  dayBoxPast: {
+    backgroundColor: "rgba(56,189,248,0.06)",
+    borderColor: "rgba(56,189,248,0.18)",
+  },
+  dayBoxToday: {
+    borderColor: "rgba(255,255,255,0.3)",
+  },
+  dayBoxHovered: {
+    backgroundColor: "rgba(56,189,248,0.28)",
+    borderColor: "#38BDF8",
+    borderWidth: 2,
+    transform: [{ scale: 1.06 }],
+  },
+  dayBoxDragging: {
+    opacity: 0.3,
+  },
+  dayNumber: {
+    ...typography.bodySmall,
+    fontSize: 13,
+    lineHeight: 16,
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
+  },
+  dayNumberOther: {
+    ...typography.bodySmall,
+    fontSize: 13,
+    lineHeight: 16,
+    color: "#334155",
+  },
+  dayNumberRest: {
+    color: "#8B9AB0",
+  },
+  dayNumberScheduled: {
+    color: "#F8FAFC",
+  },
+  dayNumberPast: {
+    color: "#94A3B8",
+  },
+  dayNumberToday: {
+    color: "#FFFFFF",
+    fontWeight: "800",
+  },
+  dayTag: {
+    ...typography.overline,
+    fontSize: 9,
+    lineHeight: 12,
+    letterSpacing: 0.4,
+    color: "#7DD3FC",
+  },
+  dayTagPast: {
+    color: "#64748B",
+  },
+  dayTagToday: {
+    color: "#FFFFFF",
+  },
+  restDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(148,163,184,0.3)",
+  },
+  restDotToday: {
+    backgroundColor: "rgba(255,255,255,0.7)",
+  },
+
+  // ---- Legend ----
+  legend: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 16,
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  legendSwatch: {
+    width: 12,
+    height: 12,
+    borderRadius: 4,
+    borderWidth: 1,
+  },
+  legendSwatchToday: {
+    backgroundColor: "#38BDF8",
+    borderColor: "#38BDF8",
+  },
+  legendSwatchPlanned: {
+    backgroundColor: "rgba(56,189,248,0.14)",
+    borderColor: "rgba(56,189,248,0.45)",
+  },
+  legendSwatchRest: {
+    backgroundColor: "rgba(255,255,255,0.025)",
+    borderColor: "rgba(148,163,184,0.25)",
+  },
+  legendText: {
+    ...typography.caption,
+    color: "#94A3B8",
+  },
+
+  // ---- Save button ----
+  ctaShadow: {
+    borderRadius: 16,
+    marginTop: 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0EA5E9",
+        shadowOpacity: 0.35,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 6 },
+      },
+      android: {},
+      default: { boxShadow: "0px 8px 20px rgba(14,165,233,0.30)" },
+    }),
+  },
+  ctaButton: {
+    height: 48,
+    borderRadius: 16,
+    overflow: "hidden",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    paddingHorizontal: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
+  },
+  ctaSheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
+  },
+  ctaText: {
+    ...typography.button,
+    color: "#FFFFFF",
+    letterSpacing: 1,
+    flexShrink: 1,
+  },
+  ctaTrail: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
   },
 });

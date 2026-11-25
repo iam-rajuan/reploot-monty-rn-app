@@ -73,7 +73,6 @@ export default function RootLayout() {
           <Stack.Screen name="workouts/details" />
           <Stack.Screen name="workouts/ai-session" />
           <Stack.Screen name="notifications/index" />
-          <Stack.Screen name="search/index" />
           <Stack.Screen name="profile" options={{ headerShown: false }} />
           <Stack.Screen name="weekly-progress" />
           <Stack.Screen name="workout-calendar" />

@@ -17,7 +17,6 @@ export interface CustomHeaderProps {
   onPressBack?: () => void;
   onPressLogo?: () => void;
   showSearch?: boolean;
-  onPressSearch?: () => void;
   showNotifications?: boolean;
   hasUnreadNotifications?: boolean;
   onPressNotifications?: () => void;
@@ -39,8 +38,6 @@ export const CustomHeader: React.FC<CustomHeaderProps> = ({
   showBackButton = false,
   onPressBack,
   onPressLogo,
-  showSearch = true,
-  onPressSearch,
   showNotifications = true,
   hasUnreadNotifications = true,
   onPressNotifications,
@@ -84,17 +81,6 @@ export const CustomHeader: React.FC<CustomHeaderProps> = ({
       return;
     }
     router.replace("/(tabs)/home");
-  };
-
-  const handleSearchPress = () => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    }
-    if (onPressSearch) {
-      onPressSearch();
-    } else {
-      router.push("/search");
-    }
   };
 
   const handleNotificationsPress = () => {
@@ -151,8 +137,6 @@ export const CustomHeader: React.FC<CustomHeaderProps> = ({
         />
         <CustomHeaderRight
           rightContent={rightContent}
-          showSearch={showSearch}
-          handleSearchPress={handleSearchPress}
           showNotifications={showNotifications}
           handleNotificationsPress={handleNotificationsPress}
           hasUnreadNotifications={hasUnreadNotifications}

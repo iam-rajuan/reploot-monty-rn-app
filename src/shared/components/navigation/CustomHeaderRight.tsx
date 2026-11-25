@@ -1,12 +1,10 @@
 import { Image } from "expo-image";
-import { Bell, Search } from "lucide-react-native";
+import { Bell } from "lucide-react-native";
 import React from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 
 interface CustomHeaderRightProps {
   rightContent?: React.ReactNode;
-  showSearch: boolean;
-  handleSearchPress: () => void;
   showNotifications: boolean;
   handleNotificationsPress: () => void;
   hasUnreadNotifications: boolean;
@@ -17,8 +15,6 @@ interface CustomHeaderRightProps {
 
 export const CustomHeaderRight = ({
   rightContent,
-  showSearch,
-  handleSearchPress,
   showNotifications,
   handleNotificationsPress,
   hasUnreadNotifications,
@@ -30,17 +26,6 @@ export const CustomHeaderRight = ({
 
   return (
     <View style={styles.headerRightRow}>
-      {showSearch && (
-        <Pressable
-          onPress={handleSearchPress}
-          style={styles.iconButton}
-          accessibilityRole="button"
-          accessibilityLabel="Search"
-        >
-          <Search size={21} color="#C4C9D6" />
-        </Pressable>
-      )}
-
       {showNotifications && (
         <Pressable
           onPress={handleNotificationsPress}

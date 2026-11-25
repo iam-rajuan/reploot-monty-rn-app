@@ -1,10 +1,9 @@
 import { BrandLogo } from "@/shared/components/branding";
 import { useAppSelector } from "@/store/hooks";
 import { Image } from "expo-image";
-import { Bell, Search } from "lucide-react-native";
+import { Bell } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { Text } from "@/shared/components/typography";
 
 export const HomeHeaderNav = () => {
   const user = useAppSelector((state) => state.auth.user);
@@ -16,7 +15,6 @@ export const HomeHeaderNav = () => {
 
       {/* Right Icons */}
       <View style={styles.actions}>
-        <Search size={18} color="#94A3B8" strokeWidth={2.5} />
         <Bell size={18} color="#94A3B8" strokeWidth={2.5} />
         {user?.avatarUrl ? (
           <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
