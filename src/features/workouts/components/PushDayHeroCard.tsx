@@ -1,4 +1,5 @@
 import { Image, ImageSource } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { Clock, Flame, Zap } from "lucide-react-native";
 import React from "react";
 import {
@@ -8,6 +9,7 @@ import {
   ViewStyle,
 } from "react-native";
 import { Text } from "@/shared/components/typography";
+import { typography } from "@/theme/typography";
 import { PUSH_DAY_DATA } from "../data/pushDayData";
 
 export interface PushDayHeroCardProps {
@@ -40,22 +42,28 @@ export const PushDayHeroCard: React.FC<PushDayHeroCardProps> = ({
         contentFit="cover"
         priority="high"
       />
+      <LinearGradient
+        colors={["rgba(6,8,16,0.35)", "rgba(6,8,16,0)", "rgba(6,8,16,0.75)"]}
+        locations={[0, 0.35, 1]}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
       {xpText && (
         <View style={styles.xpBadge}>
-          <Zap size={13} color="#070A11" fill="#070A11" />
+          <Zap size={12} color="#FFFFFF" fill="#FFFFFF" />
           <Text style={styles.xpBadgeText}>{xpText}</Text>
         </View>
       )}
       <View style={styles.heroBottomBadgesRow}>
         {durationText && (
           <View style={styles.statPill}>
-            <Clock size={13} color="#44EAC3" />
+            <Clock size={13} color="#7DD3FC" strokeWidth={2.4} />
             <Text style={styles.statPillText}>{durationText}</Text>
           </View>
         )}
         {caloriesText && (
           <View style={styles.statPill}>
-            <Flame size={13} color="#FF6B4A" fill="#FF6B4A" />
+            <Flame size={13} color="#7DD3FC" strokeWidth={2.4} />
             <Text style={styles.statPillText}>{caloriesText}</Text>
           </View>
         )}
@@ -67,14 +75,14 @@ export const PushDayHeroCard: React.FC<PushDayHeroCardProps> = ({
 const styles = StyleSheet.create({
   heroCardContainer: {
     width: "100%",
-    aspectRatio: 1.55,
+    aspectRatio: 1.6,
     position: "relative",
-    marginBottom: 20,
+    marginBottom: 22,
     borderRadius: 24,
     overflow: "hidden",
-    backgroundColor: "#161821",
+    backgroundColor: "#111A25",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
+    borderColor: "rgba(56,189,248,0.18)",
   },
   heroImage: {
     width: "100%",
@@ -82,27 +90,27 @@ const styles = StyleSheet.create({
   },
   xpBadge: {
     position: "absolute",
-    top: 16,
-    left: 16,
+    top: 14,
+    left: 14,
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
-    backgroundColor: "#44EAC3",
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 5.5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    backgroundColor: "#0EA5E9",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
     zIndex: 2,
   },
   xpBadgeText: {
-    color: "#070A11",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    ...typography.badge,
+    color: "#FFFFFF",
   },
   heroBottomBadgesRow: {
     position: "absolute",
-    bottom: 16,
-    left: 16,
+    bottom: 14,
+    left: 14,
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
@@ -112,17 +120,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "rgba(10, 14, 23, 0.82)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.12)",
-    borderRadius: 14,
-    paddingHorizontal: 12,
+    paddingHorizontal: 11,
     paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: "rgba(6,8,16,0.72)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
   },
   statPillText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    ...typography.badge,
+    color: "#F1F5F9",
   },
 });

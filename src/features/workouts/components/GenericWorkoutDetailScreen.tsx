@@ -12,15 +12,16 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Check, Dumbbell, RefreshCw, Sparkles } from "lucide-react-native";
+import { ArrowRight, Check, Dumbbell, RefreshCw } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
 import {
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
@@ -31,6 +32,11 @@ import {
 import { PushDayExerciseList } from "./PushDayExerciseCard";
 import { PushDayHeroCard } from "./PushDayHeroCard";
 import { typography } from "@/theme/typography";
+
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
 
 export interface GenericWorkoutDetailScreenProps {
   workout?: DynamicWorkoutPathDetail;
@@ -237,20 +243,22 @@ export const GenericWorkoutDetailScreen: React.FC<
             {WORKOUT_SPLIT_TABS.map((tab) => {
               const isActive = tab.id === activePathId;
               return (
-                <Pressable
+                <TouchableOpacity
                   key={tab.id}
+                  activeOpacity={0.8}
                   onPress={() => handleTabChange(tab.id)}
                   style={[
                     styles.categoryPill,
                     isActive && styles.categoryPillActive,
                   ]}
                   accessibilityRole="button"
+                  accessibilityState={{ selected: isActive }}
                   accessibilityLabel={tab.label}
                 >
                   <Dumbbell
                     size={12}
-                    color={isActive ? "#00f2fe" : "#64748B"}
-                    style={{ marginRight: 6 }}
+                    color={isActive ? ACCENT : "#64748B"}
+                    strokeWidth={2.4}
                   />
                   <Text
                     style={[
@@ -260,7 +268,7 @@ export const GenericWorkoutDetailScreen: React.FC<
                   >
                     {tab.label}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               );
             })}
           </ScrollView>
@@ -268,7 +276,12 @@ export const GenericWorkoutDetailScreen: React.FC<
 
         {/* Title Section matching clean Figma design */}
         <View style={styles.titleSection}>
-          <Text style={styles.mainTitle}>{workout.title}</Text>
+          <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
+            {workout.title}
+          </Text>
+          <Text style={styles.subtitle}>
+            {visibleExercises.length} exercises · hold a card to reorder
+          </Text>
         </View>
 
         {/* Hero Card with Stats */}
@@ -283,7 +296,7 @@ export const GenericWorkoutDetailScreen: React.FC<
         {visibleCompletedCount > 0 ? (
           <View style={styles.completedHeaderRow}>
             <View style={styles.completedPill}>
-              <Check size={12} color="#38EDD8" strokeWidth={3} />
+              <Check size={12} color={ACCENT_SOFT} strokeWidth={3} />
               <Text style={styles.completedCountText}>
                 {visibleCompletedCount} OF {visibleExercises.length} COMPLETED
               </Text>
@@ -306,6 +319,7 @@ export const GenericWorkoutDetailScreen: React.FC<
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       <CustomHeader
@@ -333,7 +347,9 @@ export const GenericWorkoutDetailScreen: React.FC<
       {/* Floating HUD Feedback Toast */}
       {toastMessage ? (
         <View style={styles.hudToast}>
-          <Check size={14} color="#00f2fe" style={{ marginRight: 6 }} />
+          <View style={styles.hudToastIcon}>
+            <Check size={11} color={ACCENT} strokeWidth={3} />
+          </View>
           <Text style={styles.hudToastText}>{toastMessage}</Text>
         </View>
       ) : null}
@@ -348,64 +364,54 @@ export const GenericWorkoutDetailScreen: React.FC<
       >
         {/* Soft fade gradient above the dock so scrolling cards dissolve seamlessly */}
         <LinearGradient
-          colors={["transparent", "#070A11"]}
+          colors={["rgba(6,8,16,0)", "rgba(6,8,16,0.96)"]}
           style={styles.fadeGradient}
           pointerEvents="none"
         />
 
         <View style={styles.ctaButtonsCol}>
-          {/* 1. REGENERATE WORKOUT BUTTON */}
-          <Pressable
+          <TouchableOpacity
             onPress={handleRegenerate}
+            activeOpacity={0.75}
             hitSlop={5}
-            style={({ pressed }) => [
-              styles.regenerateBtn,
-              pressed && styles.regenerateBtnPressed,
-            ]}
+            style={styles.secondaryBtn}
             accessibilityRole="button"
             accessibilityLabel="Regenerate Workout"
           >
-            <View style={styles.regenerateSurface}>
-              <RefreshCw
-                size={14}
-                color="#6FE8FF"
-                strokeWidth={2.2}
-                style={{ marginRight: 8 }}
-              />
-              <Text style={styles.regenerateBtnText} numberOfLines={1}>
-                REGENERATE WORKOUT
-              </Text>
-            </View>
-          </Pressable>
+            <RefreshCw size={14} color={ACCENT_SOFT} strokeWidth={2.4} />
+            <Text style={styles.secondaryBtnText} numberOfLines={1}>
+              REGENERATE WORKOUT
+            </Text>
+          </TouchableOpacity>
 
-          {/* 2. START AI WORKOUT BUTTON */}
-          <Pressable
+          <TouchableOpacity
             onPress={handleStart}
+            activeOpacity={0.85}
             hitSlop={5}
-            style={({ pressed }) => [
-              styles.startWorkoutBtn,
-              pressed && styles.startWorkoutBtnPressed,
-            ]}
+            style={styles.primaryBtn}
             accessibilityRole="button"
             accessibilityLabel="Start AI Workout"
           >
             <LinearGradient
-              colors={["#00f2fe", "#4facfe"]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={styles.startWorkoutGradient}
-            >
-              <Sparkles
-                size={14}
-                color="#050811"
-                fill="#050811"
-                style={{ marginRight: 8 }}
-              />
-              <Text style={styles.startWorkoutText} numberOfLines={1}>
-                START AI WORKOUT
-              </Text>
-            </LinearGradient>
-          </Pressable>
+              colors={BUTTON_GRADIENT}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+            <LinearGradient
+              colors={SHEEN}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={styles.primarySheen}
+              pointerEvents="none"
+            />
+            <Text style={styles.primaryBtnText} numberOfLines={1}>
+              START AI WORKOUT
+            </Text>
+            <View style={styles.primaryTrail}>
+              <ArrowRight size={14} color="#FFFFFF" strokeWidth={2.6} />
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -415,56 +421,55 @@ export const GenericWorkoutDetailScreen: React.FC<
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#070A11",
+    backgroundColor: "#060810",
   },
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 8,
   },
   categoryTabsWrapper: {
-    marginBottom: 16,
+    marginBottom: 18,
+    marginHorizontal: -20,
   },
   categoryTabsScroll: {
     flexDirection: "row",
     gap: 8,
+    paddingHorizontal: 20,
   },
   categoryPill: {
+    height: 34,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    gap: 6,
+    paddingHorizontal: 13,
+    borderRadius: 17,
+    backgroundColor: "rgba(255,255,255,0.03)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 14,
+    borderColor: "rgba(148,163,184,0.16)",
   },
   categoryPillActive: {
-    backgroundColor: "rgba(0, 242, 254, 0.1)",
-    borderColor: "#00f2fe",
+    backgroundColor: "rgba(56,189,248,0.12)",
+    borderColor: "rgba(56,189,248,0.45)",
   },
   categoryPillText: {
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    ...typography.badge,
+    color: "#7C8BA1",
   },
   categoryPillTextActive: {
-    color: "#00f2fe",
+    color: ACCENT_SOFT,
   },
   titleSection: {
-    marginBottom: 20,
-    marginTop: 6,
+    marginTop: 2,
+    marginBottom: 18,
+    gap: 4,
   },
   mainTitle: {
     ...typography.pageTitle,
-    color: "#FFFFFF",
+    color: "#F6F8FF",
   },
   subtitle: {
+    ...typography.body,
     color: "#94A3B8",
-    fontSize: 12,
-    lineHeight: 17,
-    fontWeight: "500",
-    marginTop: 4,
   },
   completedHeaderRow: {
     marginBottom: 14,
@@ -474,18 +479,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "rgba(56, 237, 216, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 237, 216, 0.35)",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 12,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
   },
   completedCountText: {
-    color: "#38EDD8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    ...typography.badge,
+    color: ACCENT_SOFT,
   },
   hudToast: {
     position: "absolute",
@@ -493,30 +496,44 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(10, 20, 32, 0.94)",
+    gap: 8,
+    paddingLeft: 6,
+    paddingRight: 14,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: "#111A25",
     borderWidth: 1,
-    borderColor: "rgba(0, 242, 254, 0.35)",
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 20,
+    borderColor: "rgba(56,189,248,0.3)",
     zIndex: 99,
-    shadowColor: "#00f2fe",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.35,
+        shadowRadius: 12,
+      },
+      android: { elevation: 6 },
+      default: {},
+    }),
+  },
+  hudToastIcon: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.14)",
   },
   hudToastText: {
-    color: "#00f2fe",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+    ...typography.badge,
+    color: "#E2E8F0",
   },
   fadeGradient: {
     position: "absolute",
-    top: -32,
+    top: -36,
     left: 0,
     right: 0,
-    height: 32,
+    height: 36,
   },
   bottomCtaContainer: {
     position: "absolute",
@@ -524,86 +541,72 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 20,
-    paddingTop: 14,
+    paddingTop: 12,
     zIndex: 99,
-    backgroundColor: "#070A11",
+    backgroundColor: "rgba(6,8,16,0.96)",
     borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.08)",
+    borderTopColor: "rgba(56,189,248,0.12)",
   },
   ctaButtonsCol: {
+    gap: 10,
+    width: "100%",
+    flexShrink: 0,
+  },
+  secondaryBtn: {
+    height: 46,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 8,
-    width: "100%",
-    flexShrink: 0,
-  },
-  regenerateBtn: {
-    alignSelf: "stretch",
-    width: "100%",
-    height: 38,
-    minHeight: 38,
-    maxHeight: 38,
-    flexShrink: 0,
-    borderRadius: 19,
-    overflow: "hidden",
-    shadowColor: "#2BD8F3",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  regenerateBtnPressed: {
-    opacity: 0.9,
-    transform: [{ scale: 0.985 }],
-  },
-  regenerateSurface: {
-    width: "100%",
-    height: 38,
-    borderRadius: 19,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#142432",
+    backgroundColor: "rgba(56,189,248,0.08)",
     borderWidth: 1,
-    borderColor: "rgba(111, 232, 255, 0.45)",
+    borderColor: "rgba(56,189,248,0.3)",
   },
-  regenerateBtnText: {
-    color: "#D7F8FF",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+  secondaryBtnText: {
+    ...typography.button,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 1,
+    color: ACCENT_SOFT,
   },
-  startWorkoutBtn: {
-    alignSelf: "stretch",
-    width: "100%",
-    height: 38,
-    minHeight: 38,
-    maxHeight: 38,
-    flexShrink: 0,
-    borderRadius: 19,
+  primaryBtn: {
+    height: 50,
+    borderRadius: 16,
     overflow: "hidden",
-    shadowColor: "#00f2fe",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  startWorkoutBtnPressed: {
-    opacity: 0.88,
-    transform: [{ scale: 0.985 }],
-  },
-  startWorkoutGradient: {
-    width: "100%",
-    height: 38,
-    minHeight: 38,
-    borderRadius: 19,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 20,
+    gap: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: ACCENT,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 14,
+      },
+      web: { boxShadow: "0 8px 22px rgba(56,189,248,0.28)" } as any,
+      default: {},
+    }),
   },
-  startWorkoutText: {
-    color: "#050811",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+  primarySheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
+  },
+  primaryBtnText: {
+    ...typography.button,
+    letterSpacing: 1,
+    color: "#FFFFFF",
+  },
+  primaryTrail: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
   },
 });

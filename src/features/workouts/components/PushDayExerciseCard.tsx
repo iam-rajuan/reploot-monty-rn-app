@@ -1,6 +1,10 @@
 import { useAppSelector } from "@/store/hooks";
 import * as Haptics from "expo-haptics";
 import { Image, ImageSource } from "expo-image";
+import { typography } from "@/theme/typography";
+
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
 import {
   Check,
   Play,
@@ -31,6 +35,7 @@ import Animated, {
 import {
   Platform,
   Pressable,
+  TouchableOpacity,
   type LayoutChangeEvent,
   StyleProp,
   StyleSheet,
@@ -260,7 +265,7 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> =
 
               {isCompleted && (
                 <View style={styles.thumbnailCheckBadge}>
-                  <Check size={11} color="#38EDD8" strokeWidth={3.5} />
+                  <Check size={11} color={ACCENT} strokeWidth={3.5} />
                 </View>
               )}
             </View>
@@ -289,7 +294,7 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> =
                   </Text>
                 )}
                 <View style={styles.xpReward}>
-                  <Zap size={11} color="#79F0DD" strokeWidth={2.5} />
+                  <Zap size={10} color={ACCENT_SOFT} fill={ACCENT_SOFT} />
                   <Text style={styles.xpRewardText}>{xpReward}</Text>
                 </View>
               </View>
@@ -299,14 +304,14 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> =
             <View style={styles.restingActionContainer}>
               {isCompleted ? (
                 <View style={styles.completedCheckCircle}>
-                  <Check size={16} color="#38EDD8" strokeWidth={3.2} />
+                  <Check size={15} color="#FFFFFF" strokeWidth={3.2} />
                 </View>
               ) : (
                 <View style={styles.playButton}>
                   <Play
-                    size={13}
-                    color="rgba(255, 255, 255, 0.85)"
-                    fill="rgba(255, 255, 255, 0.85)"
+                    size={12}
+                    color={ACCENT_SOFT}
+                    fill={ACCENT_SOFT}
                     style={styles.playIcon}
                   />
                 </View>
@@ -342,12 +347,10 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> =
               ]}
             >
               {onReplace ? (
-                <Pressable
+                <TouchableOpacity
                   onPress={handleReplacePress}
-                  style={({ pressed }) => [
-                    styles.actionItemCol,
-                    pressed && styles.actionItemColPressed,
-                  ]}
+                  activeOpacity={0.7}
+                  style={styles.actionItemCol}
                   hitSlop={8}
                   accessibilityRole="button"
                   accessibilityLabel={`Replace ${title}`}
@@ -356,16 +359,14 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> =
                     <RefreshCw size={18} color="#FFFFFF" strokeWidth={2.4} />
                   </View>
                   <Text style={styles.replaceActionLabel}>Replace</Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : null}
 
               {onDelete ? (
-                <Pressable
+                <TouchableOpacity
                   onPress={handleDeletePress}
-                  style={({ pressed }) => [
-                    styles.actionItemCol,
-                    pressed && styles.actionItemColPressed,
-                  ]}
+                  activeOpacity={0.7}
+                  style={styles.actionItemCol}
                   hitSlop={8}
                   accessibilityRole="button"
                   accessibilityLabel={`Delete ${title}`}
@@ -374,7 +375,7 @@ export const PushDayExerciseCard: React.FC<PushDayExerciseCardProps> =
                     <Trash2 size={18} color="#FFFFFF" strokeWidth={2.4} />
                   </View>
                   <Text style={styles.deleteActionLabel}>Delete</Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : null}
             </View>
           )}
@@ -661,13 +662,15 @@ export const PushDayExerciseList: React.FC<PushDayExerciseListProps> = ({
             <View style={styles.recommendationHeader}>
               <View style={styles.recommendationHeaderLead}>
                 <View style={styles.recommendationIcon}>
-                  <Sparkles size={13} color="#07131B" strokeWidth={2.8} />
+                  <Sparkles size={14} color={ACCENT} strokeWidth={2.4} />
                 </View>
                 <Text style={styles.recommendationTitle}>AI RECOMMENDED</Text>
               </View>
-              <Text style={styles.recommendationCount}>
-                {aiRecommended.length} PICKS
-              </Text>
+              <View style={styles.countPill}>
+                <Text style={styles.countPillText}>
+                  {aiRecommended.length} PICKS
+                </Text>
+              </View>
             </View>
           ) : null}
 
@@ -732,32 +735,31 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 4,
+    marginTop: 2,
+    marginBottom: 4,
   },
   recommendationHeaderLead: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
   },
   recommendationIcon: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#42E8D1",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
   },
   recommendationTitle: {
-    color: "#42E8D1",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.15,
+    ...typography.sectionTitle,
+    color: "#E5EEF8",
   },
   recommendationCount: {
-    color: "#718096",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+    ...typography.badge,
+    color: "#7C8BA1",
   },
   regularHeader: {
     height: SECTION_DIVIDER_HEIGHT,
@@ -769,15 +771,13 @@ const styles = StyleSheet.create({
     height: SECTION_CROSSING_OFFSET,
   },
   regularTitle: {
+    ...typography.badge,
     color: "#CBD5E1",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.1,
   },
   regularRule: {
     flex: 1,
     height: StyleSheet.hairlineWidth,
-    backgroundColor: "rgba(148, 163, 184, 0.28)",
+    backgroundColor: "rgba(56,189,248,0.22)",
   },
   cardWrapper: {
     position: "relative",
@@ -796,53 +796,35 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 60,
   },
-  actionItemColPressed: {
-    opacity: 0.75,
-    transform: [{ scale: 0.94 }],
-  },
   replaceCircleBtn: {
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: "#222736",
+    backgroundColor: "rgba(56,189,248,0.14)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.16)",
+    borderColor: "rgba(56,189,248,0.4)",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 4,
-    elevation: 3,
   },
   replaceActionLabel: {
-    color: "#CBD5E1",
-    fontSize: 11,
-    fontWeight: "600",
+    ...typography.caption,
+    color: ACCENT_SOFT,
     marginTop: 5,
-    letterSpacing: 0.2,
   },
   deleteCircleBtn: {
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: "#EF4444",
+    backgroundColor: "rgba(239,68,68,0.16)",
     borderWidth: 1,
-    borderColor: "#DC2626",
+    borderColor: "rgba(248,113,113,0.45)",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#EF4444",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 4,
-    elevation: 3,
   },
   deleteActionLabel: {
-    color: "#EF4444",
-    fontSize: 11,
-    fontWeight: "600",
+    ...typography.caption,
+    color: "#F87171",
     marginTop: 5,
-    letterSpacing: 0.2,
   },
   animatedCardContainer: {
     width: "100%",
@@ -851,22 +833,22 @@ const styles = StyleSheet.create({
   exerciseCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#111624",
+    backgroundColor: "#111A25",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
-    borderRadius: 20,
-    padding: 14,
+    borderColor: "rgba(56,189,248,0.16)",
+    borderRadius: 22,
+    padding: 12,
   },
   exerciseCardCompleted: {
-    borderColor: "rgba(56, 237, 216, 0.4)",
-    backgroundColor: "rgba(14, 25, 36, 0.95)",
+    borderColor: "rgba(56,189,248,0.45)",
+    backgroundColor: "#0F1E2C",
   },
   thumbnailWrapper: {
-    width: 64,
-    height: 64,
-    borderRadius: 14,
+    width: 62,
+    height: 62,
+    borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: "#0F121A",
+    backgroundColor: "#0B111B",
     position: "relative",
   },
   thumbnailImage: {
@@ -874,31 +856,32 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   thumbnailImageCompleted: {
-    opacity: 0.85,
+    opacity: 0.55,
   },
   indexBadge: {
     position: "absolute",
     top: 5,
     left: 5,
-    backgroundColor: "rgba(0, 0, 0, 0.65)",
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderWidth: 0.5,
-    borderColor: "rgba(255, 255, 255, 0.12)",
+    minWidth: 22,
+    alignItems: "center",
+    backgroundColor: "rgba(6,8,16,0.72)",
+    borderRadius: 999,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
   },
   indexBadgeCompleted: {
-    backgroundColor: "rgba(10, 30, 35, 0.88)",
-    borderColor: "rgba(56, 237, 216, 0.4)",
+    backgroundColor: "rgba(6,8,16,0.85)",
+    borderColor: "rgba(56,189,248,0.45)",
   },
   indexBadgeText: {
+    ...typography.badge,
+    letterSpacing: 0.4,
     color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.5,
   },
   indexBadgeTextCompleted: {
-    color: "#38EDD8",
+    color: ACCENT_SOFT,
   },
   thumbnailCheckBadge: {
     position: "absolute",
@@ -907,93 +890,86 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: "rgba(10, 26, 30, 0.95)",
-    borderWidth: 1.2,
-    borderColor: "#38EDD8",
+    backgroundColor: "rgba(6,8,16,0.9)",
+    borderWidth: 1,
+    borderColor: ACCENT,
     alignItems: "center",
     justifyContent: "center",
   },
   exerciseTextContainer: {
     flex: 1,
-    marginLeft: 14,
+    minWidth: 0,
+    marginLeft: 12,
     marginRight: 8,
     justifyContent: "center",
+    gap: 6,
   },
   exerciseTitle: {
-    color: "#FFFFFF",
+    ...typography.cardTitle,
     fontSize: 13,
-    lineHeight: 16,
-    fontWeight: "800",
+    lineHeight: 17,
     letterSpacing: 0.2,
+    color: "#F8FAFC",
     textTransform: "uppercase",
   },
   exerciseTitleCompleted: {
-    color: "#CBD5E1",
+    color: "#94A3B8",
   },
   exerciseSubtitle: {
-    flex: 1,
-    color: "#8E95A5",
-    fontSize: 11,
-    lineHeight: 15,
-    fontWeight: "500",
-    marginTop: 4,
+    ...typography.caption,
+    flexShrink: 1,
+    color: "#8B9AB0",
   },
   exerciseMetaRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    marginTop: 5,
+    gap: 8,
   },
   xpReward: {
     flexShrink: 0,
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    minHeight: 21,
+    gap: 3,
     paddingHorizontal: 7,
-    borderRadius: 6,
-    backgroundColor: "rgba(45, 212, 191, 0.12)",
+    paddingVertical: 2,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
   },
   xpRewardText: {
-    color: "#8AF4E2",
-    fontSize: 10,
-    lineHeight: 12,
-    fontWeight: "700",
-    letterSpacing: 0.1,
+    ...typography.badge,
+    letterSpacing: 0.4,
+    color: ACCENT_SOFT,
   },
   completedStatusRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    flex: 1,
+    flexShrink: 1,
   },
   completedDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#38EDD8",
+    backgroundColor: ACCENT,
   },
   completedStatusText: {
-    color: "#38EDD8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    ...typography.badge,
+    color: ACCENT_SOFT,
   },
   restingActionContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingLeft: 4,
   },
   draggingCard: {
     opacity: 0.95,
   },
   playButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.25)",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
+    backgroundColor: "rgba(56,189,248,0.10)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1001,13 +977,25 @@ const styles = StyleSheet.create({
     marginLeft: 2,
   },
   completedCheckCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: "#38EDD8",
-    backgroundColor: "rgba(56, 237, 216, 0.15)",
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: "#0EA5E9",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
     alignItems: "center",
     justifyContent: "center",
+  },
+  countPill: {
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
+  },
+  countPillText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
   },
 });
