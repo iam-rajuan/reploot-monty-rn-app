@@ -594,9 +594,9 @@ export default function NutritionTabRoute() {
 
             <View style={styles.macroRow}>
               {[
-                { label: "Protein", color: "#38BDF8", value: loggedNutrition.protein, target: proteinTarget },
-                { label: "Carbs", color: "#FBBF24", value: loggedNutrition.carbs, target: carbsTarget },
-                { label: "Fat", color: "#FB7185", value: loggedNutrition.fat, target: fatTarget },
+                { label: "Protein", color: "#A78BFA", fillColor: "#A78BFA", value: loggedNutrition.protein, target: proteinTarget },
+                { label: "Carbs", color: "#FB923C", fillColor: "#FB923C", value: loggedNutrition.carbs, target: carbsTarget },
+                { label: "Fat", color: "#F87171", fillColor: "#EF4444", value: loggedNutrition.fat, target: fatTarget },
               ].map((macro) => {
                 const percent =
                   macro.target > 0
@@ -606,16 +606,16 @@ export default function NutritionTabRoute() {
                   <View key={macro.label} style={styles.macroTile}>
                     <View style={styles.macroName}>
                       <View style={[styles.macroDot, { backgroundColor: macro.color }]} />
-                      <Text style={styles.macroLabel}>{macro.label}</Text>
+                      <Text style={[styles.macroLabel, { color: macro.color }]}>{macro.label}</Text>
                     </View>
-                    <Text style={styles.macroValue}>
+                    <Text style={[styles.macroValue, { color: macro.color }]}>
                       {macro.value}
-                      <Text style={styles.macroUnit}>g</Text>
+                      <Text style={[styles.macroUnit, { color: macro.color }]}>g</Text>
                     </Text>
                     <Text style={styles.macroTarget}>of {macro.target}g</Text>
                     <View style={styles.macroTrack}>
                       <View
-                        style={[styles.macroFill, { width: `${percent}%`, backgroundColor: macro.color }]}
+                        style={[styles.macroFill, { width: `${percent}%`, backgroundColor: macro.fillColor }]}
                       />
                     </View>
                   </View>
@@ -663,14 +663,8 @@ export default function NutritionTabRoute() {
               </View>
             </View>
 
-            <Pressable
+            <View
               style={styles.ringContainer}
-              onPress={() => {
-                triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-                router.push("/drink-water");
-              }}
-              accessibilityRole="button"
-              accessibilityLabel="Open full hydration screen"
             >
               <Svg width={WATER_RING_SIZE} height={WATER_RING_SIZE}>
                 <Defs>
@@ -718,7 +712,7 @@ export default function NutritionTabRoute() {
                   </Text>
                 </View>
               </View>
-            </Pressable>
+            </View>
 
             <View style={styles.quickRow}>
               {[250, 500, 750].map((ml) => (
