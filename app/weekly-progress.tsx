@@ -57,6 +57,12 @@ interface DayData {
   barHeight: number;
 }
 
+// One accent for the whole page.
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+
 const ProfileCardBackground = () => (
   <LinearGradient
     colors={[
@@ -399,7 +405,7 @@ export default function WeeklyProgressScreen() {
             </View>
           </View>
           <View style={styles.titleDateRow}>
-            <Calendar size={13} color="#38EDD8" style={{ marginRight: 6 }} />
+            <Calendar size={13} color={ACCENT} style={{ marginRight: 6 }} />
             <Text style={styles.subtitle}>{currentWeek.dateRange}</Text>
           </View>
         </View>
@@ -467,12 +473,10 @@ export default function WeeklyProgressScreen() {
           <View style={styles.headerRow}>
             {/* Level 42 Box */}
             <View style={styles.heroStatCol}>
-              <View style={styles.streakTopRow}>
-                <Star size={18} color="#38EDD8" strokeWidth={2.5} />
-                <Text style={[styles.streakNumber, { color: "#38EDD8" }]}>
-                  42
-                </Text>
+              <View style={styles.heroIcon}>
+                <Star size={15} color={ACCENT} strokeWidth={2.4} />
               </View>
+              <Text style={styles.streakNumber}>42</Text>
               <Text style={styles.streakLabel}>LEVEL</Text>
             </View>
 
@@ -481,10 +485,10 @@ export default function WeeklyProgressScreen() {
 
             {/* Streak Box */}
             <View style={styles.heroStatCol}>
-              <View style={styles.streakTopRow}>
-                <Zap size={18} color="#38EDD8" strokeWidth={2.5} />
-                <Text style={styles.streakNumber}>12</Text>
+              <View style={styles.heroIcon}>
+                <Zap size={15} color={ACCENT} strokeWidth={2.4} />
               </View>
+              <Text style={styles.streakNumber}>12</Text>
               <Text style={styles.streakLabel}>DAY STREAK</Text>
             </View>
 
@@ -493,12 +497,10 @@ export default function WeeklyProgressScreen() {
 
             {/* Weekly XP Badge */}
             <View style={styles.heroStatCol}>
-              <View style={styles.streakTopRow}>
-                <TrendingUp size={18} color="#00f2fe" strokeWidth={2.5} />
-                <Text style={[styles.streakNumber, { color: "#00f2fe" }]}>
-                  +{currentWeek.totalXp}
-                </Text>
+              <View style={styles.heroIcon}>
+                <TrendingUp size={15} color={ACCENT} strokeWidth={2.4} />
               </View>
+              <Text style={styles.streakNumber}>+{currentWeek.totalXp}</Text>
               <Text style={styles.streakLabel}>XP GAINED</Text>
             </View>
           </View>
@@ -506,7 +508,7 @@ export default function WeeklyProgressScreen() {
           {/* XP Progress Bar to next level */}
           <View style={styles.progressBarTrack}>
             <LinearGradient
-              colors={["#707BFF", "#5260FF", "#38EDD8"]}
+              colors={["#6366F1", "#4F9DFB", "#38BDF8"]}
               style={[styles.progressBarFill, { width: "82%" }]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
@@ -515,7 +517,7 @@ export default function WeeklyProgressScreen() {
           <View style={styles.xpRow}>
             <Text style={styles.xpText}>2,450 / 3,000 XP</Text>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-              <Sparkles size={11} color="#38EDD8" />
+              <Sparkles size={11} color={ACCENT} />
               <Text style={styles.xpTargetText}>550 XP to LVL 43</Text>
             </View>
           </View>
@@ -528,7 +530,7 @@ export default function WeeklyProgressScreen() {
             {/* Workouts */}
             <View style={styles.metricCell}>
               <View style={styles.metricCellHeader}>
-                <Dumbbell size={14} color="#38BDF8" strokeWidth={2.2} />
+                <Dumbbell size={14} color={ACCENT} strokeWidth={2.3} />
                 <Text style={styles.metricLabel}>WORKOUTS</Text>
               </View>
               <Text style={styles.metricValue}>5 / 5</Text>
@@ -540,7 +542,7 @@ export default function WeeklyProgressScreen() {
             {/* Time Duration */}
             <View style={styles.metricCell}>
               <View style={styles.metricCellHeader}>
-                <Clock size={14} color="#818CF8" strokeWidth={2.2} />
+                <Clock size={14} color={ACCENT} strokeWidth={2.3} />
                 <Text style={styles.metricLabel}>DURATION</Text>
               </View>
               <Text style={styles.metricValue}>3h 35m</Text>
@@ -554,7 +556,7 @@ export default function WeeklyProgressScreen() {
             {/* Calories */}
             <View style={styles.metricCell}>
               <View style={styles.metricCellHeader}>
-                <Flame size={14} color="#FB923C" strokeWidth={2.2} />
+                <Flame size={14} color={ACCENT} strokeWidth={2.3} />
                 <Text style={styles.metricLabel}>ACTIVE BURN</Text>
               </View>
               <Text style={styles.metricValue}>1,980</Text>
@@ -566,7 +568,7 @@ export default function WeeklyProgressScreen() {
             {/* Accuracy Score */}
             <View style={styles.metricCell}>
               <View style={styles.metricCellHeader}>
-                <Activity size={14} color="#38EDD8" strokeWidth={2.2} />
+                <Activity size={14} color={ACCENT} strokeWidth={2.3} />
                 <Text style={styles.metricLabel}>ACCURACY</Text>
               </View>
               <Text style={styles.metricValue}>93%</Text>
@@ -581,13 +583,13 @@ export default function WeeklyProgressScreen() {
           <View style={styles.cardHeader}>
             <View style={styles.headerTitleRow}>
               <View style={styles.headerIconContainer}>
-                <Activity size={14} color="#38EDD8" />
+                <Activity size={14} color={ACCENT} />
               </View>
               <Text style={styles.cardTitle}>DAILY TRAINING LOAD</Text>
             </View>
             <View style={styles.chartLegend}>
               <View style={styles.legendDot} />
-              <Text style={styles.legendText}>ACTIVE MINUTES</Text>
+              <Text style={styles.legendText}>MINUTES</Text>
             </View>
           </View>
 
@@ -605,7 +607,7 @@ export default function WeeklyProgressScreen() {
                     style={styles.barWrap}
                     onPress={() => handleDaySelect(idx)}
                   >
-                    <Text style={styles.barMinutesText}>
+                    <Text style={[styles.barMinutesText, isSelected && styles.barMinutesTextActive]}>
                       {item.isRest ? "REST" : `${item.minutes}m`}
                     </Text>
 
@@ -617,16 +619,16 @@ export default function WeeklyProgressScreen() {
                     >
                       {item.isRest ? (
                         <View style={[styles.bar, styles.barRest]} />
-                      ) : isCurrentActive ? (
+                      ) : isSelected || isCurrentActive ? (
                         <LinearGradient
-                          colors={["#00f2fe", "#38EDD8"]}
+                          colors={["#7DD3FC", "#0EA5E9"]}
                           style={[styles.bar, { height: item.barHeight }]}
                           start={{ x: 0, y: 0 }}
                           end={{ x: 0, y: 1 }}
                         />
                       ) : (
                         <LinearGradient
-                          colors={["#6FA5F6", "#5260FF"]}
+                          colors={["rgba(125,211,252,0.55)", "rgba(56,189,248,0.25)"]}
                           style={[styles.bar, { height: item.barHeight }]}
                           start={{ x: 0, y: 0 }}
                           end={{ x: 0, y: 1 }}
@@ -682,19 +684,19 @@ export default function WeeklyProgressScreen() {
             {!selectedDay.isRest && (
               <View style={styles.selectedDayStatsRow}>
                 <View style={styles.selectedDayStatItem}>
-                  <Clock size={12} color="#94A3B8" />
+                  <Clock size={12} color={ACCENT_SOFT} />
                   <Text style={styles.selectedDayStatText}>
                     {selectedDay.minutes}m
                   </Text>
                 </View>
                 <View style={styles.selectedDayStatItem}>
-                  <Flame size={12} color="#FB923C" />
+                  <Flame size={12} color={ACCENT_SOFT} />
                   <Text style={styles.selectedDayStatText}>
                     {selectedDay.calories} kcal
                   </Text>
                 </View>
                 <View style={styles.selectedDayStatItem}>
-                  <CheckCircle2 size={12} color="#38EDD8" />
+                  <CheckCircle2 size={12} color={ACCENT_SOFT} />
                   <Text style={styles.selectedDayStatText}>Done</Text>
                 </View>
               </View>
@@ -708,7 +710,7 @@ export default function WeeklyProgressScreen() {
           <View style={styles.cardHeader}>
             <View style={styles.headerTitleRow}>
               <View style={styles.headerIconContainer}>
-                <Dumbbell size={14} color="#38BDF8" />
+                <Dumbbell size={14} color={ACCENT} />
               </View>
               <Text style={styles.cardTitle} numberOfLines={1}>
                 VOLUME & SPLIT
@@ -717,7 +719,7 @@ export default function WeeklyProgressScreen() {
             <View style={styles.tonnageBadge}>
               <TrendingUp
                 size={12}
-                color="#2DD4BF"
+                color={ACCENT_SOFT}
                 style={{ marginRight: 4 }}
               />
               <Text style={styles.tonnageBadgeText}>+12% LOAD</Text>
@@ -744,7 +746,7 @@ export default function WeeklyProgressScreen() {
               </View>
               <View style={styles.muscleTrack}>
                 <LinearGradient
-                  colors={["#00f2fe", "#38EDD8"]}
+                  colors={["#7DD3FC", "#38BDF8"]}
                   style={[styles.muscleFill, { width: "38%" }]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
@@ -760,7 +762,7 @@ export default function WeeklyProgressScreen() {
               </View>
               <View style={styles.muscleTrack}>
                 <LinearGradient
-                  colors={["#818CF8", "#5260FF"]}
+                  colors={["rgba(125,211,252,0.8)", "rgba(56,189,248,0.8)"]}
                   style={[styles.muscleFill, { width: "32%" }]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
@@ -776,7 +778,7 @@ export default function WeeklyProgressScreen() {
               </View>
               <View style={styles.muscleTrack}>
                 <LinearGradient
-                  colors={["#FB923C", "#F97316"]}
+                  colors={["rgba(125,211,252,0.55)", "rgba(56,189,248,0.55)"]}
                   style={[styles.muscleFill, { width: "30%" }]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
@@ -787,20 +789,15 @@ export default function WeeklyProgressScreen() {
         </View>
 
         {/* Reploot AI Coach Weekly Insights */}
-        <View style={[styles.card, styles.aiCardBorder]}>
+        <View style={styles.card}>
           <ProfileCardBackground />
           <View style={styles.cardHeader}>
             <View style={styles.headerTitleRow}>
-              <View
-                style={[
-                  styles.headerIconContainer,
-                  { backgroundColor: "rgba(56, 189, 248, 0.15)" },
-                ]}
-              >
-                <Sparkles size={14} color="#38BDF8" />
+              <View style={styles.headerIconContainer}>
+                <Sparkles size={14} color={ACCENT} />
               </View>
-              <Text style={[styles.cardTitle, { color: "#38BDF8" }]}>
-                AI BIOMECHANICAL REVIEW
+              <Text style={styles.cardTitle} numberOfLines={1}>
+                FORM REVIEW
               </Text>
             </View>
             <View style={styles.aiPill}>
@@ -810,7 +807,9 @@ export default function WeeklyProgressScreen() {
 
           <View style={styles.insightsList}>
             <View style={styles.insightItem}>
-              <View style={styles.insightDot} />
+              <View style={styles.insightDot}>
+                <CheckCircle2 size={14} color={ACCENT} strokeWidth={2.4} />
+              </View>
               <Text style={styles.insightText}>
                 <Text style={styles.insightHighlight}>Squat Depth: </Text>
                 +14% depth consistency with stable vertical bar path.
@@ -818,7 +817,9 @@ export default function WeeklyProgressScreen() {
             </View>
 
             <View style={styles.insightItem}>
-              <View style={styles.insightDot} />
+              <View style={styles.insightDot}>
+                <CheckCircle2 size={14} color={ACCENT} strokeWidth={2.4} />
+              </View>
               <Text style={styles.insightText}>
                 <Text style={styles.insightHighlight}>Peak Power: </Text>
                 95% sustained output preserved through rest protocol.
@@ -826,7 +827,9 @@ export default function WeeklyProgressScreen() {
             </View>
 
             <View style={styles.insightItem}>
-              <View style={styles.insightDot} />
+              <View style={styles.insightDot}>
+                <CheckCircle2 size={14} color={ACCENT} strokeWidth={2.4} />
+              </View>
               <Text style={styles.insightText}>
                 <Text style={styles.insightHighlight}>Bar Path: </Text>
                 Calibrated arm trajectory on heavy incline pressing.
@@ -841,7 +844,7 @@ export default function WeeklyProgressScreen() {
           <View style={styles.cardHeader}>
             <View style={styles.headerTitleRow}>
               <View style={styles.headerIconContainer}>
-                <Award size={14} color="#38EDD8" />
+                <Award size={14} color={ACCENT} />
               </View>
               <Text style={styles.cardTitle}>MILESTONES UNLOCKED</Text>
             </View>
@@ -851,28 +854,28 @@ export default function WeeklyProgressScreen() {
           <View style={styles.badgesRow}>
             <View style={styles.badgeCard}>
               <View style={styles.badgeIconWrapper}>
-                <Target size={20} color="#38EDD8" />
+                <Target size={18} color={ACCENT} strokeWidth={2.3} />
               </View>
               <Text
                 style={styles.badgeTitle}
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
-                CONSISTENCY
+                Consistency
               </Text>
               <Text style={styles.badgeSub}>5/5 Routines</Text>
             </View>
 
             <View style={styles.badgeCard}>
               <View style={styles.badgeIconWrapper}>
-                <TrendingUp size={20} color="#00f2fe" />
+                <TrendingUp size={18} color={ACCENT} strokeWidth={2.3} />
               </View>
               <Text
                 style={styles.badgeTitle}
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
-                VOLUME SPIKE
+                Volume Spike
               </Text>
               <Text style={styles.badgeSub}>+12% Load</Text>
             </View>
@@ -886,7 +889,7 @@ export default function WeeklyProgressScreen() {
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
-                REST PROTOCOL
+                Rest Protocol
               </Text>
               <Text style={styles.badgeSub}>Optimal Reset</Text>
             </View>
@@ -900,7 +903,7 @@ export default function WeeklyProgressScreen() {
             style={styles.shareBtn}
             onPress={handleShare}
           >
-            <Share2 size={16} color="#38EDD8" style={{ marginRight: 8 }} />
+            <Share2 size={16} color={ACCENT_SOFT} strokeWidth={2.3} />
             <Text style={styles.shareBtnText}>SHARE REPORT</Text>
           </TouchableOpacity>
 
@@ -913,12 +916,19 @@ export default function WeeklyProgressScreen() {
             }}
           >
             <LinearGradient
-              colors={["#00f2fe", "#4facfe"]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
+              colors={BUTTON_GRADIENT}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
               style={styles.workoutBtnGradient}
             >
-              <Dumbbell size={16} color="#090A10" style={{ marginRight: 8 }} />
+              <LinearGradient
+                pointerEvents="none"
+                colors={SHEEN}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={styles.workoutBtnSheen}
+              />
+              <Dumbbell size={16} color="#FFFFFF" strokeWidth={2.4} />
               <Text style={styles.workoutBtnText}>TRAIN NEXT</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -929,7 +939,7 @@ export default function WeeklyProgressScreen() {
 }
 
 function ShieldCheckIcon() {
-  return <CheckCircle2 size={20} color="#818CF8" />;
+  return <CheckCircle2 size={18} color={ACCENT} strokeWidth={2.3} />;
 }
 
 const styles = StyleSheet.create({
@@ -958,9 +968,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
   },
-  gradient: {
-    flex: 1,
-  },
   mainTitle: {
     ...typography.pageTitle,
     color: "#FFFFFF",
@@ -977,192 +984,174 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: "rgba(12, 18, 32, 0.85)",
-    borderWidth: 1,
-    borderColor: "rgba(104, 123, 255, 0.22)",
-    borderRadius: 16,
-    padding: 3,
+    gap: 6,
+    padding: 4,
     marginBottom: 16,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.14)",
   },
   tabButton: {
     flex: 1,
-    paddingVertical: 9,
+    height: 38,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 13,
+    borderWidth: 1,
+    borderColor: "transparent",
   },
   tabButtonActive: {
-    backgroundColor: "#0284C7",
-    shadowColor: "#0284C7",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.45,
-    shadowRadius: 6,
-    elevation: 3,
+    backgroundColor: "rgba(56,189,248,0.16)",
+    borderColor: "rgba(56,189,248,0.5)",
   },
   tabText: {
-    color: "#8E9BAE",
-    fontSize: clampFontSize(11),
-    fontWeight: "700",
-    letterSpacing: 0.8,
+    ...typography.buttonSmall,
+    color: "#8B9AB0",
+    letterSpacing: 0.6,
   },
   tabTextActive: {
-    color: "#FFFFFF",
+    color: "#F8FAFC",
   },
   card: {
     backgroundColor: "#111A25",
     borderRadius: 24,
-    padding: isSmallDevice ? 16 : 20,
+    padding: isSmallDevice ? 16 : 18,
     borderWidth: 1,
     borderColor: "rgba(56, 189, 248, 0.18)",
-    marginBottom: 16,
+    marginBottom: 14,
     overflow: "hidden",
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 14,
-    elevation: 4,
-  },
-  aiCardBorder: {
-    borderColor: "rgba(56, 189, 248, 0.18)",
   },
   headerRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "stretch",
     justifyContent: "space-between",
     marginBottom: 18,
   },
   verticalDivider: {
     width: 1,
-    height: 38,
-    backgroundColor: "rgba(104, 123, 255, 0.18)",
+    marginVertical: 6,
+    backgroundColor: "rgba(148,163,184,0.14)",
   },
   heroStatCol: {
-    alignItems: "center",
     flex: 1,
-  },
-  streakTopRow: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    marginBottom: 4,
+    gap: 4,
   },
   streakNumber: {
-    color: "#FFFFFF",
-    fontSize: clampFontSize(24),
+    ...typography.metric,
+    fontSize: 24,
+    lineHeight: 28,
     fontWeight: "800",
-    lineHeight: 30,
-    letterSpacing: -0.5,
+    color: "#F8FAFC",
+    fontVariant: ["tabular-nums"],
   },
   streakLabel: {
-    color: "#8E9BAE",
-    fontSize: clampFontSize(9),
-    fontWeight: "700",
-    letterSpacing: 1.2,
+    ...typography.overline,
+    color: "#8B9AB0",
   },
   xpRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginTop: 10,
   },
   xpText: {
-    color: "#CBD5E1",
-    fontSize: clampFontSize(11),
+    ...typography.bodySmall,
     fontWeight: "700",
-    letterSpacing: 0.5,
+    color: "#F1F5F9",
+    fontVariant: ["tabular-nums"],
   },
   progressBarTrack: {
-    height: 7,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    height: 10,
     borderRadius: 999,
-    marginBottom: 10,
     overflow: "hidden",
+    backgroundColor: "rgba(148,163,184,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.10)",
   },
   progressBarFill: {
-    height: 7,
+    height: "100%",
     borderRadius: 999,
   },
   xpTargetText: {
-    color: "#38EDD8",
-    fontSize: clampFontSize(11),
-    fontWeight: "700",
-    letterSpacing: 0.3,
+    ...typography.caption,
+    fontWeight: "600",
+    color: "#7DD3FC",
   },
   metricsUnifiedCard: {
     padding: 0,
-    overflow: "hidden",
   },
   metricsRow: {
     flexDirection: "row",
   },
   metricCell: {
     flex: 1,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    padding: isSmallDevice ? 14 : 16,
+    gap: 4,
   },
   metricCellHeader: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    marginBottom: 6,
-  },
-  metricLabel: {
-    color: "#8E9BAE",
-    fontSize: clampFontSize(10),
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  metricValue: {
-    color: "#FFFFFF",
-    fontSize: clampFontSize(22),
-    fontWeight: "800",
-    letterSpacing: -0.5,
     marginBottom: 2,
   },
+  metricLabel: {
+    ...typography.overline,
+    color: "#8B9AB0",
+  },
+  metricValue: {
+    ...typography.metric,
+    color: "#F8FAFC",
+    fontVariant: ["tabular-nums"],
+  },
   metricSub: {
+    ...typography.caption,
     color: "#64748B",
-    fontSize: clampFontSize(11),
-    fontWeight: "600",
   },
   metricVerticalDivider: {
     width: 1,
-    backgroundColor: "rgba(104, 123, 255, 0.15)",
+    backgroundColor: "rgba(148,163,184,0.12)",
   },
   metricHorizontalDivider: {
     height: 1,
-    backgroundColor: "rgba(104, 123, 255, 0.15)",
+    backgroundColor: "rgba(148,163,184,0.12)",
   },
   tonnageSubDelta: {
-    color: "#2DD4BF",
-    fontSize: clampFontSize(11),
-    fontWeight: "700",
-    marginTop: 4,
+    ...typography.caption,
+    fontWeight: "600",
+    color: "#7DD3FC",
+    flexShrink: 1,
+    textAlign: "right",
   },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 8,
     marginBottom: 16,
   },
   headerTitleRow: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    flex: 1,
-    marginRight: 8,
+    gap: 10,
   },
   headerIconContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: 9,
-    backgroundColor: "rgba(56, 237, 216, 0.12)",
-    justifyContent: "center",
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
   },
   cardTitle: {
-    color: "#FFFFFF",
-    fontSize: clampFontSize(12),
-    fontWeight: "700",
-    letterSpacing: 1,
+    ...typography.sectionTitle,
+    color: "#E5EEF8",
+    flexShrink: 1,
   },
   chartLegend: {
     flexDirection: "row",
@@ -1170,15 +1159,14 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   legendDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#38EDD8",
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "#38BDF8",
   },
   legendText: {
-    color: "#8E9BAE",
-    fontSize: clampFontSize(9),
-    letterSpacing: 0.8,
+    ...typography.overline,
+    color: "#8B9AB0",
   },
   chartContainer: {
     height: 145,
@@ -1196,31 +1184,31 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   barMinutesText: {
-    color: "#8E9BAE",
-    fontSize: clampFontSize(10),
-    fontWeight: "700",
+    ...typography.overline,
+    color: "#64748B",
   },
   barBackground: {
     width: 36,
     height: 92,
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    borderRadius: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    borderRadius: 12,
     justifyContent: "flex-end",
     alignItems: "center",
     padding: 3,
+    borderWidth: 1,
+    borderColor: "transparent",
   },
   barSelectedOutline: {
-    borderWidth: 1.5,
-    borderColor: "#38EDD8",
-    backgroundColor: "rgba(56, 237, 216, 0.08)",
+    borderColor: "rgba(56,189,248,0.6)",
+    backgroundColor: "rgba(56,189,248,0.08)",
   },
   bar: {
     width: "100%",
-    borderRadius: 7,
+    borderRadius: 8,
   },
   barRest: {
-    height: 14,
-    backgroundColor: "rgba(148, 163, 184, 0.25)",
+    height: 10,
+    backgroundColor: "rgba(148, 163, 184, 0.2)",
   },
   dayLabelCircle: {
     width: 28,
@@ -1230,73 +1218,64 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dayLabelCircleActive: {
-    backgroundColor: "#0284C7",
+    backgroundColor: "#0EA5E9",
   },
   dayLabel: {
-    color: "#8E9BAE",
-    fontSize: clampFontSize(11),
-    fontWeight: "700",
+    ...typography.overline,
+    color: "#8B9AB0",
   },
   dayLabelActive: {
     color: "#FFFFFF",
   },
   selectedDayCard: {
-    backgroundColor: "rgba(15, 23, 42, 0.75)",
-    borderRadius: 16,
     padding: 14,
+    gap: 10,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.03)",
     borderWidth: 1,
-    borderColor: "rgba(56, 237, 216, 0.2)",
+    borderColor: "rgba(148,163,184,0.12)",
   },
   selectedDayHeader: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 8,
   },
   selectedDayTitle: {
-    color: "#38EDD8",
-    fontSize: clampFontSize(11),
-    fontWeight: "700",
-    letterSpacing: 1,
+    ...typography.overline,
+    color: "#8B9AB0",
     marginBottom: 2,
   },
   selectedDayWorkout: {
-    color: "#FFFFFF",
-    fontSize: clampFontSize(14),
-    fontWeight: "700",
+    ...typography.cardTitle,
+    color: "#F8FAFC",
   },
   scoreBadge: {
-    backgroundColor: "rgba(56, 237, 216, 0.15)",
-    paddingHorizontal: 9,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.12)",
     borderWidth: 1,
-    borderColor: "rgba(56, 237, 216, 0.35)",
+    borderColor: "rgba(56,189,248,0.35)",
   },
   scoreBadgeText: {
-    color: "#38EDD8",
-    fontSize: clampFontSize(10),
-    fontWeight: "700",
+    ...typography.badge,
+    color: "#7DD3FC",
   },
   restBadge: {
-    backgroundColor: "rgba(148, 163, 184, 0.15)",
-    paddingHorizontal: 9,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(148,163,184,0.10)",
     borderWidth: 1,
-    borderColor: "rgba(148, 163, 184, 0.3)",
+    borderColor: "rgba(148,163,184,0.25)",
   },
   restBadgeText: {
+    ...typography.badge,
     color: "#94A3B8",
-    fontSize: clampFontSize(10),
-    fontWeight: "700",
   },
   selectedDayStatsRow: {
     flexDirection: "row",
     gap: 16,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.06)",
   },
   selectedDayStatItem: {
     flexDirection: "row",
@@ -1304,98 +1283,87 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   selectedDayStatText: {
+    ...typography.caption,
+    fontWeight: "600",
     color: "#CBD5E1",
-    fontSize: clampFontSize(10),
-    fontWeight: "700",
-  },
-  tonnageHighlight: {
-    color: "#38EDD8",
-    fontSize: clampFontSize(11),
-    fontWeight: "700",
-    letterSpacing: 1,
   },
   tonnageSummaryRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "flex-end",
-    marginBottom: 16,
+    justifyContent: "space-between",
+    gap: 8,
+    marginBottom: 18,
   },
   tonnageLabel: {
-    color: "#8E9BAE",
-    fontSize: clampFontSize(10),
-    fontWeight: "700",
-    letterSpacing: 1,
-    marginBottom: 4,
+    ...typography.overline,
+    color: "#8B9AB0",
+    marginBottom: 2,
   },
   tonnageValue: {
-    color: "#FFFFFF",
-    fontSize: clampFontSize(24),
-    fontWeight: "800",
-    letterSpacing: -0.5,
+    ...typography.metricLarge,
+    fontSize: 28,
+    lineHeight: 32,
+    color: "#F8FAFC",
+    fontVariant: ["tabular-nums"],
   },
   tonnageUnit: {
-    color: "#38EDD8",
-    fontSize: clampFontSize(14),
-    fontWeight: "800",
+    ...typography.metricUnit,
+    color: "#8B9AB0",
   },
   tonnageBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(45, 212, 191, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.3)",
-    paddingHorizontal: 9,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
   },
   tonnageBadgeText: {
-    color: "#2DD4BF",
-    fontSize: clampFontSize(10),
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    ...typography.badge,
+    color: "#7DD3FC",
   },
   muscleList: {
-    gap: 12,
+    gap: 14,
   },
-  muscleItem: {},
   muscleHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 6,
+    alignItems: "center",
   },
   muscleName: {
+    ...typography.bodySmall,
+    fontWeight: "600",
     color: "#CBD5E1",
-    fontSize: clampFontSize(11),
-    fontWeight: "700",
   },
   musclePercent: {
-    color: "#8E9BAE",
-    fontSize: clampFontSize(11),
+    ...typography.bodySmall,
     fontWeight: "700",
+    color: "#F8FAFC",
+    fontVariant: ["tabular-nums"],
   },
   muscleTrack: {
     height: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    borderRadius: 999,
+    borderRadius: 4,
     overflow: "hidden",
+    backgroundColor: "rgba(255,255,255,0.07)",
   },
   muscleFill: {
-    height: 8,
-    borderRadius: 999,
+    height: "100%",
+    borderRadius: 4,
   },
   aiPill: {
-    backgroundColor: "rgba(56, 189, 248, 0.15)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.35)",
-    paddingHorizontal: 9,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
   },
   aiPillText: {
-    color: "#38BDF8",
-    fontSize: clampFontSize(9),
-    fontWeight: "700",
-    letterSpacing: 0.8,
+    ...typography.badge,
+    color: "#7DD3FC",
   },
   insightsList: {
     gap: 12,
@@ -1406,109 +1374,132 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   insightDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#38BDF8",
-    marginTop: 6,
+    marginTop: 2,
   },
   insightText: {
-    color: "#CBD5E1",
-    fontSize: clampFontSize(12),
-    lineHeight: 18,
-    fontWeight: "500",
+    ...typography.bodySmall,
+    color: "#A8B5C7",
     flex: 1,
   },
   insightHighlight: {
-    color: "#38EDD8",
-    fontWeight: "800",
+    fontWeight: "700",
+    color: "#F1F5F9",
   },
   badgesCount: {
-    color: "#8E9BAE",
-    fontSize: clampFontSize(10),
-    fontWeight: "700",
+    ...typography.badge,
+    color: "#7DD3FC",
   },
   badgesRow: {
     flexDirection: "row",
-    gap: 10,
+    gap: 8,
   },
   badgeCard: {
     flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.7)",
-    borderRadius: 16,
+    alignItems: "center",
+    gap: 4,
     paddingVertical: 14,
     paddingHorizontal: 6,
-    alignItems: "center",
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.03)",
     borderWidth: 1,
-    borderColor: "rgba(104, 123, 255, 0.18)",
+    borderColor: "rgba(148,163,184,0.12)",
   },
   badgeIconWrapper: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    justifyContent: "center",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
-    marginBottom: 8,
+    justifyContent: "center",
+    marginBottom: 4,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
   },
   badgeTitle: {
-    color: "#FFFFFF",
-    fontSize: clampFontSize(10),
+    ...typography.caption,
     fontWeight: "700",
+    color: "#F1F5F9",
     textAlign: "center",
-    marginBottom: 3,
-    letterSpacing: 0.3,
   },
   badgeSub: {
-    color: "#8E9BAE",
-    fontSize: clampFontSize(9),
-    fontWeight: "600",
+    ...typography.caption,
+    color: "#64748B",
     textAlign: "center",
   },
   bottomButtonsRow: {
     flexDirection: "row",
-    gap: 12,
-    marginTop: 10,
-    marginBottom: 24,
+    gap: 10,
+    marginTop: 4,
   },
   shareBtn: {
     flex: 1,
-    height: 52,
+    height: 50,
     borderRadius: 16,
-    borderWidth: 1.2,
-    borderColor: "rgba(56, 237, 216, 0.4)",
-    backgroundColor: "rgba(56, 237, 216, 0.08)",
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "rgba(56,189,248,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
   },
   shareBtnText: {
-    color: "#38EDD8",
-    fontSize: clampFontSize(12),
-    fontWeight: "700",
-    letterSpacing: 1,
+    ...typography.buttonSmall,
+    color: "#7DD3FC",
+    letterSpacing: 0.8,
   },
   workoutBtn: {
     flex: 1,
-    height: 52,
     borderRadius: 16,
-    overflow: "hidden",
-    shadowColor: "#38BDF8",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 4,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0EA5E9",
+        shadowOpacity: 0.35,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 6 },
+      },
+      android: {},
+      default: { boxShadow: "0px 8px 20px rgba(14,165,233,0.30)" },
+    }),
   },
   workoutBtnGradient: {
-    flex: 1,
+    height: 50,
+    borderRadius: 16,
+    overflow: "hidden",
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
   },
   workoutBtnText: {
-    color: "#050811",
-    fontSize: clampFontSize(12),
-    fontWeight: "700",
-    letterSpacing: 1,
+    ...typography.buttonSmall,
+    color: "#FFFFFF",
+    letterSpacing: 0.8,
+  },
+  heroIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 4,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
+  },
+  barMinutesTextActive: {
+    color: "#7DD3FC",
+  },
+  muscleItem: {
+    gap: 7,
+  },
+  workoutBtnSheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
   },
 });
