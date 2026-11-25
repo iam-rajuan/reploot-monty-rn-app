@@ -238,7 +238,7 @@ const IconButton = ({
   >
     {(pressed) => (
       <Icon
-        size={15}
+        size={13}
         strokeWidth={2.3}
         color={
           tone === "danger" && pressed
@@ -490,7 +490,7 @@ export default function NutritionTabRoute() {
                     style={styles.linkChip}
                     pressedStyle={styles.linkChipPressed}
                   >
-                    <History size={14} color="#7DD3FC" strokeWidth={2.3} />
+                    <History size={12} color="#7DD3FC" strokeWidth={2.4} />
                     <Text style={styles.linkChipText}>LOGS</Text>
                   </Tap>
                 </View>
@@ -1225,9 +1225,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   cardHeaderTitle: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    marginRight: 8,
   },
   iconChip: {
     width: 30,
@@ -1246,7 +1249,7 @@ const styles = StyleSheet.create({
   headerActions: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
   },
   energyPanel: {
     padding: 16,
@@ -1551,9 +1554,9 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   iconBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(255,255,255,0.05)",
@@ -1565,12 +1568,12 @@ const styles = StyleSheet.create({
     borderColor: "rgba(56,189,248,0.4)",
   },
   linkChip: {
-    height: 36,
-    paddingHorizontal: 14,
-    borderRadius: 18,
+    height: 30,
+    paddingHorizontal: 10,
+    borderRadius: 15,
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
     backgroundColor: "rgba(56,189,248,0.10)",
     borderWidth: 1,
     borderColor: "rgba(56,189,248,0.3)",
@@ -1579,9 +1582,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(56,189,248,0.2)",
   },
   linkChipText: {
-    ...typography.buttonSmall,
+    ...typography.badge,
     color: "#7DD3FC",
-    letterSpacing: 0.8,
   },
   quickChip: {
     height: 48,
