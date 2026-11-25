@@ -126,9 +126,6 @@ const styles = StyleSheet.create({
     ...typography.pageTitle,
     color: "#FFFFFF",
     marginBottom: 6,
-    textShadowColor: "rgba(68, 234, 195, 0.55)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 18,
     ...(Platform.OS === "web"
       ? ({
           filter: "drop-shadow(0 0 16px rgba(68, 234, 195, 0.5))",

@@ -420,9 +420,6 @@ const styles = StyleSheet.create({
   mainTitle: {
     ...typography.pageTitle,
     color: "#F6F8FF",
-    textShadowColor: "rgba(37, 215, 232, 0.12)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 6,
   },
   subtitle: {
     color: "#94A3B8",

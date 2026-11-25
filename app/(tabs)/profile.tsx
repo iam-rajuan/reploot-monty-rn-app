@@ -220,9 +220,6 @@ const styles = StyleSheet.create({
   mainTitle: {
     ...typography.pageTitle,
     color: "#FFFFFF",
-    textShadowColor: "rgba(120, 145, 255, 0.22)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 6,
   },
   // Compact layouts keep the standard page-title role for consistency.
   mainTitleCompact: {},

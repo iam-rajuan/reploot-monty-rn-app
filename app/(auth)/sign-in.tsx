@@ -260,9 +260,6 @@ const styles = StyleSheet.create({
   heroTitle: {
     ...typography.pageTitleHero,
     color: "#FFFFFF",
-    textShadowColor: "rgba(34, 211, 238, 0.65)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 16,
   },
   todayUnderline: {
     width: 96,

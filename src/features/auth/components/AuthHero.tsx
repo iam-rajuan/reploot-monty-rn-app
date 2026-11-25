@@ -77,9 +77,6 @@ const styles = StyleSheet.create({
   heroTitle: {
     ...typography.pageTitleHero,
     color: "#FFFFFF",
-    textShadowColor: "#FFFFFF",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 1,
     marginTop: 4,
   },
   dumbbellPosition: {

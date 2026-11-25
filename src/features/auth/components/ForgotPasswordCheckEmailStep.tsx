@@ -98,9 +98,6 @@ const styles = StyleSheet.create({
   heroTitle: {
     ...typography.pageTitleHero,
     color: "#FFFFFF",
-    textShadowColor: "rgba(34, 211, 238, 0.75)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 16,
   },
   emailRow: {
     flexDirection: "row",

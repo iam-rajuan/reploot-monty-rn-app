@@ -42,6 +42,10 @@ export const typography = {
     lineHeight: 34,
     letterSpacing: 0,
     textTransform: "uppercase",
+    // Signature soft indigo glow on every page title.
+    textShadowColor: "rgba(165,180,252,0.75)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   /** Page title on full-bleed hero screens (auth, onboarding). */
   pageTitleHero: {
@@ -51,6 +55,10 @@ export const typography = {
     lineHeight: 42,
     letterSpacing: 0,
     textTransform: "uppercase",
+    // Signature soft indigo glow on every page title.
+    textShadowColor: "rgba(165,180,252,0.75)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   /** Page title shown inside a compact top app bar (chat, camera, header bar). */
   pageTitleCompact: {
@@ -60,6 +68,10 @@ export const typography = {
     lineHeight: 22,
     letterSpacing: 0.5,
     textTransform: "uppercase",
+    // Signature soft indigo glow on every page title.
+    textShadowColor: "rgba(165,180,252,0.75)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   /** Brand identity wordmark for the app logo ("REPLOT" / "REPLOOT"). */
   brandLogo: {

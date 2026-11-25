@@ -17,6 +17,21 @@ import { useProgressionSnapshot } from "@/features/progression";
 import { typography } from "@/theme/typography";
 
 // Same bar colors as before, with a slightly lighter top for depth.
+// Many 1px-stepped, very faint layers stack into a smooth glow that fades
+// out evenly (a real blur isn't available on both platforms).
+const GLOW_STEPS = 9;
+const GLOW_LAYERS = Array.from({ length: GLOW_STEPS }, (_, i) => {
+  const inset = -(i + 1);
+  return {
+    inset,
+    top: inset,
+    bottom: inset,
+    left: inset,
+    right: inset,
+    borderRadius: 14 + i + 1,
+  };
+});
+
 const BAR_COLORS = {
   blue: ["#8DBBF0", "#74A9E8"],
   purple: ["#8D8AB8", "#76739F"],
@@ -92,23 +107,29 @@ export const WeeklyProgressCard = () => {
       {/* Header Row: Level, current progression tier, and day streak */}
       <View style={styles.headerRow}>
         <View style={styles.levelCluster}>
-          {/* LVL 42 Gradient Badge: Proportional, responsive cyber badge */}
-          <LinearGradient
-            colors={["#5865F2", "#397DF6"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.levelBox}
-          >
+          <View style={styles.levelGlowWrap}>
+            {/* Soft layered glow behind the badge (works on iOS and Android) */}
+            {GLOW_LAYERS.map((layer) => (
+              <View key={layer.inset} pointerEvents="none" style={[styles.levelGlowLayer, layer]} />
+            ))}
+            {/* LVL 42 Gradient Badge: Proportional, responsive cyber badge */}
             <LinearGradient
-              pointerEvents="none"
-              colors={["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"]}
-              start={{ x: 0.5, y: 0 }}
-              end={{ x: 0.5, y: 1 }}
-              style={styles.levelSheen}
-            />
-            <Text style={styles.levelLabel}>LVL</Text>
-            <Text style={styles.levelNumber}>42</Text>
-          </LinearGradient>
+              colors={["#5865F2", "#397DF6"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.levelBox}
+            >
+              <LinearGradient
+                pointerEvents="none"
+                colors={["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"]}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={styles.levelSheen}
+              />
+              <Text style={styles.levelLabel}>LVL</Text>
+              <Text style={styles.levelNumber}>42</Text>
+            </LinearGradient>
+          </View>
 
           <View style={styles.tierIdentity}>
             <View style={[styles.tierEmblem, { backgroundColor: `${progression.tier.color}18`, borderColor: `${progression.tier.color}4D` }]}>
@@ -276,11 +297,13 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.18)",
-    shadowColor: "#397DF6",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.07,
-    shadowRadius: 10,
-    elevation: 0,
+  },
+  levelGlowWrap: {
+    position: "relative",
+  },
+  levelGlowLayer: {
+    position: "absolute",
+    backgroundColor: "rgba(79,120,246,0.016)",
   },
   levelSheen: {
     position: "absolute",
@@ -301,6 +324,10 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 32,
     lineHeight: 36,
+    // Soft glow around the number, matching the badge glow.
+    textShadowColor: "rgba(165,180,252,0.75)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
     fontWeight: "800",
     letterSpacing: 0,
     textAlign: "center",

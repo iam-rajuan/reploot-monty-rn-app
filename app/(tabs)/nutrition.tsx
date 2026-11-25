@@ -1008,9 +1008,6 @@ const styles = StyleSheet.create({
   mainTitle: {
     ...typography.pageTitle,
     color: "#FFFFFF",
-    textShadowColor: "rgba(120, 145, 255, 0.22)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 6,
   },
   modalBackdrop: {
     flex: 1,

@@ -63,9 +63,6 @@ const styles = StyleSheet.create({
   titleLine: {
     ...typography.pageTitle,
     color: "#F6F8FF",
-    textShadowColor: "rgba(120, 145, 255, 0.22)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 6,
   },
   dateContainer: {
     flexDirection: "row",
