@@ -21,18 +21,18 @@ export const NutritionDashboardCard = () => {
 
   return (
     <View style={styles.cardContainer}>
-      {/* Top-Right Glowing Flare Gradient */}
+      {/* Profile-card surface wash (docs/profile-card-design-language.md §4.1) */}
       <LinearGradient
+        pointerEvents="none"
         colors={[
-          "rgba(60, 99, 186, 0.28)",
-          "rgba(60, 99, 186, 0.06)",
-          "transparent",
+          "rgba(56,189,248,0.12)",
+          "rgba(139,92,246,0.07)",
+          "rgba(255,255,255,0.02)",
         ]}
         style={StyleSheet.absoluteFill}
-        start={{ x: 1, y: 0 }}
-        end={{ x: 0.15, y: 0.55 }}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
       />
-      <View pointerEvents="none" style={styles.bottomAmbientGlow} />
 
       {/* Header: Glowing Dot + Title on Left, Link on Right */}
       <View style={styles.headerRow}>
@@ -69,7 +69,8 @@ export const NutritionDashboardCard = () => {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: "#101827",
+    // Surface follows the profile-card design language; layout is unchanged.
+    backgroundColor: "#111A25",
     borderRadius: 24,
     marginHorizontal: HORIZONTAL_PADDING,
     marginBottom: 20,
@@ -78,22 +79,8 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     position: "relative",
     borderWidth: 1,
-    borderColor: "rgba(105, 130, 255, 0.25)",
+    borderColor: "rgba(56,189,248,0.18)",
     overflow: "hidden",
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 14,
-    elevation: 4,
-  },
-  bottomAmbientGlow: {
-    position: "absolute",
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    left: -40,
-    bottom: -40,
-    backgroundColor: "rgba(41, 101, 130, 0.13)",
   },
   headerRow: {
     flexDirection: "row",

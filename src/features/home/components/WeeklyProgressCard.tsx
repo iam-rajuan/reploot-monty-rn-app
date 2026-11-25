@@ -67,6 +67,18 @@ export const WeeklyProgressCard = () => {
 
   return (
     <View style={styles.cardContainer}>
+      {/* Profile-card surface wash (docs/profile-card-design-language.md §4.1) */}
+      <LinearGradient
+        pointerEvents="none"
+        colors={[
+          "rgba(56,189,248,0.12)",
+          "rgba(139,92,246,0.07)",
+          "rgba(255,255,255,0.02)",
+        ]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
       {/* Header Row: Level, current progression tier, and day streak */}
       <View style={styles.headerRow}>
         <View style={styles.levelCluster}>
@@ -204,12 +216,13 @@ export const WeeklyProgressCard = () => {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: "rgba(18, 25, 43, 0.88)",
+    // Profile-card surface (docs/profile-card-design-language.md §4.1)
+    backgroundColor: "#111A25",
     borderRadius: 24,
     padding: 18,
     marginHorizontal: HORIZONTAL_PADDING,
     borderWidth: 1,
-    borderColor: "rgba(159, 174, 255, 0.13)",
+    borderColor: "rgba(56,189,248,0.18)",
     marginBottom: 20,
     overflow: "hidden",
   },

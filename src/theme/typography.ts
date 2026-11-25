@@ -61,6 +61,24 @@ export const typography = {
     letterSpacing: 0.5,
     textTransform: "uppercase",
   },
+  /** Brand identity wordmark for the app logo ("REPLOT" / "REPLOOT"). */
+  brandLogo: {
+    fontFamily: montserrat[800],
+    fontWeight: "800",
+    fontSize: 20,
+    lineHeight: 24,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+  },
+  /** Hero brand identity wordmark for splash, auth, and onboarding hero screens. */
+  brandLogoHero: {
+    fontFamily: montserrat[800],
+    fontWeight: "800",
+    fontSize: 32,
+    lineHeight: 38,
+    letterSpacing: 2.5,
+    textTransform: "uppercase",
+  },
 
   // ── Structural headings (Inter) ───────────────────────────────────────────
   /** Heading that groups content inside a screen ("TODAY'S MISSIONS"). */

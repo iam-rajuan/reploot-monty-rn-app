@@ -57,6 +57,20 @@ interface DayData {
   barHeight: number;
 }
 
+const ProfileCardBackground = () => (
+  <LinearGradient
+    colors={[
+      "rgba(56,189,248,0.12)",
+      "rgba(139,92,246,0.07)",
+      "rgba(255,255,255,0.02)",
+    ]}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    pointerEvents="none"
+    style={StyleSheet.absoluteFill}
+  />
+);
+
 const WEEK_DATA: Record<
   WeekTab,
   { dateRange: string; days: DayData[]; totalXp: number }
@@ -458,6 +472,7 @@ export default function WeeklyProgressScreen() {
 
         {/* Hero Athlete Status & XP Card */}
         <View style={styles.card}>
+          <ProfileCardBackground />
           <View style={styles.headerRow}>
             {/* Level 42 Box */}
             <View style={styles.heroStatCol}>
@@ -517,6 +532,7 @@ export default function WeeklyProgressScreen() {
 
         {/* 4 Core Weekly Metrics - Unified Instrument Card */}
         <View style={[styles.card, styles.metricsUnifiedCard]}>
+          <ProfileCardBackground />
           <View style={styles.metricsRow}>
             {/* Workouts */}
             <View style={styles.metricCell}>
@@ -570,6 +586,7 @@ export default function WeeklyProgressScreen() {
 
         {/* 7-Day Activity & Training Load Chart */}
         <View style={styles.card}>
+          <ProfileCardBackground />
           <View style={styles.cardHeader}>
             <View style={styles.headerTitleRow}>
               <View style={styles.headerIconContainer}>
@@ -696,6 +713,7 @@ export default function WeeklyProgressScreen() {
 
         {/* Volume & Muscle Split Breakdown */}
         <View style={styles.card}>
+          <ProfileCardBackground />
           <View style={styles.cardHeader}>
             <View style={styles.headerTitleRow}>
               <View style={styles.headerIconContainer}>
@@ -779,6 +797,7 @@ export default function WeeklyProgressScreen() {
 
         {/* Reploot AI Coach Weekly Insights */}
         <View style={[styles.card, styles.aiCardBorder]}>
+          <ProfileCardBackground />
           <View style={styles.cardHeader}>
             <View style={styles.headerTitleRow}>
               <View
@@ -827,6 +846,7 @@ export default function WeeklyProgressScreen() {
 
         {/* Weekly Milestone Badges */}
         <View style={styles.card}>
+          <ProfileCardBackground />
           <View style={styles.cardHeader}>
             <View style={styles.headerTitleRow}>
               <View style={styles.headerIconContainer}>
@@ -998,12 +1018,13 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   card: {
-    backgroundColor: "rgba(13, 19, 33, 0.82)",
-    borderRadius: 22,
+    backgroundColor: "#111A25",
+    borderRadius: 24,
     padding: isSmallDevice ? 16 : 20,
     borderWidth: 1,
-    borderColor: "rgba(104, 123, 255, 0.22)",
+    borderColor: "rgba(56, 189, 248, 0.18)",
     marginBottom: 16,
+    overflow: "hidden",
     shadowColor: "#000000",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.25,
@@ -1011,8 +1032,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   aiCardBorder: {
-    borderColor: "rgba(56, 189, 248, 0.35)",
-    backgroundColor: "rgba(12, 20, 38, 0.85)",
+    borderColor: "rgba(56, 189, 248, 0.18)",
   },
   headerRow: {
     flexDirection: "row",

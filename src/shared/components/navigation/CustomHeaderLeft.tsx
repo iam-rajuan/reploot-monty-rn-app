@@ -1,4 +1,4 @@
-import { Image } from "expo-image";
+import { BrandLogo } from "@/shared/components/branding";
 import { ArrowLeft } from "lucide-react-native";
 import React from "react";
 import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
@@ -63,11 +63,7 @@ export const CustomHeaderLeft = ({
       accessibilityLabel="Go to home"
     >
       {resolvedVariant === "logo" ? (
-        <Image
-          source={require("../../../../assets/logo.png")}
-          style={styles.logoImage}
-          contentFit="contain"
-        />
+        <BrandLogo size="md" />
       ) : (
         <Text style={styles.pageTitle}>{title}</Text>
       )}

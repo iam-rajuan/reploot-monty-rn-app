@@ -78,6 +78,17 @@ export const QRCodeCard = () => {
 
   return (
     <View style={styles.card}>
+      <LinearGradient
+        colors={[
+          "rgba(56,189,248,0.12)",
+          "rgba(139,92,246,0.07)",
+          "rgba(255,255,255,0.02)",
+        ]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        pointerEvents="none"
+        style={StyleSheet.absoluteFill}
+      />
       {/* Header */}
       <View style={styles.cardHeader}>
         <View style={styles.headerTitleRow}>
@@ -146,6 +157,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(56, 189, 248, 0.18)",
     padding: 20,
     marginBottom: 20,
+    overflow: "hidden",
   },
   cardHeader: {
     flexDirection: "row",

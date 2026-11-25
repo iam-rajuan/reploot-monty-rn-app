@@ -301,7 +301,7 @@ export default function NutritionTabRoute() {
 
         {hasHydrated && !hasGeneratedPlan && (
           <LinearGradient
-            colors={["rgba(14, 20, 36, 0.9)", "rgba(9, 13, 26, 0.9)"]}
+            colors={["rgba(56,189,248,0.12)", "rgba(139,92,246,0.07)", "rgba(255,255,255,0.02)"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.planHeroCard}
@@ -353,6 +353,14 @@ export default function NutritionTabRoute() {
         )}
 
         <View style={styles.card}>
+          {/* Profile-card surface wash (docs/profile-card-design-language.md §4.1) */}
+          <LinearGradient
+            pointerEvents="none"
+            colors={["rgba(56,189,248,0.12)", "rgba(139,92,246,0.07)", "rgba(255,255,255,0.02)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
           {/* Header: Badge + Actions */}
           <View style={styles.cardHeaderRow}>
             <View style={styles.budgetBadge}>
@@ -563,7 +571,7 @@ export default function NutritionTabRoute() {
 
         {/* Water Intake Card (Hydration Telemetry) */}
         <LinearGradient
-          colors={["#111A25", "#0D141E"]}
+          colors={["rgba(56,189,248,0.12)", "rgba(139,92,246,0.07)", "rgba(255,255,255,0.02)"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.hydrationCard}
@@ -789,8 +797,7 @@ export default function NutritionTabRoute() {
         </LinearGradient>
 
         <LinearGradient
-          colors={["#111A25", "#0F1721", "#0D141E"]}
-          locations={[0, 0.6, 1]}
+          colors={["rgba(56,189,248,0.12)", "rgba(139,92,246,0.07)", "rgba(255,255,255,0.02)"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.nutritionCoachCard}
@@ -1103,17 +1110,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   card: {
-    backgroundColor: "#0C1420",
-    borderRadius: 22,
+    // Profile-card surface (docs/profile-card-design-language.md §4.1)
+    backgroundColor: "#111A25",
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(148, 163, 184, 0.14)",
+    borderColor: "rgba(56,189,248,0.18)",
+    overflow: "hidden",
     padding: 16,
     marginBottom: 18,
-    shadowColor: "#020617",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.22,
-    shadowRadius: 12,
-    elevation: 3,
   },
   cardHeaderRow: {
     flexDirection: "row",
@@ -1370,16 +1374,13 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   planHeroCard: {
+    // Profile-card surface (docs/profile-card-design-language.md §4.1)
+    backgroundColor: "#111A25",
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.18)",
+    borderColor: "rgba(56,189,248,0.18)",
     padding: 18,
     marginBottom: 18,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 14,
-    elevation: 4,
   },
   planHeroHeader: {
     flexDirection: "row",
@@ -1449,16 +1450,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   hydrationCard: {
+    // Profile-card surface (docs/profile-card-design-language.md §4.1)
+    backgroundColor: "#111A25",
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.18)",
+    borderColor: "rgba(56,189,248,0.18)",
     padding: 18,
     marginBottom: 18,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 10,
-    elevation: 2,
   },
   hydrationBadge: {
     flexDirection: "row",
@@ -1890,16 +1888,14 @@ const styles = StyleSheet.create({
   },
   nutritionCoachCard: {
     width: "100%",
+    // Profile-card surface (docs/profile-card-design-language.md §4.1)
+    backgroundColor: "#111A25",
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.18)",
+    borderColor: "rgba(56,189,248,0.18)",
+    overflow: "hidden",
     padding: 16,
     gap: 12,
-    overflow: "hidden",
-    shadowColor: "#000000",
-    shadowOpacity: 0.18,
-    shadowRadius: 10,
-    elevation: 2,
   },
   nutritionCoachTop: {
     flexDirection: "row",

@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/shared/components/branding";
 import { useAppSelector } from "@/store/hooks";
 import { Image } from "expo-image";
 import { Bell, Search } from "lucide-react-native";
@@ -11,11 +12,7 @@ export const HomeHeaderNav = () => {
   return (
     <View style={styles.container}>
       {/* Logo */}
-      <Image
-        source={require("../../../../assets/logo.png")}
-        style={styles.logoImage}
-        contentFit="contain"
-      />
+      <BrandLogo size="md" />
 
       {/* Right Icons */}
       <View style={styles.actions}>

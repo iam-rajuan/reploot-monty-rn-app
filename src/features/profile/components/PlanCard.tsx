@@ -18,6 +18,17 @@ export const PlanCard = () => {
 
   return (
     <View style={styles.card}>
+      <LinearGradient
+        colors={[
+          "rgba(56,189,248,0.12)",
+          "rgba(139,92,246,0.07)",
+          "rgba(255,255,255,0.02)",
+        ]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        pointerEvents="none"
+        style={StyleSheet.absoluteFill}
+      />
       <View style={[styles.cardHeader, { justifyContent: "space-between" }]}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Image
@@ -57,12 +68,13 @@ export const PlanCard = () => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
+    backgroundColor: "#111A25",
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(56, 189, 248, 0.18)",
     padding: 20,
     marginBottom: 20,
+    overflow: "hidden",
   },
   cardHeader: {
     flexDirection: "row",
