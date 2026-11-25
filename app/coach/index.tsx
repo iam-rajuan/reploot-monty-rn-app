@@ -184,7 +184,9 @@ export default function CoachRoute() {
         </Pressable>
         <View style={styles.identity}>
           <View style={styles.identityIcon}>
-            <CoachEmoji size="md" />
+            <View style={styles.identityIconArtwork}>
+              <CoachEmoji size="md" />
+            </View>
           </View>
           <View>
             <Text style={styles.headerTitle}>AI COACH</Text>
@@ -514,6 +516,14 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(56,189,248,.10)",
     borderWidth: 1,
     borderColor: "rgba(56,189,248,.22)",
+    overflow: "hidden",
+  },
+  identityIconArtwork: {
+    width: 26,
+    height: 26,
+    alignItems: "center",
+    justifyContent: "center",
+    transform: [{ translateX: 1 }, { scale: 0.86 }],
   },
   headerTitle: {
     ...typography.pageTitleCompact,

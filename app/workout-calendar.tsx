@@ -140,37 +140,37 @@ export const WORKOUT_SPLITS: WorkoutTemplate[] = [
     id: "chest",
     name: "Chest Day",
     tag: "CHEST",
-    color: "#38EDD8",
-    bgColor: "rgba(56, 237, 216, 0.22)",
-    borderColor: "#38EDD8",
-    bgGrad: ["#0E7490", "#38EDD8"],
+    color: "#38BDF8",
+    bgColor: "rgba(56, 189, 248, 0.22)",
+    borderColor: "#38BDF8",
+    bgGrad: ["#0284C7", "#38BDF8"],
   },
   {
     id: "upper",
     name: "Upper Body",
     tag: "UPPER",
-    color: "#C084FC",
-    bgColor: "rgba(192, 132, 252, 0.22)",
-    borderColor: "#C084FC",
-    bgGrad: ["#7E22CE", "#C084FC"],
+    color: "#2DD4BF",
+    bgColor: "rgba(45, 212, 191, 0.22)",
+    borderColor: "#2DD4BF",
+    bgGrad: ["#0F766E", "#2DD4BF"],
   },
   {
     id: "lower",
     name: "Lower Body",
     tag: "LOWER",
-    color: "#FFB68C",
-    bgColor: "rgba(255, 182, 140, 0.22)",
-    borderColor: "#FFB68C",
-    bgGrad: ["#C2410C", "#FFB68C"],
+    color: "#38BDF8",
+    bgColor: "rgba(56, 189, 248, 0.22)",
+    borderColor: "#38BDF8",
+    bgGrad: ["#0284C7", "#38BDF8"],
   },
   {
     id: "full",
     name: "Full Body",
     tag: "FULL",
-    color: "#F43F5E",
-    bgColor: "rgba(244, 63, 94, 0.22)",
-    borderColor: "#F43F5E",
-    bgGrad: ["#BE123C", "#F43F5E"],
+    color: "#2DD4BF",
+    bgColor: "rgba(45, 212, 191, 0.22)",
+    borderColor: "#2DD4BF",
+    bgGrad: ["#0F766E", "#2DD4BF"],
   },
 ];
 
@@ -304,6 +304,9 @@ function DraggableSplitChip({
   onDragMove: (x: number, y: number) => void;
   onDragEnd: (split: WorkoutTemplate, endX: number, endY: number) => void;
 }) {
+  const trayAccent = "#38BDF8";
+  const trayGradient = ["#0284C7", "#38BDF8"] as const;
+
   const panGesture = useMemo(() => {
     return Gesture.Pan()
       .activateAfterLongPress(260)
@@ -331,14 +334,14 @@ function DraggableSplitChip({
         onPress={onPress}
         style={[
           styles.splitBadge,
-          { borderColor: split.color },
+          { borderColor: trayAccent },
           isActive && styles.splitBadgeActive,
         ]}
       >
         <LinearGradient
           colors={
             isActive
-              ? split.bgGrad
+              ? trayGradient
               : ["rgba(255, 255, 255, 0.05)", "rgba(255, 255, 255, 0.02)"]
           }
           start={{ x: 0, y: 0 }}
@@ -347,14 +350,14 @@ function DraggableSplitChip({
         >
           <Dumbbell
             size={11}
-            color={isActive ? "#FFFFFF" : split.color}
+            color={isActive ? "#FFFFFF" : trayAccent}
             style={{ marginRight: 5 }}
           />
           <Text
             numberOfLines={1}
             style={[
               styles.splitBadgeText,
-              { color: isActive ? "#FFFFFF" : split.color },
+              { color: isActive ? "#FFFFFF" : trayAccent },
             ]}
           >
             {split.name}
@@ -529,7 +532,7 @@ const DraggableCalendarCell = React.memo(function DraggableCalendarCell({
             ]}
             numberOfLines={1}
           >
-            {isToday ? "TODAY" : splitTag ? splitTag : " "}
+            {splitTag ? splitTag : " "}
           </Text>
         </TouchableOpacity>
       </GestureDetector>
@@ -1066,12 +1069,8 @@ export default function WorkoutCalendarScreen() {
         onScroll={() => measureCalendarGrid()}
         scrollEventThrottle={16}
       >
-        {/* Title Section with Micro Cyber Telemetry Badge */}
+        {/* Title Section */}
         <View style={styles.titleSection}>
-          <View style={styles.titleBadgeRow}>
-            <View style={styles.titleBadgeDot} />
-            <Text style={styles.titleBadgeText}>TELEMETRY ARCHITECTURE</Text>
-          </View>
           <View style={styles.maskedTitleWrapper}>
             <MaskedView
               style={styles.maskedTitleView}
@@ -1103,9 +1102,6 @@ export default function WorkoutCalendarScreen() {
                   DRAG & DROP TO SCHEDULE
                 </Text>
               </View>
-              <Text style={styles.traySubText}>
-                Drag onto a date, or tap a split to assign
-              </Text>
             </View>
 
             {activeSelectedSplit && (
@@ -1224,7 +1220,7 @@ export default function WorkoutCalendarScreen() {
 
         {/* Calendar Grid Container with Vibrant Gradient Border */}
         <LinearGradient
-          colors={["#50357F", "#1D8B9B"]}
+          colors={["#0284C7", "#0F766E"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.calendarGradientBorder}
@@ -1253,46 +1249,74 @@ export default function WorkoutCalendarScreen() {
                   hoveredDate === item.date && item.currentMonth;
                 const isCellDragging = dragSourceDate === item.date;
 
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const cellDate = new Date(
+                  currentYear,
+                  currentMonthIdx,
+                  item.date,
+                );
+                const periodTheme =
+                  cellDate < today
+                    ? {
+                        color: "#38BDF8",
+                        bgColor: "rgba(56, 189, 248, 0.22)",
+                        borderColor: "#38BDF8",
+                      }
+                    : cellDate > today
+                      ? {
+                          color: "#2DD4BF",
+                          bgColor: "rgba(45, 212, 191, 0.22)",
+                          borderColor: "#2DD4BF",
+                        }
+                      : null;
+
                 // Dynamic colors for assigned or scheduled workout splits
                 const categoryTheme = getCategoryColors(item.label);
 
                 const cellBorderColor =
                   isHovered && activeDragSplit
                     ? activeDragSplit.color
-                    : item.borderColor ||
+                    : periodTheme?.borderColor ||
+                      item.borderColor ||
                       categoryTheme?.borderColor ||
                       (isCompleted
                         ? "#1B6A56"
                         : isScheduled
-                          ? "#4A4389"
+                          ? "#2DD4BF"
                           : "rgba(255, 255, 255, 0.04)");
 
                 const cellBgColor =
                   isHovered && activeDragSplit
                     ? activeDragSplit.bgColor
-                    : item.bgColor ||
+                    : periodTheme?.bgColor ||
+                      item.bgColor ||
                       categoryTheme?.bgColor ||
                       (isCompleted
                         ? "#1C332D"
                         : isScheduled
-                          ? "#2D2D48"
+                          ? "rgba(45, 212, 191, 0.22)"
                           : "#25252D");
 
                 const cellTextColor =
                   isHovered && activeDragSplit
                     ? activeDragSplit.color
-                    : item.color ||
+                    : periodTheme?.color ||
+                      item.color ||
                       categoryTheme?.color ||
                       (isCompleted
                         ? "#2EE8B3"
                         : isScheduled
-                          ? "#C5C0FF"
+                          ? "#2DD4BF"
                           : "#FFFFFF");
 
                 const dumbbellColor =
                   isHovered && activeDragSplit
                     ? activeDragSplit.color
-                    : item.color || categoryTheme?.color || cellTextColor;
+                    : periodTheme?.color ||
+                      item.color ||
+                      categoryTheme?.color ||
+                      cellTextColor;
 
                 return (
                   <DraggableCalendarCell
@@ -1525,7 +1549,7 @@ export default function WorkoutCalendarScreen() {
           >
             {/* Top Cyan/Purple Gradient Accent Bar */}
             <LinearGradient
-              colors={["#50357F", "#00f2fe", "#1D8B9B"]}
+              colors={["#0284C7", "#38BDF8", "#2DD4BF"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.modalTopLine}
@@ -1791,6 +1815,8 @@ const styles = StyleSheet.create({
   mainTitle: {
     ...typography.pageTitle,
     color: "#FFFFFF",
+    fontSize: 24,
+    lineHeight: 30,
   },
   subtitle: {
     color: "#94A3B8",
