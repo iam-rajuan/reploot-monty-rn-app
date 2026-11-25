@@ -10,25 +10,27 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
+  ArrowRight,
   Check,
-  ChevronDown,
+  Dumbbell,
   Flame,
+  Gauge,
+  ListOrdered,
   Minus,
-  MoveDiagonal,
   Play,
   Plus,
   Radio,
   Sliders,
-  TrendingUp,
+  Timer,
   Video,
+  Zap,
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Text, TextInput } from "@/shared/components/typography";
@@ -41,7 +43,16 @@ import {
 import { typography } from "@/theme/typography";
 import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
-const { width } = Dimensions.get("window");
+// One accent for the whole page.
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.06)",
+  "rgba(255,255,255,0.02)",
+] as const;
 
 export interface ExerciseDetailScreenProps {
   exerciseData: ExerciseDetailConfig;
@@ -291,25 +302,14 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
           { paddingBottom: Math.max(insets.bottom + 40, 60) },
         ]}
       >
-        {/* Title Section with Masked Gradient Title (Exact progress.tsx / GenericWorkoutDetailScreen pattern) */}
         <View style={styles.titleSection}>
-          <Text style={styles.categoryBadge}>EXERCISE TELEMETRY</Text>
-          <View style={styles.maskedTitleWrapper}>
-            <View style={styles.maskedTitleView}>
-              <View style={styles.maskWrapper}>
-                <Text
-                  style={[styles.mainTitle, { color: "#F6F8FF" }]}
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                >
-                  {"EXERCISE DETAILS"}
-                </Text>
-              </View>
-            </View>
-          </View>
+          <Text style={styles.categoryBadge}>EXERCISE GUIDE</Text>
+          <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
+            EXERCISE DETAILS
+          </Text>
         </View>
 
-        {/* Hero Poster Card: Big glowing image with Focus Tag & Exercise Title */}
+        {/* Hero */}
         <View style={styles.heroPosterCard}>
           <Image
             source={exerciseData.heroImage}
@@ -317,97 +317,103 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
             contentFit="cover"
           />
           <LinearGradient
-            colors={[
-              "transparent",
-              "rgba(7, 10, 17, 0.4)",
-              "rgba(7, 10, 17, 0.95)",
-            ]}
-            locations={[0.3, 0.65, 1]}
-            style={styles.heroPosterGradient}
+            colors={["rgba(6,8,16,0)", "rgba(6,8,16,0.45)", "rgba(6,8,16,0.95)"]}
+            locations={[0.35, 0.65, 1]}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
           />
           <View style={styles.heroPosterContent}>
-            <Text style={styles.heroFocusTag}>
-              {exerciseData.focusBadge || "POWER FOCUS"}
+            <View style={styles.heroFocusPill}>
+              <Zap size={10} color={ACCENT_SOFT} fill={ACCENT_SOFT} />
+              <Text style={styles.heroFocusTag}>
+                {exerciseData.focusBadge || "POWER FOCUS"}
+              </Text>
+            </View>
+            <Text style={styles.heroExerciseTitle} numberOfLines={2}>
+              {exerciseData.title}
             </Text>
-            <Text style={styles.heroExerciseTitle}>{exerciseData.title}</Text>
           </View>
         </View>
 
-        {/* Primary Action 1: START EXERCISE (Gradient CTA) */}
-        <Pressable
-          style={styles.startExerciseButton}
+        {/* Actions */}
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={styles.primaryBtn}
           onPress={handleStartExercise}
+          accessibilityRole="button"
+          accessibilityLabel="Start exercise"
         >
           <LinearGradient
-            colors={["#3877E3", "#5C99F8"]}
+            colors={BUTTON_GRADIENT}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.startExerciseGradient}
-          >
-            <View style={styles.playIconCircle}>
-              <Play size={14} color="#3877E3" fill="#3877E3" />
-            </View>
-            <Text style={styles.startExerciseText}>START EXERCISE</Text>
-          </LinearGradient>
-        </Pressable>
-
-        {/* Secondary Action: MARK AS DONE */}
-        <Pressable
-          style={[
-            styles.markDoneButton,
-            isMarkedDone && styles.markDoneButtonActive,
-          ]}
-          onPress={handleToggleMarkDone}
-        >
-          <View
-            style={[
-              styles.markDoneCheckCircle,
-              isMarkedDone && styles.markDoneCheckCircleActive,
-            ]}
-          >
-            <Check size={13} color="#070A11" strokeWidth={3} />
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <LinearGradient
+            colors={SHEEN}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={styles.primarySheen}
+            pointerEvents="none"
+          />
+          <Text style={styles.primaryBtnText}>START EXERCISE</Text>
+          <View style={styles.primaryTrail}>
+            <ArrowRight size={14} color="#FFFFFF" strokeWidth={2.6} />
           </View>
-          <Text
-            style={[
-              styles.markDoneText,
-              isMarkedDone && styles.markDoneTextActive,
-            ]}
-          >
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          activeOpacity={0.75}
+          style={[styles.secondaryBtn, isMarkedDone && styles.secondaryBtnDone]}
+          onPress={handleToggleMarkDone}
+          accessibilityRole="button"
+          accessibilityState={{ checked: isMarkedDone }}
+          accessibilityLabel={isMarkedDone ? "Completed" : "Mark as done"}
+        >
+          <View style={[styles.doneCircle, isMarkedDone && styles.doneCircleActive]}>
+            <Check
+              size={12}
+              color={isMarkedDone ? "#FFFFFF" : ACCENT_SOFT}
+              strokeWidth={3}
+            />
+          </View>
+          <Text style={styles.secondaryBtnText}>
             {isMarkedDone ? "COMPLETED" : "MARK AS DONE"}
           </Text>
-        </Pressable>
+        </TouchableOpacity>
 
-        {/* Video Demo Section Header */}
-        <View style={styles.demoHeaderRow}>
-          <View style={styles.demoTitleLeft}>
-            <Video size={17} color="#44EAC3" />
-            <Text style={styles.demoHeaderTitle}>WATCH DEMO</Text>
+        {/* Demo */}
+        <View style={styles.sectionRow}>
+          <View style={styles.sectionLeft}>
+            <View style={styles.iconChip}>
+              <Video size={14} color={ACCENT} strokeWidth={2.4} />
+            </View>
+            <Text style={styles.sectionLabel}>WATCH DEMO</Text>
           </View>
-          <Text style={styles.demoTrackingText}>REAL-TIME AI TRACKING</Text>
+          <View style={styles.pill}>
+            <Text style={styles.pillText}>FORM TRACKING</Text>
+          </View>
         </View>
 
-        {/* Video Demo Thumbnail Card with Play Overlay */}
         <View style={styles.demoThumbnailCard}>
           <Image
             source={
               exerciseData.demoVideoThumbnail ||
               require("../../../../assets/workoutLibraryDetails/wld_hero.png")
             }
-            style={styles.demoThumbnailImage}
+            style={StyleSheet.absoluteFill}
             contentFit="cover"
           />
           <LinearGradient
-            colors={["rgba(10, 14, 24, 0.2)", "rgba(10, 14, 24, 0.85)"]}
-            style={styles.demoThumbnailGradient}
+            colors={["rgba(6,8,16,0.25)", "rgba(6,8,16,0.85)"]}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
           />
           <View style={styles.demoPlayCenter}>
-            <View style={styles.demoPlayOuterRing}>
-              <Play
-                size={22}
-                color="#44EAC3"
-                fill="#44EAC3"
-                style={{ marginLeft: 3 }}
-              />
+            <View style={styles.demoPlayRing}>
+              <View style={styles.demoPlayInner}>
+                <Play size={20} color="#FFFFFF" fill="#FFFFFF" style={{ marginLeft: 3 }} />
+              </View>
             </View>
             <Text style={styles.demoCardTitle}>
               {exerciseData.demoTitle || "POWER UP"}
@@ -418,241 +424,252 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
           </View>
         </View>
 
-        {/* Execution Steps Card with Multi-Tab switcher */}
-        <View style={styles.stepsCard}>
-          <View style={styles.stepsHeaderRow}>
-            <View style={styles.stepsHeaderLeft}>
-              <View style={styles.stepsIconBadge}>
-                <Sliders size={15} color="#818CF8" />
-              </View>
-              <Text style={styles.stepsHeaderText}>EXECUTION STEPS</Text>
+        {/* Execution steps */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <View style={styles.cardHeader}>
+            <View style={styles.iconChip}>
+              <ListOrdered size={14} color={ACCENT} strokeWidth={2.4} />
             </View>
-            <ChevronDown size={18} color="#94A3B8" />
+            <Text style={styles.sectionLabel}>EXECUTION STEPS</Text>
           </View>
 
-          {/* Steps Tabs (01 SETUP, 02 DESCENT, 03 PRESS) */}
-          <View style={styles.stepTabsRow}>
+          <View style={styles.segment}>
             {exerciseData.executionSteps.map((step, idx) => {
               const isSelected = idx === activeStepIndex;
               return (
-                <Pressable
+                <TouchableOpacity
                   key={step.id}
-                  style={[
-                    styles.stepTabButton,
-                    isSelected && styles.stepTabButtonActive,
-                  ]}
+                  activeOpacity={0.8}
+                  style={[styles.segmentItem, isSelected && styles.segmentItemActive]}
                   onPress={() => handleStepSelect(idx)}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: isSelected }}
                 >
                   <Text
-                    style={[
-                      styles.stepTabText,
-                      isSelected && styles.stepTabTextActive,
-                    ]}
+                    style={[styles.segmentText, isSelected && styles.segmentTextActive]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.85}
                   >
                     {step.tabLabel}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               );
             })}
           </View>
 
-          {/* Step Detail Content Card */}
-          <View style={styles.stepDetailContentCard}>
+          <View style={styles.stepBody}>
             <View style={styles.stepTitleRow}>
               <View style={styles.stepNumberBadge}>
-                <Text style={styles.stepNumberText}>
-                  {currentStep.stepNumber}
-                </Text>
+                <Text style={styles.stepNumberText}>{currentStep.stepNumber}</Text>
               </View>
               <Text style={styles.stepTitle}>{currentStep.title}</Text>
             </View>
-
-            <Text style={styles.stepDescription}>
-              {currentStep.description}
-            </Text>
-
-            {/* Coach Cue */}
-            <View style={styles.coachCueRow}>
-              <Radio size={14} color="#44EAC3" />
+            <Text style={styles.stepDescription}>{currentStep.description}</Text>
+            <View style={styles.coachCue}>
+              <Radio size={14} color={ACCENT} strokeWidth={2.4} />
               <Text style={styles.coachCueText}>
-                <Text style={styles.coachCueBold}>Coach Cue: </Text>
+                <Text style={styles.coachCueBold}>Coach cue · </Text>
                 {currentStep.coachCue}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* Target Areas Card with anatomical / movement thumbnail */}
-        <View style={styles.targetAreasCard}>
-          <View style={styles.targetBodyThumbBox}>
+        {/* Target areas */}
+        <View style={[styles.card, styles.targetCard]}>
+          <LinearGradient
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <View style={styles.targetThumb}>
             <Image
               source={require("../../../../assets/workoutLibraryDetails/wld4.png")}
-              style={styles.targetBodyImage}
+              style={StyleSheet.absoluteFill}
               contentFit="cover"
             />
           </View>
-          <View style={styles.targetInfoCol}>
-            <Text style={styles.targetAreasHeader}>Target Areas</Text>
-            <Text style={styles.targetMusclePrimary}>
+          <View style={styles.targetInfo}>
+            <Text style={styles.overline}>TARGET AREAS</Text>
+            <Text style={styles.targetTitle} numberOfLines={1}>
               {exerciseData.targetAreasTitle || "Chest & Triceps"}
             </Text>
-            <View style={styles.muscleTagsRow}>
+            <View style={styles.tagRow}>
               {exerciseData.targetTags.map((tag) => (
-                <View key={tag} style={styles.muscleTagPill}>
-                  <Text style={styles.muscleTagText}>{tag}</Text>
+                <View key={tag} style={styles.pill}>
+                  <Text style={styles.pillText}>{tag}</Text>
                 </View>
               ))}
             </View>
           </View>
         </View>
 
-        {/* 3-Col Meta Attributes (Equipment, Difficulty, Calories) */}
-        <View style={styles.metaStatsRow}>
-          <View style={styles.metaStatBox}>
-            <MoveDiagonal size={16} color="#818CF8" />
-            <Text style={styles.metaStatLabel}>EQUIPMENT</Text>
-            <Text style={styles.metaStatValue}>
-              {exerciseData.equipment || "Barbell"}
-            </Text>
-          </View>
-
-          <View style={styles.metaStatBox}>
-            <TrendingUp size={16} color="#34D399" />
-            <Text style={styles.metaStatLabel}>DIFFICULTY</Text>
-            <Text style={styles.metaStatValue}>
-              {exerciseData.difficulty || "Intm."}
-            </Text>
-          </View>
-
-          <View style={styles.metaStatBox}>
-            <Flame size={16} color="#FB923C" />
-            <Text style={styles.metaStatLabel}>CALORIES</Text>
-            <Text style={styles.metaStatValue}>
-              {exerciseData.calories || "120 kcal"}
-            </Text>
-          </View>
+        {/* Meta stats */}
+        <View style={styles.metaRow}>
+          {[
+            { key: "eq", Icon: Dumbbell, label: "EQUIPMENT", value: exerciseData.equipment || "Barbell" },
+            { key: "df", Icon: Gauge, label: "LEVEL", value: exerciseData.difficulty || "Intm." },
+            { key: "kc", Icon: Flame, label: "CALORIES", value: exerciseData.calories || "120 kcal" },
+          ].map(({ key, Icon, label, value }) => (
+            <View key={key} style={styles.metaTile}>
+              <View style={styles.iconChip}>
+                <Icon size={14} color={ACCENT} strokeWidth={2.4} />
+              </View>
+              <Text style={styles.metaValue} numberOfLines={1} adjustsFontSizeToFit>
+                {value}
+              </Text>
+              <Text style={styles.metaLabel}>{label}</Text>
+            </View>
+          ))}
         </View>
 
-        {/* Sets & Reps Interactive Telemetry Card */}
-        <View style={styles.setsRepsCard}>
-          <View style={styles.setsRepsHeaderRow}>
-            <View style={styles.setsRepsHeaderLeft}>
-              <Sliders size={16} color="#818CF8" />
-              <Text style={styles.setsRepsHeaderText}>SETS & REPS</Text>
+        {/* Sets & reps */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <View style={styles.cardHeaderSpread}>
+            <View style={styles.cardHeader}>
+              <View style={styles.iconChip}>
+                <Sliders size={14} color={ACCENT} strokeWidth={2.4} />
+              </View>
+              <Text style={styles.sectionLabel}>SETS & REPS</Text>
             </View>
-            <View style={styles.targetBadge}>
-              <Text style={styles.targetBadgeText}>TARGET</Text>
+            <View style={styles.pill}>
+              <Text style={styles.pillText}>PYRAMID</Text>
             </View>
           </View>
 
-          {/* Sets Incrementer Row */}
-          <View style={styles.setsCounterRow}>
-            <Pressable
-              style={styles.counterBtn}
+          <View style={styles.setsCounter}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={styles.roundBtn}
               onPress={() => handleModifySets(-1)}
+              accessibilityRole="button"
+              accessibilityLabel="Remove a set"
             >
-              <Minus size={16} color="#FFFFFF" />
-            </Pressable>
-            <View style={styles.setsDisplayNumber}>
-              <Text style={styles.setsNumberLarge}>{totalSetsCount}</Text>
-              <Text style={styles.setsNumberLabel}>SETS</Text>
+              <Minus size={16} color={ACCENT_SOFT} strokeWidth={2.6} />
+            </TouchableOpacity>
+            <View style={styles.setsValueWrap}>
+              <Text style={styles.setsValue}>{totalSetsCount}</Text>
+              <Text style={styles.setsUnit}>SETS</Text>
             </View>
-            <Pressable
-              style={styles.counterBtn}
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={styles.roundBtn}
               onPress={() => handleModifySets(1)}
+              accessibilityRole="button"
+              accessibilityLabel="Add a set"
             >
-              <Plus size={16} color="#FFFFFF" />
-            </Pressable>
+              <Plus size={16} color={ACCENT_SOFT} strokeWidth={2.6} />
+            </TouchableOpacity>
           </View>
 
-          <Text style={styles.pyramidProtocolText}>
-            TARGET REPS & WEIGHT PER SET:{" "}
-            <Text style={styles.pyramidProtocolCyan}>PROGRESSIVE PYRAMID</Text>
-          </Text>
-
-          {/* Interactive Columns for Sets (Horizontally scrollable when > 4 sets) */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={[
-              styles.setColumnsScrollContent,
-              sets.length <= 3 && styles.setColumnsScrollContentFit,
+              styles.setColumns,
+              sets.length <= 3 && styles.setColumnsFit,
             ]}
           >
             {sets.map((item, index) => (
               <View
                 key={item.setNumber}
-                style={[
-                  styles.setColumnItem,
-                  sets.length <= 3 && styles.setColumnItemFlexible,
-                ]}
+                style={[styles.setTile, sets.length <= 3 && styles.setTileFlexible]}
               >
-                <Text style={styles.setColNumberLabel}>
-                  SET {item.setNumber}
-                </Text>
-                <Text style={styles.setColSubLabel}>REPS</Text>
+                <Text style={styles.setTileTitle}>SET {item.setNumber}</Text>
 
-                {/* Reps Counter */}
-                <View style={styles.miniStepperRow}>
-                  <Pressable
-                    style={styles.miniStepperBtn}
+                <Text style={styles.setTileLabel}>REPS</Text>
+                <View style={styles.stepper}>
+                  <TouchableOpacity
+                    activeOpacity={0.6}
+                    style={styles.stepperBtn}
                     onPress={() => handleUpdateSet(index, "reps", -1)}
+                    hitSlop={6}
+                    accessibilityLabel={`Fewer reps, set ${item.setNumber}`}
                   >
-                    <Minus size={11} color="#94A3B8" />
-                  </Pressable>
+                    <Minus size={11} color="#94A3B8" strokeWidth={2.6} />
+                  </TouchableOpacity>
                   <EditableSetValue
                     value={item.reps}
                     label={`Reps for set ${item.setNumber}`}
-                    onCommit={(value) =>
-                      handleSetValueCommit(index, "reps", value)
-                    }
+                    onCommit={(value) => handleSetValueCommit(index, "reps", value)}
                   />
-                  <Pressable
-                    style={styles.miniStepperBtn}
+                  <TouchableOpacity
+                    activeOpacity={0.6}
+                    style={styles.stepperBtn}
                     onPress={() => handleUpdateSet(index, "reps", 1)}
+                    hitSlop={6}
+                    accessibilityLabel={`More reps, set ${item.setNumber}`}
                   >
-                    <Plus size={11} color="#94A3B8" />
-                  </Pressable>
+                    <Plus size={11} color="#94A3B8" strokeWidth={2.6} />
+                  </TouchableOpacity>
                 </View>
 
-                <Text style={styles.setColSubLabel}>WEIGHT</Text>
-
-                {/* Weight Counter */}
-                <View style={styles.miniStepperRow}>
-                  <Pressable
-                    style={styles.miniStepperBtn}
+                <Text style={styles.setTileLabel}>KG</Text>
+                <View style={styles.stepper}>
+                  <TouchableOpacity
+                    activeOpacity={0.6}
+                    style={styles.stepperBtn}
                     onPress={() => handleUpdateSet(index, "weightKg", -1)}
+                    hitSlop={6}
+                    accessibilityLabel={`Less weight, set ${item.setNumber}`}
                   >
-                    <Minus size={11} color="#94A3B8" />
-                  </Pressable>
+                    <Minus size={11} color="#94A3B8" strokeWidth={2.6} />
+                  </TouchableOpacity>
                   <EditableSetValue
                     value={item.weightKg}
                     label={`Weight for set ${item.setNumber}`}
                     allowDecimal
-                    onCommit={(value) =>
-                      handleSetValueCommit(index, "weightKg", value)
-                    }
+                    onCommit={(value) => handleSetValueCommit(index, "weightKg", value)}
                   />
-                  <Pressable
-                    style={styles.miniStepperBtn}
+                  <TouchableOpacity
+                    activeOpacity={0.6}
+                    style={styles.stepperBtn}
                     onPress={() => handleUpdateSet(index, "weightKg", 1)}
+                    hitSlop={6}
+                    accessibilityLabel={`More weight, set ${item.setNumber}`}
                   >
-                    <Plus size={11} color="#94A3B8" />
-                  </Pressable>
+                    <Plus size={11} color="#94A3B8" strokeWidth={2.6} />
+                  </TouchableOpacity>
                 </View>
               </View>
             ))}
           </ScrollView>
         </View>
 
-        {/* Rest Period Customization Card */}
-        <View style={styles.restPeriodCard}>
-          <View style={styles.restHeaderRow}>
-            <Text style={styles.restHeaderTitle}>REST PERIOD</Text>
-            <Text style={styles.restTargetLabel}>TARGET</Text>
+        {/* Rest period */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <View style={styles.cardHeader}>
+            <View style={styles.iconChip}>
+              <Timer size={14} color={ACCENT} strokeWidth={2.4} />
+            </View>
+            <Text style={styles.sectionLabel}>REST PERIOD</Text>
           </View>
 
-          <View style={styles.restInputRow}>
+          <View style={styles.restRow}>
             <View style={styles.restInputBox}>
               <TextInput
                 value={restSeconds}
@@ -662,15 +679,16 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
                 showSoftInputOnFocus
                 returnKeyType="done"
                 selectTextOnFocus
+                maxLength={3}
                 style={styles.restTextInput}
                 placeholderTextColor="#64748B"
-                placeholder="Custom sec"
+                placeholder="75"
               />
-              <Text style={styles.restSecLabel}>SEC</Text>
+              <Text style={styles.restUnit}>SEC</Text>
             </View>
-
-            <Pressable
-              style={styles.setRestButton}
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={styles.restSetBtn}
               onPress={() => {
                 if (Platform.OS !== "web") {
                   Haptics.notificationAsync(
@@ -678,10 +696,20 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
                   ).catch(() => {});
                 }
               }}
+              accessibilityRole="button"
+              accessibilityLabel="Set rest period"
             >
-              <Check size={12} color="#070A11" strokeWidth={3} />
-              <Text style={styles.setRestButtonText}>SET</Text>
-            </Pressable>
+              <LinearGradient
+                colors={BUTTON_GRADIENT}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+              <View>
+                <Check size={13} color="#FFFFFF" strokeWidth={3} />
+              </View>
+              <Text style={styles.restSetText}>SET</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </KeyboardAwareScrollView>
@@ -692,7 +720,7 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#070A11",
+    backgroundColor: "#060810",
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -702,665 +730,539 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   titleSection: {
-    marginBottom: 14,
     marginTop: 4,
+    marginBottom: 18,
+    gap: 4,
   },
   categoryBadge: {
-    color: "#44EAC3",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-    marginBottom: 8,
-  },
-  maskedTitleWrapper: {
-    height: 38,
-    width: "100%",
-    marginBottom: 4,
-  },
-  maskedTitleView: {
-    flex: 1,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-  },
-  gradient: {
-    flex: 1,
+    ...typography.overline,
+    fontSize: 11,
+    lineHeight: 16,
+    color: ACCENT_SOFT,
   },
   mainTitle: {
     ...typography.pageTitle,
-    color: "#FFFFFF",
-  },
-  subtitle: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "600",
+    color: "#F6F8FF",
   },
 
-  // Hero Poster Card
+  // Shared
+  card: {
+    backgroundColor: "#111A25",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.18)",
+    padding: 16,
+    gap: 14,
+    marginBottom: 14,
+    overflow: "hidden",
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  cardHeaderSpread: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  iconChip: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
+  },
+  sectionLabel: {
+    ...typography.sectionTitle,
+    color: "#E5EEF8",
+    flexShrink: 1,
+  },
+  overline: {
+    ...typography.overline,
+    color: "#7C8BA1",
+  },
+  pill: {
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
+  },
+  pillText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+  },
+  sectionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+    marginTop: 10,
+    marginBottom: 12,
+  },
+  sectionLeft: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
+  // Hero
   heroPosterCard: {
     width: "100%",
-    height: 330,
-    borderRadius: 26,
+    height: 300,
+    borderRadius: 24,
     overflow: "hidden",
-    backgroundColor: "#161821",
+    backgroundColor: "#111A25",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    position: "relative",
+    borderColor: "rgba(56,189,248,0.18)",
     marginBottom: 16,
   },
   heroPosterImage: {
     width: "100%",
     height: "100%",
   },
-  heroPosterGradient: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
   heroPosterContent: {
     position: "absolute",
-    bottom: 22,
-    left: 20,
-    right: 20,
+    left: 18,
+    right: 18,
+    bottom: 18,
+    gap: 8,
+  },
+  heroFocusPill: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(6,8,16,0.6)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.35)",
   },
   heroFocusTag: {
-    color: "#38EDD8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-    marginBottom: 6,
+    ...typography.badge,
+    color: ACCENT_SOFT,
   },
   heroExerciseTitle: {
-    color: "#FFFFFF",
+    ...typography.metric,
     fontSize: 28,
     lineHeight: 32,
-    fontWeight: "800",
-    letterSpacing: 0.5,
+    letterSpacing: 0.2,
+    color: "#FFFFFF",
     textTransform: "uppercase",
   },
 
-  // Action Buttons
-  startExerciseButton: {
-    width: "100%",
+  // Buttons
+  primaryBtn: {
     height: 52,
-    borderRadius: 26,
+    borderRadius: 16,
     overflow: "hidden",
-    marginBottom: 12,
-    shadowColor: "#3877E3",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.45,
-    shadowRadius: 14,
-    elevation: 8,
-  },
-  startExerciseGradient: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
+    marginBottom: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: ACCENT,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 14,
+      },
+      web: { boxShadow: "0 8px 22px rgba(56,189,248,0.28)" } as any,
+      default: {},
+    }),
   },
-  playIconCircle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingLeft: 2,
-  },
-  startExerciseText: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 1.2,
-  },
-
-  markDoneButton: {
-    width: "100%",
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "rgba(18, 22, 33, 0.8)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    marginBottom: 24,
-  },
-  markDoneButtonActive: {
-    borderColor: "#38EDD8",
-    backgroundColor: "rgba(56, 237, 216, 0.12)",
-  },
-  markDoneCheckCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: "#38EDD8",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  markDoneCheckCircleActive: {
-    backgroundColor: "#38EDD8",
-  },
-  markDoneText: {
-    color: "#38EDD8",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-  markDoneTextActive: {
-    color: "#FFFFFF",
-  },
-
-  // Video Demo Section
-  demoHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 12,
-    paddingHorizontal: 2,
-  },
-  demoTitleLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  demoHeaderTitle: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-  demoTrackingText: {
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  demoThumbnailCard: {
-    width: "100%",
-    height: 180,
-    borderRadius: 22,
-    overflow: "hidden",
-    position: "relative",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    marginBottom: 20,
-  },
-  demoThumbnailImage: {
-    width: "100%",
-    height: "100%",
-  },
-  demoThumbnailGradient: {
+  primarySheen: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
+    height: "55%",
   },
-  demoPlayCenter: {
-    position: "absolute",
-    inset: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  demoPlayOuterRing: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: "rgba(10, 14, 24, 0.65)",
-    borderWidth: 1.5,
-    borderColor: "rgba(68, 234, 195, 0.5)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 8,
-  },
-  demoCardTitle: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "800",
-    letterSpacing: 0.8,
-  },
-  demoCardSubtitle: {
-    color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "700",
+  primaryBtnText: {
+    ...typography.button,
     letterSpacing: 1,
-    marginTop: 2,
+    color: "#FFFFFF",
+  },
+  primaryTrail: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
+  },
+  secondaryBtn: {
+    height: 48,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 9,
+    marginBottom: 14,
+    backgroundColor: "rgba(56,189,248,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
+  },
+  secondaryBtnDone: {
+    backgroundColor: "rgba(56,189,248,0.16)",
+    borderColor: "rgba(56,189,248,0.6)",
+  },
+  secondaryBtnText: {
+    ...typography.button,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 1,
+    color: ACCENT_SOFT,
+  },
+  doneCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1.5,
+    borderColor: "rgba(125,211,252,0.6)",
+  },
+  doneCircleActive: {
+    backgroundColor: "#0EA5E9",
+    borderColor: "#0EA5E9",
   },
 
-  // Execution Steps Card
-  stepsCard: {
-    backgroundColor: "#11141E",
+  // Demo
+  demoThumbnailCard: {
+    height: 176,
     borderRadius: 24,
+    overflow: "hidden",
+    backgroundColor: "#111A25",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 16,
-    marginBottom: 20,
-  },
-  stepsHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    borderColor: "rgba(56,189,248,0.18)",
     marginBottom: 14,
-  },
-  stepsHeaderLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepsIconBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    backgroundColor: "rgba(129, 140, 248, 0.15)",
     alignItems: "center",
     justifyContent: "center",
   },
-  stepsHeaderText: {
+  demoPlayCenter: {
+    alignItems: "center",
+    gap: 4,
+  },
+  demoPlayRing: {
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.16)",
+    borderWidth: 1,
+    borderColor: "rgba(125,211,252,0.45)",
+    marginBottom: 8,
+  },
+  demoPlayInner: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#0EA5E9",
+  },
+  demoCardTitle: {
+    ...typography.cardTitle,
     color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-  stepTabsRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginBottom: 14,
-  },
-  stepTabButton: {
-    flex: 1,
-    paddingVertical: 7,
-    borderRadius: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  stepTabButtonActive: {
-    backgroundColor: "rgba(99, 102, 241, 0.25)",
-    borderWidth: 1,
-    borderColor: "#818CF8",
-  },
-  stepTabText: {
-    color: "#64748B",
-    fontSize: 11,
-    fontWeight: "700",
+    textTransform: "uppercase",
     letterSpacing: 0.6,
   },
-  stepTabTextActive: {
-    color: "#FFFFFF",
+  demoCardSubtitle: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
   },
-  stepDetailContentCard: {
-    backgroundColor: "#0B0E17",
-    borderRadius: 18,
-    padding: 14,
+
+  // Steps
+  segment: {
+    flexDirection: "row",
+    gap: 4,
+    padding: 4,
+    borderRadius: 14,
+    backgroundColor: "rgba(6,8,16,0.5)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
+    borderColor: "rgba(148,163,184,0.12)",
+  },
+  segmentItem: {
+    flex: 1,
+    height: 34,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 4,
+  },
+  segmentItemActive: {
+    backgroundColor: "rgba(56,189,248,0.16)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.4)",
+  },
+  segmentText: {
+    ...typography.badge,
+    color: "#7C8BA1",
+  },
+  segmentTextActive: {
+    color: ACCENT_SOFT,
+  },
+  stepBody: {
+    gap: 10,
   },
   stepTitleRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    marginBottom: 10,
+    gap: 10,
   },
   stepNumberBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "rgba(129, 140, 248, 0.25)",
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#0EA5E9",
   },
   stepNumberText: {
-    color: "#818CF8",
-    fontSize: 11,
-    fontWeight: "700",
+    ...typography.badge,
+    letterSpacing: 0.2,
+    color: "#FFFFFF",
   },
   stepTitle: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "700",
+    ...typography.cardTitle,
+    color: "#F8FAFC",
+    flexShrink: 1,
   },
   stepDescription: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    marginBottom: 14,
+    ...typography.body,
+    color: "#A7B3C5",
   },
-  coachCueRow: {
+  coachCue: {
     flexDirection: "row",
     alignItems: "flex-start",
-    gap: 8,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.06)",
-  },
-  coachCueBold: {
-    color: "#38EDD8",
-    fontWeight: "800",
+    gap: 10,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: "rgba(56,189,248,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.2)",
   },
   coachCueText: {
-    flex: 1,
+    ...typography.bodySmall,
     color: "#CBD5E1",
-    fontSize: 12,
-    lineHeight: 16,
+    flex: 1,
+  },
+  coachCueBold: {
+    ...typography.bodySmall,
+    fontWeight: "700",
+    color: ACCENT_SOFT,
   },
 
-  // Target Areas Card
-  targetAreasCard: {
+  // Target areas
+  targetCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#11141E",
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 14,
-    marginBottom: 16,
+    gap: 14,
   },
-  targetBodyThumbBox: {
-    width: 68,
-    height: 68,
-    borderRadius: 13,
+  targetThumb: {
+    width: 64,
+    height: 64,
+    borderRadius: 18,
     overflow: "hidden",
-    backgroundColor: "#070A11",
-    marginRight: 14,
-  },
-  targetBodyImage: {
-    width: "100%",
-    height: "100%",
-  },
-  targetInfoCol: {
-    flex: 1,
-  },
-  targetAreasHeader: {
-    color: "#64748B",
-    fontSize: 11,
-    fontWeight: "600",
-    marginBottom: 2,
-  },
-  targetMusclePrimary: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "800",
-    marginBottom: 8,
-  },
-  muscleTagsRow: {
-    flexDirection: "row",
-    gap: 6,
-  },
-  muscleTagPill: {
-    backgroundColor: "rgba(68, 234, 195, 0.12)",
+    backgroundColor: "#0B111B",
     borderWidth: 1,
-    borderColor: "rgba(68, 234, 195, 0.3)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+    borderColor: "rgba(56,189,248,0.2)",
   },
-  muscleTagText: {
-    color: "#44EAC3",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.6,
+  targetInfo: {
+    flex: 1,
+    minWidth: 0,
+    gap: 4,
+  },
+  targetTitle: {
+    ...typography.cardTitle,
+    color: "#F8FAFC",
+  },
+  tagRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginTop: 2,
   },
 
-  // Meta Stats Row (3 Columns)
-  metaStatsRow: {
+  // Meta
+  metaRow: {
     flexDirection: "row",
     gap: 10,
-    marginBottom: 20,
-  },
-  metaStatBox: {
-    flex: 1,
-    backgroundColor: "#11141E",
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    paddingVertical: 14,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  metaStatLabel: {
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-    marginTop: 6,
-    marginBottom: 3,
-  },
-  metaStatValue: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-  },
-
-  // Sets & Reps Card
-  setsRepsCard: {
-    backgroundColor: "#11141E",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    marginBottom: 20,
-  },
-  setsRepsHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  setsRepsHeaderLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  setsRepsHeaderText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-  targetBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  targetBadgeText: {
-    color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  setsCounterRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#0B0E17",
-    borderRadius: 18,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
     marginBottom: 14,
   },
-  counterBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+  metaTile: {
+    flex: 1,
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    borderRadius: 20,
+    backgroundColor: "#111A25",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.18)",
+  },
+  metaValue: {
+    ...typography.cardTitle,
+    fontSize: 14,
+    lineHeight: 18,
+    color: "#F8FAFC",
+  },
+  metaLabel: {
+    ...typography.overline,
+    color: "#7C8BA1",
+  },
+
+  // Sets
+  setsCounter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 8,
+    borderRadius: 18,
+    backgroundColor: "rgba(6,8,16,0.5)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.12)",
+  },
+  roundBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
   },
-  setsDisplayNumber: {
+  setsValueWrap: {
     flexDirection: "row",
     alignItems: "baseline",
     gap: 6,
   },
-  setsNumberLarge: {
-    color: "#FFFFFF",
-    fontSize: 24,
-    fontWeight: "800",
+  setsValue: {
+    ...typography.metricLarge,
+    color: "#F8FAFC",
   },
-  setsNumberLabel: {
-    color: "#64748B",
-    fontSize: 12,
-    fontWeight: "700",
+  setsUnit: {
+    ...typography.metricUnit,
+    color: "#7C8BA1",
   },
-  pyramidProtocolText: {
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-    marginBottom: 12,
-    textAlign: "center",
+  setColumns: {
+    gap: 8,
   },
-  pyramidProtocolCyan: {
-    color: "#38EDD8",
-  },
-  setColumnsScrollContent: {
-    flexDirection: "row",
-    gap: 6,
-    paddingVertical: 2,
-  },
-  setColumnsScrollContentFit: {
+  setColumnsFit: {
+    flexGrow: 1,
     width: "100%",
   },
-  setColumnItem: {
-    width: 98,
-    backgroundColor: "#0B0E17",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
+  setTile: {
+    width: 104,
+    alignItems: "center",
+    gap: 6,
     paddingVertical: 12,
     paddingHorizontal: 6,
-    alignItems: "center",
+    borderRadius: 18,
+    backgroundColor: "rgba(6,8,16,0.5)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.12)",
   },
-  setColumnItemFlexible: {
+  setTileFlexible: {
     flex: 1,
     width: undefined,
+    minWidth: 0,
   },
-  setColNumberLabel: {
-    color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.6,
-    marginBottom: 4,
-  },
-  setColSubLabel: {
-    color: "#64748B",
-    fontSize: 9,
-    fontWeight: "700",
-    marginTop: 4,
+  setTileTitle: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
     marginBottom: 2,
   },
-  miniStepperRow: {
+  setTileLabel: {
+    ...typography.overline,
+    color: "#64748B",
+  },
+  stepper: {
+    alignSelf: "stretch",
+    height: 34,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    width: "100%",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    borderRadius: 8,
-    minHeight: 34,
-    paddingHorizontal: 3,
-    paddingVertical: 2,
+    paddingHorizontal: 2,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.12)",
   },
-  miniStepperBtn: {
-    width: 22,
-    height: 26,
+  stepperBtn: {
+    width: 18,
+    height: 22,
+    borderRadius: 9,
     alignItems: "center",
     justifyContent: "center",
   },
   miniStepperInput: {
+    ...typography.cardTitle,
+    fontSize: 14,
+    lineHeight: 18,
     flex: 1,
-    minWidth: 32,
-    height: 34,
-    paddingHorizontal: 1,
-    paddingVertical: 0,
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
+    minWidth: 0,
+    width: "100%",
+    padding: 0,
     textAlign: "center",
-    includeFontPadding: false,
+    color: "#F8FAFC",
   },
 
-  // Rest Period Card
-  restPeriodCard: {
-    backgroundColor: "#11141E",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 16,
-    marginBottom: 24,
-  },
-  restHeaderRow: {
+  // Rest
+  restRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 12,
-  },
-  restHeaderTitle: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-  restTargetLabel: {
-    width: 64,
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  restInputRow: {
-    flexDirection: "row",
     gap: 10,
-    alignItems: "center",
   },
   restInputBox: {
     flex: 1,
+    height: 48,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#0B0E17",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
     paddingHorizontal: 14,
-    height: 48,
+    borderRadius: 14,
+    backgroundColor: "rgba(6,8,16,0.5)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.16)",
   },
   restTextInput: {
+    ...typography.cardTitle,
     flex: 1,
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "700",
+    minWidth: 0,
+    width: "100%",
+    padding: 0,
+    color: "#F8FAFC",
   },
-  restSecLabel: {
-    color: "#64748B",
-    fontSize: 11,
-    fontWeight: "700",
-    marginLeft: 6,
+  restUnit: {
+    ...typography.metricUnit,
+    color: "#7C8BA1",
+    marginLeft: 8,
   },
-  setRestButton: {
-    backgroundColor: "#38EDD8",
-    width: 64,
-    height: 40,
-    borderRadius: 12,
+  restSetBtn: {
+    height: 48,
+    paddingHorizontal: 20,
+    borderRadius: 14,
+    overflow: "hidden",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 4,
+    gap: 6,
   },
-  setRestButtonText: {
-    color: "#070A11",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+  restSetText: {
+    ...typography.button,
+    letterSpacing: 1,
+    color: "#FFFFFF",
   },
 });

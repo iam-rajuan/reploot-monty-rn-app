@@ -13,7 +13,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ArrowRight, Check, Dumbbell, RefreshCw } from "lucide-react-native";
-import React, { useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Platform,
   ScrollView,
@@ -34,6 +41,7 @@ import { PushDayHeroCard } from "./PushDayHeroCard";
 import { typography } from "@/theme/typography";
 
 const ACCENT = "#38BDF8";
+const EMPTY_IDS: string[] = [];
 const ACCENT_SOFT = "#7DD3FC";
 const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
 const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
@@ -86,7 +94,9 @@ export const GenericWorkoutDetailScreen: React.FC<
   const reduxSelectedCategory = useAppSelector(
     (state) => state.workout?.selectedWorkoutCategory || "push",
   );
-  const activePathId = (
+  // The tab highlights at once; the heavy list for that day renders as a
+  // deferred (interruptible) update so the tap never feels blocked.
+  const selectedTabId = (
     selectedCategoryOverride ||
     propPathId ||
     params.pathId ||
@@ -95,6 +105,15 @@ export const GenericWorkoutDetailScreen: React.FC<
     reduxSelectedCategory ||
     "push"
   ).toLowerCase();
+  const activePathId = useDeferredValue(selectedTabId);
+  const isSwitchingTab = activePathId !== selectedTabId;
+
+  // Sync the store after the new day has rendered, not during the tap.
+  useEffect(() => {
+    if (selectedCategoryOverride && selectedCategoryOverride === activePathId) {
+      dispatch(setSelectedWorkoutCategory(activePathId));
+    }
+  }, [activePathId, dispatch, selectedCategoryOverride]);
 
   // Read current workout from shared Redux store (preserves user modifications)
   const workoutsByPath = useAppSelector(
@@ -107,28 +126,43 @@ export const GenericWorkoutDetailScreen: React.FC<
     WORKOUT_PATH_DETAILS_MAP.push;
 
   const completedExerciseIds = useAppSelector(
-    (state) => state.workout?.completedExerciseIds || [],
+    (state) => state.workout?.completedExerciseIds ?? EMPTY_IDS,
   );
   const isMission = params.source === "mission";
   const shouldShowFullLibrary =
     showFullExerciseLibrary || !isMission;
-  const visibleExercises = shouldShowFullLibrary
-    ? workout.exercises
-    : workout.exercises
-        .filter((exercise) => exercise.isAiRecommended !== false)
-        .slice(0, 8);
-  const visibleCompletedCount = visibleExercises.filter((exercise) =>
-    completedExerciseIds.includes(exercise.id),
-  ).length;
+  const visibleExercises = useMemo(
+    () =>
+      shouldShowFullLibrary
+        ? workout.exercises
+        : workout.exercises
+            .filter((exercise) => exercise.isAiRecommended !== false)
+            .slice(0, 8),
+    [shouldShowFullLibrary, workout.exercises],
+  );
+  const visibleCompletedCount = useMemo(
+    () =>
+      visibleExercises.filter((exercise) =>
+        completedExerciseIds.includes(exercise.id),
+      ).length,
+    [completedExerciseIds, visibleExercises],
+  );
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const showToast = (message: string) => {
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    },
+    [],
+  );
+
+  const showToast = useCallback((message: string) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     setToastMessage(message);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 2400);
-  };
+    toastTimerRef.current = setTimeout(() => setToastMessage(null), 2200);
+  }, []);
 
   const handleBack = () => {
     if (Platform.OS !== "web") {
@@ -143,13 +177,16 @@ export const GenericWorkoutDetailScreen: React.FC<
     }
   };
 
-  const handleTabChange = (targetCategory: string) => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    }
-    setSelectedCategoryOverride(targetCategory);
-    dispatch(setSelectedWorkoutCategory(targetCategory));
-  };
+  const handleTabChange = useCallback(
+    (targetCategory: string) => {
+      if (targetCategory === selectedTabId) return;
+      if (Platform.OS !== "web") {
+        Haptics.selectionAsync().catch(() => {});
+      }
+      setSelectedCategoryOverride(targetCategory);
+    },
+    [selectedTabId],
+  );
 
   const handleStart = () => {
     if (Platform.OS !== "web") {
@@ -241,7 +278,7 @@ export const GenericWorkoutDetailScreen: React.FC<
             contentContainerStyle={styles.categoryTabsScroll}
           >
             {WORKOUT_SPLIT_TABS.map((tab) => {
-              const isActive = tab.id === activePathId;
+              const isActive = tab.id === selectedTabId;
               return (
                 <TouchableOpacity
                   key={tab.id}
@@ -275,7 +312,9 @@ export const GenericWorkoutDetailScreen: React.FC<
         </View>
 
         {/* Title Section matching clean Figma design */}
-        <View style={styles.titleSection}>
+        <View
+          style={[styles.titleSection, isSwitchingTab && styles.switching]}
+        >
           <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
             {workout.title}
           </Text>
@@ -306,7 +345,9 @@ export const GenericWorkoutDetailScreen: React.FC<
       </>
     ),
     [
-      activePathId,
+      selectedTabId,
+      isSwitchingTab,
+      handleTabChange,
       workout.title,
       workout.heroImage,
       workout.xpText,
@@ -457,6 +498,9 @@ const styles = StyleSheet.create({
   },
   categoryPillTextActive: {
     color: ACCENT_SOFT,
+  },
+  switching: {
+    opacity: 0.6,
   },
   titleSection: {
     marginTop: 2,
