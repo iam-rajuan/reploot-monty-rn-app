@@ -7,6 +7,8 @@ import { StatusBar } from "expo-status-bar";
 import {
   Activity,
   ArrowRight,
+  Trophy,
+  type LucideIcon,
   Clock,
   Compass,
   Dumbbell,
@@ -18,6 +20,7 @@ import {
 } from "lucide-react-native";
 import React from "react";
 import {
+  Dimensions,
   Platform,
   ScrollView,
   StyleSheet,
@@ -34,6 +37,25 @@ import {
 } from "../data/homeWorkoutLibraryData";
 import { typography } from "@/theme/typography";
 import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
+
+const { width } = Dimensions.get("window");
+
+// One accent for the whole page.
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.06)",
+  "rgba(255,255,255,0.02)",
+] as const;
+const SESSION_ICONS: Record<string, LucideIcon> = {
+  "upper-body": Dumbbell,
+  "lower-body": Activity,
+  "full-body": User,
+  mobility: Compass,
+  hiit: Flame,
+  strength: Zap,
+};
 
 export interface HomeWorkoutLibraryScreenProps {
   data?: HomeWorkoutLibraryData;
@@ -139,198 +161,159 @@ export const HomeWorkoutLibraryScreen: React.FC<
           { paddingBottom: Math.max(insets.bottom + 30, 60) },
         ]}
       >
-        {/* Match the clear, compact hierarchy used by Gym Workout. */}
         <View style={styles.titleSection}>
           <Text style={styles.categoryBadge}>HOME WORKOUT</Text>
           <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
             CHOOSE YOUR PATH
           </Text>
+          <Text style={styles.subtitle}>No gym needed. Pick a session and start.</Text>
         </View>
 
-        {/* Current XP Progress Box with Neon Aura & Level Status */}
-        <View style={styles.xpCardContainer}>
+        {/* XP progress */}
+        <View style={styles.xpCard}>
           <LinearGradient
-            colors={[
-              "rgba(129, 140, 248, 0.08)",
-              "rgba(68, 234, 195, 0.04)",
-              "transparent",
-            ]}
+            colors={SURFACE_WASH}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={StyleSheet.absoluteFill}
             pointerEvents="none"
           />
-
-          <View style={styles.xpCardHeader}>
+          <View style={styles.xpHeader}>
             <View style={styles.xpHeaderLeft}>
-              <View style={styles.xpIconBadge}>
-                <Zap size={14} color="#44EAC3" fill="#44EAC3" />
+              <View style={styles.iconChip}>
+                <Zap size={14} color={ACCENT} strokeWidth={2.4} />
               </View>
-              <Text style={styles.currentXpLabel}>CURRENT XP</Text>
+              <Text style={styles.sectionLabel}>CURRENT XP</Text>
             </View>
-            <Text style={styles.rankUpLabel}>{data.rankUpText}</Text>
           </View>
 
           <View style={styles.xpValueRow}>
             <Text style={styles.xpMainValue}>{data.currentXp}</Text>
-            <Text style={styles.xpSlash}> / </Text>
-            <Text style={styles.xpTotalValue}>{data.targetXp}</Text>
+            <Text style={styles.xpTotalValue}> / {data.targetXp}</Text>
+            <Text style={styles.rankUpText} numberOfLines={1}>
+              {data.rankUpText}
+            </Text>
           </View>
 
-          {/* Progress Bar Track */}
           <View style={styles.progressBarTrack}>
             <LinearGradient
-              colors={["#818CF8", "#44EAC3"]}
+              colors={["#6366F1", "#4F9DFB", "#38BDF8"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
-              style={[
-                styles.progressBarFill,
-                { width: `${data.progressPercent}%` },
-              ]}
+              style={[styles.progressBarFill, { width: `${data.progressPercent}%` }]}
             />
           </View>
         </View>
 
-        {/* UPCOMING CHALLENGES Header */}
-        <View style={styles.sectionTitleRow}>
-          <Text style={styles.sectionHeaderTitle}>UPCOMING CHALLENGES</Text>
+        {/* Upcoming challenges */}
+        <View style={styles.sectionRow}>
+          <View style={styles.sectionLeft}>
+            <View style={styles.iconChip}>
+              <Trophy size={14} color={ACCENT} strokeWidth={2.4} />
+            </View>
+            <Text style={styles.sectionLabel}>UPCOMING CHALLENGES</Text>
+          </View>
           <TouchableOpacity
-            activeOpacity={0.7}
-            style={styles.viewAllRow}
+            activeOpacity={0.75}
+            style={styles.viewAll}
             onPress={() => router.push("/workouts/challenges" as any)}
+            accessibilityRole="button"
+            accessibilityLabel="View all challenges"
           >
-            <Text style={styles.viewAllText}>VIEW ALL</Text>
-            <ArrowRight size={13} color="#44EAC3" />
+            <Text style={styles.viewAllText}>ALL</Text>
+            <ArrowRight size={12} color={ACCENT_SOFT} strokeWidth={2.6} />
           </TouchableOpacity>
         </View>
 
-        {/* 2-Column Upcoming Challenges Grid */}
-        <View style={styles.challengesGrid}>
+        <View style={styles.grid}>
           {data.upcomingChallenges.map((challenge) => (
             <TouchableOpacity
               key={challenge.id}
               activeOpacity={0.85}
               onPress={() => handleChallengePress(challenge)}
               style={styles.challengeCard}
+              accessibilityRole="button"
+              accessibilityLabel={`${challenge.title}, ${challenge.dayBadge}`}
             >
-              <View style={styles.challengeImageContainer}>
-                <Image
-                  source={challenge.image}
-                  style={styles.challengeImage}
-                  contentFit="cover"
+              <View style={styles.challengeImageWrap}>
+                <Image source={challenge.image} style={styles.challengeImage} contentFit="cover" />
+                <LinearGradient
+                  colors={["rgba(6,8,16,0)", "rgba(17,26,37,0.95)"]}
+                  start={{ x: 0.5, y: 0.4 }}
+                  end={{ x: 0.5, y: 1 }}
+                  style={StyleSheet.absoluteFill}
+                  pointerEvents="none"
                 />
+                <View style={styles.dayBadge}>
+                  <Text style={styles.dayBadgeText}>{challenge.dayBadge}</Text>
+                </View>
               </View>
               <View style={styles.challengeContent}>
-                <Text style={styles.challengeDayBadge}>
-                  {challenge.dayBadge}
+                <Text style={styles.challengeTitle} numberOfLines={2}>
+                  {challenge.title}
                 </Text>
-                <Text style={styles.challengeTitle}>{challenge.title}</Text>
-                <View style={styles.challengeXpRow}>
-                  <Zap size={11} color="#44EAC3" fill="#44EAC3" />
-                  <Text style={styles.challengeXpText}>{challenge.xp}</Text>
+                <View style={styles.xpChip}>
+                  <Zap size={10} color={ACCENT_SOFT} fill={ACCENT_SOFT} />
+                  <Text style={styles.xpChipText}>{challenge.xp}</Text>
                 </View>
               </View>
             </TouchableOpacity>
           ))}
         </View>
 
-        <View style={[styles.sectionTitleRow, styles.sessionsHeader]}>
-          <Text style={styles.sectionHeaderTitle}>SESSIONS</Text>
+        {/* Sessions */}
+        <View style={[styles.sectionRow, styles.sessionsHeader]}>
+          <View style={styles.sectionLeft}>
+            <View style={styles.iconChip}>
+              <Dumbbell size={14} color={ACCENT} strokeWidth={2.4} />
+            </View>
+            <Text style={styles.sectionLabel}>SESSIONS</Text>
+          </View>
         </View>
 
-        {/* 2-Column Sessions Grid - Like Gym Workout Path Screen */}
-        <View style={styles.sessionsGrid}>
-          {data.sessions.map((session) => (
-            <TouchableOpacity
-              key={session.id}
-              activeOpacity={0.85}
-              onPress={() => handleSessionPress(session)}
-              style={styles.sessionCard}
-            >
-              <LinearGradient
-                colors={[
-                  "rgba(37, 215, 232, 0)",
-                  "rgba(37, 215, 232, 0)",
-                  "rgba(37, 215, 232, 0.025)",
-                  "rgba(37, 215, 232, 0.09)",
-                ]}
-                locations={[0, 0.34, 0.64, 1]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.sessionCardGradient}
-                pointerEvents="none"
-              />
-
-              {/* Card Top Row: Lucide Icon + XP Pill (like Gym Workout Path) */}
-              <View style={styles.sessionTopRow}>
-                <View
-                  style={[
-                    styles.sessionIconBox,
-                    {
-                      backgroundColor:
-                        session.iconBg || "rgba(56, 237, 216, 0.16)",
-                      borderColor:
-                        session.iconBorder || "rgba(56, 237, 216, 0.35)",
-                    },
-                  ]}
-                >
-                  {session.id === "upper-body" && (
-                    <Dumbbell size={20} color={session.tagColor || "#C5C0FF"} />
-                  )}
-                  {session.id === "lower-body" && (
-                    <Activity size={20} color={session.tagColor || "#38EDD8"} />
-                  )}
-                  {session.id === "full-body" && (
-                    <User size={20} color={session.tagColor || "#C5C0FF"} />
-                  )}
-                  {session.id === "mobility" && (
-                    <Compass size={20} color={session.tagColor || "#38EDD8"} />
-                  )}
-                  {session.id === "hiit" && (
-                    <Flame size={20} color={session.tagColor || "#C5C0FF"} />
-                  )}
-                  {session.id === "strength" && (
-                    <Zap size={20} color={session.tagColor || "#38EDD8"} />
-                  )}
-                  {![
-                    "upper-body",
-                    "lower-body",
-                    "full-body",
-                    "mobility",
-                    "hiit",
-                    "strength",
-                  ].includes(session.id) && (
-                    <Dumbbell size={20} color="#38EDD8" />
-                  )}
+        <View style={styles.grid}>
+          {data.sessions.map((session) => {
+            const Icon = SESSION_ICONS[session.id] || Dumbbell;
+            return (
+              <TouchableOpacity
+                key={session.id}
+                activeOpacity={0.85}
+                onPress={() => handleSessionPress(session)}
+                style={styles.sessionCard}
+                accessibilityRole="button"
+                accessibilityLabel={session.title}
+              >
+                <LinearGradient
+                  colors={SURFACE_WASH}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={StyleSheet.absoluteFill}
+                  pointerEvents="none"
+                />
+                <View style={styles.sessionTopRow}>
+                  <View style={styles.sessionIcon}>
+                    <Icon size={20} color={ACCENT} strokeWidth={2} />
+                  </View>
+                  <View style={styles.pill}>
+                    <Text style={styles.pillText}>{session.tag || "+60 XP"}</Text>
+                  </View>
                 </View>
-
-                <View
-                  style={[
-                    styles.sessionTagPill,
-                    {
-                      backgroundColor:
-                        session.tagBg || "rgba(56, 237, 216, 0.12)",
-                    },
-                  ]}
-                >
+                <View style={styles.sessionTitleRow}>
                   <Text
-                    style={[
-                      styles.sessionTagText,
-                      { color: session.tagColor || "#38EDD8" },
-                    ]}
+                    style={styles.sessionTitle}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.85}
                   >
-                    {session.tag || "+60 XP"}
+                    {session.title}
                   </Text>
+                  <View style={styles.arrowCircle}>
+                    <ArrowRight size={13} color={ACCENT_SOFT} strokeWidth={2.5} />
+                  </View>
                 </View>
-              </View>
-
-              {/* Title and Arrow Row */}
-              <View style={styles.sessionTitleRow}>
-                <Text style={styles.sessionTitleText}>{session.title}</Text>
-                <ArrowRight size={16} color={session.arrowColor || "#38EDD8"} />
-              </View>
-            </TouchableOpacity>
-          ))}
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </ScrollView>
     </View>
@@ -340,371 +323,261 @@ export const HomeWorkoutLibraryScreen: React.FC<
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#070A11",
+    backgroundColor: "#060810",
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 18,
+    paddingTop: 12,
   },
   titleSection: {
-    marginBottom: 22,
-    marginTop: 8,
+    marginTop: 4,
+    marginBottom: 20,
+    gap: 4,
   },
   categoryBadge: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "800",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-    marginBottom: 4,
+    ...typography.overline,
+    fontSize: 11,
+    lineHeight: 16,
+    color: ACCENT_SOFT,
   },
   mainTitle: {
     ...typography.pageTitle,
     color: "#F6F8FF",
   },
   subtitle: {
+    ...typography.body,
     color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "600",
   },
-  xpCardContainer: {
-    backgroundColor: "#11141C",
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(129, 140, 248, 0.25)",
-    padding: 20,
-    marginBottom: 28,
-    position: "relative",
-    overflow: "hidden",
-    shadowColor: "#6366F1",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 4,
-  },
-  xpCardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  xpHeaderLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  xpIconBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 7,
-    backgroundColor: "rgba(68, 234, 195, 0.15)",
-    borderWidth: 1,
-    borderColor: "rgba(68, 234, 195, 0.35)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  currentXpLabel: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-  },
-  rankUpLabel: {
-    color: "#44EAC3",
-    fontSize: 11,
-    lineHeight: 14,
-    fontWeight: "700",
-    letterSpacing: 1.1,
-    textAlign: "right",
-    textTransform: "uppercase",
-  },
-  xpValueRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    marginBottom: 16,
-  },
-  xpMainValue: {
-    color: "#FFFFFF",
-    fontSize: 40,
-    lineHeight: 46,
-    fontWeight: "800",
-    letterSpacing: -0.5,
-  },
-  xpSlash: {
-    color: "#64748B",
-    fontSize: 24,
-    fontWeight: "700",
-  },
-  xpTotalValue: {
-    color: "#94A3B8",
-    fontSize: 22,
-    fontWeight: "800",
-  },
-  progressBarTrack: {
-    width: "100%",
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    overflow: "hidden",
-  },
-  progressBarFill: {
-    height: "100%",
-    borderRadius: 5,
-  },
-  sectionHeader: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-    marginBottom: 14,
-  },
-  mainQuestCard: {
-    width: "100%",
-    height: 420,
-    borderRadius: 24,
-    overflow: "hidden",
-    position: "relative",
-    backgroundColor: "#161922",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    marginBottom: 32,
-  },
-  questContent: {
-    ...StyleSheet.absoluteFill,
-    padding: 20,
-    justifyContent: "flex-end",
-  },
-  questXpRow: {
-    position: "absolute",
-    top: 20,
-    right: 20,
-  },
-  questXpBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 14,
-    backgroundColor: "rgba(10, 26, 32, 0.8)",
-    borderWidth: 1,
-    borderColor: "rgba(68, 234, 195, 0.35)",
-  },
-  questXpText: {
-    color: "#44EAC3",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  questTitle: {
-    color: "#FFFFFF",
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: "800",
-    letterSpacing: -0.3,
-    textTransform: "uppercase",
-    marginBottom: 14,
-  },
-  questStatsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 18,
-    flexWrap: "wrap",
-  },
-  questStatItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.12)",
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  questStatText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.6,
-    textTransform: "uppercase",
-  },
-  questCtaButton: {
-    width: "100%",
-    borderRadius: 24,
-    overflow: "hidden",
-  },
-  questCtaGradient: {
-    height: 52,
-    borderRadius: 24,
-    flexDirection: "row",
+
+  // Shared bits
+  iconChip: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-  },
-  questCtaText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "800",
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-  },
-  sectionTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 14,
-  },
-  sectionHeaderTitle: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-  },
-  viewAllRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  viewAllText: {
-    color: "#44EAC3",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-  },
-  challengesGrid: {
-    flexDirection: "row",
-    gap: 14,
-  },
-  challengeCard: {
-    flex: 1,
-    backgroundColor: "#11141C",
-    borderRadius: 18,
+    backgroundColor: "rgba(56,189,248,0.10)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    overflow: "hidden",
-    padding: 10,
+    borderColor: "rgba(56,189,248,0.22)",
   },
-  challengeImageContainer: {
-    width: "100%",
-    height: 120,
-    borderRadius: 12,
-    overflow: "hidden",
-    backgroundColor: "#0D1017",
-    marginBottom: 10,
+  sectionLabel: {
+    ...typography.sectionTitle,
+    color: "#E5EEF8",
+    flexShrink: 1,
   },
-  challengeImage: {
-    width: "100%",
-    height: "100%",
+  pill: {
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
   },
-  challengeContent: {
-    paddingHorizontal: 2,
-    paddingBottom: 4,
+  pillText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
   },
-  challengeDayBadge: {
-    color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    marginBottom: 4,
-  },
-  challengeTitle: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 0.4,
-    textTransform: "uppercase",
-    marginBottom: 6,
-  },
-  challengeXpRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  challengeXpText: {
-    color: "#44EAC3",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  sectionSubtitle: {
-    color: "#94A3B8",
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: "600",
-    marginBottom: 16,
-  },
-  sessionsGrid: {
+  grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
     rowGap: 14,
   },
-  sessionCard: {
-    width: "48%",
-    height: 154,
-    backgroundColor: "#111827",
-    borderRadius: 20,
+
+  // XP card
+  xpCard: {
+    backgroundColor: "#111A25",
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(86, 130, 166, 0.22)",
-    padding: 14,
-    justifyContent: "space-between",
-    position: "relative",
+    borderColor: "rgba(56,189,248,0.18)",
+    padding: 18,
+    gap: 12,
+    marginBottom: 24,
     overflow: "hidden",
   },
-  sessionCardGradient: {
-    position: "absolute",
-    right: 0,
-    bottom: 0,
-    width: "100%",
+  xpHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  xpHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  xpValueRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+  xpMainValue: {
+    ...typography.metricLarge,
+    color: "#F8FAFC",
+    fontVariant: ["tabular-nums"],
+  },
+  xpTotalValue: {
+    ...typography.subtitle,
+    color: "#64748B",
+    fontVariant: ["tabular-nums"],
+  },
+  rankUpText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+    marginLeft: "auto",
+    paddingLeft: 8,
+    flexShrink: 1,
+  },
+  progressBarTrack: {
+    height: 10,
+    borderRadius: 999,
+    overflow: "hidden",
+    backgroundColor: "rgba(148,163,184,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.10)",
+  },
+  progressBarFill: {
     height: "100%",
+    borderRadius: 999,
+  },
+
+  // Section headers
+  sectionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+    marginBottom: 14,
+  },
+  sectionLeft: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  sessionsHeader: {
+    marginTop: 26,
+  },
+  viewAll: {
+    height: 30,
+    paddingHorizontal: 11,
+    borderRadius: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
+  },
+  viewAllText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+  },
+
+  // Challenge cards
+  challengeCard: {
+    width: (width - 54) / 2,
+    borderRadius: 22,
+    overflow: "hidden",
+    backgroundColor: "#111A25",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.18)",
+  },
+  challengeImageWrap: {
+    height: 104,
+  },
+  challengeImage: {
+    ...StyleSheet.absoluteFill,
+  },
+  dayBadge: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(7,11,21,0.6)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
+  },
+  dayBadgeText: {
+    ...typography.badge,
+    color: "#E2E8F0",
+  },
+  challengeContent: {
+    padding: 12,
+    paddingTop: 8,
+    gap: 8,
+  },
+  challengeTitle: {
+    ...typography.cardTitle,
+    fontSize: 14,
+    lineHeight: 18,
+    color: "#F8FAFC",
+  },
+  xpChip: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+  },
+  xpChipText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+  },
+
+  // Session cards
+  sessionCard: {
+    width: (width - 54) / 2,
+    height: 124,
+    padding: 14,
+    borderRadius: 22,
+    justifyContent: "space-between",
+    overflow: "hidden",
+    backgroundColor: "#111A25",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.18)",
   },
   sessionTopRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  sessionIconBox: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
-    borderWidth: 1,
-    justifyContent: "center",
+  sessionIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
-  },
-  sessionTagPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 10,
-  },
-  sessionTagText: {
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
   },
   sessionTitleRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginTop: "auto",
-    marginBottom: 0,
+    justifyContent: "space-between",
+    gap: 4,
   },
-  sessionTitleText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "800",
-    letterSpacing: 0.6,
+  sessionTitle: {
+    ...typography.cardTitle,
+    fontSize: 13,
+    lineHeight: 18,
+    letterSpacing: 0.1,
+    color: "#F8FAFC",
     textTransform: "uppercase",
+    flexShrink: 1,
   },
-  sessionsHeader: {
-    marginTop: 30,
-    marginBottom: 14,
+  arrowCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
   },
 });

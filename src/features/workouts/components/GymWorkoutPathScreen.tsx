@@ -14,8 +14,8 @@ import React, { useState } from "react";
 import {
   Dimensions,
   Platform,
-  Pressable,
   ScrollView,
+  TouchableOpacity,
   StyleSheet,
   View,
 } from "react-native";
@@ -32,6 +32,7 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { GenericWorkoutDetailScreen } from "./GenericWorkoutDetailScreen";
 import { WorkoutLibraryScreen } from "./WorkoutLibraryScreen";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 const { width } = Dimensions.get("window");
 
@@ -51,10 +52,15 @@ interface GymPathCardConfig {
   icon: React.ReactNode;
 }
 
-const CARD_ACCENT = "#25D7E8";
-const CARD_ACCENT_SOFT = "#8CECF4";
-const CARD_ACCENT_BACKGROUND = "rgba(37, 215, 232, 0.11)";
-const CARD_ACCENT_BORDER = "rgba(37, 215, 232, 0.28)";
+const CARD_ACCENT = "#38BDF8";
+const CARD_ACCENT_SOFT = "#7DD3FC";
+const CARD_ACCENT_BACKGROUND = "rgba(56, 189, 248, 0.10)";
+const CARD_ACCENT_BORDER = "rgba(56, 189, 248, 0.25)";
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.06)",
+  "rgba(255,255,255,0.02)",
+] as const;
 
 const GymPushIcon = () => (
   <Svg width={23} height={23} viewBox="0 0 24 24" fill="none">
@@ -312,6 +318,7 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       <CustomHeader
@@ -341,54 +348,69 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
 
         {/* 2-Column Workout Path Cards Grid matching screenshot */}
         <View style={styles.cardsGrid}>
-          {PATH_CARDS.map((item) => (
-            <Pressable
-              key={item.id}
-              style={[styles.card, item.id === "library" && styles.libraryCard]}
-              onPress={() => handleCardPress(item.id)}
-            >
-              {/* Restrained accent tint keeps every focus recognisable without visual noise. */}
-              <LinearGradient
-                colors={[
-                  "rgba(37, 215, 232, 0)",
-                  "rgba(37, 215, 232, 0)",
-                  "rgba(37, 215, 232, 0.025)",
-                  "rgba(37, 215, 232, 0.09)",
-                ]}
-                locations={[0, 0.34, 0.64, 1]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.cardGradient}
-                pointerEvents="none"
-              />
+          {PATH_CARDS.map((item) => {
+            const isLibrary = item.id === "library";
+            return (
+              <TouchableOpacity
+                key={item.id}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel={`${item.title}: ${item.subtitle}`}
+                style={[styles.card, isLibrary && styles.libraryCard]}
+                onPress={() => handleCardPress(item.id)}
+              >
+                <LinearGradient
+                  colors={SURFACE_WASH}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={StyleSheet.absoluteFill}
+                  pointerEvents="none"
+                />
 
-              {/* Card Top Row: Icon Badge + XP Pill */}
-              <View style={styles.cardTopRow}>
-                <View
-                  style={[
-                    styles.iconBox,
-                    {
-                      backgroundColor: item.iconBg,
-                      borderColor: item.iconBorder,
-                    },
-                  ]}
-                >
-                  {item.icon}
-                </View>
-
-                <View style={[styles.tagPill, { backgroundColor: item.tagBg }]}>
-                  <Text style={[styles.tagText, { color: item.tagColor }]}>
-                    {item.tag}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.titleRow}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <ArrowRight size={17} color={item.arrowColor} />
-              </View>
-              <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
-            </Pressable>
-          ))}
+                {isLibrary ? (
+                  <View style={styles.libraryRow}>
+                    <View style={styles.iconBox}>{item.icon}</View>
+                    <View style={styles.libraryCopy}>
+                      <Text style={styles.cardTitle}>{item.title}</Text>
+                      <Text style={styles.cardSubtitle} numberOfLines={1}>
+                        {item.subtitle}
+                      </Text>
+                    </View>
+                    <View style={styles.arrowCircle}>
+                      <ArrowRight size={15} color={CARD_ACCENT_SOFT} strokeWidth={2.5} />
+                    </View>
+                  </View>
+                ) : (
+                  <>
+                    <View style={styles.cardTopRow}>
+                      <View style={styles.iconBox}>{item.icon}</View>
+                      <View style={styles.tagPill}>
+                        <Text style={styles.tagText}>{item.tag}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.cardBottom}>
+                      <View style={styles.titleRow}>
+                        <Text
+                          style={styles.cardTitle}
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          minimumFontScale={0.85}
+                        >
+                          {item.title}
+                        </Text>
+                        <View style={styles.arrowCircle}>
+                          <ArrowRight size={13} color={CARD_ACCENT_SOFT} strokeWidth={2.5} />
+                        </View>
+                      </View>
+                      <Text style={styles.cardSubtitle} numberOfLines={2}>
+                        {item.subtitle}
+                      </Text>
+                    </View>
+                  </>
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </ScrollView>
     </View>
@@ -398,35 +420,30 @@ export const GymWorkoutPathScreen: React.FC<GymWorkoutPathScreenProps> = ({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#070A11",
+    backgroundColor: "#060810",
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 18,
+    paddingTop: 12,
   },
   titleSection: {
-    marginBottom: 22,
-    marginTop: 8,
+    marginTop: 4,
+    marginBottom: 20,
+    gap: 4,
   },
   categoryBadge: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "800",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-    marginBottom: 4,
+    ...typography.overline,
+    fontSize: 11,
+    lineHeight: 16,
+    color: CARD_ACCENT_SOFT,
   },
   mainTitle: {
     ...typography.pageTitle,
     color: "#F6F8FF",
   },
   subtitle: {
+    ...typography.body,
     color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 19,
-    fontWeight: "500",
-    marginTop: 4,
   },
 
   cardsGrid: {
@@ -437,30 +454,29 @@ const styles = StyleSheet.create({
   },
   card: {
     width: (width - 54) / 2,
-    height: 184,
-    backgroundColor: "#111827",
-    borderRadius: 20,
+    height: 164,
+    backgroundColor: "#111A25",
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(86, 130, 166, 0.22)",
+    borderColor: "rgba(56,189,248,0.18)",
     padding: 14,
     justifyContent: "space-between",
-    position: "relative",
     overflow: "hidden",
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.16,
-    shadowRadius: 10,
-    elevation: 3,
   },
   libraryCard: {
     width: "100%",
+    height: "auto",
+    paddingVertical: 14,
   },
-  cardGradient: {
-    position: "absolute",
-    right: 0,
-    bottom: 0,
-    width: "100%",
-    height: "100%",
+  libraryRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  libraryCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 3,
   },
   cardTopRow: {
     flexDirection: "row",
@@ -468,41 +484,55 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   iconBox: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: CARD_ACCENT_BACKGROUND,
+    borderColor: CARD_ACCENT_BORDER,
   },
   tagPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 10,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: CARD_ACCENT_BACKGROUND,
+    borderWidth: 1,
+    borderColor: CARD_ACCENT_BORDER,
   },
   tagText: {
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+    ...typography.badge,
+    color: CARD_ACCENT_SOFT,
+  },
+  cardBottom: {
+    gap: 5,
   },
   titleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: "auto",
-    marginBottom: 5,
+    gap: 4,
   },
   cardTitle: {
-    color: "#F6F8FF",
+    ...typography.cardTitle,
     fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 0.8,
+    lineHeight: 18,
+    color: "#F8FAFC",
+    letterSpacing: 0.1,
     textTransform: "uppercase",
+    flexShrink: 1,
+  },
+  arrowCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: CARD_ACCENT_BACKGROUND,
   },
   cardSubtitle: {
-    color: "#91A0B9",
-    fontSize: 10,
-    lineHeight: 15,
-    fontWeight: "500",
+    ...typography.caption,
+    color: "#8B9AB0",
   },
 });
