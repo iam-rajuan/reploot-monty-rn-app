@@ -3,16 +3,29 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import {
+  Activity,
+  ArrowLeft,
   ArrowRight,
-  Camera as CameraIcon,
-  ChevronLeft,
-  RotateCcw,
+  RefreshCw,
+  ShieldCheck,
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WorkoutExerciseItem } from "../data/workoutPathDetailData";
+import { typography } from "@/theme/typography";
+
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+
+const formatClock = (total: number) => {
+  const m = Math.floor(total / 60);
+  const sec = total % 60;
+  return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+};
 
 export interface AiWorkoutCameraRecordScreenProps {
   currentExercise: WorkoutExerciseItem;
@@ -38,7 +51,7 @@ export const AiWorkoutCameraRecordScreen: React.FC<
   const matchReps = currentExercise.subtitle?.match(/(\d+)\s*(?:Reps|reps)/);
   const targetReps = matchReps ? parseInt(matchReps[1], 10) : 10;
   const [reps, setReps] = useState<number>(0);
-  const [accuracy, setAccuracy] = useState<number>(96);
+  const [accuracy] = useState<number>(96);
 
   useEffect(() => {
     if (!permission?.granted) {
@@ -105,102 +118,160 @@ export const AiWorkoutCameraRecordScreen: React.FC<
       />
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
         <LinearGradient
-          colors={[
-            "rgba(7, 10, 17, 0.72)",
-            "rgba(7, 10, 17, 0.15)",
-            "rgba(7, 10, 17, 0.94)",
-          ]}
-          locations={[0, 0.35, 0.78]}
+          colors={["rgba(6,8,16,0.7)", "rgba(6,8,16,0)", "rgba(6,8,16,0)", "rgba(6,8,16,0.94)"]}
+          locations={[0, 0.16, 0.6, 0.86]}
           style={StyleSheet.absoluteFill}
         />
       </View>
-      <View
-        style={[styles.topHeader, { paddingTop: Math.max(insets.top + 8, 24) }]}
-      >
-        <View style={styles.headerLeftCol}>
+
+      {/* Top bar */}
+      <View style={[styles.topHeader, { paddingTop: Math.max(insets.top + 8, 24) }]}>
+        <View style={styles.headerSide}>
           {onBack ? (
-            <Pressable
+            <TouchableOpacity
+              activeOpacity={0.7}
               style={styles.iconCircleBtn}
               onPress={onBack}
               accessibilityRole="button"
               accessibilityLabel="Back to routine"
             >
-              <ChevronLeft size={22} color="#FFFFFF" strokeWidth={2.4} />
-            </Pressable>
+              <ArrowLeft size={20} color="#FFFFFF" strokeWidth={2.4} />
+            </TouchableOpacity>
           ) : null}
         </View>
 
-        <View style={styles.headerRightActions}>
-          {permission?.granted && (
-            <Pressable
+        <View style={styles.livePill}>
+          <View style={styles.liveDot} />
+          <Text style={styles.liveText}>LIVE · {formatClock(recordSeconds)}</Text>
+        </View>
+
+        <View style={[styles.headerSide, styles.headerSideRight]}>
+          {permission?.granted ? (
+            <TouchableOpacity
+              activeOpacity={0.7}
               style={styles.iconCircleBtn}
               onPress={toggleFacing}
               accessibilityRole="button"
               accessibilityLabel="Flip camera"
             >
-              <RotateCcw size={17} color="#38EDD8" strokeWidth={2.4} />
-            </Pressable>
-          )}
+              <RefreshCw size={17} color={ACCENT_SOFT} strokeWidth={2.4} />
+            </TouchableOpacity>
+          ) : null}
         </View>
       </View>
+
+      {/* Framing guides */}
+      <View style={styles.frameArea} pointerEvents="none">
+        <View style={[styles.cornerGuide, styles.cornerTL]} />
+        <View style={[styles.cornerGuide, styles.cornerTR]} />
+        <View style={[styles.cornerGuide, styles.cornerBL]} />
+        <View style={[styles.cornerGuide, styles.cornerBR]} />
+      </View>
+
+      {/* Bottom panel */}
       <View
         style={[
           styles.bottomOverlayContainer,
-          { paddingBottom: Math.max(insets.bottom + 16, 44) },
+          { paddingBottom: Math.max(insets.bottom + 10, 20) },
         ]}
       >
-        <View style={styles.exerciseInfoRow}>
-          <View style={styles.cyanIndicator} />
-          <View style={styles.exerciseTitleCol}>
-            <Text style={styles.exerciseTag}>
-              EXERCISE {exerciseIndex + 1} OF {totalExercises}
-            </Text>
-            <Text style={styles.exerciseTitleText} numberOfLines={1}>
-              {cleanExerciseTitle}
-            </Text>
+        <View style={styles.exerciseHead}>
+          <Text style={styles.exerciseTag}>
+            EXERCISE {exerciseIndex + 1} OF {totalExercises}
+          </Text>
+          <Text
+            style={styles.exerciseTitleText}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
+            {cleanExerciseTitle}
+          </Text>
+          <View style={styles.exerciseSteps}>
+            {Array.from({ length: totalExercises }, (_, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.exerciseStep,
+                  i < exerciseIndex && styles.exerciseStepDone,
+                  i === exerciseIndex && styles.exerciseStepActive,
+                ]}
+              />
+            ))}
           </View>
         </View>
+
         <View style={styles.telemetryRow}>
-          <Pressable
+          <TouchableOpacity
+            activeOpacity={0.8}
             style={styles.telemetryCard}
             onPress={handleManualIncrement}
             accessibilityRole="button"
             accessibilityLabel="Tap to register rep"
           >
-            <Text style={styles.cardMiniLabel}>REPS COUNT</Text>
-            <View style={styles.repsNumRow}>
-              <Text style={styles.repsLargeNum}>{reps}</Text>
-              <Text style={styles.repsTargetNum}>/ {targetReps}</Text>
+            <View style={styles.cardTop}>
+              <View style={styles.iconChip}>
+                <Activity size={11} color={ACCENT} strokeWidth={2.6} />
+              </View>
+              <Text style={styles.cardMiniLabel}>REPS</Text>
             </View>
-            <Text style={styles.cardHelperText}>AI AUTO-DETECTING</Text>
-          </Pressable>
+            <View style={styles.valueRow}>
+              <Text style={styles.bigValue}>{reps}</Text>
+              <Text style={styles.valueUnit}>/ {targetReps}</Text>
+            </View>
+            <View style={styles.repTrack}>
+              <View
+                style={[
+                  styles.repFill,
+                  { width: `${Math.min(100, (reps / Math.max(1, targetReps)) * 100)}%` },
+                ]}
+              />
+            </View>
+          </TouchableOpacity>
 
           <View style={styles.telemetryCard}>
-            <View style={styles.cardTopFlex}>
-              <Text style={styles.cardMiniLabel}>FORM ACCURACY</Text>
+            <View style={styles.cardTop}>
+              <View style={styles.iconChip}>
+                <ShieldCheck size={11} color={ACCENT} strokeWidth={2.6} />
+              </View>
+              <Text style={styles.cardMiniLabel}>FORM</Text>
             </View>
-            <Text style={styles.accuracyLargeNum}>{accuracy}%</Text>
-            <View style={styles.optimalFormBadge}>
-              <Text style={styles.optimalFormText}>OPTIMAL FORM</Text>
+            <View style={styles.valueRow}>
+              <Text style={styles.bigValue}>{accuracy}</Text>
+              <Text style={styles.valueUnit}>%</Text>
+            </View>
+            <View style={styles.formPill}>
+              <View style={styles.formDot} />
+              <Text style={styles.formPillText}>OPTIMAL</Text>
             </View>
           </View>
         </View>
-        <Pressable
-          style={styles.completeRecordButton}
+
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={styles.primaryBtn}
           onPress={handleFinishRecording}
           accessibilityRole="button"
           accessibilityLabel="Finish set and view exercise statistics"
         >
           <LinearGradient
-            colors={["#1967B2", "#2B90EA"]}
+            colors={BUTTON_GRADIENT}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.buttonGradient}
-          >
-            <Text style={styles.buttonText}>VIEW EXERCISE STATS</Text>
-            <ArrowRight size={18} color="#FFFFFF" strokeWidth={2.5} />
-          </LinearGradient>
-        </Pressable>
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <LinearGradient
+            colors={SHEEN}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={styles.primarySheen}
+            pointerEvents="none"
+          />
+          <Text style={styles.primaryBtnText}>VIEW EXERCISE STATS</Text>
+          <View style={styles.primaryTrail}>
+            <ArrowRight size={14} color="#FFFFFF" strokeWidth={2.6} />
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -209,7 +280,7 @@ export const AiWorkoutCameraRecordScreen: React.FC<
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#070A11",
+    backgroundColor: "#060810",
   },
   topHeader: {
     paddingHorizontal: 20,
@@ -218,318 +289,248 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     zIndex: 10,
   },
-  headerLeftCol: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
+  headerSide: {
+    width: 42,
+  },
+  headerSideRight: {
+    alignItems: "flex-end",
   },
   iconCircleBtn: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: "rgba(10, 16, 26, 0.85)",
-    borderWidth: 1.2,
-    borderColor: "rgba(255, 255, 255, 0.18)",
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(6,8,16,0.6)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.16)",
   },
-  recBadge: {
+  livePill: {
     flexDirection: "row",
     alignItems: "center",
     gap: 7,
-    backgroundColor: "rgba(10, 16, 26, 0.85)",
-    borderWidth: 1.2,
-    borderColor: "rgba(239, 68, 68, 0.4)",
     paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 18,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: "rgba(6,8,16,0.6)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.35)",
   },
-  recDot: {
-    width: 8,
-    height: 8,
+  liveDot: {
+    width: 7,
+    height: 7,
     borderRadius: 4,
-    backgroundColor: "#EF4444",
+    backgroundColor: "#F87171",
   },
-  recText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
-  headerRightActions: {
-    flexDirection: "row",
-    alignItems: "center",
+  liveText: {
+    ...typography.badge,
+    color: "#F1F5F9",
+    fontVariant: ["tabular-nums"],
   },
 
-  // Framing Corner Guides
+  // Framing guides
+  frameArea: {
+    position: "absolute",
+    top: "12%",
+    bottom: "37%",
+    left: 24,
+    right: 24,
+  },
   cornerGuide: {
     position: "absolute",
-    width: 24,
-    height: 24,
-    borderColor: "#38EDD8",
-    zIndex: 4,
+    width: 28,
+    height: 28,
+    borderColor: "rgba(125,211,252,0.85)",
   },
   cornerTL: {
-    top: 14,
-    left: 14,
+    top: 0,
+    left: 0,
     borderTopWidth: 3,
     borderLeftWidth: 3,
-    borderTopLeftRadius: 8,
+    borderTopLeftRadius: 12,
   },
   cornerTR: {
-    top: 14,
-    right: 14,
+    top: 0,
+    right: 0,
     borderTopWidth: 3,
     borderRightWidth: 3,
-    borderTopRightRadius: 8,
+    borderTopRightRadius: 12,
   },
   cornerBL: {
-    bottom: 14,
-    left: 14,
+    bottom: 0,
+    left: 0,
     borderBottomWidth: 3,
     borderLeftWidth: 3,
-    borderBottomLeftRadius: 8,
+    borderBottomLeftRadius: 12,
   },
   cornerBR: {
-    bottom: 14,
-    right: 14,
+    bottom: 0,
+    right: 0,
     borderBottomWidth: 3,
     borderRightWidth: 3,
-    borderBottomRightRadius: 8,
+    borderBottomRightRadius: 12,
   },
 
-  // Floating Cue
-  cueWrapper: {
-    alignItems: "center",
-    marginTop: 16,
-    zIndex: 10,
-  },
-  cuePill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "rgba(9, 21, 26, 0.88)",
-    borderWidth: 1.4,
-    borderColor: "rgba(56, 237, 216, 0.55)",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    shadowColor: "#38EDD8",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  cueText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-
-  // Bottom Overlay
+  // Bottom panel
   bottomOverlayContainer: {
     marginTop: "auto",
     paddingHorizontal: 20,
     zIndex: 10,
   },
-  exerciseInfoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 14,
-  },
-  cyanIndicator: {
-    width: 4,
-    height: 38,
-    borderRadius: 2,
-    backgroundColor: "#38EDD8",
-  },
-  exerciseTitleCol: {
-    flex: 1,
+  exerciseHead: {
+    gap: 2,
+    marginBottom: 10,
   },
   exerciseTag: {
-    color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textTransform: "uppercase",
+    ...typography.overline,
+    color: ACCENT_SOFT,
   },
   exerciseTitleText: {
-    color: "#FFFFFF",
+    ...typography.metric,
     fontSize: 20,
-    fontWeight: "800",
-    letterSpacing: 0.6,
+    lineHeight: 26,
+    letterSpacing: 0.2,
+    color: "#FFFFFF",
     textTransform: "uppercase",
   },
+  exerciseSteps: {
+    flexDirection: "row",
+    gap: 4,
+    marginTop: 4,
+  },
+  exerciseStep: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(148,163,184,0.22)",
+  },
+  exerciseStepDone: {
+    backgroundColor: "rgba(56,189,248,0.55)",
+  },
+  exerciseStepActive: {
+    backgroundColor: ACCENT,
+  },
 
-  // Telemetry Cards
   telemetryRow: {
     flexDirection: "row",
-    gap: 12,
-    marginBottom: 16,
+    gap: 10,
+    marginBottom: 10,
   },
   telemetryCard: {
     flex: 1,
-    backgroundColor: "rgba(18, 22, 33, 0.9)",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     borderRadius: 20,
+    backgroundColor: "rgba(17,26,37,0.86)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    padding: 14,
-    justifyContent: "space-between",
+    borderColor: "rgba(56,189,248,0.2)",
   },
-  cardMiniLabel: {
-    color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  cardTopFlex: {
+  cardTop: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: 8,
   },
-  repsNumRow: {
+  iconChip: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
+  },
+  cardMiniLabel: {
+    ...typography.overline,
+    color: "#94A3B8",
+  },
+  valueRow: {
     flexDirection: "row",
     alignItems: "baseline",
     gap: 4,
-    marginVertical: 4,
   },
-  repsLargeNum: {
-    color: "#FFFFFF",
-    fontSize: 40,
-    lineHeight: 44,
-    fontWeight: "800",
+  bigValue: {
+    ...typography.metric,
+    fontSize: 28,
+    lineHeight: 32,
+    color: "#F8FAFC",
   },
-  repsTargetNum: {
+  valueUnit: {
+    ...typography.metricUnit,
+    fontSize: 14,
+    lineHeight: 18,
     color: "#64748B",
-    fontSize: 16,
-    fontWeight: "800",
   },
-  cardHelperText: {
-    color: "#38EDD8",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+  repTrack: {
+    height: 6,
+    borderRadius: 3,
+    overflow: "hidden",
+    backgroundColor: "rgba(148,163,184,0.16)",
   },
-  accuracyLargeNum: {
-    color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 38,
-    fontWeight: "800",
-    marginVertical: 4,
+  repFill: {
+    height: "100%",
+    borderRadius: 3,
+    backgroundColor: ACCENT,
   },
-  optimalFormBadge: {
-    backgroundColor: "rgba(56, 237, 216, 0.15)",
+  formPill: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 8,
-    alignSelf: "flex-start",
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.12)",
   },
-  optimalFormText: {
-    color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+  formDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: ACCENT,
+  },
+  formPillText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
   },
 
-  // Action Button
-  completeRecordButton: {
-    width: "100%",
-    height: 54,
-    borderRadius: 27,
+  primaryBtn: {
+    height: 50,
+    borderRadius: 16,
     overflow: "hidden",
-    shadowColor: "#258CE8",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.45,
-    shadowRadius: 16,
-    elevation: 8,
-    marginBottom: 10,
-  },
-  buttonGradient: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: ACCENT,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 14,
+      },
+      web: { boxShadow: "0 8px 22px rgba(56,189,248,0.28)" } as any,
+      default: {},
+    }),
   },
-  buttonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "800",
-    letterSpacing: 0.8,
-  },
-  skipLink: {
-    alignItems: "center",
-    paddingVertical: 6,
-  },
-  skipLinkText: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  cameraFallbackContainer: {
+  primarySheen: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 32,
-    backgroundColor: "#0B0E17",
-    zIndex: 1,
+    height: "55%",
   },
-  cameraFallbackIconWrapper: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: "rgba(56, 237, 216, 0.1)",
-    borderWidth: 1.5,
-    borderColor: "rgba(56, 237, 216, 0.35)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
-  },
-  cameraFallbackTitle: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    lineHeight: 20,
-    fontWeight: "800",
-    letterSpacing: 0.8,
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  cameraFallbackText: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "500",
-    textAlign: "center",
-    marginBottom: 20,
-    maxWidth: 290,
-  },
-  enableCameraBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "rgba(10, 20, 30, 0.95)",
-    borderWidth: 1.4,
-    borderColor: "#38EDD8",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 22,
-    shadowColor: "#38EDD8",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  enableCameraBtnText: {
-    color: "#38EDD8",
-    fontSize: 12,
-    fontWeight: "700",
+  primaryBtnText: {
+    ...typography.button,
     letterSpacing: 1,
+    color: "#FFFFFF",
+  },
+  primaryTrail: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
   },
 });

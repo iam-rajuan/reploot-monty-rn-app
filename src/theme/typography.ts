@@ -241,6 +241,15 @@ export const typography = {
     letterSpacing: -1,
     fontVariant: ["tabular-nums"],
   },
+  /** Full-screen countdown digit before a workout starts (3 → 2 → 1). */
+  countdown: {
+    fontFamily: inter[800],
+    fontWeight: "800",
+    fontSize: 96,
+    lineHeight: 104,
+    letterSpacing: -2,
+    fontVariant: ["tabular-nums"],
+  },
   /** Primary number inside a card (calories, weight, streak). */
   metricLarge: {
     fontFamily: inter[800],

@@ -54,10 +54,10 @@ export interface GetReadyScreenProps {
 }
 
 const DEFAULT_REQUIREMENTS: GetReadyRequirement[] = [
-  { id: "dist", label: "Stand 2–3 meters away" },
-  { id: "visible", label: "Keep your full body visible" },
-  { id: "light", label: "Ensure good lighting" },
-  { id: "clear", label: "Clear the space around you" },
+  { id: "dist", label: "2–3 m away" },
+  { id: "visible", label: "Body in view" },
+  { id: "light", label: "Good lighting" },
+  { id: "clear", label: "Clear space" },
 ];
 
 const REQUIREMENT_ICONS: Record<string, LucideIcon> = {
@@ -240,7 +240,7 @@ export const GetReadyScreen: React.FC<GetReadyScreenProps> = ({
           <View style={styles.cardHeader}>
             <View style={styles.cardHeaderLeft}>
               <View style={styles.iconChip}>
-                <ListChecks size={13} color={ACCENT} strokeWidth={2.4} />
+                <ListChecks size={12} color={ACCENT} strokeWidth={2.4} />
               </View>
               <Text style={styles.sectionLabel}>QUICK CHECK</Text>
             </View>
@@ -252,7 +252,7 @@ export const GetReadyScreen: React.FC<GetReadyScreenProps> = ({
           </View>
 
           <View style={styles.requirementsList}>
-            {DEFAULT_REQUIREMENTS.map((item, index) => {
+            {DEFAULT_REQUIREMENTS.map((item) => {
               const isChecked = checkedIds.includes(item.id);
               const Icon = REQUIREMENT_ICONS[item.id] || Check;
               return (
@@ -261,20 +261,18 @@ export const GetReadyScreen: React.FC<GetReadyScreenProps> = ({
                   activeOpacity={0.75}
                   style={[
                     styles.requirementItem,
-                    index > 0 && styles.requirementDivider,
+                    isChecked && styles.requirementItemOn,
                   ]}
                   onPress={() => toggleRequirement(item.id)}
                   accessibilityRole="checkbox"
                   accessibilityState={{ checked: isChecked }}
                   accessibilityLabel={item.label}
                 >
-                  <View style={[styles.reqIcon, !isChecked && styles.reqIconOff]}>
-                    <Icon
-                      size={13}
-                      color={isChecked ? ACCENT : "#64748B"}
-                      strokeWidth={2.2}
-                    />
-                  </View>
+                  <Icon
+                    size={14}
+                    color={isChecked ? ACCENT : "#64748B"}
+                    strokeWidth={2.2}
+                  />
                   <Text
                     style={[
                       styles.requirementText,
@@ -288,7 +286,7 @@ export const GetReadyScreen: React.FC<GetReadyScreenProps> = ({
                     style={[styles.checkCircle, isChecked && styles.checkCircleChecked]}
                   >
                     {isChecked ? (
-                      <Check size={11} color="#FFFFFF" strokeWidth={3.2} />
+                      <Check size={10} color="#FFFFFF" strokeWidth={3.4} />
                     ) : null}
                   </View>
                 </TouchableOpacity>
@@ -339,7 +337,7 @@ const styles = StyleSheet.create({
     paddingTop: 2,
   },
   titleSection: {
-    marginBottom: 12,
+    marginBottom: 10,
     gap: 2,
   },
   categoryBadge: {
@@ -358,14 +356,14 @@ const styles = StyleSheet.create({
   // Camera
   cameraBox: {
     flex: 1,
-    minHeight: 240,
+    minHeight: 280,
     width: "100%",
     borderRadius: 26,
     overflow: "hidden",
     backgroundColor: "#0B111B",
     borderWidth: 1,
     borderColor: "rgba(56,189,248,0.3)",
-    marginBottom: 12,
+    marginBottom: 10,
     alignItems: "center",
   },
   cameraBackdrop: {
@@ -464,30 +462,29 @@ const styles = StyleSheet.create({
   // Checklist card
   card: {
     backgroundColor: "#111A25",
-    borderRadius: 22,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: "rgba(56,189,248,0.18)",
-    paddingHorizontal: 14,
-    paddingTop: 12,
-    paddingBottom: 2,
-    marginBottom: 12,
+    padding: 10,
+    gap: 8,
+    marginBottom: 10,
     overflow: "hidden",
   },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 2,
+    paddingHorizontal: 2,
   },
   cardHeaderLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
   },
   iconChip: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(56,189,248,0.10)",
@@ -495,14 +492,12 @@ const styles = StyleSheet.create({
     borderColor: "rgba(56,189,248,0.22)",
   },
   sectionLabel: {
-    ...typography.sectionTitle,
-    fontSize: 12,
-    lineHeight: 16,
+    ...typography.overline,
     color: "#E5EEF8",
   },
   pill: {
-    paddingHorizontal: 9,
-    paddingVertical: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
     borderRadius: 999,
     backgroundColor: "rgba(148,163,184,0.10)",
     borderWidth: 1,
@@ -519,42 +514,42 @@ const styles = StyleSheet.create({
   pillTextDone: {
     color: ACCENT_SOFT,
   },
-  requirementsList: {},
+  requirementsList: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    rowGap: 6,
+  },
   requirementItem: {
+    width: "49%",
+    height: 36,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    paddingVertical: 8,
+    gap: 7,
+    paddingHorizontal: 9,
+    borderRadius: 12,
+    backgroundColor: "rgba(6,8,16,0.45)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.12)",
   },
-  requirementDivider: {
-    borderTopWidth: 1,
-    borderTopColor: "rgba(148,163,184,0.10)",
-  },
-  reqIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(56,189,248,0.10)",
-  },
-  reqIconOff: {
-    backgroundColor: "rgba(148,163,184,0.08)",
+  requirementItemOn: {
+    borderColor: "rgba(56,189,248,0.28)",
   },
   requirementText: {
-    ...typography.subtitle,
-    fontSize: 13,
-    lineHeight: 18,
+    ...typography.caption,
+    fontSize: 12,
+    lineHeight: 16,
     flex: 1,
+    minWidth: 0,
     color: "#F1F5F9",
   },
   requirementTextOff: {
     color: "#64748B",
   },
   checkCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
