@@ -7,8 +7,10 @@ import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from "react-native-gesture-handler/ReanimatedSwipeable";
 import {
+  ArrowRight,
   Calendar,
   Camera,
+  MessageCircle,
   Check,
   Clock,
   Flame,
@@ -28,6 +30,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  TouchableOpacity,
   StyleSheet,
   View,
 } from "react-native";
@@ -65,6 +68,15 @@ export interface DayHistory {
 }
 
 const MEAL_ACTION_DRAWER_WIDTH = 144;
+// One accent for the whole page.
+const ACCENT = "#38BDF8";
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.10)",
+  "rgba(139,92,246,0.05)",
+  "rgba(255,255,255,0.02)",
+] as const;
 const MealItemSeparator = () => <View style={styles.mealItemSeparator} />;
 
 const MealSwipeShell = ({
@@ -370,31 +382,30 @@ export default function UnifiedMealPlanScreen() {
     <>
       {/* Title Header */}
       <View style={styles.titleSection}>
-        <View style={styles.titleBadge}>
-          <Sparkles size={11} color="#38BDF8" />
-          <Text style={styles.titleBadgeText}>AI NUTRITION MATRIX</Text>
-        </View>
         <Text style={styles.mainTitle}>MEALS & LOGS</Text>
+        <Text style={styles.titleSub}>
+          {loggedMeals.length}/{meals.length} meals logged today
+        </Text>
       </View>
 
       {/* Meal Logged Confirmation Banner */}
       {justLoggedBannerVisible && (
         <View style={styles.loggedSuccessBanner}>
           <LinearGradient
-            colors={["rgba(45, 212, 191, 0.16)", "rgba(56, 189, 248, 0.08)"]}
+            colors={["rgba(56, 189, 248, 0.16)", "rgba(56, 189, 248, 0.06)"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.loggedSuccessGradient}
           >
             <View style={styles.loggedSuccessIconCircle}>
-              <Check size={13} color="#2DD4BF" strokeWidth={3} />
+              <Check size={13} color="#FFFFFF" strokeWidth={3} />
             </View>
             <View style={styles.loggedSuccessTextCol}>
               <Text style={styles.loggedSuccessTitle}>
-                MEAL LOGGED TO TODAY'S SCHEDULE
+                Meal logged
               </Text>
               <Text style={styles.loggedSuccessSub}>
-                Saved to today's schedule and marked as completed
+                Added to today's schedule as completed
               </Text>
             </View>
             <Pressable
@@ -423,7 +434,7 @@ export default function UnifiedMealPlanScreen() {
         >
           <Utensils
             size={13}
-            color={viewMode === "today" ? "#38BDF8" : "#64748B"}
+            color={viewMode === "today" ? "#F8FAFC" : "#64748B"}
           />
           <Text
             style={[
@@ -431,7 +442,7 @@ export default function UnifiedMealPlanScreen() {
               viewMode === "today" && styles.tabBtnTextActive,
             ]}
           >
-            TODAY'S SCHEDULE
+            TODAY
           </Text>
         </Pressable>
 
@@ -446,7 +457,7 @@ export default function UnifiedMealPlanScreen() {
         >
           <Calendar
             size={13}
-            color={viewMode === "week" ? "#38BDF8" : "#64748B"}
+            color={viewMode === "week" ? "#F8FAFC" : "#64748B"}
           />
           <Text
             style={[
@@ -454,7 +465,7 @@ export default function UnifiedMealPlanScreen() {
               viewMode === "week" && styles.tabBtnTextActive,
             ]}
           >
-            WEEK HISTORY
+            HISTORY
           </Text>
         </Pressable>
       </View>
@@ -463,11 +474,9 @@ export default function UnifiedMealPlanScreen() {
 
   const bottomActions = (
     <View style={styles.actionsContainer}>
-      <Pressable
-        style={({ pressed }) => [
-          styles.scanBtn,
-          pressed && { opacity: 0.92, transform: [{ scale: 0.99 }] },
-        ]}
+      <TouchableOpacity
+        activeOpacity={0.88}
+        style={styles.scanBtn}
         onPress={() => {
           triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
           router.push("/scan-meal");
@@ -476,38 +485,39 @@ export default function UnifiedMealPlanScreen() {
         accessibilityLabel="Scan food to log"
       >
         <LinearGradient
-          colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
+          colors={BUTTON_GRADIENT}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
           style={styles.scanBtnGradient}
         >
-          <Camera size={16} color="#FFFFFF" style={{ marginRight: 8 }} />
-          <Text style={styles.scanBtnText}>SCAN MEAL TO LOG</Text>
+          <LinearGradient
+            pointerEvents="none"
+            colors={SHEEN}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={styles.btnSheen}
+          />
+          <Camera size={17} color="#FFFFFF" strokeWidth={2.4} />
+          <Text style={styles.scanBtnText}>SCAN A MEAL</Text>
+          <View style={styles.btnTrail}>
+            <ArrowRight size={14} color="#FFFFFF" strokeWidth={2.6} />
+          </View>
         </LinearGradient>
-      </Pressable>
+      </TouchableOpacity>
 
-      <Pressable
-        style={({ pressed }) => [
-          styles.adjustBtn,
-          pressed && { opacity: 0.85, transform: [{ scale: 0.99 }] },
-        ]}
+      <TouchableOpacity
+        activeOpacity={0.8}
+        style={styles.adjustBtn}
         onPress={() => {
           triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
           router.push("/coach?context=nutrition");
         }}
         accessibilityRole="button"
-        accessibilityLabel="Adjust meal plan with AI"
+        accessibilityLabel="Adjust meal plan with your coach"
       >
-        <LinearGradient
-          colors={["rgba(56, 189, 248, 0.14)", "rgba(2, 132, 199, 0.05)"]}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={styles.adjustBtnGradient}
-        >
-          <Sparkles size={15} color="#38BDF8" style={{ marginRight: 8 }} />
-          <Text style={styles.adjustBtnText}>ADJUST MEAL PLAN WITH AI</Text>
-        </LinearGradient>
-      </Pressable>
+        <MessageCircle size={16} color="#7DD3FC" strokeWidth={2.3} />
+        <Text style={styles.adjustBtnText}>ADJUST WITH COACH</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -518,9 +528,9 @@ export default function UnifiedMealPlanScreen() {
         {/* Meal Schedule Section Header */}
         <View style={styles.sectionHeader}>
           <View style={styles.sectionIconBadge}>
-            <Utensils size={12} color="#38BDF8" />
+            <Utensils size={13} color={ACCENT} />
           </View>
-          <Text style={styles.sectionTitle}>TODAY'S SCHEDULE</Text>
+          <Text style={styles.sectionTitle}>TODAY'S MEALS</Text>
           <View style={styles.sectionCountBadge}>
             <Text style={styles.sectionCountText}>
               {loggedMeals.length}/{meals.length} LOGGED
@@ -630,6 +640,13 @@ export default function UnifiedMealPlanScreen() {
                         styles.mealCardJustLogged,
                     ]}
                   >
+                    <LinearGradient
+                      pointerEvents="none"
+                      colors={SURFACE_WASH}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={StyleSheet.absoluteFill}
+                    />
                     {/* Top Row: Type Label + Time + Action Button */}
                     <View style={styles.mealTopRow}>
                       <View style={styles.mealBadgeGroup}>
@@ -651,14 +668,7 @@ export default function UnifiedMealPlanScreen() {
                               </Text>
                             </View>
                           ) : (
-                            <Text
-                              style={[
-                                styles.typeText,
-                                { color: meal.typeColor },
-                              ]}
-                            >
-                              {meal.type}
-                            </Text>
+                            <Text style={styles.typeText}>{meal.type}</Text>
                           )}
                         </View>
 
@@ -674,25 +684,27 @@ export default function UnifiedMealPlanScreen() {
 
                       {/* Log / Completed Action Button */}
                       {meal.completed ? (
-                        <Pressable
+                        <TouchableOpacity
+                          activeOpacity={0.8}
                           style={styles.completedBtn}
                           onPress={() => handleToggleMealLog(meal.id)}
                           accessibilityRole="button"
                           accessibilityLabel="Meal logged, tap to unmark"
                         >
-                          <Check size={12} color="#2DD4BF" strokeWidth={2.5} />
+                          <Check size={12} color="#04121C" strokeWidth={3} />
                           <Text style={styles.completedBtnText}>LOGGED</Text>
-                        </Pressable>
+                        </TouchableOpacity>
                       ) : (
-                        <Pressable
+                        <TouchableOpacity
+                          activeOpacity={0.8}
                           style={styles.logBtn}
                           onPress={() => handleToggleMealLog(meal.id)}
                           accessibilityRole="button"
                           accessibilityLabel="Log meal"
                         >
-                          <Plus size={12} color="#38BDF8" strokeWidth={2.5} />
+                          <Plus size={12} color="#7DD3FC" strokeWidth={2.8} />
                           <Text style={styles.logBtnText}>LOG</Text>
-                        </Pressable>
+                        </TouchableOpacity>
                       )}
                     </View>
 
@@ -741,11 +753,13 @@ export default function UnifiedMealPlanScreen() {
           {/* Week History Section Header */}
           <View style={styles.sectionHeader}>
             <View style={styles.sectionIconBadge}>
-              <Calendar size={12} color="#38BDF8" />
+              <Calendar size={13} color={ACCENT} />
             </View>
-            <Text style={styles.sectionTitle}>7-DAY NUTRITION HISTORY</Text>
+            <Text style={styles.sectionTitle}>LAST 7 DAYS</Text>
             <View style={styles.sectionCountBadge}>
-              <Text style={styles.sectionCountText}>PAST 7 DAYS</Text>
+              <Text style={styles.sectionCountText}>
+                {computedWeekHistory.filter((d) => d.mealsLogged === d.totalMeals).length}/7 COMPLETE
+              </Text>
             </View>
           </View>
 
@@ -766,6 +780,13 @@ export default function UnifiedMealPlanScreen() {
                     day.isToday && styles.historyCardToday,
                   ]}
                 >
+                  <LinearGradient
+                    pointerEvents="none"
+                    colors={SURFACE_WASH}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={StyleSheet.absoluteFill}
+                  />
                   {/* Header Row: Day Info on Left, Calories & Status on Right */}
                   <View style={styles.historyCardHeader}>
                     <View style={styles.historyDateCol}>
@@ -807,7 +828,7 @@ export default function UnifiedMealPlanScreen() {
                       >
                         <Check
                           size={10}
-                          color={isFullyLogged ? "#2DD4BF" : "#94A3B8"}
+                          color={isFullyLogged ? "#7DD3FC" : "#94A3B8"}
                         />
                         <Text
                           style={[
@@ -825,11 +846,7 @@ export default function UnifiedMealPlanScreen() {
                   <View style={styles.historyBarContainer}>
                     <View style={styles.historyBarTrack}>
                       <LinearGradient
-                        colors={
-                          progressPct >= 95
-                            ? ["#0284C7", "#2DD4BF"]
-                            : ["#0284C7", "#38BDF8"]
-                        }
+                        colors={["#0EA5E9", "#7DD3FC"]}
                         start={{ x: 0, y: 0.5 }}
                         end={{ x: 1, y: 0.5 }}
                         style={[
@@ -907,104 +924,78 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     marginTop: 6,
-    marginBottom: 18,
-  },
-  titleBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: "rgba(56, 189, 248, 0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.25)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    gap: 5,
-    marginBottom: 8,
-  },
-  titleBadgeText: {
-    color: "#38BDF8",
-    fontSize: clampFontSize(10),
-    letterSpacing: 1.2,
+    marginBottom: 16,
+    gap: 4,
   },
   mainTitle: {
     ...typography.pageTitle,
     color: "#FFFFFF",
   },
-  subtitle: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(13),
-    lineHeight: 18,
-    fontWeight: "500",
-    marginTop: 4,
-  },
   tabSwitcher: {
     flexDirection: "row",
-    backgroundColor: "#0B101D",
-    borderRadius: 12,
+    gap: 6,
+    padding: 4,
+    marginBottom: 18,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.03)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 3,
-    marginBottom: 20,
-    gap: 4,
+    borderColor: "rgba(148,163,184,0.14)",
   },
   tabBtn: {
     flex: 1,
     height: 40,
+    borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 9,
-    gap: 6,
+    gap: 7,
+    borderWidth: 1,
+    borderColor: "transparent",
   },
   tabBtnActive: {
-    backgroundColor: "#162035",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.35)",
+    backgroundColor: "rgba(56,189,248,0.16)",
+    borderColor: "rgba(56,189,248,0.5)",
   },
   tabBtnText: {
-    color: "#64748B",
-    fontSize: clampFontSize(11),
-    fontWeight: "700",
+    ...typography.buttonSmall,
+    color: "#8B9AB0",
     letterSpacing: 0.8,
   },
   tabBtnTextActive: {
-    color: "#38BDF8",
-    fontWeight: "800",
+    color: "#F8FAFC",
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 14,
+    gap: 10,
+    marginBottom: 12,
   },
   sectionIconBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    backgroundColor: "rgba(56, 189, 248, 0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.25)",
-    justifyContent: "center",
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: "center",
-    marginRight: 8,
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
   },
   sectionTitle: {
-    color: "#CBD5E1",
-    fontSize: clampFontSize(12),
-    letterSpacing: 1,
+    ...typography.sectionTitle,
+    color: "#E5EEF8",
     flex: 1,
   },
   sectionCountBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    borderColor: "rgba(56,189,248,0.3)",
   },
   sectionCountText: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(10),
+    ...typography.badge,
+    color: "#7DD3FC",
   },
   mealList: {
     marginBottom: 22,
@@ -1032,9 +1023,9 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#222736",
+    backgroundColor: "rgba(56,189,248,0.18)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.16)",
+    borderColor: "rgba(56,189,248,0.45)",
   },
   mealDeleteCircle: {
     width: 44,
@@ -1042,57 +1033,51 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#EF4444",
+    backgroundColor: "rgba(244,63,94,0.18)",
     borderWidth: 1,
-    borderColor: "#DC2626",
+    borderColor: "rgba(244,63,94,0.45)",
   },
   mealRegenerateLabel: {
-    color: "#CBD5E1",
-    fontSize: 9,
-    fontWeight: "700",
+    ...typography.caption,
+    fontWeight: "600",
+    color: "#7DD3FC",
     marginTop: 4,
   },
   mealDeleteLabel: {
-    color: "#EF4444",
-    fontSize: 9,
-    fontWeight: "700",
+    ...typography.caption,
+    fontWeight: "600",
+    color: "#FB7185",
     marginTop: 4,
   },
   mealCard: {
-    backgroundColor: "#0D1322",
-    borderRadius: 16,
+    backgroundColor: "#111A25",
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.07)",
+    borderColor: "rgba(56,189,248,0.16)",
     padding: isSmallDevice ? 14 : 16,
+    gap: 10,
+    overflow: "hidden",
   },
   mealCardDragging: {
-    opacity: 0.92,
-    transform: [{ scale: 1.015 }],
+    borderColor: "#38BDF8",
+    transform: [{ scale: 1.02 }],
   },
   mealCardCompleted: {
-    borderColor: "rgba(45, 212, 191, 0.32)",
-    backgroundColor: "#0C171F",
+    borderColor: "rgba(56,189,248,0.35)",
   },
   mealCardScanned: {
-    borderColor: "rgba(56, 189, 248, 0.35)",
-    backgroundColor: "#0B1422",
+    borderStyle: "dashed",
   },
   scannedTypeBadge: {
-    backgroundColor: "rgba(56, 189, 248, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.35)",
-    paddingHorizontal: 7,
-    paddingVertical: 2.5,
-    borderRadius: 6,
+    backgroundColor: "rgba(56,189,248,0.14)",
   },
   scannedBadgeContent: {
     flexDirection: "row",
     alignItems: "center",
   },
   scannedTypeText: {
-    color: "#38BDF8",
-    fontSize: clampFontSize(10),
-    letterSpacing: 0.8,
+    ...typography.badge,
+    color: "#7DD3FC",
   },
   scannedDividerRow: {
     flexDirection: "row",
@@ -1122,142 +1107,152 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   mealCardJustLogged: {
-    borderColor: "rgba(45, 212, 191, 0.8)",
+    borderColor: "#38BDF8",
     borderWidth: 1.5,
   },
   loggedSuccessBanner: {
-    marginBottom: 16,
-    borderRadius: 14,
+    marginBottom: 14,
+    borderRadius: 16,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.4)",
+    borderColor: "rgba(56,189,248,0.35)",
   },
   loggedSuccessGradient: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    gap: 10,
+    gap: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
   },
   loggedSuccessIconCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: "rgba(45, 212, 191, 0.2)",
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#0EA5E9",
   },
   loggedSuccessTextCol: {
     flex: 1,
+    gap: 2,
   },
   loggedSuccessTitle: {
-    color: "#2DD4BF",
-    fontSize: clampFontSize(11),
-    letterSpacing: 0.5,
+    ...typography.cardTitle,
+    fontSize: 14,
+    lineHeight: 18,
+    color: "#F8FAFC",
   },
   loggedSuccessSub: {
+    ...typography.caption,
     color: "#94A3B8",
-    fontSize: clampFontSize(10),
-    marginTop: 2,
   },
   loggedSuccessDismiss: {
-    padding: 4,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.05)",
   },
   mealTopRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 8,
   },
   mealBadgeGroup: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    flex: 1,
   },
   typeBadge: {
-    paddingHorizontal: 0,
-    paddingVertical: 0,
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
   },
   typeText: {
-    fontSize: clampFontSize(10),
-    letterSpacing: 0.8,
+    ...typography.badge,
+    color: "#7DD3FC",
   },
   timingBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
+    flexShrink: 1,
   },
   timingText: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(11),
+    ...typography.caption,
+    color: "#8B9AB0",
   },
   prepTimeDot: {
+    ...typography.caption,
     color: "#475569",
-    fontSize: 9,
   },
   prepTimeText: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(11),
+    ...typography.caption,
+    color: "#8B9AB0",
   },
   completedBtn: {
+    height: 32,
+    paddingHorizontal: 12,
+    borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(45, 212, 191, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.45)",
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
     gap: 4,
+    backgroundColor: "#38BDF8",
+    borderWidth: 1,
+    borderColor: "#38BDF8",
   },
   completedBtnText: {
-    color: "#2DD4BF",
-    fontSize: clampFontSize(10),
-    letterSpacing: 0.6,
+    ...typography.badge,
+    color: "#04121C",
   },
   logBtn: {
+    height: 32,
+    paddingHorizontal: 12,
+    borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(56, 189, 248, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.35)",
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
     gap: 4,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.35)",
   },
   logBtnText: {
-    color: "#38BDF8",
-    fontSize: clampFontSize(10),
-    letterSpacing: 0.6,
+    ...typography.badge,
+    color: "#7DD3FC",
   },
   mealName: {
+    ...typography.cardTitle,
     color: "#F8FAFC",
-    fontSize: clampFontSize(16),
-    lineHeight: 20,
-    fontWeight: "700",
-    letterSpacing: 0.2,
-    marginTop: 10,
-    marginBottom: 12,
   },
   mealBottomRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 8,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(148,163,184,0.10)",
   },
   kcalBadge: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
+    alignItems: "baseline",
+    gap: 4,
   },
   kcalNumber: {
-    color: "#38BDF8",
-    fontSize: clampFontSize(13),
+    ...typography.cardTitle,
+    color: "#F8FAFC",
+    fontVariant: ["tabular-nums"],
   },
   kcalLabel: {
-    color: "#38BDF8",
-    fontSize: clampFontSize(10),
-    opacity: 0.85,
+    ...typography.overline,
+    color: "#8B9AB0",
   },
   mealMacrosRow: {
     flexDirection: "row",
@@ -1265,33 +1260,34 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   macroVal: {
+    ...typography.caption,
+    fontWeight: "700",
     color: "#CBD5E1",
-    fontSize: clampFontSize(12),
+    fontVariant: ["tabular-nums"],
   },
   macroDotDivider: {
-    color: "#64748B",
-    fontSize: 11,
-    lineHeight: 14,
-    marginHorizontal: 1,
+    ...typography.caption,
+    color: "#334155",
   },
   macroKey: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(10),
+    fontWeight: "600",
+    color: "#64748B",
   },
   historyList: {
     gap: 12,
     marginBottom: 22,
   },
   historyCard: {
-    backgroundColor: "#0D1322",
-    borderRadius: 16,
+    backgroundColor: "#111A25",
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.07)",
+    borderColor: "rgba(56,189,248,0.14)",
     padding: isSmallDevice ? 14 : 16,
+    gap: 12,
+    overflow: "hidden",
   },
   historyCardToday: {
-    borderColor: "rgba(56, 189, 248, 0.32)",
-    backgroundColor: "#0D1829",
+    borderColor: "rgba(56,189,248,0.45)",
   },
   historyCardHeader: {
     flexDirection: "row",
@@ -1307,29 +1303,27 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   historyDayTitle: {
-    color: "#FFFFFF",
-    fontSize: clampFontSize(13),
-    letterSpacing: 0.8,
+    ...typography.cardTitle,
+    fontSize: 14,
+    lineHeight: 18,
+    color: "#E5EEF8",
   },
   historyDayTitleToday: {
-    color: "#38BDF8",
+    color: "#F8FAFC",
   },
   currentBadge: {
-    backgroundColor: "rgba(56, 189, 248, 0.15)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    paddingHorizontal: 5,
-    paddingVertical: 1.5,
-    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
+    backgroundColor: "#0EA5E9",
   },
   currentBadgeText: {
-    color: "#38BDF8",
-    fontSize: clampFontSize(9),
-    letterSpacing: 0.5,
+    ...typography.badge,
+    color: "#FFFFFF",
   },
   historyDateSubtitle: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(10),
+    ...typography.overline,
+    color: "#64748B",
     marginTop: 2,
   },
   historyRightCol: {
@@ -1342,35 +1336,35 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   historyCaloriesText: {
-    color: "#FFFFFF",
-    fontSize: clampFontSize(13),
+    ...typography.cardTitle,
+    color: "#F8FAFC",
+    fontVariant: ["tabular-nums"],
   },
   historyTargetText: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(10),
+    ...typography.caption,
+    color: "#64748B",
   },
   mealsLoggedPill: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 6,
-    paddingVertical: 3,
-    paddingHorizontal: 6,
     gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(148,163,184,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.2)",
   },
   mealsLoggedPillComplete: {
-    backgroundColor: "rgba(45, 212, 191, 0.12)",
-    borderColor: "rgba(45, 212, 191, 0.35)",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderColor: "rgba(56,189,248,0.35)",
   },
   mealsLoggedText: {
+    ...typography.badge,
     color: "#94A3B8",
-    fontSize: clampFontSize(9),
-    letterSpacing: 0.4,
   },
   mealsLoggedTextComplete: {
-    color: "#2DD4BF",
+    color: "#7DD3FC",
   },
   historyBarContainer: {
     flexDirection: "row",
@@ -1380,41 +1374,36 @@ const styles = StyleSheet.create({
   },
   historyBarTrack: {
     flex: 1,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    height: 8,
+    borderRadius: 4,
     overflow: "hidden",
+    backgroundColor: "rgba(255,255,255,0.07)",
   },
   historyBarFill: {
     height: "100%",
-    borderRadius: 3,
+    borderRadius: 4,
   },
   historyProgressPercent: {
-    color: "#38BDF8",
-    fontSize: clampFontSize(10),
-    width: 34,
+    ...typography.caption,
+    fontWeight: "700",
+    color: "#CBD5E1",
+    fontVariant: ["tabular-nums"],
+    minWidth: 34,
     textAlign: "right",
   },
   historyNutrientsRow: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: isSmallDevice ? 10 : 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(148,163,184,0.10)",
   },
   nutrientCol: {
     flex: 1,
     alignItems: "flex-start",
   },
   nutrientLabel: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(10),
-    letterSpacing: 0.8,
-    marginBottom: 4,
+    ...typography.overline,
+    color: "#64748B",
   },
   nutrientValueRow: {
     flexDirection: "row",
@@ -1422,87 +1411,87 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   nutrientValue: {
-    color: "#FFFFFF",
-    fontSize: clampFontSize(12),
+    ...typography.bodySmall,
+    fontWeight: "700",
+    color: "#F1F5F9",
+    fontVariant: ["tabular-nums"],
   },
   nutrientTarget: {
-    color: "#94A3B8",
-    fontSize: clampFontSize(10),
+    ...typography.caption,
+    color: "#64748B",
   },
   nutrientDivider: {
     width: 1,
-    height: 22,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    marginHorizontal: isSmallDevice ? 4 : 8,
+    marginHorizontal: 10,
+    backgroundColor: "rgba(148,163,184,0.12)",
   },
   actionsContainer: {
-    gap: 12,
-    marginTop: 14,
-    marginBottom: 8,
+    gap: 10,
+    marginTop: 8,
   },
   scanBtn: {
-    borderRadius: 14,
-    overflow: "hidden",
+    borderRadius: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0EA5E9",
+        shadowOpacity: 0.35,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 6 },
+      },
+      android: {},
+      default: { boxShadow: "0px 8px 20px rgba(14,165,233,0.30)" },
+    }),
   },
   scanBtnGradient: {
+    height: 52,
+    borderRadius: 16,
+    overflow: "hidden",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    height: 50,
-    borderRadius: 14,
-    overflow: "hidden",
+    gap: 10,
+    paddingHorizontal: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
   },
   scanBtnText: {
+    ...typography.button,
     color: "#FFFFFF",
-    fontSize: clampFontSize(12),
-    fontWeight: "700",
     letterSpacing: 1,
   },
   adjustBtn: {
-    minHeight: 50,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: "rgba(56, 189, 248, 0.45)",
-    backgroundColor: "#0D172A",
-    overflow: "hidden",
-  },
-  adjustBtnGradient: {
-    minHeight: 47,
-    borderRadius: 13,
+    height: 50,
+    borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    gap: 8,
+    backgroundColor: "rgba(56,189,248,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
   },
   adjustBtnText: {
-    color: "#38BDF8",
-    fontSize: clampFontSize(12),
-    fontWeight: "700",
+    ...typography.button,
+    color: "#7DD3FC",
     letterSpacing: 1,
   },
-  regenerateBtn: {
-    height: 46,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.25)",
-    backgroundColor: "#0B1324",
-    overflow: "hidden",
+  titleSub: {
+    ...typography.body,
+    color: "#94A3B8",
+  },
+  btnSheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
+  },
+  btnTrail: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-  },
-  regenerateBtnPressed: {
-    backgroundColor: "rgba(56, 189, 248, 0.15)",
-  },
-  regenerateBtnContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  regenerateText: {
-    color: "#38BDF8",
-    fontSize: clampFontSize(12),
-    fontWeight: "700",
-    letterSpacing: 1,
+    backgroundColor: "rgba(255,255,255,0.2)",
   },
 });
