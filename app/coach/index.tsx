@@ -1,3 +1,5 @@
+import { CoachMascot } from "@/features/ai-coach/components/CoachMascot";
+import { CoachTypingIndicator } from "@/features/ai-coach/components/CoachTypingIndicator";
 import {
   useChatStore,
   type AssistantContext,
@@ -9,14 +11,12 @@ import { useNutritionPlanStore } from "@/stores/nutritionPlanStore";
 import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import {
-  Bot,
   Check,
   ChevronLeft,
   History,
   Pencil,
   Plus,
   Send,
-  Sparkles,
   Trash2,
   X,
 } from "lucide-react-native";
@@ -184,7 +184,7 @@ export default function CoachRoute() {
         </Pressable>
         <View style={styles.identity}>
           <View style={styles.identityIcon}>
-            <Bot color="#35E5D0" size={17} />
+            <CoachMascot size={26} />
           </View>
           <View>
             <Text style={styles.headerTitle}>AI COACH</Text>
@@ -235,7 +235,7 @@ export default function CoachRoute() {
           ) && (
             <View style={styles.welcome}>
               <View style={styles.welcomeIcon}>
-                <Sparkles color="#35E5D0" size={21} />
+                <CoachMascot size={36} />
               </View>
               <Text style={styles.welcomeTitle}>How can I help today?</Text>
               <Text style={styles.welcomeText}>
@@ -269,7 +269,7 @@ export default function CoachRoute() {
               >
                 {!user && (
                   <View style={styles.messageAvatar}>
-                    <Bot color="#35E5D0" size={14} />
+                    <CoachMascot size={22} />
                   </View>
                 )}
                 <View
@@ -315,16 +315,12 @@ export default function CoachRoute() {
             );
           })}
           {isSending && (
-            <View style={[styles.messageRow, styles.assistantRow]}>
-              <View style={styles.messageAvatar}>
-                <Bot color="#35E5D0" size={14} />
-              </View>
-              <View style={styles.typing}>
-                <View style={styles.dot} />
-                <View style={styles.dot} />
-                <View style={styles.dot} />
-              </View>
-            </View>
+            <CoachTypingIndicator
+              rowStyle={[styles.messageRow, styles.assistantRow]}
+              avatarStyle={styles.messageAvatar}
+              bubbleStyle={styles.typing}
+              mascotSize={22}
+            />
           )}
         </ScrollView>
         <View
@@ -637,7 +633,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(148,163,184,.14)",
   },
-  dot: { width: 5, height: 5, borderRadius: 4, backgroundColor: "#35E5D0" },
   proposal: {
     marginTop: 12,
     paddingTop: 11,

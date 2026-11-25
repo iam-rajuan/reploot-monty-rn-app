@@ -1,11 +1,11 @@
 import * as Haptics from "expo-haptics";
-import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { ArrowRight } from "lucide-react-native";
 import React from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 import { Text } from "@/shared/components/typography";
+import { CoachMascot } from "@/features/ai-coach/components/CoachMascot";
 import { HORIZONTAL_PADDING } from "@/shared/utils/responsive";
 
 export const AiCoachFloatingCard = () => {
@@ -30,7 +30,7 @@ export const AiCoachFloatingCard = () => {
       />
 
       <View style={styles.content}>
-        {/* Top Header Row: COACH ONLINE Pill on Left, Robot Icon on Right */}
+        {/* Top Header Row: COACH ONLINE Pill on Left, Coach Mascot on Right */}
         <View style={styles.topRow}>
           <View style={styles.onlinePill}>
             <View style={styles.onlineHalo}>
@@ -40,11 +40,7 @@ export const AiCoachFloatingCard = () => {
           </View>
 
           <View style={styles.topRobotCircle}>
-            <Image
-              source={require("../../../../assets/coachOnline/coachOnline.png")}
-              style={styles.topRobotIcon}
-              contentFit="contain"
-            />
+            <CoachMascot size={28} />
           </View>
         </View>
 
@@ -145,10 +141,6 @@ const styles = StyleSheet.create({
     borderColor: "rgba(63, 222, 201, 0.25)",
     alignItems: "center",
     justifyContent: "center",
-  },
-  topRobotIcon: {
-    width: 34,
-    height: 34,
   },
   messageText: {
     color: "#FFFFFF",

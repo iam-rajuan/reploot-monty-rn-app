@@ -1,3 +1,4 @@
+import { CoachLauncherOrb } from "@/features/ai-coach/components/CoachLauncherOrb";
 import { WorkoutModalitiesSection } from "@/features/home";
 import { AiCoachFloatingCard } from "@/features/home/components/AiCoachFloatingCard";
 import { AiWorkoutCard } from "@/features/home/components/AiWorkoutCard";
@@ -11,7 +12,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import Svg, { Line as SvgLine } from "react-native-svg";
 
 export default function HomeTabRoute() {
@@ -97,11 +98,7 @@ export default function HomeTabRoute() {
         accessibilityRole="button"
         accessibilityLabel="AI Coach"
       >
-        <Image
-          source={require("../../assets/coachOnline/floatingButton.png")}
-          style={{ width: 100, height: 100 }}
-          resizeMode="contain"
-        />
+        {({ pressed }) => <CoachLauncherOrb pressed={pressed} />}
       </Pressable>
     </View>
   );
