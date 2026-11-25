@@ -13,13 +13,15 @@ import {
 } from "react-native";
 import { Text } from "@/shared/components/typography";
 
+// Cyan diagonal gradient. Every stop is bright enough to keep strong contrast
+// against the dark #070B14 plate, so the code stays easy to scan.
 const QR_GRADIENT = {
-  type: "radial" as const,
+  type: "linear" as const,
   options: {
-    colors: ["#FF7BC6", "#8B5CF6"],
-    locations: [0, 1],
-    center: [0.5, 0.5] as [number, number],
-    radius: [1, 1] as [number, number],
+    colors: ["#67E8F9", "#22D3EE", "#38BDF8"],
+    locations: [0, 0.5, 1],
+    start: [0, 0] as [number, number],
+    end: [1, 1] as [number, number],
   },
 };
 
@@ -30,7 +32,10 @@ const CustomEyesQRCode = ({ value, size }: { value: string; size: number }) => {
       size={size - 40}
       padding={20}
       style={styles.qrCode}
-      errorCorrectionLevel="M"
+      // "L" fits this link in a 29×29 grid instead of 33×33 ("M"), so there are
+      // fewer, larger dots and larger corner boxes. On-screen codes with no logo
+      // overlay do not need more error correction.
+      errorCorrectionLevel="L"
       pieceBorderRadius="50%"
       gradient={QR_GRADIENT}
       outerEyesOptions={{
@@ -46,7 +51,8 @@ const CustomEyesQRCode = ({ value, size }: { value: string; size: number }) => {
       }}
       innerEyesOptions={{
         borderRadius: "50%",
-        scale: 0.85,
+        // Full-size inner eye squares make the corner boxes bolder and easier to find.
+        scale: 1,
       }}
     />
   );

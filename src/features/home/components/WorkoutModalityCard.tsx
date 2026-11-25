@@ -159,10 +159,10 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#FFFFFF",
-    fontSize: 28,
-    lineHeight: 32,
+    fontSize: 24,
+    lineHeight: 28,
     fontWeight: "800",
-    letterSpacing: -0.75,
+    letterSpacing: -0.4,
     textTransform: "uppercase",
   },
   subtitle: {

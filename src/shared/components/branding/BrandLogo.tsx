@@ -8,16 +8,10 @@ export interface BrandLogoProps {
   text?: string;
   /** Size tier: "sm" (18px), "md" (20px, default for headers), "lg" (24px), "hero" (32px) */
   size?: "sm" | "md" | "lg" | "hero";
-  /** Visual color style:
-   * - "dual": Titanium White for "REP" + Electric Cyan for "LOT"/"LOOT" (Signature athletic look)
-   * - "monochrome": Clean 100% white
-   * - "cyan": Vibrant 100% electric cyan
-   */
-  variant?: "dual" | "monochrome" | "cyan";
+  /** Single unified color. Defaults to pure crisp white "#FFFFFF" */
+  color?: string;
   /** Optional athletic kinetic forward slant (-7deg) */
   skew?: boolean;
-  /** Whether to show the subtle trailing energy dot */
-  showDot?: boolean;
   /** Additional container styling */
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -26,17 +20,12 @@ export interface BrandLogoProps {
 export const BrandLogo: React.FC<BrandLogoProps> = ({
   text = "REPLOT",
   size = "md",
-  variant = "dual",
+  color = "#FFFFFF",
   skew = false,
-  showDot = false,
   style,
   testID = "brand-logo",
 }) => {
-  // Split into REP + rest (LOT or LOOT)
   const upper = text.toUpperCase();
-  const hasRepPrefix = upper.startsWith("REP");
-  const prefix = hasRepPrefix ? "REP" : upper;
-  const suffix = hasRepPrefix ? upper.slice(3) : "";
 
   const sizeStyle =
     size === "hero"
@@ -47,55 +36,14 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
           ? styles.smSize
           : styles.mdSize;
 
-  const prefixColor =
-    variant === "cyan" ? "#00F2FE" : "#FFFFFF";
-
-  const suffixColor =
-    variant === "monochrome"
-      ? "#FFFFFF"
-      : "#00F2FE";
-
   return (
     <View
-      style={[
-        styles.container,
-        skew && styles.skewed,
-        style,
-      ]}
+      style={[styles.container, skew && styles.skewed, style]}
       testID={testID}
       accessibilityRole="header"
       accessibilityLabel={text}
     >
-      <View style={styles.textRow}>
-        <Text
-          style={[
-            styles.baseText,
-            sizeStyle,
-            { color: prefixColor },
-          ]}
-        >
-          {prefix}
-        </Text>
-        {Boolean(suffix) && (
-          <Text
-            style={[
-              styles.baseText,
-              sizeStyle,
-              { color: suffixColor },
-            ]}
-          >
-            {suffix}
-          </Text>
-        )}
-        {showDot && (
-          <View
-            style={[
-              styles.energyDot,
-              size === "hero" ? styles.energyDotHero : styles.energyDotStandard,
-            ]}
-          />
-        )}
-      </View>
+      <Text style={[styles.baseText, sizeStyle, { color }]}>{upper}</Text>
     </View>
   );
 };
@@ -107,10 +55,6 @@ const styles = StyleSheet.create({
   },
   skewed: {
     transform: [{ skewX: "-7deg" }],
-  },
-  textRow: {
-    flexDirection: "row",
-    alignItems: "center",
   },
   baseText: {
     ...typography.brandLogo,
@@ -134,26 +78,5 @@ const styles = StyleSheet.create({
   heroSize: {
     ...typography.brandLogoHero,
     includeFontPadding: false,
-  },
-  energyDot: {
-    backgroundColor: "#00F2FE",
-    borderRadius: 4,
-    shadowColor: "#00F2FE",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.85,
-    shadowRadius: 5,
-    elevation: 3,
-  },
-  energyDotStandard: {
-    width: 4,
-    height: 4,
-    marginLeft: 4,
-    marginBottom: 6,
-  },
-  energyDotHero: {
-    width: 6,
-    height: 6,
-    marginLeft: 6,
-    marginBottom: 10,
   },
 });

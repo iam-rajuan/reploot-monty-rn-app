@@ -70,10 +70,10 @@ export const AiWorkoutCard = () => {
 
         {/* Workout Info */}
         <View style={styles.workoutInfoBlock}>
-          <Text style={styles.workoutSubtext}>TODAY'S AI WORKOUT</Text>
+          <Text style={styles.workoutSubtext}>TODAY'S CHALLENGE</Text>
 
-          <Text style={styles.workoutTitle}>
-            UPPER BODY{"\n"}STRENGTH
+          <Text style={styles.workoutTitle} numberOfLines={1}>
+            UPPER BODY STRENGTH
           </Text>
 
           <View style={styles.durationRow}>
@@ -243,19 +243,19 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   workoutSubtext: {
-    color: "#B6C0D6",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-    marginBottom: 4,
-    textTransform: "uppercase",
+    color: "#F4F7FF",
+    fontSize: 24,
+    lineHeight: 28,
+    fontWeight: "800",
+    letterSpacing: -0.4,
+    marginBottom: 10,
   },
   workoutTitle: {
     color: "#F4F7FF",
-    fontSize: 24,
-    lineHeight: 30,
-    fontWeight: "800",
-    letterSpacing: -0.6,
+    fontSize: 20,
+    lineHeight: 24,
+    fontWeight: "700",
+    letterSpacing: -0.2,
     textTransform: "uppercase",
   },
   durationRow: {
