@@ -20,6 +20,7 @@ import { ActivityLevel } from "./_components/ActivityLevel";
 import { FitnessGoal } from "./_components/FitnessGoal";
 import { PhysicalMetrics } from "./_components/PhysicalMetrics";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 export default function FitnessProfileRoute() {
   const router = useRouter();
@@ -48,6 +49,7 @@ export default function FitnessProfileRoute() {
 
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       <CustomHeader

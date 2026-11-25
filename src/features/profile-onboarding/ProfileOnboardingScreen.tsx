@@ -1,4 +1,3 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef } from "react";
@@ -9,7 +8,6 @@ import {
 } from "react-native-keyboard-controller";
 import Animated, { FadeInLeft, FadeInRight } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Line as SvgLine } from "react-native-svg";
 import { ProfileHeader } from "./components/ProfileHeader";
 import { Step1LetsStart } from "./components/Step1LetsStart";
 import { Step2YourBody } from "./components/Step2YourBody";
@@ -17,6 +15,7 @@ import { Step3YourGoal } from "./components/Step3YourGoal";
 import { Step4YourStyle } from "./components/Step4YourStyle";
 import { Step5YourCoach } from "./components/Step5YourCoach";
 import { useProfileSetupStore } from "./store/profileSetupStore";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 export function ProfileOnboardingScreen() {
   const router = useRouter();
@@ -42,41 +41,7 @@ export function ProfileOnboardingScreen() {
   return (
     <View style={styles.screen}>
       <StatusBar style="light" />
-      <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        <LinearGradient
-          colors={["#1B182E", "#2A244A", "#151321", "#0B0B11"]}
-          locations={[0, 0.25, 0.65, 1]}
-          start={{ x: 1, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
-        <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
-          <SvgLine
-            x1="420"
-            y1="-20"
-            x2="-40"
-            y2="440"
-            stroke="rgba(255, 255, 255, 0.035)"
-            strokeWidth="1"
-          />
-          <SvgLine
-            x1="460"
-            y1="260"
-            x2="-40"
-            y2="760"
-            stroke="rgba(56, 189, 248, 0.04)"
-            strokeWidth="1"
-          />
-          <SvgLine
-            x1="480"
-            y1="560"
-            x2="-40"
-            y2="1080"
-            stroke="rgba(56, 237, 216, 0.04)"
-            strokeWidth="1"
-          />
-        </Svg>
-      </View>
+      <ScreenBackground />
       <View style={{ paddingTop: Math.max(insets.top + 6, 16) }}>
         <ProfileHeader
           currentStep={currentStep}

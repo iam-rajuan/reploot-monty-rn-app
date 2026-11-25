@@ -43,6 +43,7 @@ import Svg, {
 } from "react-native-svg";
 import { typography } from "@/theme/typography";
 import { fontFamilies } from "@/theme/fonts";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 const { width } = Dimensions.get("window");
 
@@ -167,6 +168,7 @@ export default function WeightProgressScreen() {
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       {/* Unified WorkoutHeader with back button enabled */}

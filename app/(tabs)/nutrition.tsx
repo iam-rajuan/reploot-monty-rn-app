@@ -44,10 +44,10 @@ import Svg, {
   Circle,
   Defs,
   LinearGradient as SvgLinearGradient,
-  Line as SvgLine,
   Stop,
 } from "react-native-svg";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 interface LoggedMeal {
   id: number;
@@ -408,60 +408,7 @@ export default function NutritionTabRoute() {
     <View style={styles.screen}>
       <StatusBar style="light" />
 
-      {/* Multi-layered gradient background */}
-      <View
-        style={[StyleSheet.absoluteFill, { overflow: "hidden" }]}
-        pointerEvents="none"
-      >
-        <LinearGradient
-          colors={["#121A35", "#0C1429", "#080D1A", "#060810"]}
-          locations={[0, 0.26, 0.62, 1]}
-          start={{ x: 0.9, y: 0 }}
-          end={{ x: 0.18, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
-        <LinearGradient
-          colors={["rgba(56, 189, 248, 0.07)", "rgba(56, 189, 248, 0)"]}
-          start={{ x: 1, y: 0 }}
-          end={{ x: 0.2, y: 0.45 }}
-          style={StyleSheet.absoluteFill}
-        />
-        <LinearGradient
-          colors={["rgba(45, 212, 191, 0)", "rgba(45, 212, 191, 0.035)"]}
-          start={{ x: 0.3, y: 0.5 }}
-          end={{ x: 0, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
-        <Svg
-          style={[StyleSheet.absoluteFill, { overflow: "hidden" }]}
-          pointerEvents="none"
-        >
-          <SvgLine
-            x1="420"
-            y1="-20"
-            x2="-40"
-            y2="440"
-            stroke="rgba(147, 164, 255, 0.04)"
-            strokeWidth="1"
-          />
-          <SvgLine
-            x1="460"
-            y1="260"
-            x2="-40"
-            y2="760"
-            stroke="rgba(78, 143, 255, 0.03)"
-            strokeWidth="1"
-          />
-          <SvgLine
-            x1="480"
-            y1="560"
-            x2="-40"
-            y2="1080"
-            stroke="rgba(48, 211, 195, 0.025)"
-            strokeWidth="1"
-          />
-        </Svg>
-      </View>
+      <ScreenBackground />
 
       <WorkoutHeader transparent={true} />
 

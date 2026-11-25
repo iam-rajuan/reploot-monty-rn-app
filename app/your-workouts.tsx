@@ -28,6 +28,7 @@ import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Line as SvgLine } from "react-native-svg";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 const { width } = Dimensions.get("window");
 
@@ -220,6 +221,7 @@ export default function YourWorkoutsScreen() {
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       {/* Unified WorkoutHeader with back button enabled */}

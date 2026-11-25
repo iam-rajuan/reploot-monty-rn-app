@@ -13,6 +13,7 @@ import { BottomActions } from "./_components/BottomActions";
 import { CredentialsCard } from "./_components/CredentialsCard";
 import { LinksCard } from "./_components/LinksCard";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 export default function AccountSettingsRoute() {
   const router = useRouter();
@@ -36,6 +37,7 @@ export default function AccountSettingsRoute() {
 
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       <CustomHeader

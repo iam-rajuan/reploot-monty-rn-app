@@ -34,6 +34,7 @@ import {
   updateTrainingSettings,
 } from "@/store/slices/workoutSlice";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 const FREQUENCY_OPTIONS = [
   { id: 3, label: "3 DAYS" },
@@ -242,6 +243,7 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       {/* Top Header */}

@@ -23,6 +23,7 @@ import { CircuitExerciseCard } from "./CircuitExerciseCard";
 import { StartAiWorkoutButton } from "./StartAiWorkoutButton";
 import { UpperBodySessionHeroCard } from "./UpperBodySessionHeroCard";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 export interface UpperBodySessionScreenProps {
   data?: UpperBodySessionData;
@@ -104,6 +105,7 @@ export const UpperBodySessionScreen: React.FC<UpperBodySessionScreenProps> = ({
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       {/* Top Header matching exact screenshot with back button, search, notification bell, avatar */}

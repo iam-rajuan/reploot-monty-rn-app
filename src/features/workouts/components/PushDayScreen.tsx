@@ -11,6 +11,7 @@ import { PushDayExerciseList } from "./PushDayExerciseCard";
 import { PushDayHeroCard } from "./PushDayHeroCard";
 import { StartAiWorkoutButton } from "./StartAiWorkoutButton";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 export interface PushDayScreenProps {
   onBack?: () => void;
@@ -75,6 +76,7 @@ export const PushDayScreen: React.FC<PushDayScreenProps> = ({
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <CustomHeader showBackButton onPressBack={handleBack} />
       <NestableScrollContainer
         showsVerticalScrollIndicator={false}

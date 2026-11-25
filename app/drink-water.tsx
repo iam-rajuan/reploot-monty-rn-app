@@ -28,6 +28,7 @@ import {
   isSmallDevice,
 } from "@/shared/utils/responsive";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 const { width } = Dimensions.get("window");
 
@@ -82,6 +83,7 @@ export default function DrinkWaterScreen() {
 
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <StatusBar style="light" />
       <CustomHeader
         titleVariant="text"

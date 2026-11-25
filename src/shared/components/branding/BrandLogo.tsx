@@ -4,7 +4,7 @@ import { Text } from "@/shared/components/typography";
 import { typography } from "@/theme/typography";
 
 export interface BrandLogoProps {
-  /** The text to display. Defaults to "REPLOT" */
+  /** The text to display. Defaults to "REPLOOT" */
   text?: string;
   /** Size tier: "sm" (18px), "md" (20px, default for headers), "lg" (24px), "hero" (32px) */
   size?: "sm" | "md" | "lg" | "hero";
@@ -18,7 +18,7 @@ export interface BrandLogoProps {
 }
 
 export const BrandLogo: React.FC<BrandLogoProps> = ({
-  text = "REPLOT",
+  text = "REPLOOT",
   size = "md",
   color = "#FFFFFF",
   skew = false,

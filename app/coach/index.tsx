@@ -36,6 +36,7 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 const suggestions: Record<AssistantContext, string[]> = {
   fitness: ["Plan my workout", "Help with recovery", "Improve my training"],
@@ -173,6 +174,7 @@ export default function CoachRoute() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
+      <ScreenBackground />
       <View style={styles.header}>
         <Pressable
           accessibilityRole="button"

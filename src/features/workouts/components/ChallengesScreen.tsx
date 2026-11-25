@@ -28,6 +28,7 @@ import {
   HomeChallengeItem,
 } from "../data/homeWorkoutLibraryData";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 export interface ChallengesScreenProps {
   onBack?: () => void;
@@ -95,6 +96,7 @@ export const ChallengesScreen: React.FC<ChallengesScreenProps> = ({
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       <CustomHeader

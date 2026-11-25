@@ -12,6 +12,7 @@ import { Text } from "@/shared/components/typography";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 export default function EditProfileRoute() {
   const router = useRouter();
@@ -35,6 +36,7 @@ export default function EditProfileRoute() {
 
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       <CustomHeader

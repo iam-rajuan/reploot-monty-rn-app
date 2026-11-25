@@ -43,6 +43,7 @@ import {
   type UnifiedMeal,
 } from "@/stores/nutritionPlanStore";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 export type { UnifiedMeal };
 
@@ -533,6 +534,7 @@ export default function UnifiedMealPlanScreen() {
 
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <StatusBar style="light" />
       <CustomHeader
         titleVariant="text"

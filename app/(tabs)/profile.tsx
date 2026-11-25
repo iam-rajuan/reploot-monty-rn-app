@@ -23,6 +23,7 @@ import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 export default function ProfileTabRoute() {
   const router = useRouter();
@@ -58,6 +59,7 @@ export default function ProfileTabRoute() {
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
       <CustomHeader
         titleVariant="logo"

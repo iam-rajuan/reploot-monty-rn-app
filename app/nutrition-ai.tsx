@@ -19,6 +19,7 @@ import {
   isSmallDevice,
 } from "@/shared/utils/responsive";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 type SetupStep = {
   key: string;
@@ -130,6 +131,7 @@ export default function NutritionAiScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
+      <ScreenBackground />
       <View style={styles.header}>
         <Pressable
           accessibilityRole="button"

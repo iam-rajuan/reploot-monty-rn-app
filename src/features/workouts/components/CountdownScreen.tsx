@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import { Dimensions, Platform, StyleSheet, View } from "react-native";
 import { Text } from "@/shared/components/typography";
 import Svg, { Line as SvgLine } from "react-native-svg";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 const { width } = Dimensions.get("window");
 
@@ -61,6 +62,7 @@ export const CountdownScreen: React.FC<CountdownScreenProps> = ({
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       <CustomHeader transparent={true} showBackButton={false} />

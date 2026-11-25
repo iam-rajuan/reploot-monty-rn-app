@@ -39,6 +39,7 @@ import {
   isSmallDevice,
 } from "@/shared/utils/responsive";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 const { width } = Dimensions.get("window");
 
@@ -366,6 +367,7 @@ export default function WeeklyProgressScreen() {
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       {/* Unified WorkoutHeader with back button */}

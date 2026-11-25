@@ -33,6 +33,7 @@ import {
   HomeWorkoutSessionItem,
 } from "../data/homeWorkoutLibraryData";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 export interface HomeWorkoutLibraryScreenProps {
   data?: HomeWorkoutLibraryData;
@@ -121,6 +122,7 @@ export const HomeWorkoutLibraryScreen: React.FC<
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       {/* Top Header matching exact screenshot with back button, search, notifications, avatar */}

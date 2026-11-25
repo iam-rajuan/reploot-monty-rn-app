@@ -16,6 +16,7 @@ import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Line as SvgLine } from "react-native-svg";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 export default function ManagePlanRoute() {
   const router = useRouter();
@@ -114,6 +115,7 @@ export default function ManagePlanRoute() {
 
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       <CustomHeader

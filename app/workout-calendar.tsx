@@ -54,6 +54,7 @@ import {
 } from "@/store/slices/workoutSlice";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 const { width } = Dimensions.get("window");
 
@@ -1005,6 +1006,7 @@ export default function WorkoutCalendarScreen() {
 
   return (
     <GestureHandlerRootView style={styles.container}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       {/* Top Navigation Bar with Avatar & Actions */}

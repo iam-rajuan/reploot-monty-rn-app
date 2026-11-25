@@ -33,8 +33,8 @@ import {
 } from "react-native";
 import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Line as SvgLine } from "react-native-svg";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 const { width } = Dimensions.get("window");
 
@@ -201,40 +201,7 @@ export default function MealAnalysisScreen() {
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      {/* Cyber-Athletic Mesh Gradient Background */}
-      <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        <LinearGradient
-          colors={["#121A35", "#0C1429", "#080D1A", "#060810"]}
-          locations={[0, 0.28, 0.65, 1]}
-          start={{ x: 0.9, y: 0 }}
-          end={{ x: 0.15, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
-        <LinearGradient
-          colors={["rgba(56, 189, 248, 0.08)", "rgba(56, 189, 248, 0)"]}
-          start={{ x: 1, y: 0 }}
-          end={{ x: 0.2, y: 0.45 }}
-          style={StyleSheet.absoluteFill}
-        />
-        <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
-          <SvgLine
-            x1="420"
-            y1="-20"
-            x2="-40"
-            y2="440"
-            stroke="rgba(147, 164, 255, 0.04)"
-            strokeWidth="1"
-          />
-          <SvgLine
-            x1="460"
-            y1="260"
-            x2="-40"
-            y2="760"
-            stroke="rgba(78, 143, 255, 0.03)"
-            strokeWidth="1"
-          />
-        </Svg>
-      </View>
+      <ScreenBackground />
 
       <CustomHeader
         titleVariant="text"

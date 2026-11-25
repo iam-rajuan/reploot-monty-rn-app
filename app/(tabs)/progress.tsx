@@ -34,6 +34,7 @@ import {
 import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 const MOTIVATION = [
   "Consistency turns effort into strength.",
@@ -73,6 +74,7 @@ export default function ProgressTabRoute() {
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
       <WorkoutHeader transparent style={styles.header} />
       <ScrollView
@@ -262,8 +264,8 @@ export default function ProgressTabRoute() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#121318" },
-  header: { backgroundColor: "#121318" },
+  screen: { flex: 1, backgroundColor: "#060810" },
+  header: { backgroundColor: "transparent" },
   content: { paddingHorizontal: 24, paddingTop: 16, gap: 24 },
   title: {
     ...typography.pageTitle,

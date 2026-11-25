@@ -13,6 +13,7 @@ import {
 import { StartAiWorkoutButton } from "./StartAiWorkoutButton";
 import { WorkoutLibraryDetailHeroCard } from "./WorkoutLibraryDetailHeroCard";
 import { WorkoutLibraryExerciseCard } from "./WorkoutLibraryExerciseCard";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 export interface WorkoutLibraryDetailScreenProps {
   data?: WorkoutLibraryDetailData;
@@ -77,6 +78,7 @@ export const WorkoutLibraryDetailScreen: React.FC<
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       <CustomHeader

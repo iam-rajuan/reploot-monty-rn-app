@@ -73,7 +73,7 @@ export const typography = {
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 10,
   },
-  /** Brand identity wordmark for the app logo ("REPLOT" / "REPLOOT"). */
+  /** Brand identity wordmark for the app logo ("REPLOOT"). */
   brandLogo: {
     fontFamily: montserrat[800],
     fontWeight: "800",

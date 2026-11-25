@@ -36,6 +36,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle as SvgCircle, Line as SvgLine } from "react-native-svg";
 import { WorkoutExerciseItem } from "../data/workoutPathDetailData";
 import { typography } from "@/theme/typography";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 const { width } = Dimensions.get("window");
 
@@ -232,6 +233,7 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
       <CustomHeader
