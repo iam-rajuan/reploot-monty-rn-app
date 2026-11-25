@@ -8,16 +8,60 @@ import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import React from "react";
+import { ArrowRight, CalendarDays } from "lucide-react-native";
+import React, { useState } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 import { Text } from "@/shared/components/typography";
+import { typography } from "@/theme/typography";
 
 const missionBackground = require("../../../../assets/figma/missions/todays-missions-background.jpeg");
 const calendarIcon = require("../../../../assets/figma/missions/mission-calendar.svg");
 const settingsIcon = require("../../../../assets/figma/missions/mission-settings.svg");
 
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+
+const haptic = () => {
+  if (Platform.OS !== "web") {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+  }
+};
+
+/**
+ * Small round glass button. Visuals sit on an inner View because Pressable
+ * style functions are dropped on native in this app (NativeWind interop).
+ */
+const RoundAction = ({
+  label,
+  onPress,
+  children,
+}: {
+  label: string;
+  onPress: () => void;
+  children: React.ReactNode;
+}) => {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      hitSlop={6}
+      onPress={(event) => {
+        event.stopPropagation();
+        onPress();
+      }}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
+    >
+      <View style={[styles.roundAction, pressed && styles.roundActionPressed]}>{children}</View>
+    </Pressable>
+  );
+};
+
 export const TodaysMissionsCard = () => {
   const dispatch = useAppDispatch();
+  const [cardPressed, setCardPressed] = useState(false);
+  const [startPressed, setStartPressed] = useState(false);
   const todayKey = getTodayDateKey();
   const calendarSchedules = useAppSelector(
     (state) => state.workout.calendarSchedules || {},
@@ -41,9 +85,7 @@ export const TodaysMissionsCard = () => {
     : scheduledToday?.missionSubtitle || activeMetadata.missionSubtitle;
 
   const handleWorkoutPress = () => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    }
+    haptic();
     if (isRestDay) {
       router.push("/workout-calendar");
       return;
@@ -65,53 +107,48 @@ export const TodaysMissionsCard = () => {
   };
 
   const handleCalendarPress = () => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    }
+    haptic();
     router.push("/workout-calendar");
   };
 
   const handleSettingsPress = () => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    }
+    haptic();
     router.push("/settings");
   };
 
   return (
     <Pressable
       onPress={handleWorkoutPress}
-      style={({ pressed }) => [styles.pressTarget, pressed && styles.pressed]}
+      onPressIn={() => setCardPressed(true)}
+      onPressOut={() => setCardPressed(false)}
       accessibilityRole="button"
       accessibilityLabel={`Today's Mission: ${missionTitle}, ${missionSubtitle}`}
     >
-      <View style={styles.card}>
-        <View style={[styles.glassBase, styles.cardLayer]} pointerEvents="none" />
+      <View style={[styles.card, cardPressed && styles.cardPressed]}>
         <Image
           source={missionBackground}
-          style={[styles.backgroundImage, styles.cardLayer]}
+          style={styles.backgroundImage}
           contentFit="cover"
           pointerEvents="none"
         />
         <LinearGradient
           colors={[
-            "rgba(6, 10, 20, 0.65)",
-            "rgba(8, 14, 27, 0.52)",
-            "rgba(6, 10, 20, 0.85)",
+            "rgba(6, 10, 20, 0.62)",
+            "rgba(8, 14, 27, 0.5)",
+            "rgba(6, 10, 20, 0.9)",
           ]}
           locations={[0, 0.5, 1]}
-          style={[styles.gradient, styles.cardLayer]}
+          style={StyleSheet.absoluteFill}
           pointerEvents="none"
         />
 
-        {/* Content Container using robust responsive Flexbox */}
         <View style={styles.contentWrap}>
-          {/* Top Heading */}
+          {/* Heading */}
           <Text style={styles.heading} numberOfLines={1}>
             TODAY'S MISSIONS
           </Text>
 
-          {/* Middle Copy */}
+          {/* Mission */}
           <View style={styles.missionCopy}>
             <Text style={styles.missionTitle} numberOfLines={1}>
               {missionTitle}
@@ -121,40 +158,48 @@ export const TodaysMissionsCard = () => {
             </Text>
           </View>
 
-          {/* Bottom Actions */}
+          {/* Actions */}
           <View style={styles.actions}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Workout Calendar"
-              hitSlop={8}
+              accessibilityLabel={isRestDay ? "Plan a workout" : "Start mission"}
               onPress={(event) => {
                 event.stopPropagation();
-                handleCalendarPress();
+                handleWorkoutPress();
               }}
-              style={styles.actionButton}
+              onPressIn={() => setStartPressed(true)}
+              onPressOut={() => setStartPressed(false)}
+              style={styles.startPressable}
             >
-              <Image
-                source={calendarIcon}
-                style={styles.calendarIcon}
-                contentFit="contain"
-              />
+              <View style={[styles.startShadow, startPressed && styles.startPressed]}>
+                <LinearGradient
+                  colors={BUTTON_GRADIENT}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.startButton}
+                >
+                  <LinearGradient
+                    pointerEvents="none"
+                    colors={SHEEN}
+                    start={{ x: 0.5, y: 0 }}
+                    end={{ x: 0.5, y: 1 }}
+                    style={styles.startSheen}
+                  />
+                  {isRestDay && <CalendarDays size={15} color="#FFFFFF" strokeWidth={2.4} />}
+                  <Text style={styles.startText} numberOfLines={1}>
+                    {isRestDay ? "PLAN WORKOUT" : "START MISSION"}
+                  </Text>
+                  {!isRestDay && <ArrowRight size={15} color="#FFFFFF" strokeWidth={2.6} />}
+                </LinearGradient>
+              </View>
             </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Settings"
-              hitSlop={8}
-              onPress={(event) => {
-                event.stopPropagation();
-                handleSettingsPress();
-              }}
-              style={styles.actionButton}
-            >
-              <Image
-                source={settingsIcon}
-                style={styles.settingsIcon}
-                contentFit="contain"
-              />
-            </Pressable>
+
+            <RoundAction label="Workout Calendar" onPress={handleCalendarPress}>
+              <Image source={calendarIcon} style={styles.calendarIcon} contentFit="contain" />
+            </RoundAction>
+            <RoundAction label="Settings" onPress={handleSettingsPress}>
+              <Image source={settingsIcon} style={styles.settingsIcon} contentFit="contain" />
+            </RoundAction>
           </View>
         </View>
 
@@ -165,114 +210,122 @@ export const TodaysMissionsCard = () => {
 };
 
 const styles = StyleSheet.create({
-  pressTarget: {
-    width: "100%",
-    borderRadius: 24,
-    overflow: "hidden",
-  },
-  pressed: { opacity: 0.96 },
   card: {
     width: "100%",
     minHeight: 210,
     borderRadius: 24,
     overflow: "hidden",
-    position: "relative",
     borderWidth: 1,
     borderColor: "rgba(104, 123, 255, 0.32)",
     backgroundColor: "#0A101D",
-    shadowColor: "#162A5C",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.28,
-    shadowRadius: 12,
-    elevation: 4,
   },
-  glassBase: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(129, 151, 255, 0.05)",
-  },
-  cardLayer: {
-    borderRadius: 24,
+  cardPressed: {
+    opacity: 0.96,
+    transform: [{ scale: 0.99 }],
   },
   backgroundImage: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    opacity: 0.38,
-  },
-  gradient: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    ...StyleSheet.absoluteFill,
+    opacity: 0.4,
   },
   contentWrap: {
     padding: 20,
     minHeight: 210,
     justifyContent: "space-between",
-    zIndex: 2,
+    gap: 14,
   },
   heading: {
-    color: "#F4F7FF",
+    ...typography.metric,
     fontSize: 24,
     lineHeight: 28,
     fontWeight: "800",
-    letterSpacing: -0.4,
+    color: "#F4F7FF",
   },
   missionCopy: {
-    marginVertical: 10,
+    gap: 4,
   },
   missionTitle: {
-    color: "#F4F7FF",
+    ...typography.cardTitle,
     fontSize: 20,
-    lineHeight: 24,
-    fontWeight: "700",
-    letterSpacing: -0.2,
-    marginBottom: 4,
+    lineHeight: 26,
+    color: "#F4F7FF",
   },
   missionSubtitle: {
+    ...typography.bodySmall,
     color: "#B0BAD0",
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: "400",
   },
   actions: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 12,
-    marginTop: 4,
+    gap: 10,
   },
-  actionButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    borderWidth: 1.2,
-    borderColor: "rgba(63, 222, 201, 0.5)",
-    backgroundColor: "rgba(6, 35, 49, 0.72)",
+  startPressable: {
+    flex: 1,
+  },
+  startShadow: {
+    borderRadius: 14,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0EA5E9",
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
+      },
+      android: {},
+      default: { boxShadow: "0px 6px 16px rgba(14,165,233,0.28)" },
+    }),
+  },
+  startPressed: {
+    opacity: 0.92,
+    transform: [{ scale: 0.97 }],
+  },
+  startButton: {
+    height: 44,
+    borderRadius: 14,
+    overflow: "hidden",
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 8,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
   },
-  calendarIcon: {
-    width: 14,
-    height: 15,
-  },
-  settingsIcon: {
-    width: 17,
-    height: 17,
-  },
-  insetHighlight: {
+  startSheen: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
+    height: "55%",
+  },
+  startText: {
+    ...typography.buttonSmall,
+    color: "#FFFFFF",
+    letterSpacing: 1,
+  },
+  roundAction: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(6, 35, 49, 0.72)",
+    borderWidth: 1,
+    borderColor: "rgba(63, 222, 201, 0.45)",
+  },
+  roundActionPressed: {
+    backgroundColor: "rgba(63, 222, 201, 0.18)",
+    transform: [{ scale: 0.95 }],
+  },
+  calendarIcon: {
+    width: 15,
+    height: 16,
+  },
+  settingsIcon: {
+    width: 18,
+    height: 18,
+  },
+  insetHighlight: {
+    ...StyleSheet.absoluteFill,
     borderWidth: 1,
     borderColor: "rgba(188, 199, 255, 0.09)",
     borderRadius: 23,

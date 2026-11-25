@@ -2,16 +2,22 @@ import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import { ArrowRight } from "lucide-react-native";
 import React, { useState } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 import { Text } from "@/shared/components/typography";
 import { HORIZONTAL_PADDING } from "@/shared/utils/responsive";
+import { typography } from "@/theme/typography";
+
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
 
 const bgAsset = require("../../../../assets/figma/ai-workout/hero-workout-background.jpeg");
 
 export const AiWorkoutCard = () => {
   const router = useRouter();
   const [modality, setModality] = useState<"GYM" | "HOME">("GYM");
+  const [startPressed, setStartPressed] = useState(false);
 
   const handleToggle = (nextModality: "GYM" | "HOME") => {
     if (Platform.OS !== "web") {
@@ -95,6 +101,7 @@ export const AiWorkoutCard = () => {
             ]}
             onPress={() => handleToggle("GYM")}
             accessibilityRole="button"
+            accessibilityState={{ selected: modality === "GYM" }}
           >
             <Text
               style={[
@@ -113,6 +120,7 @@ export const AiWorkoutCard = () => {
             ]}
             onPress={() => handleToggle("HOME")}
             accessibilityRole="button"
+            accessibilityState={{ selected: modality === "HOME" }}
           >
             <Text
               style={[
@@ -128,22 +136,31 @@ export const AiWorkoutCard = () => {
         {/* Start Button */}
         <Pressable
           onPress={handleStartWorkout}
+          onPressIn={() => setStartPressed(true)}
+          onPressOut={() => setStartPressed(false)}
           accessibilityRole="button"
-          style={({ pressed }) => [styles.actionButtonPressable, pressed && styles.buttonPressed]}
+          accessibilityLabel={`Start ${modality.toLowerCase()} workout`}
         >
-          <LinearGradient
-            colors={["#176F9F", "#338FE0"]}
-            start={{ x: 0, y: 0.5 }}
-            end={{ x: 1, y: 0.5 }}
-            style={styles.buttonGradient}
-          >
-            <Text style={styles.buttonText}>START WORKOUT</Text>
-            <Image
-              source={require("../../../../assets/figma/ai-workout/start-arrow.svg")}
-              style={styles.startArrow}
-              contentFit="contain"
-            />
-          </LinearGradient>
+          <View style={[styles.actionButtonPressable, startPressed && styles.buttonPressed]}>
+            <LinearGradient
+              colors={BUTTON_GRADIENT}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.buttonGradient}
+            >
+              <LinearGradient
+                pointerEvents="none"
+                colors={SHEEN}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={styles.buttonSheen}
+              />
+              <Text style={styles.buttonText}>START WORKOUT</Text>
+              <View style={styles.buttonTrail}>
+                <ArrowRight size={14} color="#FFFFFF" strokeWidth={2.6} />
+              </View>
+            </LinearGradient>
+          </View>
         </Pressable>
       </View>
     </View>
@@ -199,24 +216,20 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   badgeSolidText: {
+    ...typography.badge,
     color: "#CAD2FF",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0,
   },
   badgeOutline: {
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    backgroundColor: "rgba(7, 11, 21, 0.45)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.15)",
+    borderColor: "rgba(255, 255, 255, 0.16)",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
   },
   badgeOutlineText: {
+    ...typography.badge,
     color: "#EAF0FF",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0,
   },
   badgeGreenOutline: {
     backgroundColor: "rgba(46, 229, 197, 0.16)",
@@ -234,72 +247,76 @@ const styles = StyleSheet.create({
     height: 12,
   },
   badgeGreenOutlineText: {
+    ...typography.badge,
     color: "#3FDEC9",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0,
   },
   workoutInfoBlock: {
     width: "100%",
   },
   workoutSubtext: {
-    color: "#F4F7FF",
+    ...typography.metric,
     fontSize: 24,
     lineHeight: 28,
     fontWeight: "800",
-    letterSpacing: -0.4,
-    marginBottom: 10,
+    color: "#F4F7FF",
+    marginBottom: 6,
   },
   workoutTitle: {
-    color: "#F4F7FF",
-    fontSize: 20,
+    ...typography.cardTitle,
+    fontSize: 18,
     lineHeight: 24,
-    fontWeight: "700",
-    letterSpacing: -0.2,
+    color: "#7DD3FC",
     textTransform: "uppercase",
+    letterSpacing: 0.4,
   },
   durationRow: {
+    alignSelf: "flex-start",
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    marginTop: 6,
+    marginTop: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    backgroundColor: "rgba(7, 11, 21, 0.45)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
   },
   durationIcon: {
     width: 11,
     height: 11,
   },
   durationText: {
-    color: "#B6C0D6",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0,
+    ...typography.badge,
+    color: "#CBD5E1",
   },
   toggleCapsule: {
-    width: 120,
-    height: 38,
+    width: 148,
+    height: 42,
     borderRadius: 14,
-    backgroundColor: "rgba(255, 255, 255, 0.07)",
+    backgroundColor: "rgba(7, 11, 21, 0.55)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: "rgba(255, 255, 255, 0.14)",
     flexDirection: "row",
     alignItems: "center",
     padding: 3,
   },
   toggleTab: {
     flex: 1,
-    height: 30,
+    height: 34,
     borderRadius: 11,
     alignItems: "center",
     justifyContent: "center",
   },
   toggleTabActive: {
     backgroundColor: "#5865F2",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
   },
   toggleTabText: {
-    color: "#C8C4D8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0,
+    ...typography.buttonSmall,
+    color: "#A8B5C7",
+    letterSpacing: 0.8,
   },
   toggleTabTextActive: {
     color: "#FFFFFF",
@@ -307,35 +324,52 @@ const styles = StyleSheet.create({
   },
   actionButtonPressable: {
     width: "100%",
-    borderRadius: 999,
-    overflow: "hidden",
-    shadowColor: "#338FE0",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 4,
+    borderRadius: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0EA5E9",
+        shadowOpacity: 0.35,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 6 },
+      },
+      android: {},
+      default: { boxShadow: "0px 8px 20px rgba(14,165,233,0.30)" },
+    }),
   },
   buttonGradient: {
     height: 52,
-    borderRadius: 999,
+    borderRadius: 16,
+    overflow: "hidden",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    paddingHorizontal: 16,
+    gap: 10,
+    paddingHorizontal: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
+  },
+  buttonSheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
   },
   buttonText: {
+    ...typography.button,
     color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "800",
-    letterSpacing: 0.8,
+    letterSpacing: 1,
   },
-  startArrow: {
-    width: 14,
-    height: 14,
+  buttonTrail: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
   },
   buttonPressed: {
-    opacity: 0.88,
-    transform: [{ scale: 0.985 }],
+    opacity: 0.92,
+    transform: [{ scale: 0.97 }],
   },
 });

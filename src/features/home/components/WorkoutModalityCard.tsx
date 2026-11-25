@@ -1,7 +1,8 @@
 import * as Haptics from "expo-haptics";
 import { Image, ImageSource } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
+import { ArrowRight } from "lucide-react-native";
+import React, { useState } from "react";
 import {
   Platform,
   Pressable,
@@ -11,30 +12,35 @@ import {
   ViewStyle,
 } from "react-native";
 import { Text } from "@/shared/components/typography";
-
-const defaultArrowAsset = require("../../../../assets/figma/modalities/workout-card-arrow.svg");
+import { typography } from "@/theme/typography";
 
 export interface WorkoutModalityCardProps {
   title: string;
   subtitle: string;
   image: ImageSource | string | number;
-  arrowImage?: ImageSource | string | number;
-  arrowBottom?: number;
+  /** Small tag in the top-left corner, e.g. "FULL GYM". */
+  tag?: string;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
+/**
+ * Photo card for a workout modality (gym / home). Visuals sit on an inner
+ * View: Pressable style functions are dropped on native in this app
+ * (NativeWind interop).
+ */
 export const WorkoutModalityCard: React.FC<WorkoutModalityCardProps> = ({
   title,
   subtitle,
   image,
-  arrowImage = defaultArrowAsset,
-  arrowBottom = 96,
+  tag,
   onPress,
   style,
   testID,
 }) => {
+  const [pressed, setPressed] = useState(false);
+
   const handlePress = () => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -44,97 +50,72 @@ export const WorkoutModalityCard: React.FC<WorkoutModalityCardProps> = ({
 
   return (
     <Pressable
-      style={({ pressed }) => [
-        styles.cardContainer,
-        pressed && styles.cardPressed,
-        style,
-      ]}
+      style={style}
       testID={testID}
       onPress={handlePress}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
+      accessibilityRole="button"
       accessibilityLabel={`${title}: ${subtitle}`}
     >
-      {/* Background Workout Image */}
-      <Image
-        source={image}
-        style={[styles.backgroundImage, styles.cardLayer]}
-        contentFit="cover"
-        transition={200}
-      />
-
-      {/* Cyber Gradient Overlay for Text Legibility */}
-      <LinearGradient
-        colors={[
-          "rgba(5, 10, 20, 0.05)",
-          "rgba(5, 10, 20, 0.46)",
-          "#070B15",
-        ]}
-        locations={[0, 0.45, 1]}
-        style={[StyleSheet.absoluteFill, styles.cardLayer]}
-        pointerEvents="none"
-      />
-      <View style={styles.insetHighlight} pointerEvents="none" />
-
-      {/* Prominent Circular Action Button */}
-      <View
-        style={[
-          styles.arrowButtonWrapper,
-          arrowBottom !== undefined
-            ? { bottom: arrowBottom }
-            : { top: "50%", marginTop: -24 },
-        ]}
-        pointerEvents="none"
-      >
+      <View style={[styles.card, pressed && styles.cardPressed]}>
         <Image
-          source={arrowImage}
-          style={styles.arrowImage}
-          contentFit="contain"
+          source={image}
+          style={styles.backgroundImage}
+          contentFit="cover"
+          transition={200}
         />
-      </View>
+        <LinearGradient
+          colors={["rgba(5, 10, 20, 0.05)", "rgba(5, 10, 20, 0.5)", "#070B15"]}
+          locations={[0, 0.5, 1]}
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
+        <View style={styles.insetHighlight} pointerEvents="none" />
 
-      {/* Robust In-Flow Content Container */}
-      <View style={styles.cardContent} pointerEvents="none">
-        <View style={styles.textContainer}>
-          <Text style={styles.title} numberOfLines={1}>
-            {title}
-          </Text>
-          <Text style={styles.subtitle} numberOfLines={2}>
-            {subtitle}
-          </Text>
+        {tag ? (
+          <View style={styles.tag} pointerEvents="none">
+            <Text style={styles.tagText}>{tag}</Text>
+          </View>
+        ) : null}
+
+        <View style={styles.content} pointerEvents="none">
+          <View style={styles.textContainer}>
+            <Text style={styles.title} numberOfLines={1}>
+              {title}
+            </Text>
+            <Text style={styles.subtitle} numberOfLines={2}>
+              {subtitle}
+            </Text>
+          </View>
+
+          <View style={[styles.arrowButton, pressed && styles.arrowButtonPressed]}>
+            <ArrowRight size={20} color="#FFFFFF" strokeWidth={2.4} />
+          </View>
         </View>
       </View>
     </Pressable>
   );
 };
 
+const CARD_HEIGHT = 220;
+
 const styles = StyleSheet.create({
-  cardContainer: {
+  card: {
     width: "100%",
-    height: 240,
-    minHeight: 240,
+    height: CARD_HEIGHT,
     borderRadius: 24,
     overflow: "hidden",
     backgroundColor: "#0A101D",
     borderWidth: 1,
     borderColor: "rgba(104, 123, 255, 0.32)",
-    position: "relative",
-    shadowColor: "#162A5C",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.28,
-    shadowRadius: 12,
-    elevation: 4,
   },
   cardPressed: {
-    opacity: 0.92,
+    opacity: 0.94,
+    transform: [{ scale: 0.99 }],
   },
   backgroundImage: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  cardLayer: {
-    borderRadius: 24,
+    ...StyleSheet.absoluteFill,
   },
   insetHighlight: {
     position: "absolute",
@@ -146,51 +127,57 @@ const styles = StyleSheet.create({
     borderColor: "rgba(188, 199, 255, 0.09)",
     borderRadius: 23,
   },
-  cardContent: {
-    height: 240,
-    justifyContent: "flex-end",
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-    zIndex: 2,
+  tag: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(7, 11, 21, 0.55)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.16)",
+  },
+  tagText: {
+    ...typography.badge,
+    color: "#E2E8F0",
+  },
+  content: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+    gap: 12,
+    padding: 20,
   },
   textContainer: {
-    paddingRight: 56,
+    flex: 1,
+    minWidth: 0,
     gap: 4,
   },
   title: {
-    color: "#FFFFFF",
+    ...typography.metric,
     fontSize: 24,
     lineHeight: 28,
     fontWeight: "800",
-    letterSpacing: -0.4,
+    color: "#FFFFFF",
     textTransform: "uppercase",
   },
   subtitle: {
+    ...typography.body,
     color: "#B6C0D6",
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: "400",
   },
-  arrowButtonWrapper: {
-    position: "absolute",
-    right: 20,
+  arrowButton: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    borderWidth: 1,
-    borderColor: "rgba(130, 151, 255, 0.35)",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#39D7C4",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 5,
-    zIndex: 3,
+    backgroundColor: "rgba(56,189,248,0.16)",
+    borderWidth: 1,
+    borderColor: "rgba(125,211,252,0.45)",
   },
-  arrowImage: {
-    width: 18,
-    height: 18,
+  arrowButtonPressed: {
+    backgroundColor: "rgba(56,189,248,0.32)",
   },
 });

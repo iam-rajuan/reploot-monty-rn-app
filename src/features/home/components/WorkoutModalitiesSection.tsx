@@ -44,7 +44,7 @@ export const WorkoutModalitiesSection: React.FC<
           title="GYM WORKOUT"
           subtitle="Full equipment access"
           image={gymWorkoutAsset}
-          arrowBottom={96}
+          tag="FULL GYM"
           onPress={handleSelectGym}
           testID="gym-workout-card"
         />
@@ -53,7 +53,7 @@ export const WorkoutModalitiesSection: React.FC<
           title="HOME WORKOUT"
           subtitle="Bodyweight & dumbbells"
           image={homeWorkoutAsset}
-          arrowBottom={96}
+          tag="NO GYM NEEDED"
           onPress={handleSelectHome}
           testID="home-workout-card"
         />
