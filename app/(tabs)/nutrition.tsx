@@ -9,6 +9,9 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
   Camera,
+  History,
+  MessageCircle,
+  type LucideIcon,
   Check,
   ChevronRight,
   Droplet,
@@ -30,8 +33,10 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  TouchableOpacity,
   View,
+  type PressableProps,
+  type StyleProp,
+  type ViewStyle,
 } from "react-native";
 import { Text, TextInput } from "@/shared/components/typography";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -65,6 +70,201 @@ const WATER_RING_SIZE = isSmallDevice ? 172 : 194;
 const WATER_STROKE_WIDTH = 11;
 const WATER_RADIUS = (WATER_RING_SIZE - WATER_STROKE_WIDTH) / 2;
 const WATER_CIRCUMFERENCE = 2 * Math.PI * WATER_RADIUS;
+
+// Profile-card surface (docs/profile-card-design-language.md §4.1).
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.07)",
+  "rgba(255,255,255,0.02)",
+] as const;
+
+/* ---------------------------------------------------------------------------
+ * Button system for this page. One look per role, so every action reads the
+ * same way: primary (main action), danger, secondary (tinted), ghost (cancel)
+ * and round icon buttons.
+ * ------------------------------------------------------------------------ */
+
+const PRIMARY_GRADIENTS = {
+  brand: ["#38BDF8", "#0EA5E9", "#0284C7"],
+  danger: ["#FB7185", "#E11D48", "#BE123C"],
+} as const;
+
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+
+type ButtonTone = keyof typeof PRIMARY_GRADIENTS;
+
+/**
+ * Tap: a Pressable whose visuals live on an inner View. Styles passed through
+ * Pressable's `style={({ pressed }) => …}` are dropped on native in this app
+ * (NativeWind interop), so pressed state is tracked here instead.
+ */
+const Tap = ({
+  style,
+  pressedStyle,
+  containerStyle,
+  children,
+  onPressIn,
+  onPressOut,
+  ...rest
+}: Omit<PressableProps, "style" | "children"> & {
+  style?: StyleProp<ViewStyle>;
+  pressedStyle?: StyleProp<ViewStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
+  children: React.ReactNode | ((pressed: boolean) => React.ReactNode);
+}) => {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <Pressable
+      {...rest}
+      style={containerStyle}
+      onPressIn={(e) => {
+        setPressed(true);
+        onPressIn?.(e);
+      }}
+      onPressOut={(e) => {
+        setPressed(false);
+        onPressOut?.(e);
+      }}
+    >
+      <View style={[style, pressed && pressedStyle, pressed && styles.btnPressed]}>
+        {typeof children === "function" ? children(pressed) : children}
+      </View>
+    </Pressable>
+  );
+};
+
+const PrimaryButton = ({
+  label,
+  icon: Icon,
+  trailingArrow = false,
+  tone = "brand",
+  onPress,
+  accessibilityLabel,
+}: {
+  label: string;
+  icon?: LucideIcon;
+  trailingArrow?: boolean;
+  tone?: ButtonTone;
+  onPress: () => void;
+  accessibilityLabel?: string;
+}) => (
+  <Tap
+    onPress={onPress}
+    accessibilityRole="button"
+    accessibilityLabel={accessibilityLabel ?? label}
+    style={[styles.primaryShadow, tone === "danger" && styles.primaryShadowDanger]}
+  >
+    <LinearGradient
+      colors={PRIMARY_GRADIENTS[tone]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.primaryFill}
+    >
+      <LinearGradient
+        pointerEvents="none"
+        colors={SHEEN}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={styles.primarySheen}
+      />
+      {Icon && <Icon size={17} color="#FFFFFF" strokeWidth={2.4} />}
+      <Text style={styles.primaryText}>{label}</Text>
+      {trailingArrow && (
+        <View style={styles.primaryTrail}>
+          <ArrowRight size={14} color="#FFFFFF" strokeWidth={2.6} />
+        </View>
+      )}
+    </LinearGradient>
+  </Tap>
+);
+
+const SecondaryButton = ({
+  label,
+  icon: Icon,
+  onPress,
+  accessibilityLabel,
+}: {
+  label: string;
+  icon?: LucideIcon;
+  onPress: () => void;
+  accessibilityLabel?: string;
+}) => (
+  <Tap
+    onPress={onPress}
+    accessibilityRole="button"
+    accessibilityLabel={accessibilityLabel ?? label}
+    style={styles.secondaryBtn}
+    pressedStyle={styles.secondaryBtnPressed}
+  >
+    {Icon && <Icon size={16} color="#7DD3FC" strokeWidth={2.3} />}
+    <Text style={styles.secondaryText}>{label}</Text>
+    <View style={styles.secondaryTrail}>
+      <ChevronRight size={14} color="#7DD3FC" strokeWidth={2.6} />
+    </View>
+  </Tap>
+);
+
+const GhostButton = ({ label, onPress }: { label: string; onPress: () => void }) => (
+  <Tap
+    onPress={onPress}
+    accessibilityRole="button"
+    accessibilityLabel={label}
+    style={styles.ghostBtn}
+    pressedStyle={styles.ghostBtnPressed}
+  >
+    <Text style={styles.ghostText}>{label}</Text>
+  </Tap>
+);
+
+const IconButton = ({
+  icon: Icon,
+  onPress,
+  accessibilityLabel,
+  active = false,
+  tone = "neutral",
+}: {
+  icon: LucideIcon;
+  onPress: () => void;
+  accessibilityLabel: string;
+  active?: boolean;
+  tone?: "neutral" | "danger";
+}) => (
+  <Tap
+    onPress={onPress}
+    accessibilityRole="button"
+    accessibilityLabel={accessibilityLabel}
+    hitSlop={6}
+    style={[styles.iconBtn, active && styles.iconBtnActive]}
+    pressedStyle={styles.iconBtnActive}
+  >
+    {(pressed) => (
+      <Icon
+        size={15}
+        strokeWidth={2.3}
+        color={
+          tone === "danger" && pressed
+            ? "#FB7185"
+            : active || pressed
+              ? "#38BDF8"
+              : "#A8B5C7"
+        }
+      />
+    )}
+  </Tap>
+);
+
+const Surface = ({ children }: { children: React.ReactNode }) => (
+  <View style={styles.surface}>
+    <LinearGradient
+      pointerEvents="none"
+      colors={SURFACE_WASH}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={StyleSheet.absoluteFill}
+    />
+    {children}
+  </View>
+);
 
 export default function NutritionTabRoute() {
   const insets = useSafeAreaInsets();
@@ -298,585 +498,349 @@ export default function NutritionTabRoute() {
           </View>
         </View>
 
-        {hasHydrated && !hasGeneratedPlan && (
-          <LinearGradient
-            colors={["rgba(56,189,248,0.12)", "rgba(139,92,246,0.07)", "rgba(255,255,255,0.02)"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.planHeroCard}
-          >
-            <View style={styles.planHeroHeader}>
-              <View style={styles.planHeroBadge}>
-                <Sparkles size={12} color="#38BDF8" />
-                <Text style={styles.planHeroBadgeText}>NUTRITION COACH</Text>
-              </View>
-            </View>
-            <Text style={styles.planHeroTitle}>
-              Personalized Nutrition Plan
-            </Text>
-            <Text style={styles.planHeroBody}>
-              Smart macros and meal timing calibrated to your goal.
-            </Text>
-            <Pressable
-              style={({ pressed }) => [
-                styles.planHeroBtn,
-                pressed && styles.planHeroBtnPressed,
-              ]}
-              onPress={() => {
-                triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-                router.push("/nutrition-ai?mode=setup");
-              }}
-              accessibilityRole="button"
-              accessibilityLabel="Generate nutrition plan"
-            >
-              <LinearGradient
-                colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.planHeroBtnGradient}
-              >
-                <Sparkles
-                  color="#FFFFFF"
-                  size={15}
-                  style={{ marginRight: 6 }}
-                />
-                <Text style={styles.planHeroBtnText}>GENERATE PLAN</Text>
-                <ArrowRight
-                  color="#FFFFFF"
-                  size={14}
-                  style={{ marginLeft: 6 }}
-                />
-              </LinearGradient>
-            </Pressable>
-          </LinearGradient>
-        )}
-
-        <View style={styles.card}>
-          {/* Profile-card surface wash (docs/profile-card-design-language.md §4.1) */}
-          <LinearGradient
-            pointerEvents="none"
-            colors={["rgba(56,189,248,0.12)", "rgba(139,92,246,0.07)", "rgba(255,255,255,0.02)"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-          {/* Header: Badge + Actions */}
-          <View style={styles.cardHeaderRow}>
-            <View style={styles.budgetBadge}>
-              <Flame size={13} color="#38BDF8" />
-              <Text style={styles.budgetBadgeText}>DAILY ENERGY BUDGET</Text>
-            </View>
-            {(hasGeneratedPlan || loggedNutrition.calories > 0) && (
-              <View style={styles.cardActions}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Reset nutrition plan and meal logs"
-                  onPress={() => {
-                    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-                    setIsResetModalVisible(true);
-                  }}
-                  style={({ pressed }) => [
-                    styles.resetPlanButton,
-                    pressed && { opacity: 0.7, transform: [{ scale: 0.96 }] },
-                  ]}
-                >
-                  <RotateCcw size={13} color="#94A3B8" />
-                </Pressable>
-                <Pressable
-                  onPress={() => {
-                    triggerHaptic();
-                    router.push("/meal-history");
-                  }}
-                  style={({ pressed }) => [
-                    styles.headerLink,
-                    pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityLabel="View meal logs"
-                >
-                  <Text style={styles.headerLinkText} numberOfLines={1}>
-                    LOGS <Text style={styles.headerLinkArrow}>›</Text>
-                  </Text>
-                </Pressable>
-              </View>
-            )}
-          </View>
-
-          <View style={styles.energySummary}>
-            <Text style={styles.energySummaryLabel}>CONSUMED TODAY</Text>
-            <View style={styles.budgetRow}>
-              <Text style={styles.budgetMain}>
-                {loggedNutrition.calories.toLocaleString()}
-              </Text>
-              <Text style={styles.budgetTargetSlash}>/</Text>
-              <Text style={styles.budgetTargetTotal}>
-                {calorieTarget.toLocaleString()}
-              </Text>
-              <Text style={styles.budgetTargetUnit}>KCAL</Text>
-            </View>
-
-            <View style={styles.progressContainer}>
-              <View style={styles.progressBarBg}>
-                <LinearGradient
-                  colors={["#2DD4BF", "#0EA5E9", "#38BDF8"]}
-                  start={{ x: 0, y: 0.5 }}
-                  end={{ x: 1, y: 0.5 }}
-                  style={[
-                    StyleSheet.absoluteFill,
-                    { width: `${calorieProgress}%` },
-                  ]}
-                />
-              </View>
-              <View style={styles.progressMeta}>
-                <View style={styles.progressMetaLeft}>
-                  <View style={styles.metaDot} />
-                  <Text style={styles.progressRemaining}>
-                    {caloriesRemaining.toLocaleString()} KCAL REMAINING
-                  </Text>
+        <View style={styles.stack}>
+          {hasHydrated && !hasGeneratedPlan && (
+            <Surface>
+              <View style={styles.setupTop}>
+                <View style={styles.flexCopy}>
+                  <Text style={styles.eyebrow}>NUTRITION COACH</Text>
+                  <Text style={styles.cardTitle}>Personalized Nutrition Plan</Text>
                 </View>
-                <Text style={styles.progressPercent}>
-                  {calorieProgress}% CONSUMED
-                </Text>
               </View>
-            </View>
-          </View>
-
-          {/* 3 Macro Cards with Micro Progress */}
-          <View style={styles.macrosRow}>
-            {/* Protein */}
-            <View
-              style={[
-                styles.macroBox,
-                { borderColor: "rgba(56, 189, 248, 0.22)" },
-              ]}
-            >
-              <View style={styles.macroHeader}>
-                <View
-                  style={[styles.macroDot, { backgroundColor: "#38BDF8" }]}
-                />
-                <Text style={[styles.macroLabel, { color: "#38BDF8" }]}>
-                  PROTEIN
-                </Text>
-              </View>
-              <View style={styles.macroValueRow}>
-                <Text style={styles.macroValue}>{loggedNutrition.protein}</Text>
-                <Text style={styles.macroUnit}>g</Text>
-              </View>
-              <Text style={styles.macroTarget}>of {proteinTarget}g</Text>
-              <View style={styles.macroTrackBg}>
-                <View
-                  style={[
-                    styles.macroTrackFill,
-                    {
-                      width: `${proteinTarget > 0 ? Math.min(100, Math.round((loggedNutrition.protein / proteinTarget) * 100)) : 0}%`,
-                      backgroundColor: "#38BDF8",
-                    },
-                  ]}
-                />
-              </View>
-            </View>
-
-            {/* Carbs */}
-            <View
-              style={[
-                styles.macroBox,
-                { borderColor: "rgba(251, 191, 36, 0.22)" },
-              ]}
-            >
-              <View style={styles.macroHeader}>
-                <View
-                  style={[styles.macroDot, { backgroundColor: "#FBBF24" }]}
-                />
-                <Text style={[styles.macroLabel, { color: "#FBBF24" }]}>
-                  CARBS
-                </Text>
-              </View>
-              <View style={styles.macroValueRow}>
-                <Text style={styles.macroValue}>{loggedNutrition.carbs}</Text>
-                <Text style={styles.macroUnit}>g</Text>
-              </View>
-              <Text style={styles.macroTarget}>of {carbsTarget}g</Text>
-              <View style={styles.macroTrackBg}>
-                <View
-                  style={[
-                    styles.macroTrackFill,
-                    {
-                      width: `${carbsTarget > 0 ? Math.min(100, Math.round((loggedNutrition.carbs / carbsTarget) * 100)) : 0}%`,
-                      backgroundColor: "#FBBF24",
-                    },
-                  ]}
-                />
-              </View>
-            </View>
-
-            {/* Fat */}
-            <View
-              style={[
-                styles.macroBox,
-                { borderColor: "rgba(251, 113, 133, 0.22)" },
-              ]}
-            >
-              <View style={styles.macroHeader}>
-                <View
-                  style={[styles.macroDot, { backgroundColor: "#FB7185" }]}
-                />
-                <Text style={[styles.macroLabel, { color: "#FB7185" }]}>
-                  FAT
-                </Text>
-              </View>
-              <View style={styles.macroValueRow}>
-                <Text style={styles.macroValue}>{loggedNutrition.fat}</Text>
-                <Text style={styles.macroUnit}>g</Text>
-              </View>
-              <Text style={styles.macroTarget}>of {fatTarget}g</Text>
-              <View style={styles.macroTrackBg}>
-                <View
-                  style={[
-                    styles.macroTrackFill,
-                    {
-                      width: `${fatTarget > 0 ? Math.min(100, Math.round((loggedNutrition.fat / fatTarget) * 100)) : 0}%`,
-                      backgroundColor: "#FB7185",
-                    },
-                  ]}
-                />
-              </View>
-            </View>
-          </View>
-
-          {/* CTA Button */}
-          <Pressable
-            style={({ pressed }) => [
-              styles.scanBtn,
-              pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] },
-            ]}
-            onPress={() => {
-              triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-              router.push("/scan-meal");
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="Scan today's meal"
-          >
-            <LinearGradient
-              colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={styles.scanBtnGradient}
-            >
-              <Camera color="#FFFFFF" size={16} style={{ marginRight: 8 }} />
-              <Text style={styles.scanBtnText}>SCAN TODAY'S MEAL</Text>
-            </LinearGradient>
-          </Pressable>
-        </View>
-
-        {/* Water Intake Card (Hydration Telemetry) */}
-        <LinearGradient
-          colors={["rgba(56,189,248,0.12)", "rgba(139,92,246,0.07)", "rgba(255,255,255,0.02)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.hydrationCard}
-        >
-          <View style={styles.cardHeaderRow}>
-            <View style={styles.hydrationBadge}>
-              <Droplet size={13} color="#38BDF8" />
-              <Text style={styles.hydrationBadgeText}>HYDRATION TELEMETRY</Text>
-            </View>
-            <View style={styles.hydrationHeaderActions}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Edit daily hydration goal"
+              <Text style={styles.cardBody}>
+                Macros and meal timing built around your goal.
+              </Text>
+              <PrimaryButton
+                label="GENERATE PLAN"
+                icon={Sparkles}
+                trailingArrow
+                accessibilityLabel="Generate nutrition plan"
                 onPress={() => {
-                  triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-                  setTempGoalInput(waterGoal.toFixed(1));
-                  setIsEditingGoal(true);
+                  triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+                  router.push("/nutrition-ai?mode=setup");
                 }}
-                style={({ pressed }) => [
-                  styles.hydrationIconBtn,
-                  isEditingGoal && styles.hydrationIconBtnActive,
-                  pressed && styles.hydrationIconBtnPressed,
-                ]}
-              >
-                <Pencil
-                  size={13}
-                  color={isEditingGoal ? "#38BDF8" : "#94A3B8"}
-                />
-              </Pressable>
-
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Reset water intake to zero"
-                onPress={handleResetWater}
-                style={({ pressed }) => [
-                  styles.hydrationIconBtn,
-                  pressed && styles.hydrationIconBtnPressed,
-                ]}
-              >
-                <RotateCcw size={13} color="#94A3B8" />
-              </Pressable>
-
-              <View
-                style={[
-                  styles.statusPill,
-                  {
-                    borderColor: hydrationStatus.border,
-                    backgroundColor: hydrationStatus.bg,
-                  },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.statusPillText,
-                    { color: hydrationStatus.color },
-                  ]}
-                >
-                  {hydrationStatus.label}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Centered Dynamic Progress Ring Gauge */}
-          <Pressable
-            style={styles.ringContainer}
-            onPress={() => {
-              triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-              router.push("/drink-water");
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="Open full hydration protocol screen"
-          >
-            <Svg
-              width={WATER_RING_SIZE}
-              height={WATER_RING_SIZE}
-              viewBox={`0 0 ${WATER_RING_SIZE} ${WATER_RING_SIZE}`}
-            >
-              <Defs>
-                <SvgLinearGradient
-                  id="hydrationGrad"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="100%"
-                >
-                  <Stop offset="0%" stopColor="#38BDF8" />
-                  <Stop offset="50%" stopColor="#0EA5E9" />
-                  <Stop offset="100%" stopColor="#2DD4BF" />
-                </SvgLinearGradient>
-              </Defs>
-              {/* Background Circular Track */}
-              <Circle
-                cx={WATER_RING_SIZE / 2}
-                cy={WATER_RING_SIZE / 2}
-                r={WATER_RADIUS}
-                stroke="rgba(255, 255, 255, 0.06)"
-                strokeWidth={WATER_STROKE_WIDTH}
-                fill="rgba(14, 22, 38, 0.65)"
               />
-              {/* Calculating Animated Arc */}
-              <AnimatedCircle
-                cx={WATER_RING_SIZE / 2}
-                cy={WATER_RING_SIZE / 2}
-                r={WATER_RADIUS}
-                stroke="url(#hydrationGrad)"
-                strokeWidth={WATER_STROKE_WIDTH}
-                strokeLinecap="round"
-                strokeDasharray={WATER_CIRCUMFERENCE}
-                strokeDashoffset={waterStrokeDashoffset as any}
-                fill="transparent"
-                transform={`rotate(-90 ${WATER_RING_SIZE / 2} ${WATER_RING_SIZE / 2})`}
-              />
-            </Svg>
-
-            {/* Centered Telemetry Stats */}
-            <View style={styles.ringCenterContent} pointerEvents="none">
-              <Droplet color="#38BDF8" size={22} style={{ marginBottom: 4 }} />
-              <View style={styles.ringTextRow}>
-                <Text style={styles.ringMain}>{waterTotal.toFixed(1)}</Text>
-                <Text style={styles.ringUnit}>L</Text>
-              </View>
-              <Text style={styles.ringGoal}>
-                GOAL: {waterGoal.toFixed(1)} L
-              </Text>
-            </View>
-          </Pressable>
-
-          {/* Quick-Add Water Buttons */}
-          <View style={styles.quickAddRow}>
-            {/* 250 ML */}
-            <View style={styles.quickAddBtnWrapper}>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.quickAddBtn,
-                  pressed && styles.quickAddBtnPressed,
-                ]}
-                onPress={() => handleQuickAddWater(250)}
-                accessibilityRole="button"
-                accessibilityLabel="Add 250 millilitres"
-              >
-                <View style={styles.quickAddContent}>
-                  <Text style={styles.quickAddText} numberOfLines={1}>
-                    <Text style={styles.quickAddPlus}>+</Text> 250 ML
-                  </Text>
-                </View>
-              </Pressable>
-            </View>
-
-            {/* 500 ML */}
-            <View style={styles.quickAddBtnWrapper}>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.quickAddBtn,
-                  pressed && styles.quickAddBtnPressed,
-                ]}
-                onPress={() => handleQuickAddWater(500)}
-                accessibilityRole="button"
-                accessibilityLabel="Add 500 millilitres"
-              >
-                <View style={styles.quickAddContent}>
-                  <Text style={styles.quickAddText} numberOfLines={1}>
-                    <Text style={styles.quickAddPlus}>+</Text> 500 ML
-                  </Text>
-                </View>
-              </Pressable>
-            </View>
-
-            {/* 750 ML */}
-            <View style={styles.quickAddBtnWrapper}>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.quickAddBtn,
-                  pressed && styles.quickAddBtnPressed,
-                ]}
-                onPress={() => handleQuickAddWater(750)}
-                accessibilityRole="button"
-                accessibilityLabel="Add 750 millilitres"
-              >
-                <View style={styles.quickAddContent}>
-                  <Text style={styles.quickAddText} numberOfLines={1}>
-                    <Text style={styles.quickAddPlus}>+</Text> 750 ML
-                  </Text>
-                </View>
-              </Pressable>
-            </View>
-          </View>
-
-          {/* Custom Water Input & Add Button */}
-          <View style={styles.customWaterRow}>
-            <Droplet color="#38BDF8" size={16} />
-            <TextInput
-              style={styles.waterInput}
-              placeholder="0"
-              placeholderTextColor="#64748B"
-              keyboardType="number-pad"
-              value={waterInput}
-              onChangeText={(text) =>
-                setWaterInput(text.replace(/[^0-9]/g, ""))
-              }
-              maxLength={5}
-            />
-            <Text style={styles.waterInputUnit}>ML</Text>
-            <Pressable
-              style={({ pressed }) => [
-                styles.saveInlineBtn,
-                pressed && { opacity: 0.88, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={handleSaveCustomWater}
-              accessibilityRole="button"
-              accessibilityLabel="Add water"
-            >
-              <LinearGradient
-                colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.saveInlineBtnGradient}
-              >
-                <Text style={styles.saveInlineText}>ADD</Text>
-              </LinearGradient>
-            </Pressable>
-          </View>
-        </LinearGradient>
-
-        <LinearGradient
-          colors={["rgba(56,189,248,0.12)", "rgba(139,92,246,0.07)", "rgba(255,255,255,0.02)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.nutritionCoachCard}
-        >
-          {/* Header Row: Avatar + Coach Badge + Insight */}
-          <View style={styles.nutritionCoachTop}>
-            <View style={styles.nutritionAvatarShell}>
-              <View style={styles.nutritionAvatarPanel}>
-                <View style={styles.nutritionAvatarArtwork}>
-                  <CoachEmoji size="lg" />
-                </View>
-              </View>
-              <View style={styles.coachActiveDot} />
-            </View>
-
-            <View style={styles.nutritionCoachCopy}>
-              <View style={styles.coachBadgeRow}>
-                <Sparkles size={11} color="#38BDF8" />
-                <Text style={styles.nutritionCoachLabel}>NUTRITION COACH</Text>
-              </View>
-              <Text style={styles.nutritionCoachText}>
-                Need <Text style={styles.nutritionProtein}>24g protein</Text>{" "}
-                today
-              </Text>
-            </View>
-          </View>
-
-          {lastApprovedAdjustment && (
-            <View style={styles.approvedAdjustmentNotice}>
-              <Check size={13} color="#2DD4BF" />
-              <Text style={styles.approvedAdjustmentText} numberOfLines={2}>
-                PLAN UPDATE CONFIRMED — {lastApprovedAdjustment}
-              </Text>
-            </View>
+            </Surface>
           )}
 
-          {/* Recommended Next Meal Card */}
-          <View style={styles.nutritionLunch}>
-            <View style={styles.nutritionLunchLabelRow}>
-              <Utensils size={12} color="#2DD4BF" />
-              <Text style={styles.nutritionLunchLabel}>RECOMMENDED LUNCH</Text>
+          {/* Daily energy budget */}
+          <Surface>
+            <View style={styles.cardHeader}>
+              <View style={styles.cardHeaderTitle}>
+                <View style={styles.iconChip}>
+                  <Flame size={14} color="#38BDF8" />
+                </View>
+                <Text style={styles.sectionLabel}>ENERGY BUDGET</Text>
+              </View>
+              {(hasGeneratedPlan || loggedNutrition.calories > 0) && (
+                <View style={styles.headerActions}>
+                  <IconButton
+                    icon={RotateCcw}
+                    tone="danger"
+                    accessibilityLabel="Reset nutrition plan and meal logs"
+                    onPress={() => {
+                      triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+                      setIsResetModalVisible(true);
+                    }}
+                  />
+                  <Tap
+                    accessibilityRole="button"
+                    accessibilityLabel="View meal logs"
+                    hitSlop={4}
+                    onPress={() => {
+                      triggerHaptic();
+                      router.push("/meal-history");
+                    }}
+                    style={styles.linkChip}
+                    pressedStyle={styles.linkChipPressed}
+                  >
+                    <History size={14} color="#7DD3FC" strokeWidth={2.3} />
+                    <Text style={styles.linkChipText}>LOGS</Text>
+                  </Tap>
+                </View>
+              )}
             </View>
 
-            <Text style={styles.nutritionLunchText}>
-              {lunchMeal?.name || "Grilled Chicken Quinoa Bowl"}
-            </Text>
-
-            {/* Meal Macro & Calorie Telemetry */}
-            <View style={styles.nutritionLunchMacrosRow}>
-              <Flame size={12} color="#38BDF8" />
-              <Text style={styles.lunchKcalText}>
-                {lunchMeal?.calories ?? 680} KCAL
-              </Text>
-              <Text style={styles.lunchDivider}>•</Text>
-              <Text style={styles.lunchProteinHighlight}>
-                {lunchMeal?.protein ?? 48}g PROTEIN
-              </Text>
+            <View style={styles.energyPanel}>
+              <Text style={styles.panelLabel}>CONSUMED TODAY</Text>
+              <View style={styles.energyRow}>
+                <Text style={styles.energyValue}>
+                  {loggedNutrition.calories.toLocaleString()}
+                </Text>
+                <Text style={styles.energyTarget}>
+                  / {calorieTarget.toLocaleString()} kcal
+                </Text>
+              </View>
+              <View style={styles.energyTrack}>
+                <LinearGradient
+                  colors={["#2DD4BF", "#38BDF8"]}
+                  start={{ x: 0, y: 0.5 }}
+                  end={{ x: 1, y: 0.5 }}
+                  style={[styles.energyFill, { width: `${calorieProgress}%` }]}
+                />
+              </View>
+              <View style={styles.energyMeta}>
+                <Text style={styles.energyMetaText}>
+                  <Text style={styles.energyMetaStrong}>
+                    {caloriesRemaining.toLocaleString()}
+                  </Text>{" "}
+                  kcal left
+                </Text>
+                <Text style={styles.energyMetaText}>
+                  <Text style={styles.energyMetaStrong}>{calorieProgress}%</Text> done
+                </Text>
+              </View>
             </View>
-          </View>
 
-          {/* Action Button */}
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Adjust plan with AI"
-            onPress={() => {
-              triggerHaptic();
-              router.push("/coach?context=nutrition");
-            }}
-            style={({ pressed }) => [
-              styles.nutritionPlan,
-              pressed && styles.nutritionPlanPressed,
-            ]}
-          >
-            <View style={styles.nutritionPlanContent}>
-              <Sparkles size={13} color="#38BDF8" />
-              <Text style={styles.nutritionPlanText}>ADJUST PLAN WITH AI</Text>
-              <ChevronRight size={14} color="#38BDF8" strokeWidth={2.5} />
+            <View style={styles.macroRow}>
+              {[
+                { label: "Protein", color: "#38BDF8", value: loggedNutrition.protein, target: proteinTarget },
+                { label: "Carbs", color: "#FBBF24", value: loggedNutrition.carbs, target: carbsTarget },
+                { label: "Fat", color: "#FB7185", value: loggedNutrition.fat, target: fatTarget },
+              ].map((macro) => {
+                const percent =
+                  macro.target > 0
+                    ? Math.min(100, Math.round((macro.value / macro.target) * 100))
+                    : 0;
+                return (
+                  <View key={macro.label} style={styles.macroTile}>
+                    <View style={styles.macroName}>
+                      <View style={[styles.macroDot, { backgroundColor: macro.color }]} />
+                      <Text style={styles.macroLabel}>{macro.label}</Text>
+                    </View>
+                    <Text style={styles.macroValue}>
+                      {macro.value}
+                      <Text style={styles.macroUnit}>g</Text>
+                    </Text>
+                    <Text style={styles.macroTarget}>of {macro.target}g</Text>
+                    <View style={styles.macroTrack}>
+                      <View
+                        style={[styles.macroFill, { width: `${percent}%`, backgroundColor: macro.color }]}
+                      />
+                    </View>
+                  </View>
+                );
+              })}
             </View>
-          </Pressable>
-        </LinearGradient>
+
+            <PrimaryButton
+              label="SCAN TODAY'S MEAL"
+              icon={Camera}
+              accessibilityLabel="Scan today's meal"
+              onPress={() => {
+                triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+                router.push("/scan-meal");
+              }}
+            />
+          </Surface>
+
+          {/* Hydration */}
+          <Surface>
+            <View style={styles.cardHeader}>
+              <View style={styles.cardHeaderTitle}>
+                <View style={styles.iconChip}>
+                  <Droplet size={14} color="#38BDF8" />
+                </View>
+                <Text style={styles.sectionLabel}>HYDRATION</Text>
+              </View>
+              <View style={styles.headerActions}>
+                <IconButton
+                  icon={Pencil}
+                  active={isEditingGoal}
+                  accessibilityLabel="Edit daily hydration goal"
+                  onPress={() => {
+                    triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+                    setTempGoalInput(waterGoal.toFixed(1));
+                    setIsEditingGoal(true);
+                  }}
+                />
+                <IconButton
+                  icon={RotateCcw}
+                  tone="danger"
+                  accessibilityLabel="Reset water intake to zero"
+                  onPress={handleResetWater}
+                />
+              </View>
+            </View>
+
+            <Pressable
+              style={styles.ringContainer}
+              onPress={() => {
+                triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+                router.push("/drink-water");
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Open full hydration screen"
+            >
+              <Svg width={WATER_RING_SIZE} height={WATER_RING_SIZE}>
+                <Defs>
+                  <SvgLinearGradient id="hydrationGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <Stop offset="0%" stopColor="#38BDF8" />
+                    <Stop offset="100%" stopColor="#2DD4BF" />
+                  </SvgLinearGradient>
+                </Defs>
+                <Circle
+                  cx={WATER_RING_SIZE / 2}
+                  cy={WATER_RING_SIZE / 2}
+                  r={WATER_RADIUS}
+                  stroke="rgba(255,255,255,0.07)"
+                  strokeWidth={WATER_STROKE_WIDTH}
+                  fill="none"
+                />
+                <AnimatedCircle
+                  cx={WATER_RING_SIZE / 2}
+                  cy={WATER_RING_SIZE / 2}
+                  r={WATER_RADIUS}
+                  stroke="url(#hydrationGrad)"
+                  strokeWidth={WATER_STROKE_WIDTH}
+                  strokeLinecap="round"
+                  strokeDasharray={WATER_CIRCUMFERENCE}
+                  strokeDashoffset={waterStrokeDashoffset as any}
+                  fill="none"
+                  transform={`rotate(-90 ${WATER_RING_SIZE / 2} ${WATER_RING_SIZE / 2})`}
+                />
+              </Svg>
+              <View style={styles.ringCenter} pointerEvents="none">
+                <View style={styles.ringValueRow}>
+                  <Text style={styles.ringValue}>{waterTotal.toFixed(1)}</Text>
+                  <Text style={styles.ringUnit}>L</Text>
+                </View>
+                <Text style={styles.ringCaption}>OF {waterGoal.toFixed(1)} L GOAL</Text>
+                <View
+                  style={[
+                    styles.statusPill,
+                    { borderColor: hydrationStatus.border, backgroundColor: hydrationStatus.bg },
+                  ]}
+                >
+                  <View style={[styles.statusDot, { backgroundColor: hydrationStatus.color }]} />
+                  <Text style={[styles.statusPillText, { color: hydrationStatus.color }]} numberOfLines={1}>
+                    {hydrationStatus.label}
+                  </Text>
+                </View>
+              </View>
+            </Pressable>
+
+            <View style={styles.quickRow}>
+              {[250, 500, 750].map((ml) => (
+                <Tap
+                  key={ml}
+                  containerStyle={styles.flexOne}
+                  style={styles.quickChip}
+                  pressedStyle={styles.quickChipPressed}
+                  onPress={() => handleQuickAddWater(ml)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Add ${ml} millilitres`}
+                >
+                  <Droplet size={13} color="#38BDF8" strokeWidth={2.4} fill="rgba(56,189,248,0.25)" />
+                  <Text style={styles.quickChipText}>
+                    +{ml}
+                    <Text style={styles.quickChipUnit}> ml</Text>
+                  </Text>
+                </Tap>
+              ))}
+            </View>
+
+            <View style={styles.customWaterRow}>
+              <View style={styles.customWaterIconWrap}>
+                <Droplet color="#38BDF8" size={15} />
+              </View>
+              <TextInput
+                style={styles.waterInput}
+                placeholder="Custom amount"
+                placeholderTextColor="#64748B"
+                keyboardType="number-pad"
+                value={waterInput}
+                onChangeText={(text) => setWaterInput(text.replace(/[^0-9]/g, ""))}
+                maxLength={5}
+                accessibilityLabel="Custom water amount in millilitres"
+              />
+              <View style={styles.waterInputUnitWrap}>
+                <Text style={styles.waterInputUnit}>ML</Text>
+              </View>
+              <Tap
+                disabled={!waterInput}
+                style={styles.addBtnShell}
+                onPress={handleSaveCustomWater}
+                accessibilityRole="button"
+                accessibilityLabel="Add water"
+                accessibilityState={{ disabled: !waterInput }}
+              >
+                {waterInput ? (
+                  <LinearGradient
+                    colors={PRIMARY_GRADIENTS.brand}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.addBtn}
+                  >
+                    <Plus size={15} color="#FFFFFF" strokeWidth={2.8} />
+                    <Text style={styles.addBtnText}>ADD</Text>
+                  </LinearGradient>
+                ) : (
+                  <View style={[styles.addBtn, styles.addBtnDisabled]}>
+                    <Plus size={15} color="#64748B" strokeWidth={2.8} />
+                    <Text style={[styles.addBtnText, styles.addBtnTextDisabled]}>ADD</Text>
+                  </View>
+                )}
+              </Tap>
+            </View>
+          </Surface>
+
+          {/* Nutrition coach */}
+          <Surface>
+            <View style={styles.setupTop}>
+              <View>
+                <View style={[styles.coachCircle, styles.coachCircleCompact]}>
+                  <View style={styles.coachArtworkCompact}>
+                    <CoachEmoji size="md" />
+                  </View>
+                </View>
+                <View style={[styles.coachActiveDot, styles.coachActiveDotCompact]} />
+              </View>
+              <View style={styles.flexCopy}>
+                <Text style={styles.eyebrow}>NUTRITION COACH</Text>
+                <Text style={styles.cardTitle}>
+                  Need <Text style={styles.highlight}>24g protein</Text> today
+                </Text>
+              </View>
+            </View>
+
+            {lastApprovedAdjustment && (
+              <View style={styles.approvedNotice}>
+                <Check size={13} color="#2DD4BF" />
+                <Text style={styles.approvedText} numberOfLines={2}>
+                  Plan updated: {lastApprovedAdjustment}
+                </Text>
+              </View>
+            )}
+
+            <View style={styles.mealTile}>
+              <View style={styles.mealIcon}>
+                <Utensils size={16} color="#2DD4BF" />
+              </View>
+              <View style={styles.flexCopy}>
+                <Text style={styles.mealEyebrow}>RECOMMENDED LUNCH</Text>
+                <Text style={styles.mealName} numberOfLines={2}>
+                  {lunchMeal?.name || "Grilled Chicken Quinoa Bowl"}
+                </Text>
+                <Text style={styles.mealMeta}>
+                  {lunchMeal?.calories ?? 680} kcal
+                  <Text style={styles.mealMetaDot}>  •  </Text>
+                  <Text style={styles.mealMetaProtein}>{lunchMeal?.protein ?? 48}g protein</Text>
+                </Text>
+              </View>
+            </View>
+
+            <SecondaryButton
+              label="ASK YOUR COACH"
+              icon={MessageCircle}
+              accessibilityLabel="Ask your nutrition coach"
+              onPress={() => {
+                triggerHaptic();
+                router.push("/coach?context=nutrition");
+              }}
+            />
+          </Surface>
+        </View>
       </KeyboardAwareScrollView>
 
       <Modal
@@ -899,38 +863,28 @@ export default function NutritionTabRoute() {
                 </View>
                 <Text style={styles.resetModalTitle}>RESET NUTRITION</Text>
               </View>
-              <Pressable
-                accessibilityRole="button"
+              <IconButton
+                icon={X}
                 accessibilityLabel="Close reset confirmation"
-                hitSlop={10}
                 onPress={() => setIsResetModalVisible(false)}
-                style={styles.resetModalClose}
-              >
-                <X size={17} color="#8290A4" />
-              </Pressable>
+              />
             </View>
             <Text style={styles.resetModalText}>Clear plan and meal logs.</Text>
             <View style={styles.resetModalActions}>
-              <TouchableOpacity
-                accessibilityRole="button"
-                activeOpacity={0.82}
+              <PrimaryButton
+                label="RESET PLAN"
+                icon={RotateCcw}
+                tone="danger"
                 onPress={() => {
+                  triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy);
                   resetNutritionJourney();
                   setIsResetModalVisible(false);
                 }}
-                style={styles.resetModalConfirm}
-              >
-                <RotateCcw size={14} color="#FFFFFF" strokeWidth={2.5} />
-                <Text style={styles.resetModalConfirmText}>RESET PLAN</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                accessibilityRole="button"
-                activeOpacity={0.7}
+              />
+              <GhostButton
+                label="KEEP MY PLAN"
                 onPress={() => setIsResetModalVisible(false)}
-                style={styles.resetModalCancel}
-              >
-                <Text style={styles.resetModalCancelText}>KEEP MY PLAN</Text>
-              </TouchableOpacity>
+              />
             </View>
           </View>
         </View>
@@ -960,15 +914,11 @@ export default function NutritionTabRoute() {
                   DAILY HYDRATION GOAL
                 </Text>
               </View>
-              <Pressable
-                onPress={() => setIsEditingGoal(false)}
-                hitSlop={10}
-                style={styles.modalCloseBtn}
-                accessibilityRole="button"
+              <IconButton
+                icon={X}
                 accessibilityLabel="Close goal settings"
-              >
-                <X size={16} color="#94A3B8" />
-              </Pressable>
+                onPress={() => setIsEditingGoal(false)}
+              />
             </View>
 
             {/* Presets Row */}
@@ -976,38 +926,25 @@ export default function NutritionTabRoute() {
               {[2.0, 2.5, 3.0, 3.5, 4.0].map((preset) => {
                 const isSelected = parseFloat(tempGoalInput) === preset;
                 return (
-                  <View
+                  <Tap
                     key={preset}
-                    style={[
-                      styles.modalPresetBtnWrapper,
-                      isSelected && styles.modalPresetBtnWrapperActive,
-                    ]}
+                    containerStyle={styles.flexOne}
+                    style={[styles.presetChip, isSelected && styles.presetChipActive]}
+                    onPress={() => {
+                      triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+                      setTempGoalInput(preset.toFixed(1));
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${preset} liters preset`}
+                    accessibilityState={{ selected: isSelected }}
                   >
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.modalPresetBtn,
-                        pressed && styles.modalPresetBtnPressed,
-                      ]}
-                      onPress={() => {
-                        triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-                        setTempGoalInput(preset.toFixed(1));
-                      }}
-                      accessibilityRole="button"
-                      accessibilityLabel={`${preset} liters preset`}
+                    <Text
+                      style={[styles.presetText, isSelected && styles.presetTextActive]}
+                      numberOfLines={1}
                     >
-                      <View style={styles.modalPresetContent}>
-                        <Text
-                          style={[
-                            styles.modalPresetText,
-                            isSelected && styles.modalPresetTextActive,
-                          ]}
-                          numberOfLines={1}
-                        >
-                          {preset.toFixed(1)}L
-                        </Text>
-                      </View>
-                    </Pressable>
-                  </View>
+                      {preset.toFixed(1)}L
+                    </Text>
+                  </Tap>
                 );
               })}
             </View>
@@ -1028,30 +965,12 @@ export default function NutritionTabRoute() {
             </View>
 
             {/* Separate, Prominent SET GOAL Button */}
-            <Pressable
-              style={({ pressed }) => [
-                styles.modalSaveBtn,
-                pressed && styles.modalSaveBtnPressed,
-              ]}
-              onPress={() => handleSaveGoal()}
-              accessibilityRole="button"
+            <PrimaryButton
+              label="SET DAILY GOAL"
+              icon={Check}
               accessibilityLabel="Confirm and save hydration goal"
-            >
-              <LinearGradient
-                colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.modalSaveBtnGradient}
-              >
-                <Check
-                  size={18}
-                  color="#FFFFFF"
-                  strokeWidth={2.8}
-                  style={{ marginRight: 6 }}
-                />
-                <Text style={styles.modalSaveBtnText}>SET DAILY GOAL</Text>
-              </LinearGradient>
-            </Pressable>
+              onPress={() => handleSaveGoal()}
+            />
           </Pressable>
         </KeyboardAvoidingView>
       </Modal>
@@ -1098,402 +1017,6 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(120, 145, 255, 0.22)",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 6,
-  },
-  heroSubtitle: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "500",
-    marginTop: 4,
-  },
-  card: {
-    // Profile-card surface (docs/profile-card-design-language.md §4.1)
-    backgroundColor: "#111A25",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "rgba(56,189,248,0.18)",
-    overflow: "hidden",
-    padding: 16,
-    marginBottom: 18,
-  },
-  cardHeaderRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  budgetBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(56, 189, 248, 0.07)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.2)",
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 9,
-  },
-  budgetBadgeText: {
-    color: "#38BDF8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
-  cardActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  resetPlanButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 9,
-    borderWidth: 1,
-    borderColor: "rgba(148, 163, 184, 0.16)",
-    backgroundColor: "rgba(148, 163, 184, 0.06)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerLink: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    flexWrap: "nowrap",
-    width: 58,
-    minWidth: 58,
-    height: 30,
-    flexShrink: 0,
-    gap: 3,
-    paddingHorizontal: 6,
-    borderRadius: 9,
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.2)",
-    backgroundColor: "rgba(56, 189, 248, 0.06)",
-  },
-  headerLinkText: {
-    color: "#38BDF8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-    lineHeight: 12,
-    includeFontPadding: false,
-    flexShrink: 0,
-  },
-  headerLinkArrow: {
-    fontSize: 16,
-    lineHeight: 20,
-    fontWeight: "800",
-  },
-  statusPill: {
-    backgroundColor: "rgba(45, 212, 191, 0.12)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.3)",
-  },
-  statusPillText: {
-    color: "#2DD4BF",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  energySummary: {
-    backgroundColor: "rgba(2, 8, 23, 0.48)",
-    borderWidth: 1,
-    borderColor: "rgba(148, 163, 184, 0.08)",
-    borderRadius: 16,
-    paddingHorizontal: 14,
-    paddingTop: 12,
-    paddingBottom: 11,
-    marginBottom: 12,
-  },
-  energySummaryLabel: {
-    color: "#64748B",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    textAlign: "center",
-  },
-  budgetRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    justifyContent: "center",
-    marginTop: 1,
-    marginBottom: 10,
-  },
-  budgetMain: {
-    color: "#FFFFFF",
-    fontSize: 40,
-    fontWeight: "800",
-    letterSpacing: -0.5,
-  },
-  budgetTargetSlash: {
-    color: "#475569",
-    fontSize: 20,
-    fontWeight: "700",
-    marginHorizontal: 6,
-  },
-  budgetTargetTotal: {
-    color: "#94A3B8",
-    fontSize: 20,
-    fontWeight: "800",
-  },
-  budgetTargetUnit: {
-    color: "#64748B",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-    marginLeft: 4,
-  },
-  progressContainer: {
-    marginBottom: 0,
-  },
-  progressBarBg: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    overflow: "hidden",
-    marginBottom: 7,
-  },
-  progressMeta: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  progressMetaLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  metaDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#38BDF8",
-    marginRight: 6,
-  },
-  progressRemaining: {
-    color: "#38BDF8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-  progressPercent: {
-    color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  macrosRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginBottom: 14,
-    width: "100%",
-  },
-  macroBox: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: 9,
-    paddingHorizontal: 7,
-    alignItems: "center",
-    backgroundColor: "rgba(2, 8, 23, 0.4)",
-  },
-  macroHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    marginBottom: 4,
-  },
-  macroDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-  },
-  macroLabel: {
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.6,
-  },
-  macroValueRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    marginBottom: 2,
-  },
-  macroValue: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "800",
-  },
-  macroUnit: {
-    color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "700",
-    marginLeft: 1,
-  },
-  macroTarget: {
-    color: "#64748B",
-    fontSize: 9,
-    fontWeight: "700",
-    marginBottom: 6,
-  },
-  macroTrackBg: {
-    width: "100%",
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    overflow: "hidden",
-  },
-  macroTrackFill: {
-    height: "100%",
-    borderRadius: 2,
-  },
-  scanBtn: {
-    borderRadius: 13,
-    overflow: "hidden",
-    shadowColor: "#0284C7",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.22,
-    shadowRadius: 7,
-    elevation: 2,
-  },
-  scanBtnGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    height: 46,
-    borderRadius: 13,
-    overflow: "hidden",
-  },
-  scanBtnText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-  planHeroCard: {
-    // Profile-card surface (docs/profile-card-design-language.md §4.1)
-    backgroundColor: "#111A25",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "rgba(56,189,248,0.18)",
-    padding: 18,
-    marginBottom: 18,
-  },
-  planHeroHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  planHeroBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(56, 189, 248, 0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.25)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  planHeroBadgeText: {
-    color: "#38BDF8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
-  planHeroTitle: {
-    color: "#F8FAFC",
-    fontSize: 20,
-    lineHeight: 24,
-    fontWeight: "800",
-    letterSpacing: -0.3,
-    marginBottom: 4,
-  },
-  planHeroBody: {
-    color: "#94A3B8",
-    fontSize: 12,
-    lineHeight: 18,
-    fontWeight: "500",
-    marginBottom: 14,
-  },
-  planHeroBtn: {
-    borderRadius: 14,
-    overflow: "hidden",
-    shadowColor: "#0284C7",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  planHeroBtnPressed: {
-    transform: [{ scale: 0.98 }],
-    opacity: 0.9,
-  },
-  planHeroBtnGradient: {
-    height: 46,
-    borderRadius: 14,
-    overflow: "hidden",
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  planHeroBtnText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textAlign: "center",
-  },
-  hydrationCard: {
-    // Profile-card surface (docs/profile-card-design-language.md §4.1)
-    backgroundColor: "#111A25",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "rgba(56,189,248,0.18)",
-    padding: 18,
-    marginBottom: 18,
-  },
-  hydrationBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(56, 189, 248, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.2)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  hydrationBadgeText: {
-    color: "#38BDF8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
-  hydrationHeaderActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  hydrationIconBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  hydrationIconBtnActive: {
-    backgroundColor: "rgba(56, 189, 248, 0.15)",
-    borderColor: "rgba(56, 189, 248, 0.5)",
-  },
-  hydrationIconBtnPressed: {
-    opacity: 0.7,
-    transform: [{ scale: 0.92 }],
   },
   modalBackdrop: {
     flex: 1,
@@ -1544,14 +1067,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(244, 63, 94, 0.2)",
   },
-  resetModalClose: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-  },
   resetModalTitle: {
     color: "#F8FAFC",
     fontSize: 13,
@@ -1568,41 +1083,6 @@ const styles = StyleSheet.create({
   resetModalActions: {
     width: "100%",
     gap: 9,
-  },
-  resetModalCancel: {
-    width: "100%",
-    height: 44,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "transparent",
-  },
-  resetModalConfirm: {
-    width: "100%",
-    height: 48,
-    borderRadius: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#E11D48",
-    shadowColor: "#E11D48",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.24,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  resetModalCancelText: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  resetModalConfirmText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.8,
   },
   modalCard: {
     width: "100%",
@@ -1635,61 +1115,10 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1.2,
   },
-  modalCloseBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   modalPresetsRow: {
     flexDirection: "row",
     gap: 6,
     marginBottom: 14,
-  },
-  modalPresetBtnWrapper: {
-    flex: 1,
-    height: 38,
-    borderRadius: 10,
-    backgroundColor: "#162238",
-    borderWidth: 1.5,
-    borderColor: "rgba(56, 189, 248, 0.45)",
-    overflow: "hidden",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  modalPresetBtnWrapperActive: {
-    backgroundColor: "#0284C7",
-    borderColor: "#38BDF8",
-  },
-  modalPresetBtn: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  modalPresetBtnPressed: {
-    opacity: 0.8,
-  },
-  modalPresetContent: {
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  modalPresetText: {
-    color: "#E0F2FE",
-    fontSize: 11,
-    fontWeight: "700",
-    textAlign: "center",
-    textAlignVertical: "center",
-    includeFontPadding: false,
-  },
-  modalPresetTextActive: {
-    color: "#FFFFFF",
-    fontWeight: "800",
   },
   modalInputRow: {
     flexDirection: "row",
@@ -1716,338 +1145,584 @@ const styles = StyleSheet.create({
     marginRight: 14,
     letterSpacing: 0.8,
   },
-  modalSaveBtn: {
-    borderRadius: 12,
-    overflow: "hidden",
-    shadowColor: "#0284C7",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 4,
+  stack: {
+    gap: 18,
   },
-  modalSaveBtnPressed: {
-    transform: [{ scale: 0.98 }],
-    opacity: 0.9,
-  },
-  modalSaveBtnGradient: {
-    height: 46,
-    borderRadius: 12,
-    overflow: "hidden",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  modalSaveBtnText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-  ringContainer: {
-    alignSelf: "center",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-    width: WATER_RING_SIZE,
-    height: WATER_RING_SIZE,
-    marginVertical: 10,
-    marginBottom: 18,
-  },
-  ringCenterContent: {
-    position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  ringTextRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    marginBottom: 2,
-  },
-  ringMain: {
-    color: "#FFFFFF",
-    fontSize: 40,
-    lineHeight: 44,
-    fontWeight: "800",
-    letterSpacing: -0.5,
-  },
-  ringUnit: {
-    color: "#38BDF8",
-    fontSize: 20,
-    lineHeight: 22,
-    fontWeight: "800",
-    marginLeft: 3,
-  },
-  ringGoal: {
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    marginTop: 2,
-  },
-  quickAddRow: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 8,
-    marginBottom: 14,
-  },
-  quickAddBtnWrapper: {
-    flex: 1,
-    height: 40,
-    backgroundColor: "rgba(255, 255, 255, 0.035)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.22)",
-    borderRadius: 12,
-    overflow: "hidden",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  quickAddBtn: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  quickAddBtnPressed: {
-    backgroundColor: "rgba(56, 189, 248, 0.15)",
-  },
-  quickAddContent: {
-    width: "100%",
-    height: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 6,
-  },
-  quickAddText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-    textAlign: "center",
-    textAlignVertical: "center",
-    includeFontPadding: false,
-    width: "100%",
-  },
-  quickAddPlus: {
-    color: "#38BDF8",
-    fontWeight: "800",
-  },
-  customWaterRow: {
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.22)",
-    flexDirection: "row",
-    alignItems: "center",
-    paddingLeft: 12,
-    paddingRight: 6,
-    height: 44,
-    borderRadius: 12,
-  },
-  waterInput: {
-    flex: 1,
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "700",
-    marginLeft: 8,
-    paddingVertical: 0,
-  },
-  waterInputUnit: {
-    color: "#64748B",
-    fontSize: 11,
-    fontWeight: "700",
-    marginRight: 8,
-  },
-  saveInlineBtn: {
-    borderRadius: 9,
-    overflow: "hidden",
-    shadowColor: "#0284C7",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  saveInlineBtnGradient: {
-    height: 32,
-    paddingHorizontal: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 9,
-    overflow: "hidden",
-  },
-  saveInlineText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  nutritionCoachCard: {
-    width: "100%",
-    // Profile-card surface (docs/profile-card-design-language.md §4.1)
+  surface: {
     backgroundColor: "#111A25",
     borderRadius: 24,
     borderWidth: 1,
     borderColor: "rgba(56,189,248,0.18)",
+    padding: 18,
+    gap: 16,
     overflow: "hidden",
-    padding: 16,
-    gap: 12,
   },
-  nutritionCoachTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  approvedAdjustmentNotice: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 10,
-    backgroundColor: "rgba(45, 212, 191, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.17)",
-  },
-  approvedAdjustmentText: {
+  flexCopy: {
     flex: 1,
-    color: "#9FEBDD",
-    fontSize: 9,
-    lineHeight: 13,
-    letterSpacing: 0.35,
+    minWidth: 0,
+    gap: 3,
   },
-  nutritionAvatarShell: {
-    width: 44,
-    height: 44,
-    position: "relative",
+
+
+  // Shared copy
+  eyebrow: {
+    ...typography.overline,
+    color: "#2DD4BF",
   },
-  nutritionAvatarPanel: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  cardTitle: {
+    ...typography.cardTitle,
+    color: "#F8FAFC",
+  },
+  cardBody: {
+    ...typography.body,
+    color: "#94A3B8",
+    marginTop: -6,
+  },
+  highlight: {
+    color: "#38BDF8",
+  },
+
+  // Buttons
+
+  // Setup + coach header
+  setupTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  coachCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(56,189,248,.10)",
+    backgroundColor: "rgba(56,189,248,0.10)",
     borderWidth: 1,
-    borderColor: "rgba(56,189,248,.22)",
-    overflow: "hidden",
+    borderColor: "rgba(56,189,248,0.22)",
   },
-  nutritionAvatarArtwork: {
+  coachCircleCompact: {
     width: 36,
     height: 36,
+    borderRadius: 18,
+    overflow: "hidden",
+  },
+  coachArtworkCompact: {
+    width: 26,
+    height: 26,
     alignItems: "center",
     justifyContent: "center",
     transform: [{ translateX: 1 }, { scale: 0.86 }],
   },
   coachActiveDot: {
     position: "absolute",
-    right: -2,
-    bottom: -2,
+    right: 1,
+    bottom: 1,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "#2DD4BF",
+    borderWidth: 2,
+    borderColor: "#111A25",
+  },
+  coachActiveDotCompact: {
+    right: 0,
+    bottom: 0,
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#2DD4BF",
     borderWidth: 1.5,
-    borderColor: "#0F1626",
   },
-  nutritionCoachCopy: {
-    flex: 1,
-    gap: 2,
-  },
-  coachBadgeRow: {
+
+
+
+  // Coach
+  approvedNotice: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-  },
-  nutritionCoachLabel: {
-    color: "#38BDF8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-  nutritionCoachText: {
-    color: "#E2E8F0",
-    fontSize: 16,
-    lineHeight: 20,
-    fontWeight: "800",
-  },
-  nutritionProtein: {
-    color: "#2DD4BF",
-    fontWeight: "800",
-  },
-  nutritionLunch: {
-    backgroundColor: "rgba(7, 12, 19, 0.42)",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(148, 163, 184, 0.12)",
-    paddingVertical: 10,
+    gap: 8,
     paddingHorizontal: 12,
-    gap: 4,
+    paddingVertical: 9,
+    borderRadius: 12,
+    backgroundColor: "rgba(45,212,191,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(45,212,191,0.22)",
   },
-  nutritionLunchLabelRow: {
+  approvedText: {
+    ...typography.bodySmall,
+    flex: 1,
+    color: "#99F6E4",
+  },
+  mealTile: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    padding: 14,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.10)",
+  },
+  mealIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(45,212,191,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(45,212,191,0.22)",
+  },
+  mealEyebrow: {
+    ...typography.overline,
+    color: "#64748B",
+  },
+  mealName: {
+    ...typography.subtitle,
+    fontWeight: "700",
+    color: "#F8FAFC",
+  },
+  mealMeta: {
+    ...typography.bodySmall,
+    color: "#94A3B8",
+  },
+  mealMetaDot: {
+    color: "#475569",
+  },
+  mealMetaProtein: {
+    color: "#38BDF8",
+    fontWeight: "600",
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  cardHeaderTitle: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  iconChip: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
+  },
+  sectionLabel: {
+    ...typography.sectionTitle,
+    color: "#E5EEF8",
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  energyPanel: {
+    padding: 16,
+    borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.10)",
+    gap: 10,
+  },
+  panelLabel: {
+    ...typography.overline,
+    color: "#64748B",
+  },
+  energyRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 6,
+    marginTop: -4,
+  },
+  energyValue: {
+    ...typography.metricLarge,
+    color: "#F8FAFC",
+    fontVariant: ["tabular-nums"],
+  },
+  energyTarget: {
+    ...typography.subtitle,
+    color: "#64748B",
+    fontVariant: ["tabular-nums"],
+  },
+  energyTrack: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "rgba(255,255,255,0.07)",
+    overflow: "hidden",
+  },
+  energyFill: {
+    height: "100%",
+    borderRadius: 4,
+  },
+  energyMeta: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  energyMetaText: {
+    ...typography.bodySmall,
+    color: "#64748B",
+  },
+  energyMetaStrong: {
+    fontWeight: "700",
+    color: "#CBD5E1",
+  },
+  macroRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  macroTile: {
+    flex: 1,
+    minWidth: 0,
+    padding: 12,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.10)",
+    gap: 2,
+  },
+  macroName: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 4,
+  },
+  macroDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+  },
+  macroLabel: {
+    ...typography.caption,
+    fontWeight: "600",
+    color: "#CBD5E1",
+  },
+  macroValue: {
+    ...typography.metric,
+    color: "#F8FAFC",
+    fontVariant: ["tabular-nums"],
+  },
+  macroUnit: {
+    ...typography.metricUnit,
+    color: "#94A3B8",
+  },
+  macroTarget: {
+    ...typography.caption,
+    color: "#64748B",
+  },
+  macroTrack: {
+    height: 5,
+    borderRadius: 3,
+    marginTop: 8,
+    backgroundColor: "rgba(255,255,255,0.07)",
+    overflow: "hidden",
+  },
+  macroFill: {
+    height: "100%",
+    borderRadius: 3,
+  },
+  ringContainer: {
+    alignSelf: "center",
+    width: WATER_RING_SIZE,
+    height: WATER_RING_SIZE,
+  },
+  ringCenter: {
+    ...StyleSheet.absoluteFill,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 2,
+  },
+  ringValueRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 3,
+  },
+  ringValue: {
+    ...typography.metricLarge,
+    color: "#F8FAFC",
+    fontVariant: ["tabular-nums"],
+  },
+  ringUnit: {
+    ...typography.cardTitle,
+    color: "#38BDF8",
+  },
+  ringCaption: {
+    ...typography.overline,
+    color: "#64748B",
+  },
+  statusPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  statusPillText: {
+    ...typography.badge,
+  },
+  quickRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  customWaterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    height: 48,
+    paddingLeft: 14,
+    paddingRight: 5,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.14)",
+  },
+  customWaterIconWrap: {
+    width: 18,
+    height: 46,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  waterInput: {
+    ...typography.input,
+    flex: 1,
+    minWidth: 0,
+    height: 22,
+    alignSelf: "center",
+    color: "#F8FAFC",
+    paddingTop: 0,
+    paddingBottom: 0,
+    textAlignVertical: "center",
+    includeFontPadding: false,
+  },
+  waterInputUnit: {
+    ...typography.caption,
+    color: "#64748B",
+    lineHeight: 22,
+    includeFontPadding: false,
+  },
+  waterInputUnitWrap: {
+    height: 46,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  // Buttons
+  flexOne: {
+    flex: 1,
+  },
+  btnPressed: {
+    transform: [{ scale: 0.97 }],
+    opacity: 0.92,
+  },
+  primaryShadow: {
+    borderRadius: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0EA5E9",
+        shadowOpacity: 0.35,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 6 },
+      },
+      android: {},
+      default: { boxShadow: "0px 8px 20px rgba(14,165,233,0.30)" },
+    }),
+  },
+  primaryShadowDanger: {
+    ...Platform.select({
+      ios: { shadowColor: "#E11D48" },
+      android: {},
+      default: { boxShadow: "0px 8px 20px rgba(225,29,72,0.28)" },
+    }),
+  },
+  primaryFill: {
+    height: 52,
+    borderRadius: 16,
+    overflow: "hidden",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    paddingHorizontal: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
+  },
+  primarySheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
+  },
+  primaryText: {
+    ...typography.button,
+    color: "#FFFFFF",
+    letterSpacing: 1,
+  },
+  primaryTrail: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
+  },
+  secondaryBtn: {
+    height: 52,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    paddingHorizontal: 18,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.32)",
+  },
+  secondaryBtnPressed: {
+    backgroundColor: "rgba(56,189,248,0.18)",
+    borderColor: "rgba(56,189,248,0.5)",
+  },
+  secondaryText: {
+    ...typography.button,
+    color: "#7DD3FC",
+    letterSpacing: 1,
+  },
+  secondaryTrail: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.16)",
+  },
+  ghostBtn: {
+    height: 50,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.18)",
+  },
+  ghostBtnPressed: {
+    backgroundColor: "rgba(255,255,255,0.08)",
+  },
+  ghostText: {
+    ...typography.button,
+    color: "#CBD5E1",
+    letterSpacing: 1,
+  },
+  iconBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.18)",
+  },
+  iconBtnActive: {
+    backgroundColor: "rgba(56,189,248,0.14)",
+    borderColor: "rgba(56,189,248,0.4)",
+  },
+  linkChip: {
+    height: 36,
+    paddingHorizontal: 14,
+    borderRadius: 18,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
+  },
+  linkChipPressed: {
+    backgroundColor: "rgba(56,189,248,0.2)",
+  },
+  linkChipText: {
+    ...typography.buttonSmall,
+    color: "#7DD3FC",
+    letterSpacing: 0.8,
+  },
+  quickChip: {
+    height: 48,
+    borderRadius: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    backgroundColor: "rgba(56,189,248,0.07)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
+  },
+  quickChipPressed: {
+    backgroundColor: "rgba(56,189,248,0.18)",
+    borderColor: "rgba(56,189,248,0.5)",
+  },
+  quickChipText: {
+    ...typography.button,
+    color: "#F1F5F9",
+    fontVariant: ["tabular-nums"],
+  },
+  quickChipUnit: {
+    ...typography.caption,
+    color: "#64748B",
+  },
+  addBtnShell: {
+    borderRadius: 12,
+  },
+  addBtn: {
+    height: 38,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    overflow: "hidden",
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
   },
-  nutritionLunchLabel: {
-    color: "#2DD4BF",
-    fontSize: 9,
-    fontWeight: "700",
+  addBtnDisabled: {
+    backgroundColor: "rgba(148,163,184,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.16)",
+  },
+  addBtnText: {
+    ...typography.buttonSmall,
+    color: "#FFFFFF",
     letterSpacing: 0.8,
   },
-  nutritionLunchText: {
-    color: "#F8FAFC",
-    fontSize: 14,
-    lineHeight: 18,
-    fontWeight: "700",
+  addBtnTextDisabled: {
+    color: "#64748B",
   },
-  nutritionLunchMacrosRow: {
-    flexDirection: "row",
+  presetChip: {
+    height: 40,
+    borderRadius: 12,
     alignItems: "center",
-    gap: 6,
-    marginTop: 2,
-  },
-  lunchKcalText: {
-    color: "#38BDF8",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  lunchDivider: {
-    color: "#475569",
-    fontSize: 10,
-  },
-  lunchProteinHighlight: {
-    color: "#2DD4BF",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  nutritionPlan: {
-    width: "100%",
-    height: 42,
-    borderRadius: 11,
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.04)",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    backgroundColor: "#101827",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
+    borderColor: "rgba(148,163,184,0.18)",
   },
-  nutritionPlanPressed: {
-    backgroundColor: "#162238",
-    borderColor: "rgba(56, 189, 248, 0.5)",
+  presetChipActive: {
+    backgroundColor: "rgba(56,189,248,0.16)",
+    borderColor: "#38BDF8",
   },
-  nutritionPlanContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
+  presetText: {
+    ...typography.buttonSmall,
+    color: "#CBD5E1",
   },
-  nutritionPlanText: {
-    color: "#38BDF8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1,
+  presetTextActive: {
+    color: "#FFFFFF",
   },
 });
