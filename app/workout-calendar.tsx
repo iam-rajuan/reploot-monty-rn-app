@@ -174,6 +174,10 @@ export const WORKOUT_SPLITS: WorkoutTemplate[] = [
   },
 ];
 
+const DRAG_ACCENT = "#38BDF8";
+const DRAG_BACKGROUND = "rgba(56, 189, 248, 0.22)";
+const DRAG_GRADIENT = ["#0284C7", "#38BDF8"] as const;
+
 interface CalendarCell {
   date: number;
   currentMonth: boolean;
@@ -304,9 +308,6 @@ function DraggableSplitChip({
   onDragMove: (x: number, y: number) => void;
   onDragEnd: (split: WorkoutTemplate, endX: number, endY: number) => void;
 }) {
-  const trayAccent = "#38BDF8";
-  const trayGradient = ["#0284C7", "#38BDF8"] as const;
-
   const panGesture = useMemo(() => {
     return Gesture.Pan()
       .activateAfterLongPress(260)
@@ -334,14 +335,14 @@ function DraggableSplitChip({
         onPress={onPress}
         style={[
           styles.splitBadge,
-          { borderColor: trayAccent },
+          { borderColor: DRAG_ACCENT },
           isActive && styles.splitBadgeActive,
         ]}
       >
         <LinearGradient
           colors={
             isActive
-              ? trayGradient
+              ? DRAG_GRADIENT
               : ["rgba(255, 255, 255, 0.05)", "rgba(255, 255, 255, 0.02)"]
           }
           start={{ x: 0, y: 0 }}
@@ -350,14 +351,14 @@ function DraggableSplitChip({
         >
           <Dumbbell
             size={11}
-            color={isActive ? "#FFFFFF" : trayAccent}
+            color={isActive ? "#FFFFFF" : DRAG_ACCENT}
             style={{ marginRight: 5 }}
           />
           <Text
             numberOfLines={1}
             style={[
               styles.splitBadgeText,
-              { color: isActive ? "#FFFFFF" : trayAccent },
+              { color: isActive ? "#FFFFFF" : DRAG_ACCENT },
             ]}
           >
             {split.name}
@@ -466,9 +467,9 @@ const DraggableCalendarCell = React.memo(function DraggableCalendarCell({
         >
           {isToday ? (
             <LinearGradient
-              colors={["#00f2fe", "#4facfe"]}
+              colors={["#0284C7", "#2DD4BF"]}
               start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
+              end={{ x: 1, y: 1 }}
               style={[
                 styles.dateBox,
                 styles.dateBoxToday,
@@ -1276,7 +1277,7 @@ export default function WorkoutCalendarScreen() {
 
                 const cellBorderColor =
                   isHovered && activeDragSplit
-                    ? activeDragSplit.color
+                    ? DRAG_ACCENT
                     : periodTheme?.borderColor ||
                       item.borderColor ||
                       categoryTheme?.borderColor ||
@@ -1288,7 +1289,7 @@ export default function WorkoutCalendarScreen() {
 
                 const cellBgColor =
                   isHovered && activeDragSplit
-                    ? activeDragSplit.bgColor
+                    ? DRAG_BACKGROUND
                     : periodTheme?.bgColor ||
                       item.bgColor ||
                       categoryTheme?.bgColor ||
@@ -1300,7 +1301,7 @@ export default function WorkoutCalendarScreen() {
 
                 const cellTextColor =
                   isHovered && activeDragSplit
-                    ? activeDragSplit.color
+                    ? DRAG_ACCENT
                     : periodTheme?.color ||
                       item.color ||
                       categoryTheme?.color ||
@@ -1312,7 +1313,7 @@ export default function WorkoutCalendarScreen() {
 
                 const dumbbellColor =
                   isHovered && activeDragSplit
-                    ? activeDragSplit.color
+                    ? DRAG_ACCENT
                     : periodTheme?.color ||
                       item.color ||
                       categoryTheme?.color ||
@@ -1521,7 +1522,7 @@ export default function WorkoutCalendarScreen() {
           style={[styles.floatingDragBadge, floatingBadgeStyle]}
         >
           <LinearGradient
-            colors={activeDragSplit.bgGrad}
+            colors={DRAG_GRADIENT}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.floatingDragGrad}
@@ -2034,11 +2035,11 @@ const styles = StyleSheet.create({
   dateBoxToday: {
     borderRadius: 11,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.4)",
-    shadowColor: "#00f2fe",
+    borderColor: "rgba(255, 255, 255, 0.48)",
+    shadowColor: "#2DD4BF",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.45,
-    shadowRadius: 6,
+    shadowOpacity: 0.34,
+    shadowRadius: 8,
     elevation: 4,
   },
   dateBoxHovered: {
@@ -2061,7 +2062,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   dateTextToday: {
-    color: "#050811",
+    color: "#FFFFFF",
     fontWeight: "800",
     fontSize: 14,
   },
@@ -2081,7 +2082,7 @@ const styles = StyleSheet.create({
     width: 13,
     height: 13,
     marginTop: 3,
-    tintColor: "#050811",
+    tintColor: "#FFFFFF",
   },
   labelText: {
     fontSize: 9,
