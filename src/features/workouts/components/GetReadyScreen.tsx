@@ -5,27 +5,40 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { ArrowRight, Camera as CameraIcon, Check } from "lucide-react-native";
+import {
+  ArrowRight,
+  Camera as CameraIcon,
+  Check,
+  ListChecks,
+  MoveHorizontal,
+  PackageOpen,
+  ScanLine,
+  Sun,
+  User,
+  type LucideIcon,
+} from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
   Platform,
-  Pressable,
-  ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, {
-  Circle as SvgCircle,
-  Line as SvgLine,
-  Path as SvgPath,
-} from "react-native-svg";
 import { typography } from "@/theme/typography";
 import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
-const { width } = Dimensions.get("window");
+// One accent for the whole page.
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.06)",
+  "rgba(255,255,255,0.02)",
+] as const;
 
 export interface GetReadyRequirement {
   id: string;
@@ -44,15 +57,22 @@ const DEFAULT_REQUIREMENTS: GetReadyRequirement[] = [
   { id: "dist", label: "Stand 2–3 meters away" },
   { id: "visible", label: "Keep your full body visible" },
   { id: "light", label: "Ensure good lighting" },
-  { id: "clear", label: "Remove obstacles from camera view" },
+  { id: "clear", label: "Clear the space around you" },
 ];
+
+const REQUIREMENT_ICONS: Record<string, LucideIcon> = {
+  dist: MoveHorizontal,
+  visible: User,
+  light: Sun,
+  clear: PackageOpen,
+};
 
 export const GetReadyScreen: React.FC<GetReadyScreenProps> = ({
   onReady,
   onBack,
   exerciseTitle,
   title = "GET READY",
-  description = "Align your full body within the camera frame to calibrate real-time AI tracking.",
+  description = "Fit your whole body inside the frame.",
 }) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -125,39 +145,28 @@ export const GetReadyScreen: React.FC<GetReadyScreenProps> = ({
         onPressBack={handleBack}
       />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
+      {/* Fixed one-screen layout: the camera takes all remaining space. */}
+      <View
+        style={[
           styles.scrollContent,
-          { paddingBottom: Math.max(insets.bottom + 20, 40) },
+          { paddingBottom: Math.max(insets.bottom + 12, 20) },
         ]}
       >
-        {/* Title Section with Masked Gradient Title (Exact GenericWorkoutDetailScreen / ExerciseDetailScreen pattern) */}
         <View style={styles.titleSection}>
-          {/* <Text style={styles.categoryBadge}>
+          <Text style={styles.categoryBadge} numberOfLines={1}>
             {exerciseTitle
-              ? exerciseTitle.toUpperCase()
-              : "AI WORKOUT PROTOCOL"}
-          </Text> */}
-          <View style={styles.maskedTitleWrapper}>
-            <View style={styles.maskedTitleView}>
-              <View style={styles.maskWrapper}>
-                <Text
-                  style={[styles.mainTitle, { color: "#F6F8FF" }]}
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                >
-                  {title}
-                </Text>
-              </View>
-            </View>
-          </View>
+              ? exerciseTitle.replace(/\s*\(.*?\)\s*/g, " ").trim().toUpperCase()
+              : "CAMERA SETUP"}
+          </Text>
+          <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
+            {title}
+          </Text>
           {description ? (
-            <Text style={styles.subtitle}>{description}</Text>
+            <Text style={styles.subtitle} numberOfLines={1}>{description}</Text>
           ) : null}
         </View>
 
-        {/* Camera Viewport / Body Detection Frame with Live Camera */}
+        {/* Camera frame */}
         <View style={styles.cameraBox}>
           {permission?.granted ? (
             <CameraView
@@ -173,131 +182,148 @@ export const GetReadyScreen: React.FC<GetReadyScreenProps> = ({
             />
           )}
 
-          {/* Ambient Darkened Gradient for HUD Contrast */}
           <LinearGradient
-            colors={[
-              "rgba(5, 8, 14, 0.45)",
-              "transparent",
-              "rgba(5, 8, 14, 0.6)",
-            ]}
+            colors={["rgba(6,8,16,0.55)", "rgba(6,8,16,0)", "rgba(6,8,16,0.7)"]}
             locations={[0, 0.4, 1]}
             style={StyleSheet.absoluteFill}
             pointerEvents="none"
           />
 
-          {/* Corner Framing Brackets */}
-          <View
-            style={[styles.cornerGuide, styles.cornerTL]}
-            pointerEvents="none"
-          />
-          <View
-            style={[styles.cornerGuide, styles.cornerTR]}
-            pointerEvents="none"
-          />
-          <View
-            style={[styles.cornerGuide, styles.cornerBL]}
-            pointerEvents="none"
-          />
-          <View
-            style={[styles.cornerGuide, styles.cornerBR]}
-            pointerEvents="none"
-          />
+          <View style={[styles.cornerGuide, styles.cornerTL]} pointerEvents="none" />
+          <View style={[styles.cornerGuide, styles.cornerTR]} pointerEvents="none" />
+          <View style={[styles.cornerGuide, styles.cornerBL]} pointerEvents="none" />
+          <View style={[styles.cornerGuide, styles.cornerBR]} pointerEvents="none" />
 
-          {/* Top Pill Badge: (✓) BODY DETECTED */}
-          {/* <View style={styles.bodyDetectedPill} pointerEvents="none">
-            <View style={styles.greenDotRing}>
-              <Check size={11} color="#38EDD8" strokeWidth={3.2} />
+          {permission?.granted ? (
+            <View style={styles.framePill} pointerEvents="none">
+              <View style={styles.liveDot} />
+              <Text style={styles.framePillText}>FRAME YOUR BODY</Text>
             </View>
-            <Text style={styles.bodyDetectedText}>BODY DETECTED</Text>
-          </View> */}
+          ) : null}
 
-          {/* Camera Flip Button */}
-          {/* {permission?.granted && (
-            <Pressable
-              onPress={toggleFacing}
-              style={styles.flipButton}
-              accessibilityRole="button"
-              accessibilityLabel="Flip camera"
-              hitSlop={8}
-            >
-              <RotateCcw size={15} color="#38EDD8" strokeWidth={2.5} />
-            </Pressable>
-          )} */}
-
-          {/* Silhouette Wireframe Guide Overlay */}
-          <View style={styles.silhouetteContainer} pointerEvents="none">
-            {/* Perspective Floor Workout Mat Bar */}
-            {/* <View style={styles.floorMatBar} /> */}
-          </View>
-
-          {/* Camera Permission Prompt if not yet granted */}
-          {!permission?.granted && (
-            <Pressable
-              style={styles.enableCameraPill}
+          {permission?.granted ? (
+            <View style={styles.scanHint} pointerEvents="none">
+              <ScanLine size={14} color={ACCENT_SOFT} strokeWidth={2.4} />
+              <Text style={styles.scanHintText}>Step back until head and feet fit</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={styles.enableCameraBtn}
               onPress={() => requestPermission()}
+              accessibilityRole="button"
+              accessibilityLabel="Enable camera"
             >
-              <CameraIcon size={14} color="#38EDD8" />
+              <LinearGradient
+                colors={BUTTON_GRADIENT}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+              <View>
+                <CameraIcon size={14} color="#FFFFFF" strokeWidth={2.4} />
+              </View>
               <Text style={styles.enableCameraText}>ENABLE CAMERA</Text>
-            </Pressable>
+            </TouchableOpacity>
           )}
         </View>
 
-        {/* 4 Checklist Requirements */}
-        <View style={styles.requirementsList}>
-          {DEFAULT_REQUIREMENTS.map((item) => {
-            const isChecked = checkedIds.includes(item.id);
-            return (
-              <Pressable
-                key={item.id}
-                style={[
-                  styles.requirementItem,
-                  isChecked && styles.requirementItemChecked,
-                ]}
-                onPress={() => toggleRequirement(item.id)}
-              >
-                <View
+        {/* Checklist */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <View style={styles.cardHeader}>
+            <View style={styles.cardHeaderLeft}>
+              <View style={styles.iconChip}>
+                <ListChecks size={13} color={ACCENT} strokeWidth={2.4} />
+              </View>
+              <Text style={styles.sectionLabel}>QUICK CHECK</Text>
+            </View>
+            <View style={[styles.pill, allCovered && styles.pillDone]}>
+              <Text style={[styles.pillText, allCovered && styles.pillTextDone]}>
+                {checkedIds.length}/{DEFAULT_REQUIREMENTS.length} READY
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.requirementsList}>
+            {DEFAULT_REQUIREMENTS.map((item, index) => {
+              const isChecked = checkedIds.includes(item.id);
+              const Icon = REQUIREMENT_ICONS[item.id] || Check;
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  activeOpacity={0.75}
                   style={[
-                    styles.checkCircle,
-                    isChecked && styles.checkCircleChecked,
+                    styles.requirementItem,
+                    index > 0 && styles.requirementDivider,
                   ]}
+                  onPress={() => toggleRequirement(item.id)}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: isChecked }}
+                  accessibilityLabel={item.label}
                 >
-                  <Check
-                    size={13}
-                    color={isChecked ? "#38EDD8" : "#475569"}
-                    strokeWidth={2.8}
-                  />
-                </View>
-                <Text
-                  style={[
-                    styles.requirementText,
-                    isChecked && styles.requirementTextChecked,
-                  ]}
-                >
-                  {item.label}
-                </Text>
-              </Pressable>
-            );
-          })}
+                  <View style={[styles.reqIcon, !isChecked && styles.reqIconOff]}>
+                    <Icon
+                      size={13}
+                      color={isChecked ? ACCENT : "#64748B"}
+                      strokeWidth={2.2}
+                    />
+                  </View>
+                  <Text
+                    style={[
+                      styles.requirementText,
+                      !isChecked && styles.requirementTextOff,
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {item.label}
+                  </Text>
+                  <View
+                    style={[styles.checkCircle, isChecked && styles.checkCircleChecked]}
+                  >
+                    {isChecked ? (
+                      <Check size={11} color="#FFFFFF" strokeWidth={3.2} />
+                    ) : null}
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
 
-        {/* Bottom CTA: I'M READY -> */}
-        <Pressable
+        {/* Ready */}
+        <TouchableOpacity
+          activeOpacity={0.85}
           style={styles.readyButton}
           onPress={handleReadyPress}
           accessibilityRole="button"
           accessibilityLabel="I'm Ready, start countdown"
         >
           <LinearGradient
-            colors={["#1967B2", "#2B90EA"]}
+            colors={BUTTON_GRADIENT}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.readyButtonGradient}
-          >
-            <Text style={styles.readyButtonText}>I'M READY</Text>
-            <ArrowRight size={18} color="#FFFFFF" strokeWidth={2.5} />
-          </LinearGradient>
-        </Pressable>
-      </ScrollView>
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <LinearGradient
+            colors={SHEEN}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={styles.readySheen}
+            pointerEvents="none"
+          />
+          <Text style={styles.readyButtonText}>I'M READY</Text>
+          <View style={styles.readyTrail}>
+            <ArrowRight size={14} color="#FFFFFF" strokeWidth={2.6} />
+          </View>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -305,272 +331,278 @@ export const GetReadyScreen: React.FC<GetReadyScreenProps> = ({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#070A11",
+    backgroundColor: "#060810",
   },
   scrollContent: {
+    flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 4,
+    paddingTop: 2,
   },
   titleSection: {
-    marginBottom: 18,
-    marginTop: 4,
+    marginBottom: 12,
+    gap: 2,
   },
   categoryBadge: {
-    color: "#44EAC3",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-    marginBottom: 6,
-  },
-  maskedTitleWrapper: {
-    height: 44,
-    width: "100%",
-    marginBottom: 4,
-  },
-  maskedTitleView: {
-    flex: 1,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-  },
-  gradient: {
-    flex: 1,
+    ...typography.overline,
+    color: ACCENT_SOFT,
   },
   mainTitle: {
     ...typography.pageTitle,
-    color: "#FFFFFF",
+    color: "#F6F8FF",
   },
   subtitle: {
+    ...typography.bodySmall,
     color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "600",
   },
 
-  // Camera Box
+  // Camera
   cameraBox: {
+    flex: 1,
+    minHeight: 240,
     width: "100%",
-    height: 350,
-    borderRadius: 28,
+    borderRadius: 26,
     overflow: "hidden",
-    backgroundColor: "#0B0E17",
-    borderWidth: 1.5,
-    borderColor: "rgba(56, 237, 216, 0.35)",
-    position: "relative",
-    marginBottom: 20,
+    backgroundColor: "#0B111B",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
+    marginBottom: 12,
     alignItems: "center",
-    justifyContent: "center",
   },
   cameraBackdrop: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    opacity: 0.75,
+    ...StyleSheet.absoluteFill,
+    opacity: 0.8,
   },
   cornerGuide: {
     position: "absolute",
-    width: 26,
-    height: 26,
-    borderColor: "#38EDD8",
-    zIndex: 4,
+    width: 28,
+    height: 28,
+    borderColor: ACCENT,
   },
   cornerTL: {
-    top: 14,
-    left: 14,
+    top: 16,
+    left: 16,
     borderTopWidth: 3,
     borderLeftWidth: 3,
-    borderTopLeftRadius: 8,
+    borderTopLeftRadius: 12,
   },
   cornerTR: {
-    top: 14,
-    right: 14,
+    top: 16,
+    right: 16,
     borderTopWidth: 3,
     borderRightWidth: 3,
-    borderTopRightRadius: 8,
+    borderTopRightRadius: 12,
   },
   cornerBL: {
-    bottom: 14,
-    left: 14,
+    bottom: 16,
+    left: 16,
     borderBottomWidth: 3,
     borderLeftWidth: 3,
-    borderBottomLeftRadius: 8,
+    borderBottomLeftRadius: 12,
   },
   cornerBR: {
-    bottom: 14,
-    right: 14,
+    bottom: 16,
+    right: 16,
     borderBottomWidth: 3,
     borderRightWidth: 3,
-    borderBottomRightRadius: 8,
+    borderBottomRightRadius: 12,
   },
-
-  bodyDetectedPill: {
+  framePill: {
     position: "absolute",
-    top: 16,
+    top: 18,
     flexDirection: "row",
     alignItems: "center",
     gap: 7,
-    backgroundColor: "rgba(9, 21, 26, 0.88)",
-    borderWidth: 1.4,
-    borderColor: "rgba(56, 237, 216, 0.55)",
-    paddingHorizontal: 14,
-    paddingVertical: 5.5,
-    borderRadius: 18,
-    zIndex: 5,
-    shadowColor: "#38EDD8",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  greenDotRing: {
-    width: 17,
-    height: 17,
-    borderRadius: 8.5,
-    borderWidth: 1.4,
-    borderColor: "#38EDD8",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(56, 237, 216, 0.12)",
-  },
-  bodyDetectedText: {
-    color: "#38EDD8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-
-  flipButton: {
-    position: "absolute",
-    top: 14,
-    right: 48,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(10, 16, 24, 0.75)",
+    paddingHorizontal: 11,
+    paddingVertical: 5,
+    borderRadius: 999,
+    backgroundColor: "rgba(6,8,16,0.7)",
     borderWidth: 1,
-    borderColor: "rgba(56, 237, 216, 0.35)",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 5,
+    borderColor: "rgba(56,189,248,0.35)",
   },
-
-  silhouetteContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 2,
+  liveDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: ACCENT,
   },
-  floorMatBar: {
-    position: "absolute",
-    bottom: 18,
-    width: "74%",
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: "rgba(18, 22, 33, 0.85)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 237, 216, 0.25)",
+  framePillText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
   },
-
-  enableCameraPill: {
+  scanHint: {
     position: "absolute",
     bottom: 20,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    backgroundColor: "rgba(10, 20, 30, 0.92)",
-    borderWidth: 1.2,
-    borderColor: "#38EDD8",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    zIndex: 6,
+    gap: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: "rgba(6,8,16,0.7)",
   },
-  enableCameraText: {
-    color: "#38EDD8",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
+  scanHintText: {
+    ...typography.caption,
+    color: "#E2E8F0",
   },
-
-  // Requirements Checklist
-  requirementsList: {
-    gap: 10,
-    marginBottom: 20,
-  },
-  requirementItem: {
+  enableCameraBtn: {
+    position: "absolute",
+    bottom: 22,
+    height: 42,
+    paddingHorizontal: 18,
+    borderRadius: 14,
+    overflow: "hidden",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(18, 22, 33, 0.88)",
-    borderRadius: 18,
+    gap: 8,
+  },
+  enableCameraText: {
+    ...typography.buttonSmall,
+    letterSpacing: 1,
+    color: "#FFFFFF",
+  },
+
+  // Checklist card
+  card: {
+    backgroundColor: "#111A25",
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    gap: 14,
+    borderColor: "rgba(56,189,248,0.18)",
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    paddingBottom: 2,
+    marginBottom: 12,
+    overflow: "hidden",
   },
-  requirementItemChecked: {
-    borderColor: "rgba(56, 237, 216, 0.22)",
-    backgroundColor: "rgba(19, 24, 36, 0.95)",
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 2,
   },
-  checkCircle: {
+  cardHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  iconChip: {
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
   },
-  checkCircleChecked: {
-    backgroundColor: "rgba(14, 48, 48, 0.9)",
-    borderColor: "rgba(56, 237, 216, 0.4)",
+  sectionLabel: {
+    ...typography.sectionTitle,
+    fontSize: 12,
+    lineHeight: 16,
+    color: "#E5EEF8",
+  },
+  pill: {
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(148,163,184,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.22)",
+  },
+  pillDone: {
+    backgroundColor: "rgba(56,189,248,0.12)",
+    borderColor: "rgba(56,189,248,0.35)",
+  },
+  pillText: {
+    ...typography.badge,
+    color: "#94A3B8",
+  },
+  pillTextDone: {
+    color: ACCENT_SOFT,
+  },
+  requirementsList: {},
+  requirementItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 8,
+  },
+  requirementDivider: {
+    borderTopWidth: 1,
+    borderTopColor: "rgba(148,163,184,0.10)",
+  },
+  reqIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+  },
+  reqIconOff: {
+    backgroundColor: "rgba(148,163,184,0.08)",
   },
   requirementText: {
-    color: "#64748B",
+    ...typography.subtitle,
     fontSize: 13,
-    fontWeight: "600",
-    letterSpacing: 0.3,
-  },
-  requirementTextChecked: {
+    lineHeight: 18,
+    flex: 1,
     color: "#F1F5F9",
-    fontWeight: "700",
+  },
+  requirementTextOff: {
+    color: "#64748B",
+  },
+  checkCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1.5,
+    borderColor: "rgba(148,163,184,0.35)",
+  },
+  checkCircleChecked: {
+    backgroundColor: "#0EA5E9",
+    borderColor: "#0EA5E9",
   },
 
-  // Ready Button
+  // Ready button
   readyButton: {
-    width: "100%",
-    height: 54,
-    borderRadius: 27,
+    height: 50,
+    borderRadius: 16,
     overflow: "hidden",
-    shadowColor: "#258CE8",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.45,
-    shadowRadius: 16,
-    elevation: 8,
-    marginTop: 2,
-  },
-  readyButtonGradient: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: ACCENT,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 14,
+      },
+      web: { boxShadow: "0 8px 22px rgba(56,189,248,0.28)" } as any,
+      default: {},
+    }),
+  },
+  readySheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
   },
   readyButtonText: {
+    ...typography.button,
+    letterSpacing: 1,
     color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "800",
-    letterSpacing: 0.8,
+  },
+  readyTrail: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
   },
 });
