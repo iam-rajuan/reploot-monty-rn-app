@@ -1,4 +1,3 @@
-import MaskedView from "@react-native-masked-view/masked-view";
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -125,27 +124,17 @@ export const UpperBodySessionScreen: React.FC<UpperBodySessionScreenProps> = ({
         <View style={styles.titleSection}>
           <Text style={styles.categoryBadge}>{data.apexBadge || "ROUTINE OVERVIEW"}</Text>
           <View style={styles.maskedTitleWrapper}>
-            <MaskedView
-              style={styles.maskedTitleView}
-              maskElement={
-                <View style={styles.maskWrapper}>
-                  <Text
-                    style={styles.mainTitle}
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                  >
-                    {data.title.replace("\n", " ")}
-                  </Text>
-                </View>
-              }
-            >
-              <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradient}
-              />
-            </MaskedView>
+            <View style={styles.maskedTitleView}>
+              <View style={styles.maskWrapper}>
+                <Text
+                  style={[styles.mainTitle, { color: "#F6F8FF" }]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
+                  {data.title.replace("\n", " ")}
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
 

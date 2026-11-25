@@ -1,5 +1,4 @@
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
-import MaskedView from "@react-native-masked-view/masked-view";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -138,27 +137,17 @@ export default function ManagePlanRoute() {
         {/* Title Section with Masked Gradient Title & Description */}
         <View style={styles.titleSection}>
           <View style={styles.maskedTitleWrapper}>
-            <MaskedView
-              style={styles.maskedTitleView}
-              maskElement={
-                <View style={styles.maskWrapper}>
-                  <Text
-                    style={styles.mainTitle}
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                  >
-                    MEMBERSHIP PLANS
-                  </Text>
-                </View>
-              }
-            >
-              <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradient}
-              />
-            </MaskedView>
+            <View style={styles.maskedTitleView}>
+              <View style={styles.maskWrapper}>
+                <Text
+                  style={[styles.mainTitle, { color: "#F6F8FF" }]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
+                  MEMBERSHIP PLANS
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
 

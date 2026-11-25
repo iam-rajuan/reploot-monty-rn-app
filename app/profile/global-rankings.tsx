@@ -1,7 +1,6 @@
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
 import { useRankingContext } from "@/hooks/queries/useProgress";
 import { LeaderboardEntry, RankingContextId } from "@/shared/types/progress";
-import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -122,27 +121,17 @@ export default function GlobalRankingsRoute() {
             </View>
           </View>
           <View style={styles.maskedTitleWrapper}>
-            <MaskedView
-              style={styles.maskedTitleView}
-              maskElement={
-                <View style={styles.maskWrapper}>
-                  <Text
-                    style={styles.mainTitle}
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                  >
-                    RANKINGS
-                  </Text>
-                </View>
-              }
-            >
-              <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradient}
-              />
-            </MaskedView>
+            <View style={styles.maskedTitleView}>
+              <View style={styles.maskWrapper}>
+                <Text
+                  style={[styles.mainTitle, { color: "#F6F8FF" }]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
+                  RANKINGS
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
 

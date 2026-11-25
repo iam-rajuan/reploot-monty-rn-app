@@ -1,7 +1,6 @@
 import { WorkoutHeader } from "@/features/workouts";
 import { useNutritionPlanStore } from "@/stores/nutritionPlanStore";
 import { HORIZONTAL_PADDING, isSmallDevice } from "@/shared/utils/responsive";
-import MaskedView from "@react-native-masked-view/masked-view";
 import { CoachEmoji } from "@/features/ai-coach/components/CoachEmoji";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -478,23 +477,13 @@ export default function NutritionTabRoute() {
         {/* Hero Section with Masked Gradient Title */}
         <View style={styles.heroSection}>
           <View style={styles.maskedTitleWrapper}>
-            <MaskedView
-              style={styles.maskedTitleView}
-              maskElement={
-                <View style={styles.maskWrapper}>
-                  <Text style={styles.mainTitle} numberOfLines={1}>
-                    FUEL YOURSELF
-                  </Text>
-                </View>
-              }
-            >
-              <LinearGradient
-                colors={["#F6F8FF", "#F6F8FF"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradient}
-              />
-            </MaskedView>
+            <View style={styles.maskedTitleView}>
+              <View style={styles.maskWrapper}>
+                <Text style={[styles.mainTitle, { color: "#F6F8FF" }]} numberOfLines={1}>
+                  FUEL YOURSELF
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
 

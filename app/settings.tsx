@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -12,9 +12,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import * as Haptics from "expo-haptics";
-import MaskedView from "@react-native-masked-view/masked-view";
 import {
-  Calendar,
   Check,
   Dumbbell,
   Home,
@@ -23,7 +21,10 @@ import {
   Activity,
   ArrowRight,
   CheckCircle2,
-  ChevronRight,
+  CalendarDays,
+  Layers,
+  Target,
+  type LucideIcon,
 } from "lucide-react-native";
 import { router } from "expo-router";
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
@@ -42,36 +43,77 @@ const FREQUENCY_OPTIONS = [
 ];
 
 const LOCATION_OPTIONS = [
-  { id: "gym", label: "GYM", icon: Dumbbell },
-  { id: "home", label: "HOME", icon: Home },
+  { id: "gym", label: "Gym", icon: Dumbbell },
+  { id: "home", label: "Home", icon: Home },
 ];
 
 const EXPERIENCE_OPTIONS = [
-  { id: "beginner", label: "BEGINNER" },
-  { id: "intermed", label: "INTERMEDIATE" },
-  { id: "advanced", label: "ADVANCED" },
+  { id: "beginner", label: "Beginner" },
+  { id: "intermed", label: "Intermediate" },
+  { id: "advanced", label: "Advanced" },
 ];
 
 const GOAL_OPTIONS = [
-  { id: "muscle", label: "BUILD MUSCLE", icon: Dumbbell },
-  { id: "fat", label: "FAT LOSS", icon: Flame },
-  { id: "strength", label: "STRENGTH", icon: Zap },
-  { id: "endurance", label: "ENDURANCE", icon: Activity },
+  { id: "muscle", label: "Build Muscle", icon: Dumbbell },
+  { id: "fat", label: "Fat Loss", icon: Flame },
+  { id: "strength", label: "Strength", icon: Zap },
+  { id: "endurance", label: "Endurance", icon: Activity },
 ];
 
 const SPLIT_OPTIONS = [
-  { id: "push", label: "Push Day", color: "#38BDF8", bgColor: "rgba(56, 189, 248, 0.12)" },
-  { id: "pull", label: "Pull Day", color: "#2DD4BF", bgColor: "rgba(45, 212, 191, 0.12)" },
-  { id: "chest", label: "Chest Day", color: "#38EDD8", bgColor: "rgba(56, 237, 216, 0.12)" },
-  { id: "upper", label: "Upper Body", color: "#C084FC", bgColor: "rgba(192, 132, 252, 0.12)" },
-  { id: "lower", label: "Lower Body", color: "#FFB68C", bgColor: "rgba(255, 182, 140, 0.12)" },
-  { id: "fullbody", label: "Full Body", color: "#F43F5E", bgColor: "rgba(244, 63, 94, 0.12)" },
+  { id: "push", label: "Push Day" },
+  { id: "pull", label: "Pull Day" },
+  { id: "chest", label: "Chest Day" },
+  { id: "upper", label: "Upper Body" },
+  { id: "lower", label: "Lower Body" },
+  { id: "fullbody", label: "Full Body" },
 ];
 
-const MONTH_NAMES = [
-  "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
-  "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER",
-];
+// One accent for the whole page.
+const ACCENT = "#38BDF8";
+const MUTED = "#94A3B8";
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.07)",
+  "rgba(255,255,255,0.02)",
+] as const;
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+
+const Surface = ({ children }: { children: React.ReactNode }) => (
+  <View style={styles.surface}>
+    <LinearGradient
+      pointerEvents="none"
+      colors={SURFACE_WASH}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={StyleSheet.absoluteFill}
+    />
+    {children}
+  </View>
+);
+
+const CardHeader = ({
+  icon: Icon,
+  title,
+  right,
+}: {
+  icon: LucideIcon;
+  title: string;
+  right?: React.ReactNode;
+}) => (
+  <View style={styles.cardHeader}>
+    <View style={styles.cardHeaderTitle}>
+      <View style={styles.iconChip}>
+        <Icon size={14} color={ACCENT} strokeWidth={2.3} />
+      </View>
+      <Text style={styles.sectionLabel} numberOfLines={1}>
+        {title}
+      </Text>
+    </View>
+    {right}
+  </View>
+);
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -140,34 +182,6 @@ export default function SettingsScreen() {
     [triggerHaptic],
   );
 
-  // Month calculation
-  const currentMonthTelemetry = useMemo(() => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const monthName = MONTH_NAMES[month];
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    let activeDaysOfWeek: number[] = [1, 2, 4, 5];
-    if (frequency === 3) activeDaysOfWeek = [1, 3, 5];
-    else if (frequency === 4) activeDaysOfWeek = [1, 2, 4, 5];
-    else if (frequency === 5) activeDaysOfWeek = [1, 2, 3, 5, 6];
-    else if (frequency === 6) activeDaysOfWeek = [1, 2, 3, 4, 5, 6];
-
-    let sessionCount = 0;
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dayOfWeek = new Date(year, month, d).getDay();
-      if (activeDaysOfWeek.includes(dayOfWeek)) {
-        sessionCount++;
-      }
-    }
-
-    return {
-      monthName,
-      year,
-      sessionCount,
-    };
-  }, [frequency]);
 
   const handleGenerateAndSync = useCallback(() => {
     if (isSyncing) return;
@@ -254,290 +268,246 @@ export default function SettingsScreen() {
         {/* Page Title */}
         <View style={styles.titleSection}>
           <View style={styles.maskedTitleWrapper}>
-            <MaskedView
-              style={styles.maskedTitleView}
-              maskElement={
-                <View style={styles.maskWrapper}>
-                  <Text style={styles.mainTitle} numberOfLines={1}>
-                    SETTINGS
-                  </Text>
+            <View style={styles.maskedTitleView}>
+              <View style={styles.maskWrapper}>
+                <Text style={[styles.mainTitle, { color: "#F6F8FF" }]} numberOfLines={1}>
+                  SETTINGS
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.stack}>
+          {/* Schedule: frequency + location */}
+          <Surface>
+            <CardHeader icon={CalendarDays} title="SCHEDULE" />
+
+            <View style={styles.field}>
+              <Text style={styles.fieldLabel}>Days per week</Text>
+              <View style={styles.row}>
+                {FREQUENCY_OPTIONS.map((opt) => {
+                  const isSelected = frequency === opt.id;
+                  return (
+                    <TouchableOpacity
+                      key={opt.id}
+                      activeOpacity={0.8}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: isSelected }}
+                      accessibilityLabel={`${opt.id} days per week`}
+                      onPress={() => {
+                        triggerHaptic();
+                        setFrequency(opt.id);
+                      }}
+                      style={[styles.option, styles.rowItem, styles.optionCompact, isSelected && styles.optionSelected]}
+                    >
+                      <Text style={[styles.optionValue, isSelected && styles.optionTextSelected]}>
+                        {opt.id}
+                      </Text>
+                      <Text style={[styles.optionUnit, isSelected && styles.optionUnitSelected]}>
+                        DAYS
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.fieldLabel}>Location</Text>
+              <View style={styles.row}>
+                {LOCATION_OPTIONS.map((opt) => {
+                  const isSelected = location === opt.id;
+                  const Icon = opt.icon;
+                  return (
+                    <TouchableOpacity
+                      key={opt.id}
+                      activeOpacity={0.8}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: isSelected }}
+                      onPress={() => {
+                        triggerHaptic();
+                        setLocation(opt.id);
+                      }}
+                      style={[styles.option, styles.rowItem, styles.optionRow, isSelected && styles.optionSelected]}
+                    >
+                      <Icon size={16} color={isSelected ? ACCENT : MUTED} strokeWidth={2.3} />
+                      <Text style={[styles.optionText, isSelected && styles.optionTextSelected]}>
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          </Surface>
+
+          {/* Profile: level + goal */}
+          <Surface>
+            <CardHeader icon={Target} title="YOUR PROFILE" />
+
+            <View style={styles.field}>
+              <Text style={styles.fieldLabel}>Experience level</Text>
+              <View style={styles.row}>
+                {EXPERIENCE_OPTIONS.map((opt) => {
+                  const isSelected = experience === opt.id;
+                  return (
+                    <TouchableOpacity
+                      key={opt.id}
+                      activeOpacity={0.8}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: isSelected }}
+                      onPress={() => {
+                        triggerHaptic();
+                        setExperience(opt.id);
+                      }}
+                      style={[styles.option, styles.rowItem, styles.optionRow, isSelected && styles.optionSelected]}
+                    >
+                      <Text
+                        style={[styles.optionText, isSelected && styles.optionTextSelected]}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.85}
+                      >
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.fieldLabel}>Primary goal</Text>
+              <View style={styles.grid}>
+                {GOAL_OPTIONS.map((opt) => {
+                  const isSelected = goal === opt.id;
+                  const Icon = opt.icon;
+                  return (
+                    <TouchableOpacity
+                      key={opt.id}
+                      activeOpacity={0.8}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: isSelected }}
+                      onPress={() => {
+                        triggerHaptic();
+                        setGoal(opt.id);
+                      }}
+                      style={[styles.option, styles.gridItem, styles.goalOption, isSelected && styles.optionSelected]}
+                    >
+                      <View style={[styles.goalIcon, isSelected && styles.goalIconSelected]}>
+                        <Icon size={15} color={isSelected ? ACCENT : MUTED} strokeWidth={2.3} />
+                      </View>
+                      <Text
+                        style={[styles.optionText, styles.goalText, isSelected && styles.optionTextSelected]}
+                        numberOfLines={1}
+                      >
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          </Surface>
+
+          {/* Splits */}
+          <Surface>
+            <CardHeader
+              icon={Layers}
+              title="WORKOUT SPLITS"
+              right={
+                <View style={styles.countPill}>
+                  <Text style={styles.countPillText}>{stylesSelected.length} SELECTED</Text>
                 </View>
               }
+            />
+            <View style={styles.grid}>
+              {SPLIT_OPTIONS.map((opt) => {
+                const isSelected = stylesSelected.includes(opt.id);
+                return (
+                  <TouchableOpacity
+                    key={opt.id}
+                    activeOpacity={0.8}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: isSelected }}
+                    onPress={() => toggleStyle(opt.id)}
+                    style={[styles.option, styles.gridItem, styles.splitOption, isSelected && styles.optionSelected]}
+                  >
+                    <View style={[styles.checkCircle, isSelected && styles.checkCircleOn]}>
+                      {isSelected && <Check size={11} color="#04121C" strokeWidth={3.2} />}
+                    </View>
+                    <Text
+                      style={[styles.splitText, isSelected && styles.optionTextSelected]}
+                      numberOfLines={1}
+                    >
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </Surface>
+
+          {/* Actions */}
+          <View style={styles.actions}>
+            <TouchableOpacity
+              activeOpacity={0.88}
+              disabled={isSyncing}
+              onPress={handleGenerateAndSync}
+              accessibilityRole="button"
+              accessibilityLabel="Generate and sync calendar"
+              style={styles.ctaShadow}
             >
               <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
+                colors={BUTTON_GRADIENT}
                 start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradient}
-              />
-            </MaskedView>
+                end={{ x: 1, y: 1 }}
+                style={styles.ctaButton}
+              >
+                <LinearGradient
+                  pointerEvents="none"
+                  colors={SHEEN}
+                  start={{ x: 0.5, y: 0 }}
+                  end={{ x: 0.5, y: 1 }}
+                  style={styles.ctaSheen}
+                />
+                {isSyncing ? (
+                  <>
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                    <Text style={styles.ctaButtonText}>SYNCING CALENDAR…</Text>
+                  </>
+                ) : isSynced ? (
+                  <>
+                    <CheckCircle2 size={17} color="#FFFFFF" strokeWidth={2.4} />
+                    <Text style={styles.ctaButtonText}>CALENDAR SYNCED</Text>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.ctaButtonText}>GENERATE & SYNC</Text>
+                    <View style={styles.ctaTrail}>
+                      <ArrowRight color="#FFFFFF" size={14} strokeWidth={2.6} />
+                    </View>
+                  </>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="View calendar"
+              onPress={() => {
+                triggerHaptic();
+                router.push("/workout-calendar");
+              }}
+              style={styles.secondaryBtn}
+            >
+              <CalendarDays size={16} color="#7DD3FC" strokeWidth={2.3} />
+              <Text style={styles.secondaryBtnText}>VIEW CALENDAR</Text>
+            </TouchableOpacity>
           </View>
         </View>
-
-        {/* 1. WEEKLY FREQUENCY */}
-        <Text style={styles.sectionTitle}>WEEKLY FREQUENCY</Text>
-        <View style={styles.frequencyRow}>
-          {FREQUENCY_OPTIONS.map((opt) => {
-            const isSelected = frequency === opt.id;
-            return (
-              <TouchableOpacity
-                key={opt.id}
-                activeOpacity={0.75}
-                onPress={() => {
-                  triggerHaptic();
-                  setFrequency(opt.id);
-                }}
-                style={[
-                  styles.freqBtn,
-                  isSelected && styles.freqBtnSelected,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.freqText,
-                    isSelected && styles.freqTextSelected,
-                  ]}
-                >
-                  {opt.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* 2. LOCATION */}
-        <Text style={styles.sectionTitle}>WORKOUT LOCATION</Text>
-        <View style={styles.segmentRow}>
-          {LOCATION_OPTIONS.map((opt) => {
-            const isSelected = location === opt.id;
-            const Icon = opt.icon;
-            return (
-              <TouchableOpacity
-                key={opt.id}
-                activeOpacity={0.75}
-                onPress={() => {
-                  triggerHaptic();
-                  setLocation(opt.id);
-                }}
-                style={[
-                  styles.segmentBtn,
-                  isSelected && styles.segmentBtnSelected,
-                ]}
-              >
-                <Icon
-                  size={16}
-                  color={isSelected ? "#00f2fe" : "#94A3B8"}
-                  style={{ marginRight: 8 }}
-                />
-                <Text
-                  style={[
-                    styles.segmentText,
-                    isSelected && styles.segmentTextSelected,
-                  ]}
-                >
-                  {opt.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* 3. EXPERIENCE LEVEL */}
-        <Text style={styles.sectionTitle}>EXPERIENCE LEVEL</Text>
-        <View style={styles.segmentRow}>
-          {EXPERIENCE_OPTIONS.map((opt) => {
-            const isSelected = experience === opt.id;
-            return (
-              <TouchableOpacity
-                key={opt.id}
-                activeOpacity={0.75}
-                onPress={() => {
-                  triggerHaptic();
-                  setExperience(opt.id);
-                }}
-                style={[
-                  styles.segmentBtn,
-                  isSelected && styles.segmentBtnSelected,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.segmentText,
-                    isSelected && styles.segmentTextSelected,
-                  ]}
-                >
-                  {opt.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* 4. WORKOUT GOAL */}
-        <Text style={styles.sectionTitle}>PRIMARY GOAL</Text>
-        <View style={styles.grid2}>
-          {GOAL_OPTIONS.map((opt) => {
-            const isSelected = goal === opt.id;
-            const Icon = opt.icon;
-            return (
-              <TouchableOpacity
-                key={opt.id}
-                activeOpacity={0.75}
-                onPress={() => {
-                  triggerHaptic();
-                  setGoal(opt.id);
-                }}
-                style={[
-                  styles.goalCard,
-                  isSelected && styles.goalCardSelected,
-                ]}
-              >
-                <Icon
-                  size={18}
-                  color={isSelected ? "#00f2fe" : "#94A3B8"}
-                />
-                <Text
-                  style={[
-                    styles.goalText,
-                    isSelected && styles.goalTextSelected,
-                  ]}
-                >
-                  {opt.label}
-                </Text>
-                {isSelected && (
-                  <View style={styles.goalCheck}>
-                    <Check size={11} color="#070A11" strokeWidth={3} />
-                  </View>
-                )}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* 5. WORKOUT SPLITS */}
-        <View style={styles.splitsHeaderRow}>
-          <Text style={styles.sectionTitleNoMargin}>WORKOUT SPLITS</Text>
-          <Text style={styles.splitsCountText}>
-            {stylesSelected.length} SELECTED
-          </Text>
-        </View>
-        <View style={styles.grid2}>
-          {SPLIT_OPTIONS.map((opt) => {
-            const isSelected = stylesSelected.includes(opt.id);
-            return (
-              <TouchableOpacity
-                key={opt.id}
-                activeOpacity={0.75}
-                onPress={() => toggleStyle(opt.id)}
-                style={[
-                  styles.splitChip,
-                  isSelected && {
-                    borderColor: opt.color,
-                    backgroundColor: opt.bgColor,
-                  },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.splitColorDot,
-                    { backgroundColor: opt.color },
-                  ]}
-                />
-                <Text
-                  style={[
-                    styles.splitChipText,
-                    isSelected && { color: "#FFFFFF", fontWeight: "800" },
-                  ]}
-                >
-                  {opt.label}
-                </Text>
-                {isSelected && (
-                  <Check
-                    size={13}
-                    color={opt.color}
-                    strokeWidth={2.5}
-                    style={{ marginLeft: "auto" }}
-                  />
-                )}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* 6. MONTHLY SUMMARY CARD */}
-        <View style={styles.summaryCard}>
-          <View style={styles.summaryHeader}>
-            <View style={styles.summaryTitleRow}>
-              <Calendar size={14} color="#00f2fe" style={{ marginRight: 6 }} />
-              <Text style={styles.summaryMonth}>
-                {currentMonthTelemetry.monthName} {currentMonthTelemetry.year}
-              </Text>
-            </View>
-            <View style={styles.summaryBadge}>
-              <Text style={styles.summaryBadgeText}>
-                {currentMonthTelemetry.sessionCount} SESSIONS
-              </Text>
-            </View>
-          </View>
-
-          {/* Simple split flow */}
-          <Text style={styles.summaryFlowText} numberOfLines={1}>
-            {stylesSelected
-              .map((id) => SPLIT_OPTIONS.find((s) => s.id === id)?.label || id)
-              .join("  →  ")}
-          </Text>
-        </View>
-
-        {/* CTA BUTTON */}
-        <TouchableOpacity
-          activeOpacity={0.82}
-          disabled={isSyncing}
-          style={styles.ctaButtonWrapper}
-          onPress={handleGenerateAndSync}
-        >
-          <LinearGradient
-            colors={isSynced ? ["#10B981", "#059669"] : ["#00f2fe", "#4facfe"]}
-            start={{ x: 0, y: 0.5 }}
-            end={{ x: 1, y: 0.5 }}
-            style={styles.ctaButton}
-          >
-            {isSyncing ? (
-              <View style={styles.ctaCenterRow}>
-                <ActivityIndicator size="small" color="#050811" />
-                <Text style={styles.ctaButtonText}>
-                  SYNCING CALENDAR...
-                </Text>
-              </View>
-            ) : isSynced ? (
-              <View style={styles.ctaCenterRow}>
-                <CheckCircle2 size={16} color="#050811" />
-                <Text style={styles.ctaButtonText}>
-                  CALENDAR PLAN SYNCED
-                </Text>
-              </View>
-            ) : (
-              <View style={styles.ctaCenterRow}>
-                <Text style={styles.ctaButtonText}>
-                  GENERATE & SYNC CALENDAR
-                </Text>
-                <ArrowRight color="#050811" size={16} />
-              </View>
-            )}
-          </LinearGradient>
-        </TouchableOpacity>
-
-        {/* Quick Link to Calendar */}
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={() => {
-            triggerHaptic();
-            router.push("/workout-calendar");
-          }}
-          style={styles.calendarLinkBtn}
-        >
-          <Text style={styles.calendarLinkText}>VIEW CALENDAR</Text>
-          <ChevronRight size={13} color="#00f2fe" />
-        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -576,234 +546,238 @@ const styles = StyleSheet.create({
     ...typography.pageTitle,
     color: "#FFFFFF",
   },
-  subtitle: {
-    color: "#94A3B8",
-    fontSize: 12,
+  stack: {
+    gap: 14,
+  },
+  surface: {
+    backgroundColor: "#111A25",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.18)",
+    padding: 18,
+    gap: 16,
+    overflow: "hidden",
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  cardHeaderTitle: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  iconChip: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
+  },
+  sectionLabel: {
+    ...typography.sectionTitle,
+    color: "#E5EEF8",
+    flexShrink: 1,
+  },
+  countPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
+  },
+  countPillText: {
+    ...typography.badge,
+    color: "#7DD3FC",
+  },
+  field: {
+    gap: 10,
+  },
+  fieldLabel: {
+    ...typography.caption,
     fontWeight: "600",
-    marginTop: 4,
+    color: "#8B9AB0",
   },
-  sectionTitle: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1,
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  sectionTitleNoMargin: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
-  frequencyRow: {
+  row: {
     flexDirection: "row",
     gap: 8,
   },
-  freqBtn: {
-    flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    position: "relative",
-  },
-  freqBtnSelected: {
-    borderColor: "#00f2fe",
-    backgroundColor: "rgba(0, 242, 254, 0.08)",
-  },
-  freqText: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  freqTextSelected: {
-    color: "#00f2fe",
-    fontWeight: "800",
-  },
-  segmentRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  segmentBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
-    borderRadius: 12,
-    paddingVertical: 13,
-    paddingHorizontal: 8,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-  },
-  segmentBtnSelected: {
-    borderColor: "#00f2fe",
-    backgroundColor: "rgba(0, 242, 254, 0.08)",
-  },
-  segmentText: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.4,
-  },
-  segmentTextSelected: {
-    color: "#00f2fe",
-    fontWeight: "800",
-  },
-  grid2: {
+  grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
     rowGap: 8,
   },
-  goalCard: {
-    flexBasis: "48.5%",
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+  gridItem: {
+    width: "48.6%",
   },
-  goalCardSelected: {
-    borderColor: "#00f2fe",
-    backgroundColor: "rgba(0, 242, 254, 0.08)",
-  },
-  goalText: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-    marginLeft: 10,
+
+  // Option (one look, one accent)
+  rowItem: {
     flex: 1,
   },
-  goalTextSelected: {
-    color: "#FFFFFF",
-    fontWeight: "800",
-  },
-  goalCheck: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: "#00f2fe",
+  option: {
+    minHeight: 46,
+    borderRadius: 14,
+    alignItems: "center",
     justifyContent: "center",
-    alignItems: "center",
+    paddingHorizontal: 4,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.14)",
   },
-  splitsHeaderRow: {
+  optionSelected: {
+    backgroundColor: "rgba(56,189,248,0.12)",
+    borderColor: "rgba(56,189,248,0.55)",
+  },
+  optionCompact: {
+    minHeight: 54,
+    gap: 0,
+  },
+  optionRow: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10,
+    gap: 8,
   },
-  splitsCountText: {
+  optionValue: {
+    ...typography.metric,
+    fontSize: 20,
+    lineHeight: 24,
+    color: "#CBD5E1",
+    fontVariant: ["tabular-nums"],
+  },
+  optionUnit: {
+    ...typography.overline,
     color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
   },
-  splitChip: {
-    flexBasis: "48.5%",
+  optionUnitSelected: {
+    color: "#7DD3FC",
+  },
+  optionText: {
+    ...typography.buttonSmall,
+    color: "#A8B5C7",
+    letterSpacing: 0.1,
+  },
+  optionTextSelected: {
+    color: "#F8FAFC",
+  },
+  goalOption: {
     flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
-    borderRadius: 12,
-    paddingVertical: 13,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-  },
-  splitColorDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 9,
-  },
-  splitChipText: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  summaryCard: {
-    backgroundColor: "rgba(15, 23, 42, 0.5)",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    marginTop: 22,
-  },
-  summaryHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  summaryTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  summaryMonth: {
-    color: "#E2E8F0",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  summaryBadge: {
-    backgroundColor: "rgba(0, 242, 254, 0.12)",
-    paddingVertical: 3,
+    justifyContent: "flex-start",
+    gap: 8,
     paddingHorizontal: 8,
-    borderRadius: 6,
+    minHeight: 52,
   },
-  summaryBadgeText: {
-    color: "#00f2fe",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  summaryFlowText: {
-    color: "#64748B",
-    fontSize: 10,
-    letterSpacing: 0.5,
-  },
-  ctaButtonWrapper: {
-    marginTop: 22,
+  goalIcon: {
+    width: 28,
+    height: 28,
     borderRadius: 14,
-    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.04)",
+  },
+  goalIconSelected: {
+    backgroundColor: "rgba(56,189,248,0.16)",
+  },
+  goalText: {
+    flexShrink: 1,
+  },
+  splitOption: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    gap: 10,
+    paddingHorizontal: 12,
+  },
+  checkCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1.5,
+    borderColor: "rgba(148,163,184,0.4)",
+  },
+  checkCircleOn: {
+    backgroundColor: ACCENT,
+    borderColor: ACCENT,
+  },
+  splitText: {
+    ...typography.bodySmall,
+    fontWeight: "600",
+    color: "#A8B5C7",
+    flexShrink: 1,
+  },
+
+  actions: {
+    gap: 10,
+    marginTop: 4,
+  },
+  ctaShadow: {
+    borderRadius: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0EA5E9",
+        shadowOpacity: 0.35,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 6 },
+      },
+      android: {},
+      default: { boxShadow: "0px 8px 20px rgba(14,165,233,0.30)" },
+    }),
   },
   ctaButton: {
-    paddingVertical: 15,
-    paddingHorizontal: 16,
-    borderRadius: 14,
+    height: 52,
+    borderRadius: 16,
+    overflow: "hidden",
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 10,
+    paddingHorizontal: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
   },
-  ctaCenterRow: {
+  ctaSheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
+  },
+  ctaButtonText: {
+    ...typography.button,
+    color: "#FFFFFF",
+    letterSpacing: 1,
+  },
+  ctaTrail: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
+  },
+  secondaryBtn: {
+    height: 48,
+    borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
+    backgroundColor: "rgba(56,189,248,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
   },
-  ctaButtonText: {
-    color: "#050811",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 0.8,
-  },
-  calendarLinkBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 14,
-    paddingVertical: 8,
-    gap: 4,
-  },
-  calendarLinkText: {
-    color: "#00f2fe",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+  secondaryBtnText: {
+    ...typography.button,
+    color: "#7DD3FC",
+    letterSpacing: 1,
   },
 });

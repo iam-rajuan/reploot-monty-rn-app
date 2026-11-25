@@ -4,7 +4,6 @@ import { TopProfileCard } from "@/features/profile/components/TopProfileCard";
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
 import { useAppDispatch } from "@/store/hooks";
 import { signOut } from "@/store/slices/authSlice";
-import MaskedView from "@react-native-masked-view/masked-view";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -83,29 +82,19 @@ export default function ProfileTabRoute() {
           style={[styles.titleSection, isCompact && styles.titleSectionCompact]}
         >
           <View style={styles.maskedTitleWrapper}>
-            <MaskedView
-              style={styles.maskedTitleView}
-              maskElement={
-                <View style={styles.maskWrapper}>
-                  <Text
-                    style={[
-                      styles.mainTitle,
-                      isCompact && styles.mainTitleCompact,
-                    ]}
-                    numberOfLines={1}
-                  >
-                    MY PROFILE
-                  </Text>
-                </View>
-              }
-            >
-              <LinearGradient
-                colors={["#F6F8FF", "#F6F8FF"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradient}
-              />
-            </MaskedView>
+            <View style={styles.maskedTitleView}>
+              <View style={styles.maskWrapper}>
+                <Text
+                  style={[
+                    styles.mainTitle,
+                    isCompact && styles.mainTitleCompact,
+                  , { color: "#F6F8FF" }]}
+                  numberOfLines={1}
+                >
+                  MY PROFILE
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
         <TopProfileCard />

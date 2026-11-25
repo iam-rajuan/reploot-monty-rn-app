@@ -4,7 +4,6 @@ import {
   markExerciseComplete,
   unmarkExerciseComplete,
 } from "@/store/slices/workoutSlice";
-import MaskedView from "@react-native-masked-view/masked-view";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -330,27 +329,17 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
         <View style={styles.titleSection}>
           <Text style={styles.categoryBadge}>EXERCISE TELEMETRY</Text>
           <View style={styles.maskedTitleWrapper}>
-            <MaskedView
-              style={styles.maskedTitleView}
-              maskElement={
-                <View style={styles.maskWrapper}>
-                  <Text
-                    style={styles.mainTitle}
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                  >
-                    {"EXERCISE DETAILS"}
-                  </Text>
-                </View>
-              }
-            >
-              <LinearGradient
-                colors={["#00f2fe", "#4facfe"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradient}
-              />
-            </MaskedView>
+            <View style={styles.maskedTitleView}>
+              <View style={styles.maskWrapper}>
+                <Text
+                  style={[styles.mainTitle, { color: "#F6F8FF" }]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
+                  {"EXERCISE DETAILS"}
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
 
