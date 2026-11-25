@@ -119,7 +119,7 @@ export const AiWorkoutCameraRecordScreen: React.FC<
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
         <LinearGradient
           colors={["rgba(6,8,16,0.7)", "rgba(6,8,16,0)", "rgba(6,8,16,0)", "rgba(6,8,16,0.94)"]}
-          locations={[0, 0.16, 0.6, 0.86]}
+          locations={[0, 0.14, 0.68, 0.9]}
           style={StyleSheet.absoluteFill}
         />
       </View>
@@ -209,15 +209,15 @@ export const AiWorkoutCameraRecordScreen: React.FC<
             accessibilityRole="button"
             accessibilityLabel="Tap to register rep"
           >
-            <View style={styles.cardTop}>
-              <View style={styles.iconChip}>
-                <Activity size={11} color={ACCENT} strokeWidth={2.6} />
-              </View>
-              <Text style={styles.cardMiniLabel}>REPS</Text>
+            <View style={styles.iconChip}>
+              <Activity size={15} color={ACCENT} strokeWidth={2.4} />
             </View>
-            <View style={styles.valueRow}>
-              <Text style={styles.bigValue}>{reps}</Text>
-              <Text style={styles.valueUnit}>/ {targetReps}</Text>
+            <View style={styles.cardCopy}>
+              <Text style={styles.cardMiniLabel}>REPS</Text>
+              <View style={styles.valueRow}>
+                <Text style={styles.bigValue}>{reps}</Text>
+                <Text style={styles.valueUnit}>/ {targetReps}</Text>
+              </View>
             </View>
             <View style={styles.repTrack}>
               <View
@@ -230,19 +230,15 @@ export const AiWorkoutCameraRecordScreen: React.FC<
           </TouchableOpacity>
 
           <View style={styles.telemetryCard}>
-            <View style={styles.cardTop}>
-              <View style={styles.iconChip}>
-                <ShieldCheck size={11} color={ACCENT} strokeWidth={2.6} />
-              </View>
+            <View style={styles.iconChip}>
+              <ShieldCheck size={15} color={ACCENT} strokeWidth={2.4} />
+            </View>
+            <View style={styles.cardCopy}>
               <Text style={styles.cardMiniLabel}>FORM</Text>
-            </View>
-            <View style={styles.valueRow}>
-              <Text style={styles.bigValue}>{accuracy}</Text>
-              <Text style={styles.valueUnit}>%</Text>
-            </View>
-            <View style={styles.formPill}>
-              <View style={styles.formDot} />
-              <Text style={styles.formPillText}>OPTIMAL</Text>
+              <View style={styles.valueRow}>
+                <Text style={styles.bigValue}>{accuracy}</Text>
+                <Text style={styles.valueUnit}>%</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -331,10 +327,10 @@ const styles = StyleSheet.create({
   // Framing guides
   frameArea: {
     position: "absolute",
-    top: "12%",
-    bottom: "37%",
-    left: 24,
-    right: 24,
+    top: "11%",
+    bottom: "31%",
+    left: 22,
+    right: 22,
   },
   cornerGuide: {
     position: "absolute",
@@ -386,10 +382,10 @@ const styles = StyleSheet.create({
     color: ACCENT_SOFT,
   },
   exerciseTitleText: {
-    ...typography.metric,
-    fontSize: 20,
-    lineHeight: 26,
-    letterSpacing: 0.2,
+    ...typography.cardTitle,
+    fontSize: 18,
+    lineHeight: 22,
+    letterSpacing: 0.3,
     color: "#FFFFFF",
     textTransform: "uppercase",
   },
@@ -418,23 +414,25 @@ const styles = StyleSheet.create({
   },
   telemetryCard: {
     flex: 1,
-    gap: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderRadius: 20,
+    borderRadius: 18,
+    overflow: "hidden",
     backgroundColor: "rgba(17,26,37,0.86)",
     borderWidth: 1,
     borderColor: "rgba(56,189,248,0.2)",
   },
-  cardTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+  cardCopy: {
+    flex: 1,
+    minWidth: 0,
   },
   iconChip: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(56,189,248,0.12)",
@@ -448,50 +446,27 @@ const styles = StyleSheet.create({
   valueRow: {
     flexDirection: "row",
     alignItems: "baseline",
-    gap: 4,
+    gap: 3,
   },
   bigValue: {
     ...typography.metric,
-    fontSize: 28,
-    lineHeight: 32,
     color: "#F8FAFC",
   },
   valueUnit: {
     ...typography.metricUnit,
-    fontSize: 14,
-    lineHeight: 18,
     color: "#64748B",
   },
   repTrack: {
-    height: 6,
-    borderRadius: 3,
-    overflow: "hidden",
-    backgroundColor: "rgba(148,163,184,0.16)",
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 3,
+    backgroundColor: "rgba(148,163,184,0.14)",
   },
   repFill: {
     height: "100%",
-    borderRadius: 3,
     backgroundColor: ACCENT,
-  },
-  formPill: {
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 999,
-    backgroundColor: "rgba(56,189,248,0.12)",
-  },
-  formDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: ACCENT,
-  },
-  formPillText: {
-    ...typography.badge,
-    color: ACCENT_SOFT,
   },
 
   primaryBtn: {
