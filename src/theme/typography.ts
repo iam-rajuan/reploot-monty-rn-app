@@ -19,7 +19,7 @@ import { fontFamilies } from "./fonts";
  * - If a new design needs a new kind of text, add a role here with Inter
  *   (or Montserrat for a page title). Never add another font.
  *
- * Type scale (px): 9 · 10 · 11 · 12 · 13 · 14 · 16 · 18 · 20 · 22 · 24 · 28 · 32 · 40 · 48
+ * Type scale (px): 8 · 9 · 10 · 11 · 12 · 13 · 14 · 16 · 18 · 20 · 22 · 24 · 28 · 32 · 40 · 48
  * New sizes should come from this scale.
  *
  * Loaded weights: Inter 400 / 500 / 600 / 700 / 800, Montserrat 800.
@@ -219,6 +219,15 @@ export const typography = {
     fontSize: 10,
     lineHeight: 14,
     letterSpacing: 0.8,
+    textTransform: "uppercase",
+  },
+  /** Tiny uppercase tag inside dense grids (calendar day workout tags). */
+  microTag: {
+    fontFamily: inter[600],
+    fontWeight: "600",
+    fontSize: 8,
+    lineHeight: 10,
+    letterSpacing: 0.2,
     textTransform: "uppercase",
   },
 

@@ -24,7 +24,7 @@ const ALLOWED_FILES = new Set([
   "src/shared/components/typography/Text.tsx",
   "src/shared/components/typography/index.ts",
 ]);
-const TYPE_SCALE = new Set([9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 24, 28, 32, 40, 48]);
+const TYPE_SCALE = new Set([8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 24, 28, 32, 40, 48]);
 
 const RULES = [
   {

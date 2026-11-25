@@ -5,7 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
-  AlertTriangle,
+  ArrowLeftRight,
   ArrowRight,
   Calendar,
   Check,
@@ -299,6 +299,9 @@ function generateInitialCalendar(
   return data;
 }
 
+// Shortest tag form inside calendar days.
+const SHORT_TAGS: Record<string, string> = { LOWER: "LOW" };
+
 // Draggable workout chip (tray). Hold to drag onto a day, or tap to select.
 function DraggableSplitChip({
   split,
@@ -423,16 +426,13 @@ const DraggableCalendarCell = React.memo(function DraggableCalendarCell({
   const splitTag = useMemo(() => {
     if (!item.label) return "";
     const split = getSplitByLabel(item.label);
-    return split?.tag || item.label.slice(0, 5).toUpperCase();
+    const tag = split?.tag || item.label.slice(0, 5).toUpperCase();
+    return SHORT_TAGS[tag] || tag;
   }, [item.label]);
 
   if (!item.currentMonth) {
     return (
-      <View style={styles.cell}>
-        <View style={styles.dayBox}>
-          <Text style={styles.dayNumberOther}>{item.date}</Text>
-        </View>
-      </View>
+      <View style={styles.cell} />
     );
   }
 
@@ -485,9 +485,7 @@ const DraggableCalendarCell = React.memo(function DraggableCalendarCell({
             >
               {splitTag}
             </Text>
-          ) : (
-            <View style={[styles.restDot, isToday && styles.restDotToday]} />
-          )}
+          ) : null}
         </TouchableOpacity>
       </GestureDetector>
     </View>
@@ -1280,85 +1278,89 @@ export default function WorkoutCalendarScreen() {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* MINIMAL CYBER CONFIRMATION MODAL: SIMPLE, NEAT & CLEAN */}
+      {/* Replace workout confirmation */}
       <Modal
         visible={!!conflictModalData}
         transparent={true}
         animationType="fade"
         onRequestClose={handleCancelConflict}
       >
-        <Pressable
-          style={styles.alertBackdrop}
-          onPress={handleCancelConflict}
-        >
-          <Pressable
-            style={styles.alertCard}
-            onPress={(e) => e.stopPropagation()}
-          >
-            {/* Warning Icon */}
-            <View style={styles.alertIconWrapper}>
-              <AlertTriangle size={20} color="#F43F5E" />
+        <Pressable style={styles.popupBackdrop} onPress={handleCancelConflict}>
+          <Pressable style={styles.popupCard} onPress={(e) => e.stopPropagation()}>
+            <LinearGradient
+              pointerEvents="none"
+              colors={SURFACE_WASH}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+
+            <View style={styles.popupIcon}>
+              <ArrowLeftRight size={22} color={DRAG_ACCENT} strokeWidth={2.4} />
             </View>
 
-            {/* Clean Title */}
-            <Text style={styles.alertTitle}>REPLACE ROUTINE?</Text>
-
-            {/* Clear, Minimal Message */}
-            <Text style={styles.alertDescription}>
-              Replace{" "}
-              <Text style={styles.alertDescTarget}>
-                {conflictModalData?.targetSplitName}
-              </Text>{" "}
-              on Day {conflictModalData?.targetDate} with{" "}
-              <Text style={styles.alertDescSource}>
-                {conflictModalData?.sourceSplit.name}
-              </Text>
-              ?
-            </Text>
-
-            {/* Minimal Routine Swap Tag */}
-            <View style={styles.alertSwapRow}>
-              <Text style={styles.alertSwapTargetText} numberOfLines={1}>
-                {conflictModalData?.targetSplitName}
-              </Text>
-              <ArrowRight
-                size={12}
-                color="#64748B"
-                style={{ marginHorizontal: 8 }}
-              />
-              <Text
-                style={[
-                  styles.alertSwapSourceText,
-                  { color: conflictModalData?.sourceSplit.color || "#00f2fe" },
-                ]}
-                numberOfLines={1}
-              >
-                {conflictModalData?.sourceSplit.name}
+            <View style={styles.popupCopy}>
+              <Text style={styles.popupTitle}>Replace workout?</Text>
+              <Text style={styles.popupText}>
+                Day {conflictModalData?.targetDate} already has a workout planned.
               </Text>
             </View>
 
-            {/* Action Buttons */}
-            <View style={styles.alertActionsRow}>
+            {/* Current -> new */}
+            <View style={styles.swapRow}>
+              <View style={styles.swapItem}>
+                <Text style={styles.swapLabel}>CURRENT</Text>
+                <View style={styles.swapPill}>
+                  <Text style={styles.swapPillText} numberOfLines={1}>
+                    {conflictModalData?.targetSplitName}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.swapArrow}>
+                <ArrowRight size={14} color="#7DD3FC" strokeWidth={2.6} />
+              </View>
+              <View style={styles.swapItem}>
+                <Text style={[styles.swapLabel, styles.swapLabelNew]}>NEW</Text>
+                <View style={[styles.swapPill, styles.swapPillNew]}>
+                  <Text style={[styles.swapPillText, styles.swapPillTextNew]} numberOfLines={1}>
+                    {conflictModalData?.sourceSplit.name}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.popupActions}>
               <TouchableOpacity
-                activeOpacity={0.75}
+                activeOpacity={0.8}
                 onPress={handleCancelConflict}
-                style={styles.alertCancelBtn}
+                style={[styles.popupBtn, styles.popupBtnGhost]}
+                accessibilityRole="button"
+                accessibilityLabel="Keep current workout"
               >
-                <Text style={styles.alertCancelBtnText}>CANCEL</Text>
+                <Text style={styles.popupBtnGhostText}>KEEP</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                activeOpacity={0.8}
+                activeOpacity={0.88}
                 onPress={handleConfirmConflict}
-                style={styles.alertConfirmBtn}
+                style={styles.popupBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Replace workout"
               >
                 <LinearGradient
-                  colors={["#F43F5E", "#BE123C"]}
+                  colors={BUTTON_GRADIENT}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
-                  style={styles.alertConfirmGrad}
+                  style={styles.popupBtnFill}
                 >
-                  <Text style={styles.alertConfirmBtnText}>REPLACE</Text>
+                  <LinearGradient
+                    pointerEvents="none"
+                    colors={SHEEN}
+                    start={{ x: 0.5, y: 0 }}
+                    end={{ x: 0.5, y: 1 }}
+                    style={styles.ctaSheen}
+                  />
+                  <Text style={styles.popupBtnText}>REPLACE</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -1366,17 +1368,24 @@ export default function WorkoutCalendarScreen() {
         </Pressable>
       </Modal>
 
-      {/* Aesthetic Centered Circular Loading Overlay */}
+      {/* Updating schedule */}
       {isUpdatingSchedule && (
-        <View style={styles.loadingOverlay}>
-          <View style={styles.loadingCard}>
-            <View style={styles.loadingCircleWrapper}>
-              <ActivityIndicator size="large" color="#00f2fe" />
+        <View style={styles.popupBackdrop}>
+          <View style={[styles.popupCard, styles.loadingCard]}>
+            <LinearGradient
+              pointerEvents="none"
+              colors={SURFACE_WASH}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+            <View style={styles.loadingRing}>
+              <ActivityIndicator size="large" color={DRAG_ACCENT} />
             </View>
-            <Text style={styles.loadingTitle}>SYNCHRONIZING SCHEDULE...</Text>
-            <Text style={styles.loadingSubtitle}>
-              Updating routine telemetry & calendar cycles
-            </Text>
+            <View style={styles.popupCopy}>
+              <Text style={styles.popupTitle}>Updating schedule</Text>
+              <Text style={styles.popupText}>Syncing your workouts to the calendar…</Text>
+            </View>
           </View>
         </View>
       )}
@@ -1669,54 +1678,6 @@ const styles = StyleSheet.create({
 
 
   /* Centered Circular Loading Overlay */
-  loadingOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(7, 10, 17, 0.82)",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 999999,
-    elevation: 30,
-  },
-  loadingCard: {
-    width: width * 0.78,
-    maxWidth: 320,
-    backgroundColor: "#11141C",
-    borderRadius: 22,
-    borderWidth: 1.5,
-    borderColor: "rgba(0, 242, 254, 0.35)",
-    paddingVertical: 28,
-    paddingHorizontal: 20,
-    alignItems: "center",
-    shadowColor: "#00f2fe",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
-    shadowRadius: 18,
-    elevation: 20,
-  },
-  loadingCircleWrapper: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: "rgba(0, 242, 254, 0.08)",
-    borderWidth: 1.5,
-    borderColor: "rgba(0, 242, 254, 0.25)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  loadingTitle: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 1,
-    textAlign: "center",
-    marginBottom: 6,
-  },
-  loadingSubtitle: {
-    color: "#94A3B8",
-    fontSize: 11,
-    textAlign: "center",
-  },
 
   /* Floating Drag Preview */
   floatingDragBadge: {
@@ -1975,121 +1936,6 @@ const styles = StyleSheet.create({
   },
 
   /* Simple, Neat & Clean Conflict Alert Modal */
-  alertBackdrop: {
-    flex: 1,
-    backgroundColor: "rgba(5, 8, 17, 0.82)",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    zIndex: 999999,
-  },
-  alertCard: {
-    width: Math.min(width * 0.84, 320),
-    backgroundColor: "#11141C",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    paddingVertical: 22,
-    paddingHorizontal: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 20,
-  },
-  alertIconWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(244, 63, 94, 0.12)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  alertTitle: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "800",
-    letterSpacing: 0.5,
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  alertDescription: {
-    color: "#94A3B8",
-    fontSize: 12,
-    lineHeight: 18,
-    textAlign: "center",
-    marginBottom: 14,
-  },
-  alertDescTarget: {
-    color: "#F43F5E",
-    fontWeight: "800",
-  },
-  alertDescSource: {
-    color: "#00f2fe",
-    fontWeight: "800",
-  },
-  alertSwapRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
-  },
-  alertSwapTargetText: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  alertSwapSourceText: {
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  alertActionsRow: {
-    flexDirection: "row",
-    gap: 10,
-    width: "100%",
-  },
-  alertCancelBtn: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  alertCancelBtnText: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-  alertConfirmBtn: {
-    flex: 1,
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  alertConfirmGrad: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-  },
-  alertConfirmBtnText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
   // ---- Cards ----
   card: {
     backgroundColor: "#111A25",
@@ -2262,30 +2108,29 @@ const styles = StyleSheet.create({
   },
   cell: {
     width: "14.2857%",
-    height: 46,
-    padding: 2,
+    height: 48,
+    paddingHorizontal: 3,
+    paddingVertical: 3,
   },
   dayBox: {
     flex: 1,
-    borderRadius: 10,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    gap: 1,
+    gap: 2,
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "transparent",
   },
   dayBoxRest: {
-    backgroundColor: "rgba(255,255,255,0.025)",
-    borderColor: "rgba(148,163,184,0.10)",
+    backgroundColor: "transparent",
   },
   dayBoxScheduled: {
     backgroundColor: "rgba(56,189,248,0.14)",
-    borderColor: "rgba(56,189,248,0.45)",
+    borderColor: "rgba(56,189,248,0.32)",
   },
   dayBoxPast: {
     backgroundColor: "rgba(56,189,248,0.06)",
-    borderColor: "rgba(56,189,248,0.18)",
   },
   dayBoxToday: {
     borderColor: "rgba(255,255,255,0.3)",
@@ -2306,14 +2151,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontVariant: ["tabular-nums"],
   },
-  dayNumberOther: {
-    ...typography.bodySmall,
-    fontSize: 13,
-    lineHeight: 16,
-    color: "#334155",
-  },
   dayNumberRest: {
-    color: "#8B9AB0",
+    color: "#94A3B8",
+    fontWeight: "500",
   },
   dayNumberScheduled: {
     color: "#F8FAFC",
@@ -2326,10 +2166,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   dayTag: {
-    ...typography.overline,
-    fontSize: 9,
-    lineHeight: 12,
-    letterSpacing: 0.4,
+    ...typography.microTag,
     color: "#7DD3FC",
   },
   dayTagPast: {
@@ -2337,15 +2174,6 @@ const styles = StyleSheet.create({
   },
   dayTagToday: {
     color: "#FFFFFF",
-  },
-  restDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "rgba(148,163,184,0.3)",
-  },
-  restDotToday: {
-    backgroundColor: "rgba(255,255,255,0.7)",
   },
 
   // ---- Legend ----
@@ -2374,8 +2202,8 @@ const styles = StyleSheet.create({
     borderColor: "rgba(56,189,248,0.45)",
   },
   legendSwatchRest: {
-    backgroundColor: "rgba(255,255,255,0.025)",
-    borderColor: "rgba(148,163,184,0.25)",
+    backgroundColor: "transparent",
+    borderColor: "rgba(148,163,184,0.35)",
   },
   legendText: {
     ...typography.caption,
@@ -2429,5 +2257,159 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(255,255,255,0.2)",
+  },
+  // ---- Popups ----
+  popupBackdrop: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: "rgba(2, 6, 14, 0.78)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  popupCard: {
+    width: "100%",
+    maxWidth: 340,
+    alignItems: "center",
+    gap: 16,
+    padding: 22,
+    borderRadius: 26,
+    overflow: "hidden",
+    backgroundColor: "#111A25",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
+  },
+  popupIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
+  },
+  popupCopy: {
+    alignItems: "center",
+    gap: 6,
+  },
+  popupTitle: {
+    ...typography.cardTitle,
+    fontSize: 18,
+    lineHeight: 24,
+    color: "#F8FAFC",
+    textAlign: "center",
+  },
+  popupText: {
+    ...typography.body,
+    color: "#94A3B8",
+    textAlign: "center",
+  },
+  swapRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 8,
+    padding: 12,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.12)",
+  },
+  swapItem: {
+    flex: 1,
+    minWidth: 0,
+    gap: 6,
+  },
+  swapLabel: {
+    ...typography.overline,
+    color: "#64748B",
+    textAlign: "center",
+  },
+  swapLabelNew: {
+    color: "#7DD3FC",
+  },
+  swapPill: {
+    height: 36,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 8,
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.18)",
+  },
+  swapPillNew: {
+    backgroundColor: "rgba(56,189,248,0.14)",
+    borderColor: "rgba(56,189,248,0.5)",
+  },
+  swapPillText: {
+    ...typography.bodySmall,
+    fontWeight: "600",
+    color: "#94A3B8",
+    textDecorationLine: "line-through",
+  },
+  swapPillTextNew: {
+    color: "#F8FAFC",
+    fontWeight: "700",
+    textDecorationLine: "none",
+  },
+  swapArrow: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    marginBottom: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.12)",
+  },
+  popupActions: {
+    width: "100%",
+    flexDirection: "row",
+    gap: 10,
+  },
+  popupBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 14,
+    overflow: "hidden",
+  },
+  popupBtnFill: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
+  },
+  popupBtnText: {
+    ...typography.button,
+    color: "#FFFFFF",
+    letterSpacing: 1,
+  },
+  popupBtnGhost: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.2)",
+  },
+  popupBtnGhostText: {
+    ...typography.button,
+    color: "#CBD5E1",
+    letterSpacing: 1,
+  },
+  loadingCard: {
+    maxWidth: 300,
+    paddingVertical: 28,
+  },
+  loadingRing: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
   },
 });
