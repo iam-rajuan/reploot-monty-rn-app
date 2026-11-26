@@ -257,12 +257,12 @@ export const WeeklyProgressCard = () => {
         onPressOut={() => setLinkPressed(false)}
         accessibilityRole="button"
         accessibilityLabel="View weekly progress"
+        hitSlop={8}
+        style={styles.linkPressable}
       >
         <View style={[styles.linkRow, linkPressed && styles.linkRowPressed]}>
-          <Text style={styles.viewProgressLink}>View Weekly Progress</Text>
-          <View style={styles.linkArrow}>
-            <ArrowRight size={13} color="#2EE5C5" strokeWidth={2.6} />
-          </View>
+          <Text style={styles.viewProgressLink}>WEEKLY REPORT</Text>
+          <ArrowRight size={12} color="#3FDEC9" strokeWidth={2.8} />
         </View>
       </Pressable>
     </View>
@@ -505,31 +505,27 @@ const styles = StyleSheet.create({
     color: "#3FDEC9",
     fontWeight: "800",
   },
+  linkPressable: {
+    alignSelf: "center",
+  },
+  // Compact pill link (same pattern as "VIEW ALL" chips elsewhere).
   linkRow: {
-    height: 46,
-    borderRadius: 14,
+    height: 30,
+    paddingHorizontal: 12,
+    borderRadius: 15,
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
-    gap: 10,
+    gap: 5,
     backgroundColor: "rgba(63,222,201,0.08)",
     borderWidth: 1,
     borderColor: "rgba(63,222,201,0.28)",
   },
   linkRowPressed: {
     backgroundColor: "rgba(63,222,201,0.16)",
-    transform: [{ scale: 0.98 }],
+    transform: [{ scale: 0.96 }],
   },
   viewProgressLink: {
-    ...typography.button,
+    ...typography.badge,
     color: "#3FDEC9",
-  },
-  linkArrow: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(63,222,201,0.16)",
   },
 });

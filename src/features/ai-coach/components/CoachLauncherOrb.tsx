@@ -13,12 +13,11 @@ import { CoachMascot } from "./CoachMascot";
  */
 
 const FOOTPRINT = 100;
-const ORB = 60;
+const ORB = 52;
 
 export const CoachLauncherOrb = ({ pressed = false }: { pressed?: boolean }) => (
   <View style={styles.footprint} pointerEvents="none">
-    <View style={styles.haloOuter} />
-    <View style={styles.haloInner} />
+    <View style={styles.halo} />
     <View style={[styles.orbShadow, pressed && styles.pressed]}>
       <LinearGradient
         colors={["#6D5BF7", "#4F8CF6", "#2DD4BF"]}
@@ -32,7 +31,7 @@ export const CoachLauncherOrb = ({ pressed = false }: { pressed?: boolean }) => 
           end={{ x: 0.5, y: 0.6 }}
           style={styles.gloss}
         />
-        <CoachMascot size={46} />
+        <CoachMascot size={40} />
       </LinearGradient>
       <View style={styles.onlineDot} />
     </View>
@@ -46,19 +45,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  haloOuter: {
+  // One tight, soft halo hugging the orb.
+  halo: {
     position: "absolute",
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: "rgba(124, 92, 246, 0.10)",
-  },
-  haloInner: {
-    position: "absolute",
-    width: 74,
-    height: 74,
-    borderRadius: 37,
-    backgroundColor: "rgba(109, 91, 247, 0.16)",
+    width: ORB + 10,
+    height: ORB + 10,
+    borderRadius: (ORB + 10) / 2,
+    backgroundColor: "rgba(109, 91, 247, 0.14)",
   },
   orbShadow: {
     width: ORB,
@@ -67,13 +60,13 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: "#7C5CF6",
-        shadowOpacity: 0.55,
-        shadowRadius: 14,
-        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.35,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
       },
-      android: { elevation: 10 },
+      android: { elevation: 6 },
       default: {
-        boxShadow: "0px 8px 22px rgba(124, 92, 246, 0.55)",
+        boxShadow: "0px 4px 12px rgba(124, 92, 246, 0.38)",
       },
     }),
   },
@@ -98,11 +91,11 @@ const styles = StyleSheet.create({
   },
   onlineDot: {
     position: "absolute",
-    top: 3,
-    right: 3,
-    width: 13,
-    height: 13,
-    borderRadius: 7,
+    top: 2,
+    right: 2,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     backgroundColor: "#2DD4BF",
     borderWidth: 2.5,
     borderColor: "#0B1220",
