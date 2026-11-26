@@ -79,6 +79,95 @@ export interface WorkoutShareCardProps {
   tierLabel?: string;
 }
 
+/** Gradient, two soft glows and faint diagonal lines shared by every card. */
+export function ShareCardBackground({ theme }: { theme: ShareCardTheme }) {
+  const t = SHARE_CARD_THEMES[theme];
+  return (
+    <>
+      <LinearGradient
+        colors={t.base}
+        start={{ x: 0.1, y: 0 }}
+        end={{ x: 0.9, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+      <Svg
+        width={SHARE_CARD_WIDTH}
+        height={SHARE_CARD_HEIGHT}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      >
+        <Defs>
+          <RadialGradient id="glowA" cx="85%" cy="12%" r="55%">
+            <Stop offset="0" stopColor={t.glowA} stopOpacity="0.42" />
+            <Stop offset="1" stopColor={t.glowA} stopOpacity="0" />
+          </RadialGradient>
+          <RadialGradient id="glowB" cx="5%" cy="92%" r="60%">
+            <Stop offset="0" stopColor={t.glowB} stopOpacity="0.32" />
+            <Stop offset="1" stopColor={t.glowB} stopOpacity="0" />
+          </RadialGradient>
+        </Defs>
+        <Rect width="100%" height="100%" fill="url(#glowA)" />
+        <Rect width="100%" height="100%" fill="url(#glowB)" />
+        {[0, 1, 2].map((i) => (
+          <Line
+            key={i}
+            x1={150 + i * 70}
+            y1={0}
+            x2={-30 + i * 70}
+            y2={SHARE_CARD_HEIGHT}
+            stroke="#FFFFFF"
+            strokeOpacity={0.035}
+            strokeWidth={1}
+          />
+        ))}
+      </Svg>
+    </>
+  );
+}
+
+/** REPLOOT wordmark + date pill. */
+export function ShareCardTopBar({
+  theme,
+  dateLabel,
+}: {
+  theme: ShareCardTheme;
+  dateLabel: string;
+}) {
+  const t = SHARE_CARD_THEMES[theme];
+  return (
+    <View style={styles.topRow}>
+      <Text style={styles.brand}>
+        REP<Text style={[styles.brand, { color: t.accent }]}>LOOT</Text>
+      </Text>
+      <View style={styles.datePill}>
+        <Text style={styles.dateText}>{dateLabel}</Text>
+      </View>
+    </View>
+  );
+}
+
+/** "Tracked with REPLOOT" footer. */
+export function ShareCardFooter({ theme }: { theme: ShareCardTheme }) {
+  const t = SHARE_CARD_THEMES[theme];
+  return (
+    <View style={styles.footer}>
+      <View style={[styles.footerRule, { backgroundColor: t.accent }]} />
+      <Text style={styles.footerText}>Tracked with REPLOOT</Text>
+    </View>
+  );
+}
+
+/** Root style for any 320×400 share card. */
+export const shareCardBaseStyle = {
+  width: SHARE_CARD_WIDTH,
+  height: SHARE_CARD_HEIGHT,
+  borderRadius: 28,
+  overflow: "hidden" as const,
+  padding: 22,
+  justifyContent: "space-between" as const,
+  backgroundColor: "#05070E",
+};
+
 const RING = 118;
 const STROKE = 10;
 const R = (RING - STROKE) / 2;
@@ -115,54 +204,8 @@ export const WorkoutShareCard = forwardRef<View, WorkoutShareCardProps>(
 
     return (
       <View ref={ref} collapsable={false} style={styles.card}>
-        {/* Background */}
-        <LinearGradient
-          colors={t.base}
-          start={{ x: 0.1, y: 0 }}
-          end={{ x: 0.9, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
-        <Svg
-          width={SHARE_CARD_WIDTH}
-          height={SHARE_CARD_HEIGHT}
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-        >
-          <Defs>
-            <RadialGradient id="glowA" cx="85%" cy="12%" r="55%">
-              <Stop offset="0" stopColor={t.glowA} stopOpacity="0.42" />
-              <Stop offset="1" stopColor={t.glowA} stopOpacity="0" />
-            </RadialGradient>
-            <RadialGradient id="glowB" cx="5%" cy="92%" r="60%">
-              <Stop offset="0" stopColor={t.glowB} stopOpacity="0.32" />
-              <Stop offset="1" stopColor={t.glowB} stopOpacity="0" />
-            </RadialGradient>
-          </Defs>
-          <Rect width="100%" height="100%" fill="url(#glowA)" />
-          <Rect width="100%" height="100%" fill="url(#glowB)" />
-          {[0, 1, 2].map((i) => (
-            <Line
-              key={i}
-              x1={150 + i * 70}
-              y1={0}
-              x2={-30 + i * 70}
-              y2={SHARE_CARD_HEIGHT}
-              stroke="#FFFFFF"
-              strokeOpacity={0.035}
-              strokeWidth={1}
-            />
-          ))}
-        </Svg>
-
-        {/* Top bar */}
-        <View style={styles.topRow}>
-          <Text style={styles.brand}>
-            REP<Text style={[styles.brand, { color: t.accent }]}>LOOT</Text>
-          </Text>
-          <View style={styles.datePill}>
-            <Text style={styles.dateText}>{dateLabel}</Text>
-          </View>
-        </View>
+        <ShareCardBackground theme={theme} />
+        <ShareCardTopBar theme={theme} dateLabel={dateLabel} />
 
         {/* Title */}
         <View style={styles.titleBlock}>
@@ -253,11 +296,7 @@ export const WorkoutShareCard = forwardRef<View, WorkoutShareCardProps>(
           ))}
         </View>
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <View style={[styles.footerRule, { backgroundColor: t.accent }]} />
-          <Text style={styles.footerText}>Tracked with REPLOOT</Text>
-        </View>
+        <ShareCardFooter theme={theme} />
       </View>
     );
   },

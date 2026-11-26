@@ -11,6 +11,7 @@ import {
   Flame,
   Share2,
   Sparkles,
+  Target,
   Trophy,
   Zap,
 } from "lucide-react-native";
@@ -18,19 +19,42 @@ import React, { useState } from "react";
 import {
   Dimensions,
   Platform,
-  Pressable,
   ScrollView,
-  Share,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Circle, Line as SvgLine } from "react-native-svg";
+import Svg, {
+  Circle,
+  Defs,
+  LinearGradient as SvgGradient,
+  Stop,
+} from "react-native-svg";
 import { typography } from "@/theme/typography";
 import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
+import { MilestoneShareCard } from "@/features/workouts/components/MilestoneShareCard";
+import {
+  SHARE_CARD_HEIGHT,
+  SHARE_CARD_WIDTH,
+} from "@/features/workouts/components/WorkoutShareCard";
+import { ShareImageSheet } from "@/features/workouts/components/ShareImageSheet";
 
-const { width } = Dimensions.get("window");
+// One accent for the whole page.
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.06)",
+  "rgba(255,255,255,0.02)",
+] as const;
+const circleSizeStyle = 72;
+// Template preview fills the milestone card (page padding 20 + card padding 16).
+const PREVIEW_WIDTH = Math.min(SHARE_CARD_WIDTH, Dimensions.get("window").width - 72);
+const PREVIEW_SCALE = PREVIEW_WIDTH / SHARE_CARD_WIDTH;
 
 type TabType = "TODAY" | "WEEK" | "MONTH";
 
@@ -59,17 +83,17 @@ export default function YourWorkoutsScreen() {
     setActiveTab(tab);
   };
 
-  const handleShare = async () => {
+  // Share Achievement opens a designed milestone image (same sheet as the workout summary).
+  const [shareOpen, setShareOpen] = useState(false);
+  const totalWorkouts = 127;
+  const shareText = `🔥 ${totalWorkouts} workouts done on REPLOOT — and counting! #REPLOOT`;
+  const shareDate = new Date()
+    .toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    .toUpperCase();
+
+  const handleShare = () => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-    try {
-      await Share.share({
-        message:
-          "🔥 Milestone Achieved on Reploot AI Fitness: 127 Total Workouts Completed! Keep pushing limits! 🚀 #ReplootAI #FitnessMilestone",
-        title: "Reploot AI Fitness Milestone",
-      });
-    } catch {
-      // dismissed
-    }
+    setShareOpen(true);
   };
 
   // Stat data customized per tab
@@ -209,113 +233,105 @@ export default function YourWorkoutsScreen() {
   };
 
   const currentStats = statsData[activeTab];
+  const statById = (id: string) => currentStats.find((s) => s.id === id)?.value ?? "—";
+  const gridStats = [
+    { id: "workouts", label: "WORKOUTS", Icon: Dumbbell },
+    { id: "calories", label: "CALORIES", Icon: Flame },
+    { id: "earned", label: "XP EARNED", Icon: Sparkles },
+    { id: "accuracy", label: "ACCURACY", Icon: Target },
+  ];
 
-  // Circular progress dimensions
-  const circleSize = 52;
-  const strokeWidth = 4;
+  // Goal ring
+  const circleSize = 72;
+  const strokeWidth = 7;
   const radius = (circleSize - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const progressPercent =
     activeTab === "TODAY" ? 0.75 : activeTab === "WEEK" ? 0.88 : 0.94;
   const strokeDashoffset = circumference * (1 - progressPercent);
+  const periodLabel =
+    activeTab === "TODAY" ? "TODAY" : activeTab === "WEEK" ? "THIS WEEK" : "THIS MONTH";
 
   return (
     <View style={styles.screen}>
       <ScreenBackground />
       <StatusBar style="light" />
 
-      {/* Unified WorkoutHeader with back button enabled */}
       <WorkoutHeader
         transparent={true}
         showBackButton={true}
         onPressBack={() => {
           triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-          router.canGoBack()
-            ? router.back()
-            : router.replace("/(tabs)/progress");
+          router.canGoBack() ? router.back() : router.replace("/(tabs)/progress");
         }}
       />
 
       <ScrollView
         contentContainerStyle={[
           styles.scrollContainer,
-          { paddingBottom: Math.max(insets.bottom + 140, 160) },
+          { paddingBottom: Math.max(insets.bottom + 28, 40) },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title Section with Masked Gradient Title (progress.tsx pattern) */}
         <View style={styles.titleSection}>
-          <View style={styles.maskedTitleWrapper}>
-            <View style={styles.maskedTitleView}>
-              <View style={styles.maskWrapper}>
-                <Text style={[styles.mainTitle, { color: "#F6F8FF" }]} numberOfLines={1}>
-                  YOUR WORKOUTS
-                </Text>
-              </View>
-            </View>
-          </View>
+          <Text style={styles.categoryBadge}>PROGRESS</Text>
+          <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
+            YOUR WORKOUTS
+          </Text>
         </View>
 
-        {/* Tab Selection Filter (Pills matching progress.tsx pattern) */}
-        <View style={styles.tabContainer}>
+        <View style={styles.segment}>
           {(["TODAY", "WEEK", "MONTH"] as TabType[]).map((tab) => {
             const isActive = activeTab === tab;
             return (
-              <Pressable
+              <TouchableOpacity
                 key={tab}
-                style={styles.tabButton}
+                activeOpacity={0.8}
+                style={[styles.segmentItem, isActive && styles.segmentItemActive]}
                 onPress={() => handleTabChange(tab)}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: isActive }}
               >
-                {isActive ? (
-                  <LinearGradient
-                    colors={["#00f2fe", "#4facfe"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.tabActiveGradient}
-                  >
-                    <Text style={styles.tabTextActive}>{tab}</Text>
-                  </LinearGradient>
-                ) : (
-                  <View style={styles.tabInactiveInner}>
-                    <Text style={styles.tabTextInactive}>{tab}</Text>
-                  </View>
-                )}
-              </Pressable>
+                <Text style={[styles.segmentText, isActive && styles.segmentTextActive]}>
+                  {tab}
+                </Text>
+              </TouchableOpacity>
             );
           })}
         </View>
 
-        {/* Recent Activity Label */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>RECENT ACTIVITY</Text>
-          <View style={styles.sectionLine} />
-        </View>
-
-        {/* Workout Summary Card (styles.card from progress.tsx) */}
+        {/* Summary */}
         <View style={styles.card}>
-          {/* Card Header Row with Goal Ring */}
-          <View style={styles.summaryHeaderRow}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.summaryTitle}>
-                {activeTab === "TODAY"
-                  ? "Today's Workout Summary"
-                  : activeTab === "WEEK"
-                    ? "Weekly Workout Summary"
-                    : "Monthly Workout Summary"}
-              </Text>
-              <Text style={styles.summarySub}>
-                Aggregated output & energy telemetry
-              </Text>
+          <LinearGradient
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <View style={styles.summaryRow}>
+            <View style={styles.summaryCopy}>
+              <Text style={styles.kicker}>{periodLabel}</Text>
+              <View style={styles.timeRow}>
+                <Clock size={16} color={ACCENT} strokeWidth={2.4} />
+                <Text style={styles.timeValue}>{statById("time")}</Text>
+              </View>
+              <Text style={styles.timeCaption}>Active training time</Text>
             </View>
 
-            {/* Circular Goal Badge */}
-            <View style={styles.goalBadgeContainer}>
+            <View style={styles.goalRing}>
               <Svg width={circleSize} height={circleSize}>
+                <Defs>
+                  <SvgGradient id="goalRing" x1="0" y1="0" x2="1" y2="1">
+                    <Stop offset="0" stopColor="#7DD3FC" />
+                    <Stop offset="1" stopColor="#6366F1" />
+                  </SvgGradient>
+                </Defs>
                 <Circle
                   cx={circleSize / 2}
                   cy={circleSize / 2}
                   r={radius}
-                  stroke="rgba(255, 255, 255, 0.08)"
+                  stroke="rgba(148,163,184,0.14)"
                   strokeWidth={strokeWidth}
                   fill="none"
                 />
@@ -323,92 +339,140 @@ export default function YourWorkoutsScreen() {
                   cx={circleSize / 2}
                   cy={circleSize / 2}
                   r={radius}
-                  stroke="#2DD4BF"
+                  stroke="url(#goalRing)"
                   strokeWidth={strokeWidth}
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}
                   strokeLinecap="round"
                   fill="none"
-                  rotation="-90"
-                  origin={`${circleSize / 2}, ${circleSize / 2}`}
+                  transform={`rotate(-90 ${circleSize / 2} ${circleSize / 2})`}
                 />
               </Svg>
               <View style={styles.goalTextContainer}>
-                <Text style={styles.goalPercent}>
-                  {Math.round(progressPercent * 100)}%
-                </Text>
+                <Text style={styles.goalPercent}>{Math.round(progressPercent * 100)}%</Text>
                 <Text style={styles.goalSub}>GOAL</Text>
               </View>
             </View>
           </View>
 
-          {/* 6-Grid Stats */}
           <View style={styles.statsGrid}>
-            {currentStats.map((item) => (
-              <View key={item.id} style={styles.statTile}>
-                <View style={styles.statTopRow}>
-                  <View
-                    style={[
-                      styles.statIconBadge,
-                      { backgroundColor: item.iconBg },
-                    ]}
-                  >
-                    {item.icon}
-                  </View>
+            {gridStats.map(({ id, label, Icon }) => (
+              <View key={id} style={styles.statTile}>
+                <View style={styles.iconChip}>
+                  <Icon size={14} color={ACCENT} strokeWidth={2.4} />
                 </View>
-                <Text style={styles.statValue}>{item.value}</Text>
-                <Text style={styles.statLabel}>{item.label}</Text>
+                <View style={styles.statCopy}>
+                  <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>
+                    {statById(id)}
+                  </Text>
+                  <Text style={styles.statLabel}>{label}</Text>
+                </View>
               </View>
             ))}
           </View>
         </View>
 
-        {/* Milestone Section Header */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>MILESTONE ACHIEVED</Text>
-          <View style={styles.sectionLine} />
-        </View>
-
-        {/* MILESTONE Card (progress.tsx styles.card format) */}
+        {/* Milestone */}
         <View style={styles.card}>
-          <View style={styles.milestoneHeader}>
-            <View style={styles.colIconBadge}>
-              <Trophy color="#FFB68C" size={16} />
+          <LinearGradient
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <View style={styles.milestoneLabelRow}>
+            <View style={styles.cardIconChip}>
+              <Trophy size={14} color={ACCENT} strokeWidth={2.4} />
             </View>
-            <View style={{ flex: 1, marginLeft: 10 }}>
-              <Text style={styles.milestoneTag}>REPLOOT RECORD</Text>
-              <Text style={styles.milestoneMainTitle}>TOTAL WORKOUTS</Text>
-            </View>
-            <Text style={styles.milestoneNumber}>127</Text>
+            <Text style={styles.milestoneLabel}>ALL-TIME RECORD</Text>
           </View>
 
-          {/* AI Generated Victory Artwork Container */}
-          <View style={styles.milestoneImageContainer}>
-            <Image
-              source={require("../assets/workout/milestone-celebrate.jpg")}
-              style={styles.milestoneImage}
-              contentFit="cover"
-            />
+          {/* Live preview of the exact image that gets shared */}
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={handleShare}
+            accessibilityRole="button"
+            accessibilityLabel={`Milestone card: ${totalWorkouts} workouts. Tap to share.`}
+            style={{
+              width: PREVIEW_WIDTH,
+              height: SHARE_CARD_HEIGHT * PREVIEW_SCALE,
+              alignSelf: "center",
+            }}
+          >
+            <View
+              pointerEvents="none"
+              style={{
+                position: "absolute",
+                left: (PREVIEW_WIDTH - SHARE_CARD_WIDTH) / 2,
+                top: (SHARE_CARD_HEIGHT * PREVIEW_SCALE - SHARE_CARD_HEIGHT) / 2,
+                transform: [{ scale: PREVIEW_SCALE }],
+              }}
+            >
+              <MilestoneShareCard
+                dateLabel={shareDate}
+                total={totalWorkouts}
+                periodLabel={periodLabel}
+                stats={{
+                  time: statById("time"),
+                  calories: statById("calories"),
+                  xp: statById("earned").replace(/\s*XP$/i, ""),
+                  accuracy: statById("accuracy"),
+                }}
+              />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.85}
+            style={styles.primaryBtn}
+            onPress={handleShare}
+            accessibilityRole="button"
+            accessibilityLabel="Share achievement"
+          >
             <LinearGradient
-              colors={["transparent", "rgba(15, 23, 42, 0.4)"]}
+              colors={BUTTON_GRADIENT}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
               style={StyleSheet.absoluteFill}
             />
-          </View>
-
-          {/* Share Achievement CTA (startWorkoutBtn pattern) */}
-          <Pressable style={styles.shareWorkoutBtn} onPress={handleShare}>
             <LinearGradient
-              colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={styles.shareWorkoutGradient}
-            >
-              <Share2 color="#FFFFFF" size={16} style={{ marginRight: 8 }} />
-              <Text style={styles.shareWorkoutText}>SHARE ACHIEVEMENT</Text>
-            </LinearGradient>
-          </Pressable>
+              colors={SHEEN}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={styles.primarySheen}
+              pointerEvents="none"
+            />
+            <View>
+              <Share2 color="#FFFFFF" size={15} strokeWidth={2.4} />
+            </View>
+            <Text style={styles.primaryBtnText}>SHARE ACHIEVEMENT</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <ShareImageSheet
+        visible={shareOpen}
+        onClose={() => setShareOpen(false)}
+        title="Your milestone card"
+        shareText={shareText}
+        filename="reploot-milestone"
+        renderCard={(ref, theme) => (
+          <MilestoneShareCard
+            ref={ref}
+            theme={theme}
+            dateLabel={shareDate}
+            total={totalWorkouts}
+            periodLabel={periodLabel}
+            stats={{
+              time: statById("time"),
+              calories: statById("calories"),
+              xp: statById("earned").replace(/\s*XP$/i, ""),
+              accuracy: statById("accuracy"),
+            }}
+          />
+        )}
+      />
     </View>
   );
 }
@@ -416,7 +480,7 @@ export default function YourWorkoutsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#090A10",
+    backgroundColor: "#060810",
   },
   scrollContainer: {
     paddingHorizontal: 20,
@@ -424,152 +488,110 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     marginTop: 4,
-    marginBottom: 18,
+    marginBottom: 16,
+    gap: 4,
   },
-  maskedTitleWrapper: {
-    height: 44,
-    width: "100%",
-    justifyContent: "center",
-  },
-  maskedTitleView: {
-    flex: 1,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "flex-start",
-  },
-  gradient: {
-    flex: 1,
+  categoryBadge: {
+    ...typography.overline,
+    fontSize: 11,
+    lineHeight: 16,
+    color: ACCENT_SOFT,
   },
   mainTitle: {
     ...typography.pageTitle,
-    color: "#FFFFFF",
-  },
-  subtitle: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "600",
-    marginTop: 4,
+    color: "#F6F8FF",
   },
 
-  /* Segment Tabs */
-  tabContainer: {
+  segment: {
     flexDirection: "row",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    borderRadius: 14,
-    padding: 3,
-    marginBottom: 20,
+    gap: 4,
+    padding: 4,
+    borderRadius: 16,
+    marginBottom: 14,
+    backgroundColor: "rgba(17,26,37,0.8)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
+    borderColor: "rgba(56,189,248,0.14)",
   },
-  tabButton: {
+  segmentItem: {
     flex: 1,
     height: 36,
-    borderRadius: 11,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  segmentItemActive: {
+    backgroundColor: "rgba(56,189,248,0.16)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.4)",
+  },
+  segmentText: {
+    ...typography.badge,
+    color: "#7C8BA1",
+  },
+  segmentTextActive: {
+    color: ACCENT_SOFT,
+  },
+
+  card: {
+    backgroundColor: "#111A25",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.18)",
+    padding: 16,
+    gap: 14,
+    marginBottom: 14,
     overflow: "hidden",
   },
-  tabInactiveInner: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  tabActiveGradient: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 11,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  tabTextActive: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  tabTextInactive: {
-    color: "#64748B",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+  kicker: {
+    ...typography.overline,
+    color: ACCENT_SOFT,
   },
 
-  /* Section Header */
-  sectionHeader: {
+  // Summary
+  summaryRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 4,
-    marginBottom: 14,
+    gap: 12,
   },
-  sectionTitle: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-  sectionLine: {
+  summaryCopy: {
     flex: 1,
-    height: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    marginLeft: 12,
+    gap: 2,
   },
-
-  /* Card Container */
-  card: {
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 18,
-    marginBottom: 20,
-  },
-
-  /* Summary Card Inner */
-  summaryHeaderRow: {
+  timeRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 18,
+    gap: 8,
   },
-  summaryTitle: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "800",
-    letterSpacing: 0.5,
-    marginBottom: 3,
+  timeValue: {
+    ...typography.metricLarge,
+    color: "#F8FAFC",
   },
-  summarySub: {
-    color: "#64748B",
-    fontSize: 10,
+  timeCaption: {
+    ...typography.caption,
+    color: "#8B9AB0",
   },
-  goalBadgeContainer: {
-    width: 52,
-    height: 52,
-    justifyContent: "center",
+  goalRing: {
+    width: circleSizeStyle,
+    height: circleSizeStyle,
     alignItems: "center",
+    justifyContent: "center",
   },
   goalTextContainer: {
-    position: "absolute",
+    ...StyleSheet.absoluteFill,
     alignItems: "center",
     justifyContent: "center",
   },
   goalPercent: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "700",
+    ...typography.cardTitle,
+    fontSize: 16,
+    lineHeight: 20,
+    color: "#F8FAFC",
   },
   goalSub: {
-    color: "#94A3B8",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    ...typography.microTag,
+    color: "#7C8BA1",
+    letterSpacing: 0.6,
   },
-
-  /* Stats Grid */
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -577,101 +599,82 @@ const styles = StyleSheet.create({
     rowGap: 10,
   },
   statTile: {
-    width: "48%",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
-    padding: 12,
-  },
-  statTopRow: {
-    marginBottom: 10,
-  },
-  statIconBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    justifyContent: "center",
+    width: "48.5%",
+    flexDirection: "row",
     alignItems: "center",
+    gap: 10,
+    padding: 12,
+    borderRadius: 18,
+    backgroundColor: "rgba(6,8,16,0.45)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.12)",
+  },
+  iconChip: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
+  },
+  statCopy: {
+    flex: 1,
+    minWidth: 0,
   },
   statValue: {
-    color: "#FFFFFF",
-    fontSize: 20,
-    fontWeight: "800",
-    marginBottom: 2,
-    letterSpacing: -0.3,
+    ...typography.cardTitle,
+    fontSize: 18,
+    lineHeight: 22,
+    color: "#F8FAFC",
   },
   statLabel: {
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+    ...typography.microTag,
+    color: "#7C8BA1",
+    letterSpacing: 0.6,
   },
 
-  /* Milestone Header */
-  milestoneHeader: {
+  // Milestone
+  milestoneLabelRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    gap: 10,
   },
-  colIconBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: "rgba(255, 182, 140, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 182, 140, 0.25)",
-    justifyContent: "center",
+  cardIconChip: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: "center",
-  },
-  milestoneTag: {
-    color: "#FFB68C",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    marginBottom: 2,
-  },
-  milestoneMainTitle: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "800",
-    letterSpacing: 0.8,
-  },
-  milestoneNumber: {
-    color: "#38BDF8",
-    fontSize: 32,
-    fontWeight: "800",
-    letterSpacing: -1,
-  },
-  milestoneImageContainer: {
-    width: "100%",
-    height: 260,
-    borderRadius: 16,
-    overflow: "hidden",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.25)",
-    marginBottom: 16,
+    borderColor: "rgba(56,189,248,0.22)",
   },
-  milestoneImage: {
-    width: "100%",
-    height: "100%",
+  milestoneLabel: {
+    ...typography.sectionTitle,
+    color: "#E5EEF8",
   },
 
-  /* CTA Button */
-  shareWorkoutBtn: {
+  primaryBtn: {
+    height: 50,
     borderRadius: 16,
     overflow: "hidden",
-  },
-  shareWorkoutGradient: {
-    paddingVertical: 14,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 8,
   },
-  shareWorkoutText: {
+  primarySheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
+  },
+  primaryBtnText: {
+    ...typography.button,
+    letterSpacing: 1,
     color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
   },
 });
