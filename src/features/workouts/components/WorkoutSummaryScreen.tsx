@@ -30,6 +30,29 @@ import {
   ShareCardTheme,
   WorkoutShareCard,
 } from "./WorkoutShareCard";
+// Type-only: erased at build time, so the native module still loads lazily.
+import type { Social as RNSocial } from "react-native-share";
+import {
+  SHARE_TARGET_LABELS,
+  ShareTarget,
+  ShareTargetIcon,
+} from "./ShareTargetIcon";
+
+const SHARE_TARGETS: ShareTarget[] = [
+  "instagram",
+  "whatsapp",
+  "messenger",
+  "facebook",
+  "more",
+];
+
+/** Android package names, used to check the app is installed first. */
+const ANDROID_PACKAGES: Partial<Record<ShareTarget, string>> = {
+  instagram: "com.instagram.android",
+  whatsapp: "com.whatsapp",
+  messenger: "com.facebook.orca",
+  facebook: "com.facebook.katana",
+};
 import {
   ActivityIndicator,
   Modal,
@@ -228,7 +251,8 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
   const shareCardRef = useRef<View>(null);
   const [shareOpen, setShareOpen] = useState(false);
   const [shareTheme, setShareTheme] = useState<ShareCardTheme>("midnight");
-  const [isExporting, setIsExporting] = useState(false);
+  const [busyTarget, setBusyTarget] = useState<ShareTarget | null>(null);
+  const [shareNotice, setShareNotice] = useState<string | null>(null);
   const previewScale = Math.min(1, (windowWidth - 48) / SHARE_CARD_WIDTH);
   const shareText = `Just finished ${workoutTitle} — score ${score}, ${accuracy}% form, ${caloriesBurned} kcal in ${durationFormatted}. Tracked with REPLOOT.`;
 
@@ -236,51 +260,115 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     }
+    setShareNotice(null);
     setShareOpen(true);
   };
 
-  const handleExportImage = async () => {
-    if (isExporting) return;
-    setIsExporting(true);
+  const isCancel = (error: unknown) =>
+    /cancel|did not share|dismiss/i.test(String((error as Error)?.message ?? error));
+
+  const shareTo = async (target: ShareTarget) => {
+    if (busyTarget) return;
+    setBusyTarget(target);
+    setShareNotice(null);
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    }
+
     try {
       if (Platform.OS === "web" || !shareCardRef.current) {
         await Share.share({ message: shareText });
         return;
       }
-      // Loaded on demand so a build without these native modules can't crash
-      // the screen; it falls back to a text share instead.
-      let Sharing: typeof import("expo-sharing");
+
+      // Native modules are loaded on demand: a build without them falls back
+      // to a plain text share instead of crashing the screen.
       let captureRef: typeof import("react-native-view-shot").captureRef;
+      let Sharing: typeof import("expo-sharing") | null = null;
+      let RNShare: typeof import("react-native-share") | null = null;
       try {
-        Sharing = require("expo-sharing");
         captureRef = require("react-native-view-shot").captureRef;
       } catch {
         await Share.share({ message: shareText });
         return;
       }
-      const uri = await captureRef(shareCardRef, {
+      try {
+        Sharing = require("expo-sharing");
+      } catch {}
+      try {
+        RNShare = require("react-native-share");
+      } catch {}
+
+      const captured = await captureRef(shareCardRef, {
         format: "png",
         quality: 1,
         width: 1080,
         height: 1350,
         result: "tmpfile",
       });
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(uri, {
-          mimeType: "image/png",
-          dialogTitle: "Share your workout",
-          UTI: "public.png",
-        });
-      } else {
-        await Share.share({ url: uri, message: shareText });
+      const fileUri = captured.startsWith("file://") ? captured : `file://${captured}`;
+
+      const openSystemSheet = async () => {
+        if (Sharing && (await Sharing.isAvailableAsync())) {
+          await Sharing.shareAsync(fileUri, {
+            mimeType: "image/png",
+            dialogTitle: "Share your workout",
+            UTI: "public.png",
+          });
+        } else if (RNShare) {
+          await RNShare.default.open({ url: fileUri, type: "image/png", message: shareText });
+        } else {
+          await Share.share({ url: fileUri, message: shareText });
+        }
+      };
+
+      if (target === "more" || !RNShare) {
+        await openSystemSheet();
+        return;
       }
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
-        () => {},
-      );
-    } catch {
-      // User cancelled or capture failed: keep the sheet open.
+
+      const pkg = ANDROID_PACKAGES[target];
+      if (Platform.OS === "android" && pkg) {
+        const { isInstalled } = await RNShare.default.isPackageInstalled(pkg);
+        if (!isInstalled) {
+          setShareNotice(`${SHARE_TARGET_LABELS[target]} isn't installed — pick another app.`);
+          await openSystemSheet();
+          return;
+        }
+      }
+
+      const { Social } = RNShare;
+      const socialByTarget: Record<
+        Exclude<ShareTarget, "more">,
+        Exclude<RNSocial, RNSocial.FacebookStories | RNSocial.InstagramStories>
+      > = {
+        instagram: Social.Instagram as RNSocial.Instagram,
+        whatsapp: Social.Whatsapp as RNSocial.Whatsapp,
+        messenger: Social.Messenger as RNSocial.Messenger,
+        facebook: Social.Facebook as RNSocial.Facebook,
+      };
+      const social = socialByTarget[target];
+
+      try {
+        await RNShare.default.shareSingle({
+          social,
+          url: fileUri,
+          type: "image/png",
+          filename: "reploot-workout",
+          // Chat apps keep the caption; Instagram and Facebook ignore it.
+          message: target === "whatsapp" || target === "messenger" ? shareText : undefined,
+        });
+      } catch (error) {
+        if (isCancel(error)) return;
+        setShareNotice(`Couldn't open ${SHARE_TARGET_LABELS[target]} — pick another app.`);
+        await openSystemSheet();
+      }
+    } catch (error) {
+      if (!isCancel(error)) {
+        setShareNotice("Couldn't create the image. Please try again.");
+      }
     } finally {
-      setIsExporting(false);
+      setBusyTarget(null);
     }
   };
 
@@ -646,38 +734,45 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
               })}
             </View>
 
-            <TouchableOpacity
-              activeOpacity={0.85}
-              style={styles.primaryBtn}
-              onPress={handleExportImage}
-              disabled={isExporting}
-              accessibilityRole="button"
-              accessibilityLabel="Share workout image"
-            >
-              <LinearGradient
-                colors={BUTTON_GRADIENT}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={StyleSheet.absoluteFill}
-              />
-              <LinearGradient
-                colors={SHEEN}
-                start={{ x: 0.5, y: 0 }}
-                end={{ x: 0.5, y: 1 }}
-                style={styles.primarySheen}
-                pointerEvents="none"
-              />
-              {isExporting ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <>
-                  <View>
-                    <Share2 size={15} color="#FFFFFF" strokeWidth={2.4} />
-                  </View>
-                  <Text style={styles.primaryBtnText}>SHARE IMAGE</Text>
-                </>
-              )}
-            </TouchableOpacity>
+            <View style={styles.targetsBlock}>
+              <Text style={styles.targetsLabel}>SHARE TO</Text>
+              <View style={styles.targetsRow}>
+                {SHARE_TARGETS.map((target) => {
+                  const busy = busyTarget === target;
+                  return (
+                    <TouchableOpacity
+                      key={target}
+                      activeOpacity={0.75}
+                      onPress={() => shareTo(target)}
+                      disabled={busyTarget !== null}
+                      style={[styles.target, busyTarget && !busy && styles.targetDimmed]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Share to ${SHARE_TARGET_LABELS[target]}`}
+                    >
+                      <View>
+                        <ShareTargetIcon target={target} />
+                        {busy ? (
+                          <View style={styles.targetBusy}>
+                            <ActivityIndicator color="#FFFFFF" size="small" />
+                          </View>
+                        ) : null}
+                      </View>
+                      <Text
+                        style={styles.targetText}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.85}
+                      >
+                        {SHARE_TARGET_LABELS[target]}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              {shareNotice ? (
+                <Text style={styles.shareNotice}>{shareNotice}</Text>
+              ) : null}
+            </View>
           </View>
         </View>
       </Modal>
@@ -1104,5 +1199,40 @@ const styles = StyleSheet.create({
   },
   themeTextActive: {
     color: ACCENT_SOFT,
+  },
+  targetsBlock: {
+    gap: 10,
+  },
+  targetsLabel: {
+    ...typography.overline,
+    color: "#7C8BA1",
+  },
+  targetsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  target: {
+    width: 64,
+    alignItems: "center",
+    gap: 6,
+  },
+  targetDimmed: {
+    opacity: 0.45,
+  },
+  targetBusy: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: 26,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(5,7,14,0.55)",
+  },
+  targetText: {
+    ...typography.caption,
+    color: "#CBD5E1",
+  },
+  shareNotice: {
+    ...typography.caption,
+    color: "#FCA5A5",
+    textAlign: "center",
   },
 });

@@ -43,6 +43,18 @@
       ],
       "expo-splash-screen",
       "expo-sharing",
+      [
+        "react-native-share",
+        {
+          "ios": ["instagram", "whatsapp", "fb", "fb-messenger"],
+          "android": [
+            "com.instagram.android",
+            "com.whatsapp",
+            "com.facebook.katana",
+            "com.facebook.orca"
+          ]
+        }
+      ],
       "expo-build-properties"
     ],
     "extra": {
