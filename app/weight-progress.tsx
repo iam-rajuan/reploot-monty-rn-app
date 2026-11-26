@@ -1,22 +1,21 @@
 import { WorkoutHeader } from "@/features/workouts";
 import { useProfileSetupStore } from "@/features/profile-onboarding/store/profileSetupStore";
 import * as Haptics from "expo-haptics";
-import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
-  Calendar,
   Activity,
-  Flame,
+  LineChart,
+  Minus,
   Plus,
   Ruler,
   Scale,
   Sparkles,
   Target,
   TrendingDown,
+  TrendingUp,
   X,
-  Zap,
 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
@@ -24,8 +23,8 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Text, TextInput } from "@/shared/components/typography";
@@ -34,18 +33,26 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, {
   Circle,
   Defs,
-  G,
   Line as SvgLine,
   LinearGradient as SvgLinearGradient,
   Path,
   Stop,
-  Text as SvgText,
 } from "react-native-svg";
 import { typography } from "@/theme/typography";
-import { fontFamilies } from "@/theme/fonts";
 import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
 const { width } = Dimensions.get("window");
+
+// One accent for the whole page.
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.06)",
+  "rgba(255,255,255,0.02)",
+] as const;
 
 type TabType = "WEEKLY" | "MONTHLY" | "3 MONTHS";
 
@@ -70,10 +77,10 @@ export default function WeightProgressScreen() {
     bmi < 18.5
       ? "BELOW RANGE"
       : bmi < 25
-        ? "HEALTHY RANGE"
+        ? "HEALTHY"
         : bmi < 30
           ? "ABOVE RANGE"
-          : "HIGH RANGE";
+          : "HIGH";
 
   // Modal for logging new weight
   const [isLogModalVisible, setIsLogModalVisible] = useState(false);
@@ -127,59 +134,65 @@ export default function WeightProgressScreen() {
     ],
     "3 MONTHS": [
       { label: "MONTH 1", weight: 77.2 },
-      { label: "MONTH 2", weight: 74.8 },
-      { label: "MONTH 3", weight: currentWeight },
-      { label: "CURRENT", weight: currentWeight },
+      { label: "MONTH 2", weight: 75.9 },
+      { label: "MONTH 3", weight: 74.0 },
+      { label: "NOW", weight: currentWeight },
     ],
   };
 
   const currentPoints = trendData[selectedTab];
+  const monthStart = trendData.MONTHLY[0].weight;
+  const monthChange = currentWeight - monthStart;
+  const goalProgress = Math.max(
+    0,
+    Math.min(1, (monthStart - currentWeight) / Math.max(0.1, monthStart - targetWeight)),
+  );
+  const activePoint = selectedPointIndex ?? currentPoints.length - 1;
 
-  // Graph dimensions
-  const graphWidth = width - 80;
-  const graphHeight = 130;
+  // Graph dimensions (card padding 16 + page padding 20 on each side)
+  const graphWidth = width - 72;
+  const graphHeight = 140;
+  const padX = 14;
+  const padTop = 30;
+  const padBottom = 14;
 
-  // Compute SVG curve points from data
-  const minW = Math.min(...currentPoints.map((p) => p.weight)) - 0.8;
-  const maxW = Math.max(...currentPoints.map((p) => p.weight)) + 0.8;
+  const minW = Math.min(...currentPoints.map((p) => p.weight)) - 0.6;
+  const maxW = Math.max(...currentPoints.map((p) => p.weight)) + 0.6;
   const range = maxW - minW || 1;
 
   const pts = currentPoints.map((p, idx) => {
-    const x = 16 + (idx / (currentPoints.length - 1)) * (graphWidth - 32);
-    const normalized = (p.weight - minW) / range;
-    const y = 25 + (1 - normalized) * (graphHeight - 55);
+    const x = padX + (idx / (currentPoints.length - 1)) * (graphWidth - padX * 2);
+    const y = padTop + (1 - (p.weight - minW) / range) * (graphHeight - padTop - padBottom);
     return { x, y };
   });
 
-  // Dynamically compute smooth Bezier curve through all points
   const curvePath = pts.reduce((acc, point, i, arr) => {
     if (i === 0) return `M ${point.x} ${point.y}`;
     const prev = arr[i - 1];
-    const cp1x = prev.x + (point.x - prev.x) / 2;
-    const cp1y = prev.y;
-    const cp2x = prev.x + (point.x - prev.x) / 2;
-    const cp2y = point.y;
-    return `${acc} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${point.x} ${point.y}`;
+    const midX = prev.x + (point.x - prev.x) / 2;
+    return `${acc} C ${midX} ${prev.y}, ${midX} ${point.y}, ${point.x} ${point.y}`;
   }, "");
+  const areaPath = `${curvePath} L ${pts[pts.length - 1].x} ${graphHeight} L ${pts[0].x} ${graphHeight} Z`;
+  const tipX = Math.max(34, Math.min(pts[activePoint].x, graphWidth - 34));
 
-  const lastPt = pts[pts.length - 1];
-  const firstPt = pts[0];
-  const areaPath = `${curvePath} L ${lastPt.x} ${graphHeight} L ${firstPt.x} ${graphHeight} Z`;
+  const adjustInput = (delta: number) => {
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+    const base = parseFloat(inputWeight);
+    const next = (isNaN(base) ? currentWeight : base) + delta;
+    setInputWeight(Math.max(30, Math.min(300, next)).toFixed(1));
+  };
 
   return (
     <View style={styles.screen}>
       <ScreenBackground />
       <StatusBar style="light" />
 
-      {/* Unified WorkoutHeader with back button enabled */}
       <WorkoutHeader
         transparent={true}
         showBackButton={true}
         onPressBack={() => {
           triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-          router.canGoBack()
-            ? router.back()
-            : router.replace("/(tabs)/progress");
+          router.canGoBack() ? router.back() : router.replace("/(tabs)/progress");
         }}
       />
 
@@ -187,332 +200,282 @@ export default function WeightProgressScreen() {
         bottomOffset={16}
         contentContainerStyle={[
           styles.scrollContainer,
-          { paddingBottom: Math.max(insets.bottom + 140, 160) },
+          { paddingBottom: Math.max(insets.bottom + 28, 40) },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title Section with Masked Gradient Title (Exact progress.tsx pattern) */}
         <View style={styles.titleSection}>
-          <View style={styles.maskedTitleWrapper}>
-            <View style={styles.maskedTitleView}>
-              <View style={styles.maskWrapper}>
-                <Text style={[styles.mainTitle, { color: "#F6F8FF" }]} numberOfLines={1}>
-                  BODY METRICS
-                </Text>
-              </View>
-            </View>
-          </View>
+          <Text style={styles.categoryBadge}>PROGRESS</Text>
+          <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
+            BODY METRICS
+          </Text>
         </View>
 
-        {/* Current Weight Card (Exact progress.tsx styles.card pattern) */}
+        {/* Current weight */}
         <View style={styles.card}>
-          <View style={styles.levelHeaderRow}>
-            {/* <View style={styles.sparkleBadge}>
-              <Scale color="#38BDF8" size={22} />
-            </View> */}
-            <View style={styles.levelInfoCol}>
-              <Text style={styles.statusLabel}>CURRENT WEIGHT</Text>
-              <View style={styles.weightNumberRow}>
-                <Text style={styles.levelMainText}>
-                  {currentWeight.toFixed(1)}
-                </Text>
-                <Text style={styles.weightUnit}>KG</Text>
+          <LinearGradient
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <View style={styles.cardHeader}>
+            <View style={styles.cardHeaderLeft}>
+              <View style={styles.iconChip}>
+                <Scale size={14} color={ACCENT} strokeWidth={2.4} />
               </View>
+              <Text style={styles.sectionLabel}>CURRENT WEIGHT</Text>
             </View>
-          </View>
-
-          <View style={styles.bodyMetricsRow}>
-            <View style={styles.bodyMetricCard}>
-              <View style={styles.bodyMetricHeader}>
-                <Ruler size={14} color="#38BDF8" strokeWidth={2.2} />
-                <Text style={styles.bodyMetricLabel}>HEIGHT</Text>
-              </View>
-              <View style={styles.bodyMetricValueRow}>
-                <Text style={styles.bodyMetricValue}>{heightCm}</Text>
-                <Text style={styles.bodyMetricUnit}>CM</Text>
-              </View>
-              <Text style={styles.bodyMetricHint}>PROFILE MEASUREMENT</Text>
-            </View>
-
-            <View style={[styles.bodyMetricCard, styles.bmiMetricCard]}>
-              <View style={styles.bodyMetricHeader}>
-                <Activity size={14} color="#2DD4BF" strokeWidth={2.2} />
-                <Text style={styles.bodyMetricLabel}>BODY MASS INDEX</Text>
-              </View>
-              <View style={styles.bodyMetricValueRow}>
-                <Text style={[styles.bodyMetricValue, styles.bmiMetricValue]}>
-                  {bmi.toFixed(1)}
-                </Text>
-                <Text style={styles.bodyMetricUnit}>BMI</Text>
-              </View>
-              <Text style={styles.bmiStatus}>{bmiStatus}</Text>
-            </View>
-          </View>
-
-          {/* Sub Metrics: Target and Remaining in card */}
-          <View style={styles.prProgressRowFull}>
-            <View style={styles.metricSubCol}>
-              <View style={styles.inlineIconLabel}>
-                <Target size={12} color="#64748B" style={{ marginRight: 5 }} />
-                <Text style={styles.prProgressLabel}>TARGET</Text>
-              </View>
-              <Text style={styles.targetNumber}>
-                {targetWeight.toFixed(1)}{" "}
-                <Text style={styles.unitSmall}>kg</Text>
-              </Text>
-            </View>
-
-            <View style={[styles.metricSubCol, { alignItems: "flex-end" }]}>
-              <View style={styles.inlineIconLabel}>
-                <Flame size={12} color="#FFB68C" style={{ marginRight: 5 }} />
-                <Text style={styles.prProgressLabel}>REMAINING</Text>
-              </View>
-              <Text style={styles.remainingNumber}>
-                {remainingWeight.toFixed(1)}{" "}
-                <Text style={styles.unitSmall}>kg</Text>
+            <View style={styles.pill}>
+              {monthChange <= 0 ? (
+                <TrendingDown size={11} color={ACCENT_SOFT} strokeWidth={2.6} />
+              ) : (
+                <TrendingUp size={11} color={ACCENT_SOFT} strokeWidth={2.6} />
+              )}
+              <Text style={styles.pillText}>
+                {monthChange <= 0 ? "−" : "+"}
+                {Math.abs(monthChange).toFixed(1)} KG
               </Text>
             </View>
           </View>
 
-          {/* XP-Style Progress Bar */}
-          <View style={styles.progressContainer}>
+          <View style={styles.weightRow}>
+            <Text style={styles.weightValue}>{currentWeight.toFixed(1)}</Text>
+            <Text style={styles.weightUnit}>KG</Text>
+          </View>
+
+          <View style={styles.goalBlock}>
             <View style={styles.progressBarBg}>
               <LinearGradient
-                colors={["#00f2fe", "#4facfe", "#2DD4BF"]}
+                colors={["#6366F1", "#4F9DFB", "#38BDF8"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                style={[StyleSheet.absoluteFill, { width: "72%" }]}
+                style={[styles.progressBarFill, { width: `${Math.max(4, goalProgress * 100)}%` }]}
               />
             </View>
-            <View style={styles.xpRow}>
-              <View style={styles.xpLeftCol}>
-                <Text style={styles.xpValue}>72.4</Text>
-                <Text style={styles.xpTotal}> / 68.0 KG</Text>
-              </View>
-              <View style={styles.xpRightCol}>
-                <Zap size={11} color="#2DD4BF" style={{ marginRight: 4 }} />
-                <Text style={styles.xpNotice}>4.4 KG TO GOAL</Text>
+            <View style={styles.goalLabels}>
+              <Text style={styles.goalLabel}>
+                START <Text style={styles.goalLabelStrong}>{monthStart.toFixed(1)}</Text>
+              </Text>
+              <View style={styles.goalRemaining}>
+                <Target size={11} color={ACCENT_SOFT} strokeWidth={2.6} />
+                <Text style={styles.goalRemainingText}>
+                  {remainingWeight > 0
+                    ? `${remainingWeight.toFixed(1)} KG TO GOAL`
+                    : "GOAL REACHED"}
+                </Text>
               </View>
             </View>
           </View>
         </View>
 
-        {/* Weight Trend Chart Card (styles.card) */}
-        <View style={styles.card}>
-          <View style={styles.prHeaderFull}>
-            {/* <Image
-              source={require("../assets/progressSparkle.svg")}
-              style={{ width: 36, height: 36 }}
-              contentFit="contain"
-            /> */}
-            <View style={styles.prTitleCol}>
-              <Text style={styles.prCardTitle}>WEIGHT TREND</Text>
-              <Text style={styles.prCardSub}>
-                Metabolic regression & curve telemetry
-              </Text>
+        {/* Height · BMI · Target */}
+        <View style={styles.statsRow}>
+          <View style={styles.statTile}>
+            <View style={styles.iconChipSm}>
+              <Ruler size={13} color={ACCENT} strokeWidth={2.4} />
             </View>
+            <View style={styles.statValueRow}>
+              <Text style={styles.statValue}>{heightCm}</Text>
+              <Text style={styles.statUnit}>CM</Text>
+            </View>
+            <Text style={styles.statLabel}>HEIGHT</Text>
           </View>
 
-          {/* Segment Filter Tabs */}
-          <View style={styles.tabContainer}>
+          <View style={styles.statTile}>
+            <View style={styles.iconChipSm}>
+              <Activity size={13} color={ACCENT} strokeWidth={2.4} />
+            </View>
+            <View style={styles.statValueRow}>
+              <Text style={styles.statValue}>{bmi.toFixed(1)}</Text>
+              <Text style={styles.statUnit}>BMI</Text>
+            </View>
+            <Text style={[styles.statLabel, styles.statLabelAccent]} numberOfLines={1}>
+              {bmiStatus}
+            </Text>
+          </View>
+
+          <View style={styles.statTile}>
+            <View style={styles.iconChipSm}>
+              <Target size={13} color={ACCENT} strokeWidth={2.4} />
+            </View>
+            <View style={styles.statValueRow}>
+              <Text style={styles.statValue}>{targetWeight.toFixed(1)}</Text>
+              <Text style={styles.statUnit}>KG</Text>
+            </View>
+            <Text style={styles.statLabel}>TARGET</Text>
+          </View>
+        </View>
+
+        {/* Trend */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <View style={styles.cardHeaderLeft}>
+            <View style={styles.iconChip}>
+              <LineChart size={14} color={ACCENT} strokeWidth={2.4} />
+            </View>
+            <Text style={styles.sectionLabel}>WEIGHT TREND</Text>
+          </View>
+
+          <View style={styles.segment}>
             {(["WEEKLY", "MONTHLY", "3 MONTHS"] as TabType[]).map((tab) => {
               const isActive = selectedTab === tab;
               return (
-                <Pressable
+                <TouchableOpacity
                   key={tab}
-                  style={styles.tabButton}
+                  activeOpacity={0.8}
+                  style={[styles.segmentItem, isActive && styles.segmentItemActive]}
                   onPress={() => handleTabPress(tab)}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: isActive }}
                 >
-                  {isActive ? (
-                    <LinearGradient
-                      colors={["#00f2fe", "#4facfe"]}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      style={styles.tabActiveGradient}
-                    >
-                      <Text style={styles.tabTextActive}>{tab}</Text>
-                    </LinearGradient>
-                  ) : (
-                    <View style={styles.tabInactiveInner}>
-                      <Text style={styles.tabTextInactive}>{tab}</Text>
-                    </View>
-                  )}
-                </Pressable>
+                  <Text style={[styles.segmentText, isActive && styles.segmentTextActive]}>
+                    {tab}
+                  </Text>
+                </TouchableOpacity>
               );
             })}
           </View>
 
-          {/* SVG Wave Chart Container */}
-          <View style={styles.chartWrapper}>
-            {/* Subtle grid lines */}
-            <View style={styles.chartGridLines}>
-              <View style={styles.chartLine} />
-              <View style={styles.chartLine} />
-              <View style={styles.chartLine} />
-            </View>
+          <View style={{ width: graphWidth, height: graphHeight, alignSelf: "center" }}>
+            <Svg width={graphWidth} height={graphHeight}>
+              <Defs>
+                <SvgLinearGradient id="weightFill" x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0%" stopColor={ACCENT} stopOpacity="0.32" />
+                  <Stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
+                </SvgLinearGradient>
+                <SvgLinearGradient id="weightLine" x1="0" y1="0" x2="1" y2="0">
+                  <Stop offset="0%" stopColor="#6366F1" />
+                  <Stop offset="100%" stopColor="#38BDF8" />
+                </SvgLinearGradient>
+              </Defs>
+              {[0.25, 0.5, 0.75].map((f) => (
+                <SvgLine
+                  key={f}
+                  x1={0}
+                  x2={graphWidth}
+                  y1={padTop + f * (graphHeight - padTop - padBottom)}
+                  y2={padTop + f * (graphHeight - padTop - padBottom)}
+                  stroke="rgba(148,163,184,0.10)"
+                  strokeDasharray="4 6"
+                />
+              ))}
+              <Path d={areaPath} fill="url(#weightFill)" />
+              <Path
+                d={curvePath}
+                fill="none"
+                stroke="url(#weightLine)"
+                strokeWidth={3}
+                strokeLinecap="round"
+              />
+              <SvgLine
+                x1={pts[activePoint].x}
+                x2={pts[activePoint].x}
+                y1={pts[activePoint].y}
+                y2={graphHeight}
+                stroke="rgba(125,211,252,0.35)"
+                strokeDasharray="3 4"
+              />
+              {pts.map((pt, i) => (
+                <React.Fragment key={i}>
+                  <Circle
+                    cx={pt.x}
+                    cy={pt.y}
+                    r={18}
+                    fill="transparent"
+                    onPress={() => {
+                      triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+                      setSelectedPointIndex(i);
+                    }}
+                  />
+                  <Circle
+                    cx={pt.x}
+                    cy={pt.y}
+                    r={i === activePoint ? 7 : 4.5}
+                    fill={i === activePoint ? "#0EA5E9" : "#0D1522"}
+                    stroke={i === activePoint ? "#FFFFFF" : ACCENT}
+                    strokeWidth={2}
+                    pointerEvents="none"
+                  />
+                </React.Fragment>
+              ))}
+            </Svg>
 
             <View
-              style={{
-                height: graphHeight,
-                width: graphWidth,
-                alignSelf: "center",
-              }}
+              pointerEvents="none"
+              style={[styles.tooltip, { left: tipX - 34, top: Math.max(0, pts[activePoint].y - 30) }]}
             >
-              <Svg width={graphWidth} height={graphHeight}>
-                <Defs>
-                  <SvgLinearGradient id="waveFill" x1="0" y1="0" x2="0" y2="1">
-                    <Stop offset="0%" stopColor="#2DD4BF" stopOpacity="0.4" />
-                    <Stop offset="100%" stopColor="#2DD4BF" stopOpacity="0.0" />
-                  </SvgLinearGradient>
-                </Defs>
-
-                {/* Filled gradient area */}
-                <Path d={areaPath} fill="url(#waveFill)" />
-
-                {/* Cyan curve line */}
-                <Path
-                  d={curvePath}
-                  fill="none"
-                  stroke="#2DD4BF"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-
-                {/* Data Points */}
-                {pts.map((pt, i) => (
-                  <React.Fragment key={i}>
-                    <Circle
-                      cx={pt.x}
-                      cy={pt.y}
-                      r="16"
-                      fill="transparent"
-                      onPress={() => {
-                        triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-                        setSelectedPointIndex(i);
-                      }}
-                    />
-                    <Circle
-                      cx={pt.x}
-                      cy={pt.y}
-                      r={selectedPointIndex === i ? "8" : "6"}
-                      pointerEvents="none"
-                      fill={
-                        selectedPointIndex === i
-                          ? "rgba(56, 189, 248, 0.42)"
-                          : "rgba(45, 212, 191, 0.35)"
-                      }
-                    />
-                    <Circle
-                      cx={pt.x}
-                      cy={pt.y}
-                      r="3.5"
-                      fill="#FFFFFF"
-                      pointerEvents="none"
-                    />
-                  </React.Fragment>
-                ))}
-
-                {selectedPointIndex !== null &&
-                pts[selectedPointIndex] &&
-                currentPoints[selectedPointIndex] ? (
-                  <G>
-                    <SvgText
-                      x={
-                        Math.max(
-                          42,
-                          Math.min(pts[selectedPointIndex].x, graphWidth - 42),
-                        ) + 1
-                      }
-                      y={Math.max(17, pts[selectedPointIndex].y - 12) + 1}
-                      fill="rgba(7, 16, 24, 0.95)"
-                      fontSize="13"
-                      fontFamily={fontFamilies.inter[700]}
-                      textAnchor="middle"
-                    >
-                      {currentPoints[selectedPointIndex].weight.toFixed(1)} KG
-                    </SvgText>
-                    <SvgText
-                      x={Math.max(
-                        42,
-                        Math.min(pts[selectedPointIndex].x, graphWidth - 42),
-                      )}
-                      y={Math.max(17, pts[selectedPointIndex].y - 12)}
-                      fill="#38EDD8"
-                      fontSize="12"
-                      fontFamily={fontFamilies.inter[700]}
-                      textAnchor="middle"
-                    >
-                      {currentPoints[selectedPointIndex].weight.toFixed(1)} KG
-                    </SvgText>
-                  </G>
-                ) : null}
-              </Svg>
-            </View>
-
-            {/* Axis Labels */}
-            <View style={styles.axisLabelsRow}>
-              {currentPoints.map((item, i) => (
-                <Text key={i} style={styles.axisLabel}>
-                  {item.label}
-                </Text>
-              ))}
-            </View>
-          </View>
-        </View>
-
-        {/* Metabolic Insight / Quote Card */}
-        <View style={styles.insightCard}>
-          {/* Subtle star background decorative watermarks */}
-          <View style={styles.starWatermarkLarge} pointerEvents="none">
-            <Svg width={90} height={90} viewBox="0 0 48 48">
-              <Path
-                d="M24 0L27.5 16.5L44 20L27.5 23.5L24 40L20.5 23.5L4 20L20.5 16.5L24 0Z"
-                fill="rgba(255, 255, 255, 0.03)"
-              />
-            </Svg>
-          </View>
-          <View style={styles.starWatermarkSmall} pointerEvents="none">
-            <Svg width={46} height={46} viewBox="0 0 48 48">
-              <Path
-                d="M24 0L27.5 16.5L44 20L27.5 23.5L24 40L20.5 23.5L4 20L20.5 16.5L24 0Z"
-                fill="rgba(255, 255, 255, 0.02)"
-              />
-            </Svg>
-          </View>
-
-          <View style={styles.insightContentRow}>
-            <Image
-              source={require("../assets/progressSparkle.svg")}
-              style={styles.insightSparkleImg}
-              contentFit="contain"
-            />
-            <View style={styles.insightTextCol}>
-              <Text style={styles.insightMainText}>
-                Great progress! You've lost{" "}
-                <Text style={styles.insightHighlightText}>2.4 kg</Text> this
-                month. Your metabolic efficiency is peaking.
-              </Text>
-              <Text style={styles.insightSubText}>
-                Every small change matters.{"\n"}Stay consistent.
+              <Text style={styles.tooltipText}>
+                {currentPoints[activePoint].weight.toFixed(1)} kg
               </Text>
             </View>
           </View>
+
+          <View style={[styles.axisLabelsRow, { width: graphWidth }]}>
+            {currentPoints.map((item, i) => (
+              <Text
+                key={i}
+                style={[styles.axisLabel, i === activePoint && styles.axisLabelActive]}
+              >
+                {item.label}
+              </Text>
+            ))}
+          </View>
         </View>
 
-        {/* + LOG WEIGHT Action Button (Matching progress.tsx startWorkoutBtn) */}
-        <Pressable style={styles.startWorkoutBtn} onPress={handleOpenLogModal}>
+        {/* Coach note */}
+        <View style={styles.coachCard}>
+          <View style={styles.iconChip}>
+            <Sparkles size={14} color={ACCENT} strokeWidth={2.4} />
+          </View>
+          <Text style={styles.coachText}>
+            {monthChange < 0 ? (
+              <>
+                You're down{" "}
+                <Text style={styles.coachStrong}>{Math.abs(monthChange).toFixed(1)} kg</Text>{" "}
+                this month. Keep the steady pace — small changes add up.
+              </>
+            ) : (
+              "Log your weight each morning to see a clear trend."
+            )}
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={styles.primaryBtn}
+          onPress={handleOpenLogModal}
+          accessibilityRole="button"
+          accessibilityLabel="Log morning weight"
+        >
           <LinearGradient
-            colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-            start={{ x: 0, y: 0.5 }}
-            end={{ x: 1, y: 0.5 }}
-            style={styles.startWorkoutGradient}
-          >
-            <Text style={styles.startWorkoutText}>+ LOG MORNING WEIGHT</Text>
-          </LinearGradient>
-        </Pressable>
+            colors={BUTTON_GRADIENT}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <LinearGradient
+            colors={SHEEN}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={styles.primarySheen}
+            pointerEvents="none"
+          />
+          <View>
+            <Plus size={16} color="#FFFFFF" strokeWidth={2.8} />
+          </View>
+          <Text style={styles.primaryBtnText}>LOG MORNING WEIGHT</Text>
+        </TouchableOpacity>
       </KeyboardAwareScrollView>
 
-      {/* Interactive Log Weight Modal */}
+      {/* Log weight modal */}
       <Modal
         visible={isLogModalVisible}
         transparent
@@ -522,48 +485,89 @@ export default function WeightProgressScreen() {
         <KeyboardAvoidingView behavior="padding" style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Log Current Weight</Text>
-              <Pressable
+              <View style={styles.cardHeaderLeft}>
+                <View style={styles.iconChip}>
+                  <Scale size={14} color={ACCENT} strokeWidth={2.4} />
+                </View>
+                <Text style={styles.modalTitle}>Log weight</Text>
+              </View>
+              <TouchableOpacity
+                activeOpacity={0.7}
                 onPress={() => setIsLogModalVisible(false)}
                 style={styles.modalCloseBtn}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="Close"
               >
-                <X color="#94A3B8" size={20} />
-              </Pressable>
+                <X color="#94A3B8" size={16} strokeWidth={2.6} />
+              </TouchableOpacity>
             </View>
 
-            <Text style={styles.modalSubtitle}>
-              Enter your morning body weight reading:
-            </Text>
+            <Text style={styles.modalSubtitle}>Your morning reading, before breakfast.</Text>
 
             <View style={styles.modalInputRow}>
-              <TextInput
-                value={inputWeight}
-                onChangeText={setInputWeight}
-                keyboardType="decimal-pad"
-                style={styles.modalInput}
-                autoFocus
-                placeholder="72.4"
-                placeholderTextColor="#64748B"
-              />
-              <Text style={styles.modalInputUnit}>kg</Text>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={styles.stepBtn}
+                onPress={() => adjustInput(-0.1)}
+                accessibilityLabel="Decrease by 0.1 kg"
+              >
+                <Minus size={16} color={ACCENT_SOFT} strokeWidth={2.6} />
+              </TouchableOpacity>
+              <View style={styles.modalInputBox}>
+                <TextInput
+                  value={inputWeight}
+                  onChangeText={setInputWeight}
+                  keyboardType="decimal-pad"
+                  style={styles.modalInput}
+                  autoFocus
+                  selectTextOnFocus
+                  placeholder="72.4"
+                  placeholderTextColor="#64748B"
+                  maxLength={5}
+                />
+                <Text style={styles.modalInputUnit}>KG</Text>
+              </View>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={styles.stepBtn}
+                onPress={() => adjustInput(0.1)}
+                accessibilityLabel="Increase by 0.1 kg"
+              >
+                <Plus size={16} color={ACCENT_SOFT} strokeWidth={2.6} />
+              </TouchableOpacity>
             </View>
 
-            <Pressable
-              style={({ pressed }) => [
-                styles.modalSubmitBtn,
-                pressed && { opacity: 0.85 },
-              ]}
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={[styles.primaryBtn, styles.modalPrimary]}
               onPress={handleSaveWeight}
+              accessibilityRole="button"
+              accessibilityLabel="Save weight"
             >
               <LinearGradient
-                colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
+                colors={BUTTON_GRADIENT}
                 start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.modalSubmitGradient}
-              >
-                <Text style={styles.modalSubmitText}>SAVE WEIGHT</Text>
-              </LinearGradient>
-            </Pressable>
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+              <LinearGradient
+                colors={SHEEN}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={styles.primarySheen}
+                pointerEvents="none"
+              />
+              <Text style={styles.primaryBtnText}>SAVE WEIGHT</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={styles.ghostBtn}
+              onPress={() => setIsLogModalVisible(false)}
+              accessibilityRole="button"
+            >
+              <Text style={styles.ghostBtnText}>CANCEL</Text>
+            </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -574,7 +578,7 @@ export default function WeightProgressScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#090A10",
+    backgroundColor: "#060810",
   },
   scrollContainer: {
     paddingHorizontal: 20,
@@ -582,499 +586,376 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     marginTop: 4,
-    marginBottom: 20,
+    marginBottom: 18,
+    gap: 4,
   },
-  maskedTitleWrapper: {
-    height: 44,
-    width: "100%",
-    justifyContent: "center",
-  },
-  maskedTitleView: {
-    flex: 1,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "flex-start",
-  },
-  gradient: {
-    flex: 1,
+  categoryBadge: {
+    ...typography.overline,
+    fontSize: 11,
+    lineHeight: 16,
+    color: ACCENT_SOFT,
   },
   mainTitle: {
     ...typography.pageTitle,
-    color: "#FFFFFF",
+    color: "#F6F8FF",
   },
-  subtitle: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "600",
-    marginTop: 4,
-  },
+
+  // Shared
   card: {
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
-    borderRadius: 20,
+    backgroundColor: "#111A25",
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 20,
-    marginBottom: 20,
+    borderColor: "rgba(56,189,248,0.18)",
+    padding: 16,
+    gap: 14,
+    marginBottom: 12,
+    overflow: "hidden",
   },
-  levelHeaderRow: {
+  cardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 18,
+    justifyContent: "space-between",
+    gap: 8,
   },
-  sparkleBadge: {
-    width: 46,
-    height: 46,
-    borderRadius: 14,
-    backgroundColor: "rgba(56, 189, 248, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    justifyContent: "center",
+  cardHeaderLeft: {
+    flexDirection: "row",
     alignItems: "center",
-    marginRight: 12,
+    gap: 10,
   },
-  sparkleBadgeSmall: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: "rgba(56, 189, 248, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    justifyContent: "center",
+  iconChip: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: "center",
-    marginRight: 12,
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
   },
-  levelInfoCol: {
-    flex: 1,
+  iconChipSm: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
   },
-  statusLabel: {
-    color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    marginBottom: 2,
+  sectionLabel: {
+    ...typography.sectionTitle,
+    color: "#E5EEF8",
   },
-  weightNumberRow: {
+  pill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
+  },
+  pillText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+  },
+
+  // Weight card
+  weightRow: {
     flexDirection: "row",
     alignItems: "baseline",
+    gap: 6,
+    marginTop: -4,
   },
-  levelMainText: {
-    color: "#FFFFFF",
-    fontSize: 24,
-    fontWeight: "800",
-    letterSpacing: 0.5,
+  weightValue: {
+    ...typography.metricHero,
+    color: "#F8FAFC",
   },
   weightUnit: {
-    color: "#38BDF8",
+    ...typography.metricUnit,
     fontSize: 14,
-    fontWeight: "800",
-    marginLeft: 6,
+    lineHeight: 18,
+    color: ACCENT_SOFT,
   },
-  bodyMetricsRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 14,
-  },
-  bodyMetricCard: {
-    flex: 1,
-    minWidth: 0,
-    backgroundColor: "rgba(56, 189, 248, 0.07)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.18)",
-    borderRadius: 14,
-    padding: 12,
-  },
-  bmiMetricCard: {
-    backgroundColor: "rgba(45, 212, 191, 0.07)",
-    borderColor: "rgba(45, 212, 191, 0.18)",
-  },
-  bodyMetricHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 8,
-  },
-  bodyMetricLabel: {
-    flexShrink: 1,
-    color: "#94A3B8",
-    fontSize: 9,
-    lineHeight: 11,
-    fontWeight: "700",
-    letterSpacing: 0.7,
-  },
-  bodyMetricValueRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-  },
-  bodyMetricValue: {
-    color: "#F8FAFC",
-    fontSize: 22,
-    lineHeight: 27,
-    fontWeight: "800",
-  },
-  bmiMetricValue: {
-    color: "#2DD4BF",
-  },
-  bodyMetricUnit: {
-    color: "#64748B",
-    fontSize: 9,
-    fontWeight: "700",
-    marginLeft: 5,
-  },
-  bodyMetricHint: {
-    color: "#64748B",
-    fontSize: 9,
-    lineHeight: 11,
-    fontWeight: "700",
-    letterSpacing: 0.35,
-    marginTop: 4,
-  },
-  bmiStatus: {
-    color: "#2DD4BF",
-    fontSize: 9,
-    lineHeight: 11,
-    fontWeight: "700",
-    letterSpacing: 0.45,
-    marginTop: 4,
-  },
-  tierPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(45, 212, 191, 0.12)",
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.3)",
-  },
-  tierPillText: {
-    color: "#2DD4BF",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  prProgressRowFull: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.04)",
-  },
-  metricSubCol: {
-    flex: 1,
-  },
-  inlineIconLabel: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  prProgressLabel: {
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  targetNumber: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "800",
-  },
-  remainingNumber: {
-    color: "#FFB68C",
-    fontSize: 16,
-    fontWeight: "800",
-  },
-  unitSmall: {
-    fontSize: 11,
-    color: "#94A3B8",
-    fontWeight: "600",
-  },
-  progressContainer: {
-    marginTop: 4,
+  goalBlock: {
+    gap: 8,
   },
   progressBarBg: {
-    height: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    borderRadius: 4,
+    height: 10,
+    borderRadius: 999,
     overflow: "hidden",
+    backgroundColor: "rgba(148,163,184,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.10)",
+  },
+  progressBarFill: {
+    height: "100%",
+    borderRadius: 999,
+  },
+  goalLabels: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  goalLabel: {
+    ...typography.overline,
+    color: "#7C8BA1",
+  },
+  goalLabelStrong: {
+    ...typography.overline,
+    color: "#E2E8F0",
+  },
+  goalRemaining: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  goalRemainingText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+  },
+
+  // Stat tiles
+  statsRow: {
+    flexDirection: "row",
+    gap: 10,
     marginBottom: 12,
   },
-  xpRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  statTile: {
+    flex: 1,
+    gap: 6,
+    padding: 12,
+    borderRadius: 20,
+    backgroundColor: "#111A25",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.18)",
   },
-  xpLeftCol: {
+  statValueRow: {
     flexDirection: "row",
     alignItems: "baseline",
+    gap: 3,
   },
-  xpValue: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "800",
+  statValue: {
+    ...typography.metric,
+    fontSize: 20,
+    lineHeight: 26,
+    color: "#F8FAFC",
   },
-  xpTotal: {
-    color: "#64748B",
-    fontSize: 11,
-    fontWeight: "700",
+  statUnit: {
+    ...typography.microTag,
+    color: "#7C8BA1",
   },
-  xpRightCol: {
+  statLabel: {
+    ...typography.microTag,
+    color: "#7C8BA1",
+    letterSpacing: 0.6,
+  },
+  statLabelAccent: {
+    color: ACCENT_SOFT,
+  },
+
+  // Trend
+  segment: {
     flexDirection: "row",
-    alignItems: "center",
+    gap: 4,
+    padding: 4,
+    borderRadius: 14,
+    backgroundColor: "rgba(6,8,16,0.5)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.12)",
   },
-  xpNotice: {
-    color: "#2DD4BF",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-  prHeaderFull: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 14,
-  },
-  prTitleCol: {
+  segmentItem: {
     flex: 1,
-    marginLeft: 12,
-  },
-  prCardTitle: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 0.8,
-  },
-  prCardSub: {
-    color: "#64748B",
-    fontSize: 10,
-    marginTop: 2,
-  },
-  colIconBadge: {
-    width: 36,
-    height: 36,
+    height: 32,
     borderRadius: 10,
-    backgroundColor: "rgba(56, 189, 248, 0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  segmentItemActive: {
+    backgroundColor: "rgba(56,189,248,0.16)",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.25)",
-    justifyContent: "center",
+    borderColor: "rgba(56,189,248,0.4)",
+  },
+  segmentText: {
+    ...typography.badge,
+    color: "#7C8BA1",
+  },
+  segmentTextActive: {
+    color: ACCENT_SOFT,
+  },
+  tooltip: {
+    position: "absolute",
+    width: 68,
     alignItems: "center",
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "#0EA5E9",
   },
-  tabContainer: {
-    flexDirection: "row",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    borderRadius: 12,
-    padding: 3,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
-  },
-  tabButton: {
-    flex: 1,
-    height: 34,
-    borderRadius: 9,
-    overflow: "hidden",
-  },
-  tabInactiveInner: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  tabActiveGradient: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 9,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  tabTextActive: {
+  tooltipText: {
+    ...typography.badge,
+    letterSpacing: 0.3,
     color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  tabTextInactive: {
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  chartWrapper: {
-    position: "relative",
-  },
-  chartGridLines: {
-    ...StyleSheet.absoluteFill,
-    paddingTop: 25,
-    paddingBottom: 40,
-    paddingHorizontal: 16,
-    justifyContent: "space-between",
-    opacity: 0.15,
-  },
-  chartLine: {
-    height: 1,
-    backgroundColor: "#94A3B8",
+    textTransform: "none",
   },
   axisLabelsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 12,
-    marginTop: 10,
+    alignSelf: "center",
+    marginTop: -6,
   },
   axisLabel: {
+    ...typography.microTag,
     color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+    letterSpacing: 0.6,
   },
-  /* Insight Card matching screenshot */
-  insightCard: {
-    backgroundColor: "rgba(22, 24, 34, 0.8)",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 20,
-    marginBottom: 20,
-    position: "relative",
-    overflow: "hidden",
+  axisLabelActive: {
+    color: ACCENT_SOFT,
   },
-  starWatermarkLarge: {
-    position: "absolute",
-    right: -10,
-    top: -12,
-    opacity: 0.8,
-  },
-  starWatermarkSmall: {
-    position: "absolute",
-    right: -12,
-    top: 55,
-    opacity: 0.6,
-  },
-  insightContentRow: {
+
+  // Coach
+  coachCard: {
     flexDirection: "row",
     alignItems: "flex-start",
+    gap: 12,
+    padding: 14,
+    borderRadius: 20,
+    backgroundColor: "rgba(56,189,248,0.07)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
+    marginBottom: 20,
   },
-  insightSparkleImg: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    marginRight: 16,
-  },
-  insightTextCol: {
+  coachText: {
+    ...typography.bodySmall,
     flex: 1,
+    color: "#CBD5E1",
+    paddingTop: 5,
   },
-  insightMainText: {
-    color: "#FFFFFF",
-    fontSize: 22,
+  coachStrong: {
+    ...typography.bodySmall,
     fontWeight: "700",
-    lineHeight: 36,
-    marginBottom: 10,
+    color: ACCENT_SOFT,
   },
-  insightHighlightText: {
-    color: "#2DD4BF",
-    fontWeight: "800",
-  },
-  insightSubText: {
-    color: "#64748B",
-    fontSize: 12,
-    fontWeight: "500",
-    lineHeight: 16,
-    letterSpacing: 0.4,
-  },
-  startWorkoutBtn: {
+
+  // Buttons
+  primaryBtn: {
+    height: 52,
     borderRadius: 16,
     overflow: "hidden",
-    marginTop: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: ACCENT,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 14,
+      },
+      web: { boxShadow: "0 8px 22px rgba(56,189,248,0.28)" } as any,
+      default: {},
+    }),
   },
-  startWorkoutGradient: {
-    paddingVertical: 14,
+  primarySheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
+  },
+  primaryBtnText: {
+    ...typography.button,
+    letterSpacing: 1,
+    color: "#FFFFFF",
+  },
+  ghostBtn: {
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
   },
-  startWorkoutText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
+  ghostBtnText: {
+    ...typography.buttonSmall,
+    letterSpacing: 1,
+    color: "#94A3B8",
   },
+
+  // Modal
   modalBackdrop: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.75)",
     justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
+    paddingHorizontal: 20,
+    backgroundColor: "rgba(2,4,10,0.78)",
   },
   modalCard: {
-    width: "100%",
-    backgroundColor: "rgba(15, 23, 42, 0.95)",
-    borderRadius: 20,
+    padding: 18,
+    gap: 14,
+    borderRadius: 26,
+    backgroundColor: "#0D1420",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    padding: 24,
+    borderColor: "rgba(56,189,248,0.22)",
   },
   modalHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 10,
   },
   modalTitle: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "800",
-    letterSpacing: 0.5,
+    ...typography.cardTitle,
+    color: "#F8FAFC",
   },
   modalCloseBtn: {
-    padding: 4,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.06)",
   },
   modalSubtitle: {
+    ...typography.bodySmall,
     color: "#94A3B8",
-    fontSize: 12,
-    marginBottom: 20,
   },
   modalInputRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    gap: 10,
+  },
+  stepBtn: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    height: 52,
-    marginBottom: 20,
+    borderColor: "rgba(56,189,248,0.3)",
+  },
+  modalInputBox: {
+    flex: 1,
+    height: 64,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    borderRadius: 18,
+    backgroundColor: "rgba(6,8,16,0.6)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
   },
   modalInput: {
-    flex: 1,
-    color: "#FFFFFF",
-    fontSize: 20,
-    fontWeight: "800",
+    ...typography.metricLarge,
+    width: 96,
+    padding: 0,
+    textAlign: "center",
+    color: "#F8FAFC",
   },
   modalInputUnit: {
-    color: "#38BDF8",
-    fontSize: 14,
-    fontWeight: "700",
+    ...typography.metricUnit,
+    color: ACCENT_SOFT,
   },
-  modalSubmitBtn: {
-    height: 46,
-    borderRadius: 14,
-    overflow: "hidden",
-  },
-  modalSubmitGradient: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalSubmitText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+  modalPrimary: {
+    marginTop: 4,
   },
 });

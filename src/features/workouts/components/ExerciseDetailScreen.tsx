@@ -494,7 +494,7 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
           />
           <View style={styles.targetThumb}>
             <Image
-              source={require("../../../../assets/workoutLibraryDetails/wld4.png")}
+              source={require("../../../../assets/workout/aiWorkoutAthletePose.png")}
               style={StyleSheet.absoluteFill}
               contentFit="cover"
             />
