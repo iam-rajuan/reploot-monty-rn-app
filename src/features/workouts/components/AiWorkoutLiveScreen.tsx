@@ -3,37 +3,49 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import {
-  Activity,
+  ArrowLeft,
   ArrowRight,
-  Check,
-  ChevronLeft,
-  Clock,
   Dumbbell,
   Flame,
   Minus,
   Pause,
   Play,
   Plus,
-  Sparkles,
+  ShieldCheck,
+  Timer,
   TrendingUp,
-  Waves,
-  Zap,
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Circle as SvgCircle, Line as SvgLine } from "react-native-svg";
+import Svg, {
+  Circle as SvgCircle,
+  Defs,
+  LinearGradient as SvgGradient,
+  Stop,
+} from "react-native-svg";
+import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
+import { typography } from "@/theme/typography";
 import { WorkoutExerciseItem } from "../data/workoutPathDetailData";
 
-const { width } = Dimensions.get("window");
+// One accent for the whole page.
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.06)",
+  "rgba(255,255,255,0.02)",
+] as const;
+const DEFAULT_REST_TARGET = 45;
 
 export interface AiWorkoutLiveScreenProps {
   currentExercise: WorkoutExerciseItem;
@@ -60,7 +72,8 @@ export const AiWorkoutLiveScreen: React.FC<AiWorkoutLiveScreenProps> = ({
   const [accuracy, setAccuracy] = useState<number>(
     exerciseIndex === 0 ? 94 : 98,
   );
-  const [nextBreakSec, setNextBreakSec] = useState<number>(45);
+  const [restSec, setRestSec] = useState<number>(0);
+  const [restTargetSec, setRestTargetSec] = useState<number>(DEFAULT_REST_TARGET);
   const [currentSet, setCurrentSet] = useState<number>(
     exerciseIndex === 0 ? 2 : 1,
   );
@@ -85,22 +98,31 @@ export const AiWorkoutLiveScreen: React.FC<AiWorkoutLiveScreenProps> = ({
       setReps(0);
       setAccuracy(98);
     }
-    setNextBreakSec(45);
+    setRestSec(0);
     setIsPaused(false);
   }, [currentExercise.id, exerciseIndex]);
 
-  // Live Timer countdown simulation
+  // Rest timer counts up from 00:00 (paused with the session).
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
-      setNextBreakSec((prev) => (prev > 0 ? prev - 1 : 45));
+      setRestSec((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(timer);
   }, [isPaused]);
 
+  const restDone = restSec >= restTargetSec;
+  useEffect(() => {
+    if (restSec === restTargetSec && restSec > 0 && Platform.OS !== "web") {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
+        () => {},
+      );
+    }
+  }, [restSec, restTargetSec]);
+
   // Ring Gauge Calculations
-  const radius = 32;
-  const strokeWidth = 5;
+  const radius = 36;
+  const strokeWidth = 7;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - accuracy / 100);
 
@@ -133,11 +155,11 @@ export const AiWorkoutLiveScreen: React.FC<AiWorkoutLiveScreenProps> = ({
     setReps((prev) => Math.max(0, Math.min(30, prev + delta)));
   };
 
-  const adjustBreakTime = (delta: number) => {
+  const adjustRestTarget = (delta: number) => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     }
-    setNextBreakSec((prev) => Math.max(0, prev + delta));
+    setRestTargetSec((prev) => Math.max(15, Math.min(300, prev + delta)));
   };
 
   const cleanExerciseTitle = currentExercise.title.replace(/\n/g, " ");
@@ -164,259 +186,333 @@ export const AiWorkoutLiveScreen: React.FC<AiWorkoutLiveScreenProps> = ({
 
   return (
     <View style={styles.screen}>
+      <ScreenBackground />
       <StatusBar style="light" />
 
-      {/* Top Header Bar */}
+      {/* Header */}
       <View
         style={[styles.topHeader, { paddingTop: Math.max(insets.top + 8, 20) }]}
       >
-        <View style={styles.headerLeftCol}>
-          {onBack ? (
-            <Pressable
-              style={styles.backButton}
-              onPress={onBack}
-              accessibilityRole="button"
-              accessibilityLabel="Back to exercise routine"
-            >
-              <ChevronLeft size={22} color="#FFFFFF" strokeWidth={2.4} />
-            </Pressable>
-          ) : null}
-          <View>
-            <Text style={styles.headerCategory}>EXERCISE TELEMETRY</Text>
-          </View>
+        {onBack ? (
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={styles.roundBtn}
+            onPress={onBack}
+            accessibilityRole="button"
+            accessibilityLabel="Back to exercise routine"
+          >
+            <ArrowLeft size={20} color="#FFFFFF" strokeWidth={2.4} />
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.roundBtnSpacer} />
+        )}
+
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerKicker}>LIVE SESSION</Text>
+          <Text style={styles.headerTitle} numberOfLines={1}>
+            EXERCISE TELEMETRY
+          </Text>
         </View>
 
-        {/* Right Action: Pause / Resume Button */}
-        <Pressable
-          style={[styles.pauseBtn, isPaused && styles.pauseBtnActive]}
+        <TouchableOpacity
+          activeOpacity={0.75}
+          style={[styles.roundBtn, styles.pauseBtn, isPaused && styles.pauseBtnActive]}
           onPress={togglePause}
+          accessibilityRole="button"
+          accessibilityLabel={isPaused ? "Resume" : "Pause"}
         >
           {isPaused ? (
             <Play size={16} color="#FFFFFF" fill="#FFFFFF" />
           ) : (
-            <Pause size={16} color="#38EDD8" />
+            <Pause size={16} color={ACCENT_SOFT} strokeWidth={2.6} />
           )}
-        </Pressable>
+        </TouchableOpacity>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: Math.max(insets.bottom, 16) + 120 },
+          { paddingBottom: Math.max(insets.bottom, 16) + 100 },
         ]}
       >
-        {/* Active Exercise Hero Card */}
-        <View style={styles.exerciseHeroCard}>
-          <View style={styles.heroImageWrapper}>
-            {currentExercise.image ? (
-              <Image
-                source={currentExercise.image}
-                style={styles.heroThumbnail}
-                contentFit="cover"
-              />
-            ) : null}
-            <View style={styles.indexBadge}>
-              <Text style={styles.indexBadgeText}>
-                {currentExercise.index || `0${exerciseIndex + 1}`}
+        {/* Current exercise */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <View style={styles.heroRow}>
+            <View style={styles.heroThumbWrap}>
+              {currentExercise.image ? (
+                <Image
+                  source={currentExercise.image}
+                  style={StyleSheet.absoluteFill}
+                  contentFit="cover"
+                />
+              ) : null}
+              <View style={styles.indexBadge}>
+                <Text style={styles.indexBadgeText}>
+                  {currentExercise.index || String(exerciseIndex + 1).padStart(2, "0")}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.heroTextCol}>
+              <View style={styles.heroStatusRow}>
+                <View style={styles.statusPill}>
+                  <View style={[styles.statusDot, isPaused && styles.statusDotPaused]} />
+                  <Text style={styles.statusPillText}>
+                    {isPaused ? "PAUSED" : "IN PROGRESS"}
+                  </Text>
+                </View>
+                <Text style={styles.counterText}>
+                  {exerciseIndex + 1}/{totalExercises}
+                </Text>
+              </View>
+              <Text style={styles.exerciseNameText} numberOfLines={2}>
+                {cleanExerciseTitle}
+              </Text>
+              <Text style={styles.exerciseSubtitleText} numberOfLines={1}>
+                Set {currentSet} of {totalSets} · {currentExercise.subtitle}
               </Text>
             </View>
           </View>
-
-          <View style={styles.heroTextCol}>
-            <View style={styles.heroStatusRow}>
-              <View style={styles.activePill}>
-                <View style={styles.pulsingDot} />
-                <Text style={styles.activePillText}>IN PROGRESS</Text>
-              </View>
-              <Text style={styles.progressCounterText}>
-                {exerciseIndex + 1} OF {totalExercises}
-              </Text>
-            </View>
-
-            <Text style={styles.exerciseNameText} numberOfLines={2}>
-              {cleanExerciseTitle}
-            </Text>
-            <Text style={styles.exerciseSubtitleText}>
-              {currentExercise.subtitle}
-            </Text>
+          <View style={styles.exerciseSteps}>
+            {Array.from({ length: totalExercises }, (_, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.exerciseStep,
+                  i < exerciseIndex && styles.exerciseStepDone,
+                  i === exerciseIndex && styles.exerciseStepActive,
+                ]}
+              />
+            ))}
           </View>
         </View>
 
-        {/* Primary Statistics Grid (Bento Layout) */}
+        {/* Reps + Form */}
         <View style={styles.statsGridRow}>
-          {/* Bento Card 1: REPS TRACKER */}
           <View style={styles.statCard}>
             <View style={styles.statCardHeader}>
-              <Text style={styles.statCardLabel}>REPS LOGGED</Text>
-              <Dumbbell size={15} color="#38EDD8" strokeWidth={2.4} />
+              <View style={styles.iconChip}>
+                <Dumbbell size={13} color={ACCENT} strokeWidth={2.4} />
+              </View>
+              <Text style={styles.statCardLabel}>REPS</Text>
             </View>
 
-            <View style={styles.repsDisplayRow}>
-              <Text style={styles.repsMainNumber}>{reps}</Text>
-              <Text style={styles.repsTargetText}>/ {targetReps}</Text>
+            <View style={styles.valueRow}>
+              <Text style={styles.bigNumber}>{reps}</Text>
+              <Text style={styles.unitText}>/ {targetReps}</Text>
             </View>
 
-            {/* Reps Progress Bar */}
-            <View style={styles.repsProgressBarTrack}>
-              <View
-                style={[
-                  styles.repsProgressBarFill,
-                  { width: `${repsProgress}%` },
-                ]}
+            <View style={styles.track}>
+              <LinearGradient
+                colors={["#6366F1", "#38BDF8"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[styles.trackFill, { width: `${repsProgress}%` }]}
               />
             </View>
-            <Text style={styles.repsProgressSub}>
-              {repsProgress}% OF TARGET COMPLETED
-            </Text>
+            <Text style={styles.captionText}>{repsProgress}% of target</Text>
 
-            {/* Reps Adjusters (+ / -) */}
-            <View style={styles.repAdjustRow}>
-              <Pressable
+            <View style={styles.adjustRow}>
+              <TouchableOpacity
+                activeOpacity={0.7}
                 style={styles.adjustBtn}
                 onPress={() => adjustReps(-1)}
                 accessibilityRole="button"
                 accessibilityLabel="Decrease rep"
               >
-                <Minus size={14} color="#FFFFFF" />
-              </Pressable>
-              <Pressable
+                <Minus size={15} color={ACCENT_SOFT} strokeWidth={2.6} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.8}
                 style={[styles.adjustBtn, styles.adjustBtnAdd]}
                 onPress={() => adjustReps(1)}
                 accessibilityRole="button"
                 accessibilityLabel="Increase rep"
               >
-                <Plus size={14} color="#0B0F19" strokeWidth={3} />
-              </Pressable>
+                <LinearGradient
+                  colors={BUTTON_GRADIENT}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={StyleSheet.absoluteFill}
+                />
+                <View>
+                  <Plus size={15} color="#FFFFFF" strokeWidth={2.8} />
+                </View>
+              </TouchableOpacity>
             </View>
           </View>
 
-          {/* Bento Card 2: FORM ACCURACY */}
           <View style={styles.statCard}>
             <View style={styles.statCardHeader}>
-              <Text style={styles.statCardLabel}>FORM ACCURACY</Text>
-              <Sparkles size={15} color="#38EDD8" strokeWidth={2.4} />
+              <View style={styles.iconChip}>
+                <ShieldCheck size={13} color={ACCENT} strokeWidth={2.4} />
+              </View>
+              <Text style={styles.statCardLabel}>FORM</Text>
             </View>
 
             <View style={styles.ringCenterContainer}>
-              <Svg width="80" height="80" viewBox="0 0 80 80">
+              <Svg width="84" height="84" viewBox="0 0 84 84">
+                <Defs>
+                  <SvgGradient id="formRing" x1="0" y1="0" x2="1" y2="1">
+                    <Stop offset="0" stopColor="#7DD3FC" />
+                    <Stop offset="1" stopColor="#6366F1" />
+                  </SvgGradient>
+                </Defs>
                 <SvgCircle
-                  cx="40"
-                  cy="40"
+                  cx="42"
+                  cy="42"
                   r={radius}
-                  stroke="rgba(255, 255, 255, 0.08)"
+                  stroke="rgba(148,163,184,0.14)"
                   strokeWidth={strokeWidth}
                   fill="none"
                 />
                 <SvgCircle
-                  cx="40"
-                  cy="40"
+                  cx="42"
+                  cy="42"
                   r={radius}
-                  stroke="#38EDD8"
+                  stroke="url(#formRing)"
                   strokeWidth={strokeWidth}
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}
                   strokeLinecap="round"
                   fill="none"
-                  transform="rotate(-90 40 40)"
+                  transform="rotate(-90 42 42)"
                 />
               </Svg>
               <View style={styles.ringAbsoluteCenter}>
-                <Text style={styles.accuracyNumberText}>{accuracy}%</Text>
+                <Text style={styles.ringValue}>{accuracy}%</Text>
               </View>
             </View>
 
-            <View style={styles.accuracyRatingPill}>
-              <Text style={styles.accuracyRatingText}>
-                {accuracy >= 90 ? "OPTIMAL FORM" : "STEADY FORM"}
+            <View style={styles.pill}>
+              <Text style={styles.pillText}>
+                {accuracy >= 90 ? "OPTIMAL" : "STEADY"}
               </Text>
             </View>
-            <Text style={styles.accuracySubText}>AI REAL-TIME FEEDBACK</Text>
           </View>
         </View>
 
-        {/* Secondary Row: REST TIMER & VOLUME */}
+        {/* Rest + Energy */}
         <View style={styles.statsGridRow}>
-          {/* Card 3: NEXT BREAK */}
           <View style={styles.statCard}>
             <View style={styles.statCardHeader}>
-              <Text style={styles.statCardLabel}>REST INTERVAL</Text>
-              <Clock size={15} color="#38EDD8" strokeWidth={2.4} />
+              <View style={styles.iconChip}>
+                <Timer size={13} color={ACCENT} strokeWidth={2.4} />
+              </View>
+              <Text style={styles.statCardLabel}>REST</Text>
             </View>
 
-            <Text style={styles.timerLargeText}>
-              {formatSeconds(nextBreakSec)}
+            <Text style={[styles.bigNumber, restDone && styles.bigNumberDone]}>
+              {formatSeconds(restSec)}
             </Text>
-            <Text style={styles.timerSubText}>NEXT SET REST</Text>
+            <View style={styles.track}>
+              <View
+                style={[
+                  styles.trackFillSolid,
+                  { width: `${Math.min(100, (restSec / Math.max(1, restTargetSec)) * 100)}%` },
+                ]}
+              />
+            </View>
+            <Text style={styles.captionText}>
+              {restDone ? "Rest done · go!" : `Target ${formatSeconds(restTargetSec)}`}
+            </Text>
 
-            <View style={styles.timerQuickRow}>
-              <Pressable
-                style={styles.quickTimerBtn}
-                onPress={() => adjustBreakTime(-15)}
+            <View style={styles.adjustRow}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={styles.chipBtn}
+                onPress={() => adjustRestTarget(-15)}
+                accessibilityRole="button"
+                accessibilityLabel="Shorter rest target"
               >
-                <Text style={styles.quickTimerText}>-15S</Text>
-              </Pressable>
-              <Pressable
-                style={styles.quickTimerBtn}
-                onPress={() => adjustBreakTime(15)}
+                <Text style={styles.chipBtnText}>−15S</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={styles.chipBtn}
+                onPress={() => adjustRestTarget(15)}
+                accessibilityRole="button"
+                accessibilityLabel="Longer rest target"
               >
-                <Text style={styles.quickTimerText}>+15S</Text>
-              </Pressable>
+                <Text style={styles.chipBtnText}>+15S</Text>
+              </TouchableOpacity>
             </View>
           </View>
 
-          {/* Card 4: INTENSITY & ENERGY */}
           <View style={styles.statCard}>
             <View style={styles.statCardHeader}>
-              <Text style={styles.statCardLabel}>ENERGY BURN</Text>
-              <Flame size={15} color="#F59E0B" strokeWidth={2.4} />
+              <View style={styles.iconChip}>
+                <Flame size={13} color={ACCENT} strokeWidth={2.4} />
+              </View>
+              <Text style={styles.statCardLabel}>ENERGY</Text>
             </View>
 
-            <View style={styles.metricPairRow}>
-              <Text style={styles.burnNumber}>92</Text>
-              <Text style={styles.burnUnit}>KCAL</Text>
+            <View style={styles.valueRow}>
+              <Text style={styles.bigNumber}>92</Text>
+              <Text style={styles.unitText}>KCAL</Text>
             </View>
-            <Text style={styles.burnSubText}>ESTIMATED OUTPUT</Text>
+            <Text style={styles.captionText}>Estimated burn</Text>
 
-            <View style={styles.volumeMiniRow}>
-              <TrendingUp size={12} color="#38EDD8" />
-              <Text style={styles.volumeMiniText}>VOL LOAD: 720 KG</Text>
+            <View style={styles.volumeTile}>
+              <TrendingUp size={13} color={ACCENT_SOFT} strokeWidth={2.4} />
+              <View>
+                <Text style={styles.volumeLabel}>VOLUME</Text>
+                <Text style={styles.volumeValue}>720 kg</Text>
+              </View>
             </View>
           </View>
         </View>
       </ScrollView>
 
-      {/* Bottom Sticky Action Area */}
+      {/* Bottom action */}
       <View
         style={[
           styles.bottomActionBar,
-          { paddingBottom: Math.max(insets.bottom + 16, 44) },
+          { paddingBottom: Math.max(insets.bottom + 12, 24) },
         ]}
       >
-        <Pressable
-          style={styles.nextExerciseButton}
+        <LinearGradient
+          colors={["rgba(6,8,16,0)", "rgba(6,8,16,0.96)"]}
+          style={styles.bottomFade}
+          pointerEvents="none"
+        />
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={styles.primaryBtn}
           onPress={handleNext}
           accessibilityRole="button"
           accessibilityLabel={
-            exerciseIndex + 1 >= totalExercises
-              ? "Finish workout"
-              : "Next exercise"
+            exerciseIndex + 1 >= totalExercises ? "Finish workout" : "Next exercise"
           }
         >
           <LinearGradient
-            colors={["#1967B2", "#2B90EA"]}
+            colors={BUTTON_GRADIENT}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.nextButtonGradient}
-          >
-            <Text style={styles.nextButtonText}>
-              {exerciseIndex + 1 >= totalExercises
-                ? "FINISH WORKOUT"
-                : "NEXT EXERCISE"}
-            </Text>
-            <ArrowRight size={18} color="#FFFFFF" strokeWidth={2.5} />
-          </LinearGradient>
-        </Pressable>
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <LinearGradient
+            colors={SHEEN}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={styles.primarySheen}
+            pointerEvents="none"
+          />
+          <Text style={styles.primaryBtnText}>
+            {exerciseIndex + 1 >= totalExercises ? "FINISH WORKOUT" : "NEXT EXERCISE"}
+          </Text>
+          <View style={styles.primaryTrail}>
+            <ArrowRight size={14} color="#FFFFFF" strokeWidth={2.6} />
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -425,166 +521,159 @@ export const AiWorkoutLiveScreen: React.FC<AiWorkoutLiveScreenProps> = ({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#070A11",
+    backgroundColor: "#060810",
   },
   topHeader: {
     paddingHorizontal: 20,
     paddingBottom: 12,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    zIndex: 10,
+    gap: 12,
   },
-  headerLeftCol: {
+  roundBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.2)",
+  },
+  roundBtnSpacer: {
+    width: 42,
+  },
+  headerCenter: {
+    flex: 1,
+    minWidth: 0,
+    alignItems: "center",
+  },
+  headerKicker: {
+    ...typography.overline,
+    color: ACCENT_SOFT,
+  },
+  headerTitle: {
+    ...typography.pageTitleCompact,
+    color: "#F6F8FF",
+  },
+  pauseBtn: {
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderColor: "rgba(56,189,248,0.35)",
+  },
+  pauseBtnActive: {
+    backgroundColor: "#0EA5E9",
+    borderColor: "#0EA5E9",
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 4,
+  },
+
+  // Exercise card
+  card: {
+    backgroundColor: "#111A25",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.18)",
+    padding: 14,
+    gap: 12,
+    marginBottom: 12,
+    overflow: "hidden",
+  },
+  heroRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
   },
-  backButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: "rgba(18, 22, 33, 0.85)",
-    borderWidth: 1.2,
-    borderColor: "rgba(255, 255, 255, 0.12)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerCategory: {
-    color: "#FFF",
-    fontSize: 20,
-    fontWeight: "800",
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-  },
-  headerTitle: {
-    color: "#FFFFFF",
-    fontSize: 22,
-    lineHeight: 26,
-    fontWeight: "800",
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-  },
-  pauseBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(18, 22, 33, 0.85)",
-    borderWidth: 1.2,
-    borderColor: "rgba(56, 237, 216, 0.45)",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+  heroThumbWrap: {
+    width: 72,
+    height: 72,
     borderRadius: 18,
-  },
-  pauseBtnActive: {
-    backgroundColor: "rgba(37, 140, 232, 0.35)",
-    borderColor: "#38BDF8",
-  },
-  pauseBtnText: {
-    color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  pauseBtnTextActive: {
-    color: "#FFFFFF",
-  },
-
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-  },
-
-  // Active Exercise Hero Card
-  exerciseHeroCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(18, 22, 33, 0.92)",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 14,
-    marginBottom: 16,
-  },
-  heroImageWrapper: {
-    width: 68,
-    height: 68,
-    borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: "#0F121A",
-    position: "relative",
-    borderWidth: 1.2,
-    borderColor: "rgba(56, 237, 216, 0.35)",
-  },
-  heroThumbnail: {
-    width: "100%",
-    height: "100%",
+    backgroundColor: "#0B111B",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
   },
   indexBadge: {
     position: "absolute",
     top: 5,
     left: 5,
-    backgroundColor: "rgba(8, 10, 16, 0.85)",
-    borderRadius: 5,
     paddingHorizontal: 5,
-    paddingVertical: 1.5,
+    paddingVertical: 1,
+    borderRadius: 999,
+    backgroundColor: "rgba(6,8,16,0.72)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
   },
   indexBadgeText: {
-    color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "700",
+    ...typography.badge,
+    letterSpacing: 0.4,
+    color: "#FFFFFF",
   },
   heroTextCol: {
     flex: 1,
-    marginLeft: 14,
+    minWidth: 0,
+    gap: 4,
   },
   heroStatusRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 4,
   },
-  activePill: {
+  statusPill: {
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
-    backgroundColor: "rgba(56, 237, 216, 0.12)",
-    paddingHorizontal: 7,
+    paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.12)",
   },
-  pulsingDot: {
+  statusDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#38EDD8",
+    backgroundColor: ACCENT,
   },
-  activePillText: {
-    color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.6,
+  statusDotPaused: {
+    backgroundColor: "#94A3B8",
   },
-  progressCounterText: {
-    color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "700",
+  statusPillText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+  },
+  counterText: {
+    ...typography.badge,
+    color: "#7C8BA1",
   },
   exerciseNameText: {
-    color: "#FFFFFF",
-    fontSize: 16,
+    ...typography.cardTitle,
     lineHeight: 20,
-    fontWeight: "800",
+    color: "#F8FAFC",
     textTransform: "uppercase",
-    letterSpacing: 0.5,
   },
   exerciseSubtitleText: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontWeight: "500",
-    marginTop: 2,
+    ...typography.caption,
+    color: "#8B9AB0",
+  },
+  exerciseSteps: {
+    flexDirection: "row",
+    gap: 4,
+  },
+  exerciseStep: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(148,163,184,0.18)",
+  },
+  exerciseStepDone: {
+    backgroundColor: "rgba(56,189,248,0.5)",
+  },
+  exerciseStepActive: {
+    backgroundColor: ACCENT,
   },
 
-  // Bento Stats Grid
+  // Stat cards
   statsGridRow: {
     flexDirection: "row",
     gap: 12,
@@ -592,455 +681,206 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: "rgba(18, 22, 33, 0.88)",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    gap: 10,
     padding: 14,
-    justifyContent: "space-between",
+    borderRadius: 22,
+    backgroundColor: "#111A25",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.18)",
   },
   statCardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
+    gap: 8,
+  },
+  iconChip: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
   },
   statCardLabel: {
+    ...typography.overline,
     color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
   },
-  repsDisplayRow: {
+  valueRow: {
     flexDirection: "row",
     alignItems: "baseline",
     gap: 4,
   },
-  repsMainNumber: {
-    color: "#FFFFFF",
-    fontSize: 40,
-    lineHeight: 44,
-    fontWeight: "800",
+  bigNumber: {
+    ...typography.metricLarge,
+    color: "#F8FAFC",
   },
-  repsTargetText: {
+  bigNumberDone: {
+    color: ACCENT_SOFT,
+  },
+  unitText: {
+    ...typography.metricUnit,
     color: "#64748B",
-    fontSize: 16,
-    fontWeight: "800",
   },
-  repsProgressBarTrack: {
+  track: {
     height: 6,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
     borderRadius: 3,
     overflow: "hidden",
-    marginVertical: 8,
+    backgroundColor: "rgba(148,163,184,0.14)",
   },
-  repsProgressBarFill: {
+  trackFill: {
     height: "100%",
-    backgroundColor: "#38EDD8",
     borderRadius: 3,
   },
-  repsProgressSub: {
-    color: "#38EDD8",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+  trackFillSolid: {
+    height: "100%",
+    borderRadius: 3,
+    backgroundColor: ACCENT,
   },
-  repAdjustRow: {
+  captionText: {
+    ...typography.caption,
+    color: "#8B9AB0",
+    marginTop: -4,
+  },
+  adjustRow: {
     flexDirection: "row",
     gap: 8,
-    marginTop: 10,
+    marginTop: "auto",
   },
   adjustBtn: {
     flex: 1,
-    height: 32,
-    borderRadius: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    height: 38,
+    borderRadius: 12,
+    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.28)",
   },
   adjustBtnAdd: {
-    backgroundColor: "#38EDD8",
+    borderWidth: 0,
   },
-
-  // Ring Center
-  ringCenterContainer: {
+  chipBtn: {
+    flex: 1,
+    height: 34,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: 4,
-    position: "relative",
-    height: 80,
+    backgroundColor: "rgba(56,189,248,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.28)",
+  },
+  chipBtnText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+  },
+  ringCenterContainer: {
+    alignSelf: "center",
+    width: 84,
+    height: 84,
+    alignItems: "center",
+    justifyContent: "center",
   },
   ringAbsoluteCenter: {
-    position: "absolute",
+    ...StyleSheet.absoluteFill,
     alignItems: "center",
     justifyContent: "center",
   },
-  accuracyNumberText: {
-    color: "#FFFFFF",
-    fontSize: 20,
-    fontWeight: "800",
+  ringValue: {
+    ...typography.cardTitle,
+    fontSize: 18,
+    lineHeight: 22,
+    color: "#F8FAFC",
   },
-  accuracyRatingPill: {
+  pill: {
     alignSelf: "center",
-    backgroundColor: "rgba(56, 237, 216, 0.12)",
-    paddingHorizontal: 8,
-    paddingVertical: 2.5,
-    borderRadius: 10,
-    marginTop: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
   },
-  accuracyRatingText: {
-    color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.6,
+  pillText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
   },
-  accuracySubText: {
-    color: "#64748B",
-    fontSize: 9,
-    fontWeight: "700",
-    textAlign: "center",
-    marginTop: 4,
-    letterSpacing: 0.5,
+  volumeTile: {
+    marginTop: "auto",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 12,
+    backgroundColor: "rgba(56,189,248,0.08)",
+  },
+  volumeLabel: {
+    ...typography.microTag,
+    color: "#7C8BA1",
+  },
+  volumeValue: {
+    ...typography.badge,
+    letterSpacing: 0.3,
+    color: "#E2E8F0",
   },
 
-  // Timer Card
-  timerLargeText: {
-    color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 36,
-    fontWeight: "800",
+  // Bottom
+  bottomActionBar: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    backgroundColor: "rgba(6,8,16,0.96)",
   },
-  timerSubText: {
-    color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-    marginTop: 2,
+  bottomFade: {
+    position: "absolute",
+    top: -28,
+    left: 0,
+    right: 0,
+    height: 28,
   },
-  timerQuickRow: {
+  primaryBtn: {
+    height: 52,
+    borderRadius: 16,
+    overflow: "hidden",
     flexDirection: "row",
-    gap: 8,
-    marginTop: 10,
-  },
-  quickTimerBtn: {
-    flex: 1,
-    height: 30,
-    borderRadius: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
     alignItems: "center",
     justifyContent: "center",
-  },
-  quickTimerText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-
-  // Metric Pair
-  metricPairRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    gap: 4,
-  },
-  burnNumber: {
-    color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 38,
-    fontWeight: "800",
-  },
-  burnUnit: {
-    color: "#F59E0B",
-    fontSize: 13,
-    fontWeight: "800",
-  },
-  burnSubText: {
-    color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-    marginTop: 2,
-  },
-  volumeMiniRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    marginTop: 12,
-  },
-  volumeMiniText: {
-    color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-
-  // AI Form Insight Card
-  aiInsightCard: {
-    backgroundColor: "rgba(14, 25, 36, 0.9)",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(56, 237, 216, 0.35)",
-    padding: 16,
-    marginBottom: 16,
-  },
-  aiInsightHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  aiBadgePill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  aiBadgeText: {
-    color: "#38EDD8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
-  aiLiveTag: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "rgba(251, 191, 36, 0.15)",
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  aiLiveTagText: {
-    color: "#FBBF24",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-  aiCueText: {
-    color: "#E2E8F0",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "500",
-    marginBottom: 12,
-  },
-  aiMetricsRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  aiMetricChip: {
-    flex: 1,
-    backgroundColor: "rgba(8, 14, 24, 0.8)",
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
-  },
-  aiMetricChipLabel: {
-    color: "#94A3B8",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.6,
-  },
-  aiMetricChipVal: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    marginTop: 2,
-  },
-
-  // Sets Progression Table
-  setsTableContainer: {
-    backgroundColor: "rgba(18, 22, 33, 0.88)",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 16,
-    marginBottom: 16,
-  },
-  setsTableHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 12,
-  },
-  setsTableTitle: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-  },
-  setsTableSubtitle: {
-    color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.6,
-  },
-  setsListWrapper: {
-    gap: 8,
-  },
-  setRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "rgba(10, 14, 22, 0.6)",
-    borderRadius: 14,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.05)",
-  },
-  setRowCurrent: {
-    borderColor: "rgba(56, 237, 216, 0.5)",
-    backgroundColor: "rgba(14, 25, 36, 0.95)",
-  },
-  setRowCompleted: {
-    borderColor: "rgba(56, 237, 216, 0.25)",
-  },
-  setRowLeft: {
-    flexDirection: "row",
-    alignItems: "center",
     gap: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: ACCENT,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 14,
+      },
+      web: { boxShadow: "0 8px 22px rgba(56,189,248,0.28)" } as any,
+      default: {},
+    }),
   },
-  setNumberCircle: {
+  primarySheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
+  },
+  primaryBtnText: {
+    ...typography.button,
+    letterSpacing: 1,
+    color: "#FFFFFF",
+  },
+  primaryTrail: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
     alignItems: "center",
     justifyContent: "center",
-  },
-  setNumberCircleCompleted: {
-    backgroundColor: "rgba(56, 237, 216, 0.2)",
-    borderWidth: 1,
-    borderColor: "#38EDD8",
-  },
-  setNumberCircleCurrent: {
-    backgroundColor: "#38EDD8",
-  },
-  setNumberText: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  setNumberTextCurrent: {
-    color: "#0B0F19",
-  },
-  setLabelText: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.6,
-  },
-  setLabelTextCurrent: {
-    color: "#FFFFFF",
-  },
-  setRowMetrics: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  setMetricText: {
-    color: "#E2E8F0",
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  setDotDivider: {
-    color: "#475569",
-    fontSize: 10,
-  },
-  setMetricAcc: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "600",
-  },
-  setMetricAccCompleted: {
-    color: "#38EDD8",
-  },
-  setStatusCol: {
-    minWidth: 54,
-    alignItems: "flex-end",
-  },
-  statusDoneBadge: {
-    backgroundColor: "rgba(56, 237, 216, 0.15)",
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  statusDoneText: {
-    color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-  statusActiveBadge: {
-    backgroundColor: "rgba(56, 189, 248, 0.2)",
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  statusActiveText: {
-    color: "#38BDF8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-  statusPendingText: {
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-
-  // Bottom Sticky Action Bar
-  bottomActionBar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    backgroundColor: "rgba(7, 10, 17, 0.94)",
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.08)",
-  },
-  nextExerciseButton: {
-    width: "100%",
-    height: 54,
-    borderRadius: 27,
-    overflow: "hidden",
-    shadowOpacity: 0.45,
-    shadowRadius: 16,
-    elevation: 8,
-    marginBottom: 10,
-  },
-  nextButtonGradient: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-  },
-  nextButtonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "800",
-    letterSpacing: 0.8,
-  },
-  secondaryLinksRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 4,
-    paddingVertical: 2,
-  },
-  exitLinkBtn: {
-    alignItems: "center",
-    paddingVertical: 4,
-  },
-  exitLinkText: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.2,
+    backgroundColor: "rgba(255,255,255,0.2)",
   },
 });

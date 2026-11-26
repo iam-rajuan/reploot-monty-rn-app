@@ -240,6 +240,14 @@ export const AiWorkoutCameraRecordScreen: React.FC<
                 <Text style={styles.valueUnit}>%</Text>
               </View>
             </View>
+            <View style={styles.repTrack}>
+              <View
+                style={[
+                  styles.repFill,
+                  { width: `${Math.min(100, Math.max(0, accuracy))}%` },
+                ]}
+              />
+            </View>
           </View>
         </View>
 
