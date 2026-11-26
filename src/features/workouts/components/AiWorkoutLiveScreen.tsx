@@ -14,8 +14,16 @@ import {
   ShieldCheck,
   Timer,
   TrendingUp,
+  X,
 } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import * as Notifications from "expo-notifications";
+import {
+  REST_ACTION_EXTEND,
+  REST_REMINDER_KIND,
+  notificationPermissionService,
+  notificationService,
+} from "@/services/notifications/NotificationService";
 import {
   Platform,
   ScrollView,
@@ -32,6 +40,7 @@ import Svg, {
   Stop,
 } from "react-native-svg";
 import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
+import Animated, { FadeInUp, FadeOutUp } from "react-native-reanimated";
 import { typography } from "@/theme/typography";
 import { WorkoutExerciseItem } from "../data/workoutPathDetailData";
 
@@ -74,6 +83,8 @@ export const AiWorkoutLiveScreen: React.FC<AiWorkoutLiveScreenProps> = ({
   );
   const [restSec, setRestSec] = useState<number>(0);
   const [restTargetSec, setRestTargetSec] = useState<number>(DEFAULT_REST_TARGET);
+  /** Bumped whenever a new rest window starts, so the reminder reschedules. */
+  const [restCycle, setRestCycle] = useState(0);
   const [currentSet, setCurrentSet] = useState<number>(
     exerciseIndex === 0 ? 2 : 1,
   );
@@ -99,26 +110,136 @@ export const AiWorkoutLiveScreen: React.FC<AiWorkoutLiveScreenProps> = ({
       setAccuracy(98);
     }
     setRestSec(0);
+    setRestCycle((cycle) => cycle + 1);
     setIsPaused(false);
   }, [currentExercise.id, exerciseIndex]);
 
-  // Rest timer counts up from 00:00 (paused with the session).
-  useEffect(() => {
-    if (isPaused) return;
-    const timer = setInterval(() => {
-      setRestSec((prev) => prev + 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [isPaused]);
-
+  // Rest timer counts up from 00:00 and stops exactly at the target.
+  // It is anchored to the clock, so it stays correct after the app was in
+  // the background (JS intervals are throttled there).
   const restDone = restSec >= restTargetSec;
+  const restSecRef = useRef(restSec);
+  restSecRef.current = restSec;
+
   useEffect(() => {
-    if (restSec === restTargetSec && restSec > 0 && Platform.OS !== "web") {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
-        () => {},
-      );
+    if (isPaused || restDone) return;
+    const anchor = Date.now() - restSecRef.current * 1000;
+    const tick = () => {
+      const elapsed = Math.floor((Date.now() - anchor) / 1000);
+      setRestSec(Math.min(elapsed, restTargetSec));
+    };
+    const timer = setInterval(tick, 250);
+    return () => clearInterval(timer);
+  }, [isPaused, restDone, restTargetSec, restCycle]);
+
+  // In-app banner + haptic the moment rest ends while the screen is open.
+  const [showRestBanner, setShowRestBanner] = useState(false);
+  const wasDoneRef = useRef(false);
+  useEffect(() => {
+    if (restDone && !wasDoneRef.current && restSec > 0) {
+      setShowRestBanner(true);
+      if (Platform.OS !== "web") {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
+          () => {},
+        );
+      }
     }
-  }, [restSec, restTargetSec]);
+    if (!restDone) setShowRestBanner(false);
+    wasDoneRef.current = restDone;
+  }, [restDone, restSec]);
+
+  // System notification for when the app is in the background.
+  const reminderIdRef = useRef<string | null>(null);
+  const isLastExercise = exerciseIndex + 1 >= totalExercises;
+  const nextUpText = isLastExercise
+    ? "Last exercise — finish strong."
+    : `Exercise ${exerciseIndex + 2} of ${totalExercises} is up next.`;
+
+  useEffect(() => {
+    notificationService.configureHandler().catch(() => {});
+    notificationPermissionService
+      .getPermission()
+      .then((granted) => {
+        if (!granted) notificationPermissionService.requestPermission();
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const cancelReminder = () => {
+      const id = reminderIdRef.current;
+      reminderIdRef.current = null;
+      if (id) notificationService.cancelScheduled(id).catch(() => {});
+    };
+
+    cancelReminder();
+    const remaining = restTargetSec - restSecRef.current;
+    if (!isPaused && remaining > 0) {
+      notificationService
+        .scheduleRestReminder({
+          title: "⏱ Rest is over",
+          subtitle: `${currentExercise.title.replace(/\n/g, " ")} · Set ${currentSet} of ${totalSets}`,
+          body: `${nextUpText} Tap to jump back in.`,
+          seconds: remaining,
+        })
+        .then((id) => {
+          if (cancelled) {
+            if (id) notificationService.cancelScheduled(id).catch(() => {});
+          } else {
+            reminderIdRef.current = id;
+          }
+        })
+        .catch(() => {});
+    }
+
+    return () => {
+      cancelled = true;
+      cancelReminder();
+    };
+  }, [
+    isPaused,
+    restTargetSec,
+    restCycle,
+    currentExercise.title,
+    currentSet,
+    totalSets,
+    nextUpText,
+  ]);
+
+  const restartRest = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    }
+    setRestSec(0);
+    setRestCycle((cycle) => cycle + 1);
+  };
+
+  const extendRest = (seconds: number) => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    }
+    setShowRestBanner(false);
+    setRestTargetSec((prev) => Math.min(300, prev + seconds));
+  };
+
+  // Notification buttons: "+30 sec rest" extends, "Start next" just opens the app.
+  const extendRestRef = useRef(extendRest);
+  extendRestRef.current = extendRest;
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+      const content = response.notification.request.content;
+      if (content.data?.kind !== REST_REMINDER_KIND) return;
+      if (response.actionIdentifier === REST_ACTION_EXTEND) {
+        extendRestRef.current(30);
+      }
+      notificationService
+        .dismiss(response.notification.request.identifier)
+        .catch(() => {});
+    });
+    return () => sub.remove();
+  }, []);
 
   // Ring Gauge Calculations
   const radius = 36;
@@ -159,7 +280,12 @@ export const AiWorkoutLiveScreen: React.FC<AiWorkoutLiveScreenProps> = ({
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     }
-    setRestTargetSec((prev) => Math.max(15, Math.min(300, prev + delta)));
+    setRestTargetSec((prev) => {
+      const next = Math.max(15, Math.min(300, prev + delta));
+      // Shortening below the elapsed time ends the rest right there.
+      setRestSec((elapsed) => Math.min(elapsed, next));
+      return next;
+    });
   };
 
   const cleanExerciseTitle = currentExercise.title.replace(/\n/g, " ");
@@ -410,9 +536,17 @@ export const AiWorkoutLiveScreen: React.FC<AiWorkoutLiveScreenProps> = ({
               <Text style={styles.statCardLabel}>REST</Text>
             </View>
 
-            <Text style={[styles.bigNumber, restDone && styles.bigNumberDone]}>
-              {formatSeconds(restSec)}
-            </Text>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={restartRest}
+              accessibilityRole="button"
+              accessibilityLabel="Restart rest timer"
+              accessibilityHint={`Rest stops at ${formatSeconds(restTargetSec)}`}
+            >
+              <Text style={[styles.bigNumber, restDone && styles.bigNumberDone]}>
+                {formatSeconds(restSec)}
+              </Text>
+            </TouchableOpacity>
             <View style={styles.track}>
               <View
                 style={[
@@ -422,7 +556,7 @@ export const AiWorkoutLiveScreen: React.FC<AiWorkoutLiveScreenProps> = ({
               />
             </View>
             <Text style={styles.captionText}>
-              {restDone ? "Rest done · go!" : `Target ${formatSeconds(restTargetSec)}`}
+              {restDone ? "Done · tap to restart" : `Stops at ${formatSeconds(restTargetSec)}`}
             </Text>
 
             <View style={styles.adjustRow}>
@@ -471,6 +605,91 @@ export const AiWorkoutLiveScreen: React.FC<AiWorkoutLiveScreenProps> = ({
           </View>
         </View>
       </ScrollView>
+
+      {/* Rest-over banner (designed in-app version of the notification) */}
+      {showRestBanner ? (
+        <Animated.View
+          entering={Platform.OS === "web" ? undefined : FadeInUp.duration(220)}
+          exiting={Platform.OS === "web" ? undefined : FadeOutUp.duration(180)}
+          style={[styles.restBanner, { top: Math.max(insets.top + 8, 20) }]}
+          accessibilityRole="alert"
+          accessibilityLiveRegion="assertive"
+        >
+          <LinearGradient
+            colors={["rgba(56,189,248,0.22)", "rgba(99,102,241,0.10)", "rgba(17,26,37,0)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <View style={styles.bannerTop}>
+            <View style={styles.bannerIcon}>
+              <LinearGradient
+                colors={BUTTON_GRADIENT}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+              <View>
+                <Timer size={18} color="#FFFFFF" strokeWidth={2.4} />
+              </View>
+            </View>
+            <View style={styles.bannerCopy}>
+              <View style={styles.bannerTitleRow}>
+                <Text style={styles.bannerTitle}>Rest is over</Text>
+                <Text style={styles.bannerMeta}>{formatSeconds(restTargetSec)}</Text>
+              </View>
+              <Text style={styles.bannerBody} numberOfLines={2}>
+                {nextUpText}
+              </Text>
+            </View>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => setShowRestBanner(false)}
+              style={styles.bannerClose}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel="Dismiss"
+            >
+              <X size={14} color="#94A3B8" strokeWidth={2.6} />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.bannerActions}>
+            <TouchableOpacity
+              activeOpacity={0.75}
+              onPress={() => extendRest(30)}
+              style={styles.bannerGhostBtn}
+              accessibilityRole="button"
+              accessibilityLabel="Add 30 seconds of rest"
+            >
+              <Text style={styles.bannerGhostText}>+30S REST</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={() => {
+                setShowRestBanner(false);
+                handleNext();
+              }}
+              style={styles.bannerPrimaryBtn}
+              accessibilityRole="button"
+              accessibilityLabel={isLastExercise ? "Finish workout" : "Start next exercise"}
+            >
+              <LinearGradient
+                colors={BUTTON_GRADIENT}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+              <Text style={styles.bannerPrimaryText}>
+                {isLastExercise ? "FINISH" : "START NEXT"}
+              </Text>
+              <View>
+                <ArrowRight size={13} color="#FFFFFF" strokeWidth={2.8} />
+              </View>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      ) : null}
 
       {/* Bottom action */}
       <View
@@ -882,5 +1101,110 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(255,255,255,0.2)",
+  },
+
+  // Rest-over banner
+  restBanner: {
+    position: "absolute",
+    left: 14,
+    right: 14,
+    zIndex: 50,
+    padding: 14,
+    gap: 12,
+    borderRadius: 22,
+    overflow: "hidden",
+    backgroundColor: "#111A25",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.4)",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.45,
+        shadowRadius: 20,
+      },
+      android: { elevation: 12 },
+      web: { boxShadow: "0 14px 34px rgba(0,0,0,0.5)" } as any,
+      default: {},
+    }),
+  },
+  bannerTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  bannerIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  bannerCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 2,
+  },
+  bannerTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  bannerTitle: {
+    ...typography.cardTitle,
+    color: "#F8FAFC",
+  },
+  bannerMeta: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+    fontVariant: ["tabular-nums"],
+  },
+  bannerBody: {
+    ...typography.bodySmall,
+    color: "#A7B3C5",
+  },
+  bannerClose: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.05)",
+    alignSelf: "flex-start",
+  },
+  bannerActions: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  bannerGhostBtn: {
+    flex: 1,
+    height: 40,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
+  },
+  bannerGhostText: {
+    ...typography.buttonSmall,
+    letterSpacing: 1,
+    color: ACCENT_SOFT,
+  },
+  bannerPrimaryBtn: {
+    flex: 1.4,
+    height: 40,
+    borderRadius: 12,
+    overflow: "hidden",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+  bannerPrimaryText: {
+    ...typography.buttonSmall,
+    letterSpacing: 1,
+    color: "#FFFFFF",
   },
 });

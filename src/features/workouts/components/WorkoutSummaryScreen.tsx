@@ -5,11 +5,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
-  Activity,
   ArrowRight,
-  Bot,
   Calendar,
   Check,
+  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Clock,
@@ -18,27 +17,53 @@ import {
   RotateCcw,
   Share2,
   Sparkles,
-  TrendingUp,
+  Target,
+  Trophy,
+  X,
   Zap,
 } from "lucide-react-native";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
-  Dimensions,
+  SHARE_CARD_HEIGHT,
+  SHARE_CARD_THEMES,
+  SHARE_CARD_WIDTH,
+  ShareCardTheme,
+  WorkoutShareCard,
+} from "./WorkoutShareCard";
+import {
+  ActivityIndicator,
+  Modal,
   Platform,
-  Pressable,
   ScrollView,
   Share,
+  useWindowDimensions,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Circle as SvgCircle, Line as SvgLine } from "react-native-svg";
+import Svg, {
+  Circle as SvgCircle,
+  Defs,
+  LinearGradient as SvgGradient,
+  Stop,
+} from "react-native-svg";
 import { WorkoutExerciseItem } from "../data/workoutPathDetailData";
 import { typography } from "@/theme/typography";
 import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
-const { width } = Dimensions.get("window");
+// One accent for the whole page.
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.06)",
+  "rgba(255,255,255,0.02)",
+] as const;
+const RING = 184;
 
 export interface WorkoutSummaryScreenProps {
   score?: number;
@@ -146,15 +171,14 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
   const router = useRouter();
   const [showAllExercises, setShowAllExercises] = useState(false);
 
-  const summaryDescription =
+  const coachNote =
     description ||
-    (workoutSubtitle && workoutSubtitle.length > 40
-      ? workoutSubtitle
-      : "High-intensity hypertrophy protocol targeting chest, shoulders, and triceps. Exceptional biomechanical execution and steady tempo maintained across all cleared sets.");
+    (accuracy >= 95
+      ? `Clean form — ${accuracy}% accuracy across ${completedExercisesCount} exercises. Add a little weight next time.`
+      : `Solid session. Slow the tempo next time to push accuracy past ${Math.ceil(accuracy)}%.`);
 
-  // Dynamic circular gauge calculations for score (radius: 78, stroke: 8)
-  const ringRadius = 78;
-  const strokeWidth = 8;
+  const strokeWidth = 12;
+  const ringRadius = (RING - strokeWidth) / 2;
   const circumference = 2 * Math.PI * ringRadius;
   // Sweep dynamically proportional to score (e.g. 992/1000 = ~0.89 sweep)
   const progressPercent = Math.min(Math.max((score / 1000) * 0.9, 0.1), 0.96);
@@ -199,17 +223,65 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
     }
   };
 
-  const handleShare = async () => {
+  // Share sheet: preview a designed 4:5 card, pick a theme, export as PNG.
+  const { width: windowWidth } = useWindowDimensions();
+  const shareCardRef = useRef<View>(null);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareTheme, setShareTheme] = useState<ShareCardTheme>("midnight");
+  const [isExporting, setIsExporting] = useState(false);
+  const previewScale = Math.min(1, (windowWidth - 48) / SHARE_CARD_WIDTH);
+  const shareText = `Just finished ${workoutTitle} — score ${score}, ${accuracy}% form, ${caloriesBurned} kcal in ${durationFormatted}. Tracked with REPLOOT.`;
+
+  const handleShare = () => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     }
+    setShareOpen(true);
+  };
+
+  const handleExportImage = async () => {
+    if (isExporting) return;
+    setIsExporting(true);
     try {
-      if (Platform.OS !== "web") {
-        await Share.share({
-          message: `🔥 Just crushed ${workoutTitle}! Scored ${score} with ${accuracy}% form accuracy, burned ${caloriesBurned} kcal in ${durationFormatted} min on REPLOOT!`,
-        });
+      if (Platform.OS === "web" || !shareCardRef.current) {
+        await Share.share({ message: shareText });
+        return;
       }
-    } catch {}
+      // Loaded on demand so a build without these native modules can't crash
+      // the screen; it falls back to a text share instead.
+      let Sharing: typeof import("expo-sharing");
+      let captureRef: typeof import("react-native-view-shot").captureRef;
+      try {
+        Sharing = require("expo-sharing");
+        captureRef = require("react-native-view-shot").captureRef;
+      } catch {
+        await Share.share({ message: shareText });
+        return;
+      }
+      const uri = await captureRef(shareCardRef, {
+        format: "png",
+        quality: 1,
+        width: 1080,
+        height: 1350,
+        result: "tmpfile",
+      });
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri, {
+          mimeType: "image/png",
+          dialogTitle: "Share your workout",
+          UTI: "public.png",
+        });
+      } else {
+        await Share.share({ url: uri, message: shareText });
+      }
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
+        () => {},
+      );
+    } catch {
+      // User cancelled or capture failed: keep the sheet open.
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // Resolved list of completed exercises
@@ -231,6 +303,18 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
     ? exerciseList
     : exerciseList.slice(0, 4);
 
+  const stats = [
+    { key: "acc", Icon: Target, value: `${accuracy}%`, label: "ACCURACY" },
+    {
+      key: "done",
+      Icon: CheckCircle2,
+      value: `${completedExercisesCount}/${totalExercisesCount}`,
+      label: "EXERCISES",
+    },
+    { key: "kcal", Icon: Flame, value: `${caloriesBurned}`, label: "KCAL" },
+    { key: "time", Icon: Clock, value: durationFormatted, label: "MINUTES" },
+  ];
+
   return (
     <View style={styles.screen}>
       <ScreenBackground />
@@ -244,17 +328,15 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
         showNotifications={false}
         showAvatar={false}
         rightContent={
-          <Pressable
-            style={({ pressed }) => [
-              styles.shareIconButton,
-              pressed && { opacity: 0.75, transform: [{ scale: 0.94 }] },
-            ]}
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={styles.shareIconButton}
             onPress={handleShare}
             accessibilityRole="button"
-            accessibilityLabel="Share workout performance summary"
+            accessibilityLabel="Share workout summary"
           >
-            <Share2 size={18} color="#FFFFFF" strokeWidth={2.2} />
-          </Pressable>
+            <Share2 size={17} color={ACCENT_SOFT} strokeWidth={2.4} />
+          </TouchableOpacity>
         }
       />
 
@@ -263,259 +345,156 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: Math.max(insets.bottom + 120, 160) },
+          { paddingBottom: Math.max(insets.bottom + 24, 40) },
         ]}
       >
-        {/* Title Section: WORKOUT SUMMARY */}
         <View style={styles.titleSection}>
-          <Text style={styles.mainTitle}>WORKOUT SUMMARY</Text>
-          {summaryDescription ? (
-            <Text style={styles.summaryDescription}>{summaryDescription}</Text>
-          ) : null}
-
+          <Text style={styles.categoryBadge}>WORKOUT COMPLETE</Text>
+          <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
+            SUMMARY
+          </Text>
           <View style={styles.dateRow}>
-            <Calendar size={13} color="#94A3B8" />
+            <Calendar size={13} color="#7C8BA1" strokeWidth={2.2} />
             <Text style={styles.dateText}>{resolvedDate}</Text>
           </View>
         </View>
 
-        {/* Section Header: TOTAL SCORE */}
-        <View style={styles.sectionHeaderRow}>
-          <View style={styles.sectionCyanBar} />
-          <Text style={styles.sectionHeaderText}>TOTAL SCORE</Text>
-        </View>
-
-        {/* Big Circular Score Dial (992 + 850 XP) */}
-        <View style={styles.dialContainer}>
-          <Svg width="180" height="180" viewBox="0 0 180 180">
-            {/* Background Dial Track */}
-            <SvgCircle
-              cx="90"
-              cy="90"
-              r={ringRadius}
-              stroke="rgba(255, 255, 255, 0.08)"
-              strokeWidth={strokeWidth}
-              fill="none"
-            />
-            {/* Outer Glow Halo Layer */}
-            <SvgCircle
-              cx="90"
-              cy="90"
-              r={ringRadius}
-              stroke="rgba(56, 237, 216, 0.18)"
-              strokeWidth={strokeWidth + 4}
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
-              fill="none"
-              transform="rotate(-90 90 90)"
-            />
-            {/* Glow Neon Arc Track */}
-            <SvgCircle
-              cx="90"
-              cy="90"
-              r={ringRadius}
-              stroke="#38EDD8"
-              strokeWidth={strokeWidth}
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
-              fill="none"
-              transform="rotate(-90 90 90)"
-            />
-          </Svg>
-
-          <View style={styles.dialInnerContent}>
-            <Text style={styles.scoreNumberLarge}>{score}</Text>
-            <View style={styles.xpRow}>
-              <Zap size={13} color="#FBBF24" fill="#FBBF24" />
-              <Text style={styles.scoreXpPill}>+{xpEarned} XP</Text>
-            </View>
-            <View style={styles.tierPill}>
-              <Text style={styles.tierPillText}>ELITE ATHLETE</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Section Header: SESSION METRICS */}
-        <View style={styles.sectionHeaderRow}>
-          <View style={styles.sectionCyanBar} />
-          <Text style={styles.sectionHeaderText}>SESSION METRICS</Text>
-        </View>
-
-        {/* 3 Metric Pills: ACCURACY / COMPLETED / LOAD */}
-        <View style={styles.metricPillsRow}>
-          {/* ACCURACY */}
-          <View style={[styles.metricPillCard, styles.pillBorderCyan]}>
-            <Text style={[styles.metricPillLabel, { color: "#38EDD8" }]}>
-              ACCURACY
-            </Text>
-            <Text style={[styles.metricPillValue, { color: "#38EDD8" }]}>
-              {accuracy}%
-            </Text>
-          </View>
-
-          {/* COMPLETED */}
-          <View style={[styles.metricPillCard, styles.pillBorderOrange]}>
-            <Text style={[styles.metricPillLabel, { color: "#FB923C" }]}>
-              COMPLETED
-            </Text>
-            <Text style={[styles.metricPillValue, { color: "#FB923C" }]}>
-              {completedExercisesCount}/{totalExercisesCount}
-            </Text>
-          </View>
-
-          {/* LOAD */}
-          <View style={[styles.metricPillCard, styles.pillBorderPurple]}>
-            <Text style={[styles.metricPillLabel, { color: "#C084FC" }]}>
-              LOAD
-            </Text>
-            <Text style={[styles.metricPillValue, { color: "#C084FC" }]}>
-              OPTIMAL
-            </Text>
-          </View>
-        </View>
-
-        {/* Control & Speed Pace Card with progress meter */}
-        <View style={styles.paceCard}>
-          <View style={styles.paceTopRow}>
-            <View style={styles.paceTitleLeft}>
-              <View style={styles.paceIconBox}>
-                <Activity size={18} color="#38EDD8" strokeWidth={2.4} />
+        {/* Score */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <View style={styles.dialContainer}>
+            <Svg width={RING} height={RING} viewBox={`0 0 ${RING} ${RING}`}>
+              <Defs>
+                <SvgGradient id="scoreRing" x1="0" y1="0" x2="1" y2="1">
+                  <Stop offset="0" stopColor="#7DD3FC" />
+                  <Stop offset="0.5" stopColor="#38BDF8" />
+                  <Stop offset="1" stopColor="#6366F1" />
+                </SvgGradient>
+              </Defs>
+              <SvgCircle
+                cx={RING / 2}
+                cy={RING / 2}
+                r={ringRadius}
+                stroke="rgba(148,163,184,0.14)"
+                strokeWidth={strokeWidth}
+                fill="none"
+              />
+              <SvgCircle
+                cx={RING / 2}
+                cy={RING / 2}
+                r={ringRadius}
+                stroke="url(#scoreRing)"
+                strokeWidth={strokeWidth}
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+                strokeLinecap="round"
+                fill="none"
+                transform={`rotate(-90 ${RING / 2} ${RING / 2})`}
+              />
+            </Svg>
+            <View style={styles.dialInnerContent}>
+              <Text style={styles.dialLabel}>SCORE</Text>
+              <Text style={styles.scoreNumberLarge}>{score}</Text>
+              <View style={styles.xpPill}>
+                <Zap size={11} color="#FFFFFF" fill="#FFFFFF" />
+                <Text style={styles.xpPillText}>+{xpEarned} XP</Text>
               </View>
-              <View>
-                <Text style={styles.paceHeaderLabel}>Control & Speed</Text>
-                <Text style={styles.paceMainValue}>
-                  {paceMps} ·{" "}
-                  <Text style={styles.paceSubText}>Optimal Pace</Text>
+            </View>
+          </View>
+          <View style={styles.tierRow}>
+            <Trophy size={14} color={ACCENT} strokeWidth={2.4} />
+            <Text style={styles.tierText}>Elite athlete</Text>
+            <Text style={styles.tierDot}>·</Text>
+            <Text style={styles.workoutName} numberOfLines={1}>
+              {workoutTitle}
+            </Text>
+          </View>
+        </View>
+
+        {/* Key stats */}
+        <View style={styles.statsGrid}>
+          {stats.map(({ key, Icon, value, label }) => (
+            <View key={key} style={styles.statTile}>
+              <View style={styles.iconChip}>
+                <Icon size={14} color={ACCENT} strokeWidth={2.4} />
+              </View>
+              <View style={styles.statCopy}>
+                <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>
+                  {value}
                 </Text>
+                <Text style={styles.statLabel}>{label}</Text>
               </View>
             </View>
-            <View style={styles.steadyBadge}>
-              <Check size={12} color="#38EDD8" strokeWidth={3} />
-              <Text style={styles.steadyText}>Steady</Text>
-            </View>
-          </View>
-
-          {/* Pace Progress Bar */}
-          <View style={styles.paceBarTrack}>
-            <LinearGradient
-              colors={["#38EDD8", "#6366F1"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.paceBarFill}
-            />
-          </View>
+          ))}
         </View>
 
-        {/* 2-Column Row: Calories Burned & Time */}
-        <View style={styles.twoColRow}>
-          {/* KCAL BURNED */}
-          <View style={styles.statSquareCard}>
-            <View style={styles.statIconCircleOrange}>
-              <Flame size={18} color="#FB923C" />
-            </View>
-            <Text style={styles.statBigValue}>{caloriesBurned}</Text>
-            <Text style={styles.statUnitLabel}>KCAL BURNED</Text>
+        {/* Coach note */}
+        <View style={styles.coachCard}>
+          <View style={styles.iconChip}>
+            <Sparkles size={14} color={ACCENT} strokeWidth={2.4} />
           </View>
-
-          {/* DURATION */}
-          <View style={styles.statSquareCard}>
-            <View style={styles.statIconCirclePurple}>
-              <Clock size={18} color="#818CF8" />
-            </View>
-            <Text style={styles.statBigValue}>{durationFormatted}</Text>
-            <Text style={styles.statUnitLabel}>MIN ACTIVE</Text>
-          </View>
-        </View>
-
-        {/* AI COACH FEEDBACK Card */}
-        <View style={styles.coachFeedbackCard}>
-          <View style={styles.coachHeaderRow}>
-            <View style={styles.coachIconBadge}>
-              <Bot size={16} color="#38EDD8" strokeWidth={2.2} />
-            </View>
-            <Text style={styles.coachHeaderText}>AI COACH FEEDBACK</Text>
-            <View style={styles.coachDot} />
-          </View>
-
-          <Text style={styles.coachFeedbackBody}>
-            Outstanding movement quality today. Your squat depth showed a{" "}
-            <Text style={styles.coachHighlightPill}>+12% gain</Text> compared to
-            last session, while thoracic spine neutrality was maintained across
-            all {totalExercisesCount} sets.
+          <Text style={styles.coachText}>
+            <Text style={styles.coachBold}>Coach note · </Text>
+            {coachNote}
           </Text>
-
-          {/* Customized Telemetry Chips */}
-          <View style={styles.coachChipsRow}>
-            <View style={styles.coachChip}>
-              <Sparkles size={11} color="#38EDD8" />
-              <Text style={styles.coachChipText}>ROM 98%</Text>
-            </View>
-            <View style={styles.coachChip}>
-              <Zap size={11} color="#FBBF24" />
-              <Text style={styles.coachChipText}>POWER 410W</Text>
-            </View>
-            <View style={styles.coachChip}>
-              <TrendingUp size={11} color="#818CF8" />
-              <Text style={styles.coachChipText}>STABILITY 97%</Text>
-            </View>
-          </View>
         </View>
 
-        {/* Customized Section: EXERCISE BREAKDOWN */}
-        <View style={styles.sectionHeaderRow}>
-          <View style={styles.sectionCyanBar} />
-          <Text style={styles.sectionHeaderText}>EXERCISE BREAKDOWN</Text>
-          <View style={styles.exerciseCounterBadge}>
-            <Text style={styles.exerciseCounterBadgeText}>
-              {completedExercisesCount}/{totalExercisesCount} CLEARED
+        {/* Exercises */}
+        <View style={styles.sectionRow}>
+          <View style={styles.sectionLeft}>
+            <View style={styles.iconChip}>
+              <Dumbbell size={14} color={ACCENT} strokeWidth={2.4} />
+            </View>
+            <Text style={styles.sectionLabel}>EXERCISES</Text>
+          </View>
+          <View style={styles.pill}>
+            <Text style={styles.pillText}>
+              {completedExercisesCount}/{totalExercisesCount} DONE
             </Text>
           </View>
         </View>
 
-        <View style={styles.breakdownContainer}>
-          {displayedExercises.map((item) => (
-            <View key={item.id} style={styles.exerciseCardRow}>
-              {/* Exercise Thumbnail */}
+        <View style={styles.listCard}>
+          {displayedExercises.map((item, idx) => (
+            <View
+              key={item.id}
+              style={[styles.exerciseRow, idx > 0 && styles.exerciseRowDivider]}
+            >
               <View style={styles.exerciseThumbBox}>
                 {item.image ? (
                   <Image
                     source={item.image}
-                    style={styles.exerciseImage}
+                    style={StyleSheet.absoluteFill}
                     contentFit="cover"
                   />
                 ) : (
-                  <View style={styles.exerciseImagePlaceholder}>
-                    <Dumbbell size={18} color="#38EDD8" />
-                  </View>
+                  <Dumbbell size={16} color={ACCENT} />
                 )}
-                <View style={styles.exerciseIndexPill}>
-                  <Text style={styles.exerciseIndexPillText}>{item.index}</Text>
-                </View>
               </View>
-
-              {/* Title & Sets */}
               <View style={styles.exerciseInfoCol}>
                 <Text style={styles.exerciseTitle} numberOfLines={1}>
                   {item.title}
                 </Text>
-                <Text style={styles.exerciseSubtitle}>{item.setsReps}</Text>
+                <Text style={styles.exerciseSubtitle} numberOfLines={1}>
+                  {item.setsReps}
+                </Text>
               </View>
-
-              {/* Accuracy & Check Badge */}
-              <View style={styles.exerciseAccCol}>
-                <Text style={styles.exerciseAccNumber}>{item.acc}% acc</Text>
-                <View style={styles.completedMiniPill}>
-                  <Check size={10} color="#38EDD8" strokeWidth={3.5} />
-                  <Text style={styles.completedMiniText}>DONE</Text>
-                </View>
+              <View style={styles.accPill}>
+                <Check size={10} color={ACCENT_SOFT} strokeWidth={3.4} />
+                <Text style={styles.accPillText}>{item.acc}%</Text>
               </View>
             </View>
           ))}
 
-          {exerciseList.length > 4 && (
-            <Pressable
+          {exerciseList.length > 4 ? (
+            <TouchableOpacity
+              activeOpacity={0.7}
               style={styles.toggleMoreBtn}
               onPress={() => {
                 if (Platform.OS !== "web") {
@@ -527,59 +506,181 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
               }}
               accessibilityRole="button"
               accessibilityLabel={
-                showAllExercises ? "Show less exercises" : "Show all exercises"
+                showAllExercises ? "Show fewer exercises" : "Show all exercises"
               }
             >
               <Text style={styles.toggleMoreText}>
-                {showAllExercises
-                  ? "COLLAPSE EXERCISES"
-                  : `VIEW ALL ${exerciseList.length} EXERCISES`}
+                {showAllExercises ? "SHOW LESS" : `SHOW ALL ${exerciseList.length}`}
               </Text>
               {showAllExercises ? (
-                <ChevronUp size={15} color="#38EDD8" />
+                <ChevronUp size={14} color={ACCENT_SOFT} strokeWidth={2.6} />
               ) : (
-                <ChevronDown size={15} color="#38EDD8" />
+                <ChevronDown size={14} color={ACCENT_SOFT} strokeWidth={2.6} />
               )}
-            </Pressable>
-          )}
+            </TouchableOpacity>
+          ) : null}
         </View>
-        {/* Bottom CTA 1: BACK TO HOME -> */}
-        <Pressable
-          style={({ pressed }) => [
-            styles.homeButton,
-            pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] },
-          ]}
+
+        {/* Actions */}
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={styles.primaryBtn}
           onPress={handleHome}
           accessibilityRole="button"
           accessibilityLabel="Return to home screen"
         >
           <LinearGradient
-            colors={["#1E6BB8", "#258CE8"]}
+            colors={BUTTON_GRADIENT}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.homeButtonGradient}
-          >
-            <Text style={styles.homeButtonText}>BACK TO HOME</Text>
-            <ArrowRight size={18} color="#FFFFFF" strokeWidth={2.4} />
-          </LinearGradient>
-        </Pressable>
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <LinearGradient
+            colors={SHEEN}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={styles.primarySheen}
+            pointerEvents="none"
+          />
+          <Text style={styles.primaryBtnText}>BACK TO HOME</Text>
+          <View style={styles.primaryTrail}>
+            <ArrowRight size={14} color="#FFFFFF" strokeWidth={2.6} />
+          </View>
+        </TouchableOpacity>
 
-        {/* Bottom CTA 2: REPEAT WORKOUT */}
-        <Pressable
-          style={({ pressed }) => [
-            styles.repeatButton,
-            pressed && { opacity: 0.8, transform: [{ scale: 0.99 }] },
-          ]}
+        <TouchableOpacity
+          activeOpacity={0.75}
+          style={styles.secondaryBtn}
           onPress={handleRepeat}
           accessibilityRole="button"
           accessibilityLabel="Repeat this workout"
         >
-          <View style={styles.repeatButtonInner}>
-            <RotateCcw size={16} color="#FFFFFF" strokeWidth={2.2} />
-            <Text style={styles.repeatButtonText}>REPEAT WORKOUT</Text>
-          </View>
-        </Pressable>
+          <RotateCcw size={14} color={ACCENT_SOFT} strokeWidth={2.4} />
+          <Text style={styles.secondaryBtnText}>REPEAT WORKOUT</Text>
+        </TouchableOpacity>
       </ScrollView>
+
+      <Modal
+        visible={shareOpen}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setShareOpen(false)}
+      >
+        <View style={styles.shareBackdrop}>
+          <View
+            style={[
+              styles.shareSheet,
+              { paddingBottom: Math.max(insets.bottom + 16, 24) },
+            ]}
+          >
+            <View style={styles.shareHeader}>
+              <View>
+                <Text style={styles.shareKicker}>SHARE</Text>
+                <Text style={styles.shareTitle}>Your workout card</Text>
+              </View>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setShareOpen(false)}
+                style={styles.shareClose}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="Close"
+              >
+                <X size={16} color="#CBD5E1" strokeWidth={2.6} />
+              </TouchableOpacity>
+            </View>
+
+            <View
+              style={{
+                width: SHARE_CARD_WIDTH * previewScale,
+                height: SHARE_CARD_HEIGHT * previewScale,
+                alignSelf: "center",
+              }}
+            >
+              <View
+                style={{
+                  position: "absolute",
+                  left: (SHARE_CARD_WIDTH * previewScale - SHARE_CARD_WIDTH) / 2,
+                  top: (SHARE_CARD_HEIGHT * previewScale - SHARE_CARD_HEIGHT) / 2,
+                  transform: [{ scale: previewScale }],
+                }}
+              >
+                <WorkoutShareCard
+                  ref={shareCardRef}
+                  theme={shareTheme}
+                  workoutTitle={workoutTitle}
+                  workoutSubtitle={workoutSubtitle}
+                  dateLabel={resolvedDate}
+                  score={score}
+                  xpEarned={xpEarned}
+                  accuracy={accuracy}
+                  completed={completedExercisesCount}
+                  total={totalExercisesCount}
+                  calories={caloriesBurned}
+                  duration={durationFormatted}
+                />
+              </View>
+            </View>
+
+            <View style={styles.themeRow}>
+              {(Object.keys(SHARE_CARD_THEMES) as ShareCardTheme[]).map((key) => {
+                const spec = SHARE_CARD_THEMES[key];
+                const active = key === shareTheme;
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    activeOpacity={0.75}
+                    onPress={() => setShareTheme(key)}
+                    style={[styles.themeChip, active && styles.themeChipActive]}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: active }}
+                    accessibilityLabel={`${spec.label} theme`}
+                  >
+                    <View style={[styles.themeSwatch, { backgroundColor: spec.swatch }]} />
+                    <Text style={[styles.themeText, active && styles.themeTextActive]}>
+                      {spec.label.toUpperCase()}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={styles.primaryBtn}
+              onPress={handleExportImage}
+              disabled={isExporting}
+              accessibilityRole="button"
+              accessibilityLabel="Share workout image"
+            >
+              <LinearGradient
+                colors={BUTTON_GRADIENT}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+              <LinearGradient
+                colors={SHEEN}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={styles.primarySheen}
+                pointerEvents="none"
+              />
+              {isExporting ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <>
+                  <View>
+                    <Share2 size={15} color="#FFFFFF" strokeWidth={2.4} />
+                  </View>
+                  <Text style={styles.primaryBtnText}>SHARE IMAGE</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -587,562 +688,421 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#070A11",
+    backgroundColor: "#060810",
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 6,
+    paddingTop: 4,
   },
   shareIconButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.12)",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
   },
   titleSection: {
-    marginBottom: 20,
-    marginTop: 2,
-  },
-  routineTagRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 8,
-  },
-  routinePill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(56, 189, 248, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  routinePillDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#38EDD8",
-  },
-  routinePillText: {
-    color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-  },
-  clearedPill: {
-    flexDirection: "row",
-    alignItems: "center",
+    marginTop: 4,
+    marginBottom: 18,
     gap: 4,
-    backgroundColor: "rgba(16, 185, 129, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.3)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
   },
-  clearedPillText: {
-    color: "#10B981",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+  categoryBadge: {
+    ...typography.overline,
+    fontSize: 11,
+    lineHeight: 16,
+    color: ACCENT_SOFT,
   },
   mainTitle: {
     ...typography.pageTitle,
-    color: "#FFFFFF",
-  },
-  summaryDescription: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "500",
-    letterSpacing: 0.2,
-    marginTop: 6,
-    marginBottom: 4,
+    color: "#F6F8FF",
   },
   dateRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    marginTop: 8,
   },
   dateText: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1,
+    ...typography.caption,
+    color: "#7C8BA1",
   },
 
-  sectionHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 14,
-    marginTop: 10,
-  },
-  sectionCyanBar: {
-    width: 4,
-    height: 14,
-    borderRadius: 2,
-    backgroundColor: "#38EDD8",
-  },
-  sectionHeaderText: {
-    color: "#E2E8F0",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-  exerciseCounterBadge: {
-    marginLeft: "auto",
-    backgroundColor: "rgba(56, 237, 216, 0.12)",
+  // Shared
+  card: {
+    backgroundColor: "#111A25",
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(56, 237, 216, 0.3)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
+    borderColor: "rgba(56,189,248,0.18)",
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    gap: 14,
+    marginBottom: 12,
+    overflow: "hidden",
   },
-  exerciseCounterBadgeText: {
-    color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-
-  // Dial Container
-  dialContainer: {
-    width: 180,
-    height: 180,
-    alignSelf: "center",
+  iconChip: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 24,
-    position: "relative",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
+  },
+  pill: {
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
+  },
+  pillText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+  },
+
+  // Score
+  dialContainer: {
+    width: RING,
+    height: RING,
+    alignItems: "center",
+    justifyContent: "center",
   },
   dialInnerContent: {
-    position: "absolute",
+    ...StyleSheet.absoluteFill,
     alignItems: "center",
     justifyContent: "center",
+    gap: 2,
+  },
+  dialLabel: {
+    ...typography.overline,
+    color: "#7C8BA1",
   },
   scoreNumberLarge: {
-    color: "#FFFFFF",
-    fontSize: 48,
-    lineHeight: 53,
-    fontWeight: "800",
+    ...typography.metricHero,
+    color: "#F8FAFC",
+    textShadowColor: "rgba(56,189,248,0.45)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 14,
   },
-  xpRow: {
+  xpPill: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    marginTop: 2,
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "#0EA5E9",
   },
-  scoreXpPill: {
-    color: "#C084FC",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 0.8,
+  xpPillText: {
+    ...typography.badge,
+    color: "#FFFFFF",
   },
-  tierPill: {
-    backgroundColor: "rgba(56, 237, 216, 0.14)",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-    marginTop: 4,
-  },
-  tierPillText: {
-    color: "#38EDD8",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-
-  // 3 Metric Pills
-  metricPillsRow: {
+  tierRow: {
     flexDirection: "row",
-    gap: 8,
-    marginBottom: 16,
-  },
-  metricPillCard: {
-    flex: 1,
-    backgroundColor: "rgba(17, 20, 30, 0.85)",
-    borderRadius: 16,
-    borderWidth: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
     alignItems: "center",
+    gap: 6,
+    maxWidth: "100%",
   },
-  pillBorderCyan: {
-    borderColor: "rgba(56, 237, 216, 0.3)",
+  tierText: {
+    ...typography.subtitle,
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#E2E8F0",
   },
-  pillBorderOrange: {
-    borderColor: "rgba(251, 146, 60, 0.3)",
+  tierDot: {
+    ...typography.subtitle,
+    color: "#475569",
   },
-  pillBorderPurple: {
-    borderColor: "rgba(192, 132, 252, 0.3)",
-  },
-  metricPillLabel: {
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-    marginBottom: 4,
-  },
-  metricPillValue: {
-    fontSize: 16,
-    fontWeight: "800",
+  workoutName: {
+    ...typography.caption,
+    color: "#8B9AB0",
+    flexShrink: 1,
   },
 
-  // Pace Card
-  paceCard: {
-    backgroundColor: "#11141E",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 16,
-    marginBottom: 16,
+  // Stats
+  statsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    rowGap: 10,
+    marginBottom: 12,
   },
-  paceTopRow: {
+  statTile: {
+    width: "48.5%",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderRadius: 20,
+    backgroundColor: "#111A25",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.18)",
+  },
+  statCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  statValue: {
+    ...typography.metric,
+    color: "#F8FAFC",
+  },
+  statLabel: {
+    ...typography.overline,
+    color: "#7C8BA1",
+  },
+
+  // Coach
+  coachCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+    padding: 14,
+    borderRadius: 20,
+    backgroundColor: "rgba(56,189,248,0.07)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
+    marginBottom: 22,
+  },
+  coachText: {
+    ...typography.bodySmall,
+    flex: 1,
+    color: "#CBD5E1",
+    paddingTop: 5,
+  },
+  coachBold: {
+    ...typography.bodySmall,
+    fontWeight: "700",
+    color: ACCENT_SOFT,
+  },
+
+  // Exercises
+  sectionRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 8,
     marginBottom: 12,
   },
-  paceTitleLeft: {
+  sectionLeft: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
   },
-  paceIconBox: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    backgroundColor: "rgba(56, 237, 216, 0.12)",
-    alignItems: "center",
-    justifyContent: "center",
+  sectionLabel: {
+    ...typography.sectionTitle,
+    color: "#E5EEF8",
   },
-  paceHeaderLabel: {
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
-    textTransform: "uppercase",
-  },
-  paceMainValue: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "800",
-    marginTop: 2,
-  },
-  paceSubText: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  steadyBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "rgba(56, 237, 216, 0.12)",
+  listCard: {
+    backgroundColor: "#111A25",
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(56, 237, 216, 0.3)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  steadyText: {
-    color: "#38EDD8",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  paceBarTrack: {
-    width: "100%",
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(56,189,248,0.18)",
+    paddingHorizontal: 12,
+    marginBottom: 20,
     overflow: "hidden",
   },
-  paceBarFill: {
-    width: "75%",
-    height: "100%",
-  },
-
-  // 2-Column Row
-  twoColRow: {
+  exerciseRow: {
     flexDirection: "row",
+    alignItems: "center",
     gap: 12,
-    marginBottom: 16,
+    paddingVertical: 10,
   },
-  statSquareCard: {
-    flex: 1,
-    backgroundColor: "#11141E",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 16,
-  },
-  statIconCircleOrange: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: "rgba(251, 146, 60, 0.15)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-  },
-  statIconCirclePurple: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: "rgba(129, 140, 248, 0.15)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-  },
-  statBigValue: {
-    color: "#FFFFFF",
-    fontSize: 24,
-    fontWeight: "800",
-    marginBottom: 2,
-  },
-  statUnitLabel: {
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-
-  // AI Coach Feedback Card
-  coachFeedbackCard: {
-    backgroundColor: "rgba(17, 20, 30, 0.85)",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(99, 102, 241, 0.25)",
-    padding: 16,
-    marginBottom: 16,
-  },
-  coachHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 10,
-  },
-  coachIconBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    backgroundColor: "rgba(56, 237, 216, 0.15)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  coachHeaderText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-  coachDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: "#38EDD8",
-  },
-  coachFeedbackBody: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  coachHighlightPill: {
-    color: "#38EDD8",
-    fontWeight: "800",
-  },
-  coachChipsRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginTop: 12,
-    paddingTop: 12,
+  exerciseRowDivider: {
     borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.06)",
-  },
-  coachChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  coachChipText: {
-    color: "#CBD5E1",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.6,
-  },
-
-  // Exercise Breakdown Container
-  breakdownContainer: {
-    backgroundColor: "#11141E",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 14,
-    gap: 10,
-    marginBottom: 20,
-  },
-  exerciseCardRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    backgroundColor: "rgba(18, 22, 33, 0.6)",
-    padding: 10,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.05)",
+    borderTopColor: "rgba(148,163,184,0.10)",
   },
   exerciseThumbBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     overflow: "hidden",
-    position: "relative",
-    backgroundColor: "#1A2030",
-  },
-  exerciseImage: {
-    width: "100%",
-    height: "100%",
-  },
-  exerciseImagePlaceholder: {
-    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-  },
-  exerciseIndexPill: {
-    position: "absolute",
-    top: 3,
-    left: 3,
-    backgroundColor: "rgba(7, 10, 17, 0.8)",
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    borderRadius: 4,
-  },
-  exerciseIndexPillText: {
-    color: "#38EDD8",
-    fontSize: 9,
-    fontWeight: "700",
+    backgroundColor: "#0B111B",
   },
   exerciseInfoCol: {
     flex: 1,
+    minWidth: 0,
+    gap: 2,
   },
   exerciseTitle: {
-    color: "#FFFFFF",
+    ...typography.cardTitle,
     fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 0.3,
+    lineHeight: 17,
+    color: "#F8FAFC",
+    textTransform: "uppercase",
   },
   exerciseSubtitle: {
-    color: "#94A3B8",
-    fontSize: 11,
-    marginTop: 2,
+    ...typography.caption,
+    color: "#8B9AB0",
   },
-  exerciseAccCol: {
-    alignItems: "flex-end",
-    gap: 4,
-  },
-  exerciseAccNumber: {
-    color: "#CBD5E1",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  completedMiniPill: {
+  accPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 3,
-    backgroundColor: "rgba(56, 237, 216, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 237, 216, 0.3)",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
   },
-  completedMiniText: {
-    color: "#38EDD8",
-    fontSize: 9,
-    fontWeight: "700",
+  accPillText: {
+    ...typography.badge,
+    letterSpacing: 0.3,
+    color: ACCENT_SOFT,
   },
   toggleMoreBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    paddingVertical: 8,
-    marginTop: 2,
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    borderRadius: 10,
+    height: 44,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(148,163,184,0.10)",
   },
   toggleMoreText: {
-    color: "#38EDD8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+    ...typography.badge,
+    color: ACCENT_SOFT,
   },
 
-  // Action Buttons
-  homeButton: {
-    width: "100%",
-    height: 54,
-    borderRadius: 27,
+  // Buttons
+  primaryBtn: {
+    height: 52,
+    borderRadius: 16,
     overflow: "hidden",
-    shadowColor: "#258CE8",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.45,
-    shadowRadius: 14,
-    elevation: 8,
-    marginBottom: 12,
-  },
-  homeButtonGradient: {
-    width: "100%",
-    height: 54,
-    borderRadius: 27,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
+    marginBottom: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: ACCENT,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 14,
+      },
+      web: { boxShadow: "0 8px 22px rgba(56,189,248,0.28)" } as any,
+      default: {},
+    }),
   },
-  homeButtonText: {
+  primarySheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
+  },
+  primaryBtnText: {
+    ...typography.button,
+    letterSpacing: 1,
     color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "800",
-    letterSpacing: 1.2,
   },
-  repeatButton: {
-    width: "100%",
-    height: 52,
-    borderRadius: 26,
-    borderWidth: 1.2,
-    borderColor: "rgba(255, 255, 255, 0.28)",
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    overflow: "hidden",
+  primaryTrail: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
   },
-  repeatButtonInner: {
-    width: "100%",
-    height: 52,
-    borderRadius: 26,
+  secondaryBtn: {
+    height: 48,
+    borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 10,
+    gap: 8,
+    backgroundColor: "rgba(56,189,248,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
   },
-  repeatButtonText: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 1.2,
+  secondaryBtnText: {
+    ...typography.button,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 1,
+    color: ACCENT_SOFT,
+  },
+
+  // Share sheet
+  shareBackdrop: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(2,4,10,0.78)",
+  },
+  shareSheet: {
+    paddingTop: 18,
+    paddingHorizontal: 20,
+    gap: 16,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    backgroundColor: "#0D1420",
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    borderColor: "rgba(56,189,248,0.2)",
+  },
+  shareHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  shareKicker: {
+    ...typography.overline,
+    color: ACCENT_SOFT,
+  },
+  shareTitle: {
+    ...typography.cardTitle,
+    color: "#F8FAFC",
+  },
+  shareClose: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.06)",
+  },
+  themeRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  themeChip: {
+    flex: 1,
+    height: 38,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 7,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.18)",
+  },
+  themeChipActive: {
+    backgroundColor: "rgba(56,189,248,0.12)",
+    borderColor: "rgba(56,189,248,0.5)",
+  },
+  themeSwatch: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  themeText: {
+    ...typography.badge,
+    color: "#94A3B8",
+  },
+  themeTextActive: {
+    color: ACCENT_SOFT,
   },
 });

@@ -194,10 +194,8 @@ export const AiWorkoutFlowController: React.FC<
       totalExercisesCount={exercises.length}
       durationFormatted="45:12"
       caloriesBurned={560}
-      paceMps="1.25 m/s"
       workoutTitle="PUSH DAY PROTOCOL"
       workoutSubtitle="Chest, Shoulders & Triceps Focus"
-      description="High-intensity hypertrophy protocol targeting chest, shoulders, and triceps. Exceptional biomechanical execution and steady tempo maintained across all cleared sets."
       exercises={exercises}
       onBackToHome={() => router.replace("/(tabs)/home" as any)}
       onRepeatWorkout={handleRepeatWorkout}
