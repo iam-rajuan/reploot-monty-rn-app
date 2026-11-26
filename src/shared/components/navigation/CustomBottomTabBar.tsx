@@ -10,203 +10,176 @@ import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
-import Svg, { Path, Circle, Rect, G, Defs, LinearGradient as SvgGradient, Stop, Ellipse } from "react-native-svg";
+import Svg, { Path, Circle } from "react-native-svg";
 import type { BottomTabBarProps } from "expo-router/build/react-navigation/bottom-tabs";
+import { typography } from "@/theme/typography";
 
-export function CustomBottomTabBar({
-  state,
-  descriptors,
-  navigation,
-}: BottomTabBarProps) {
+const ACCENT = "#38BDF8";
+const INACTIVE = "#6B7A90";
+
+/** Floating island geometry. */
+const BAR_HEIGHT = 58;
+const SIDE_GAP = 14;
+/** Centre button: dumbbell disc + "notch" ring cut into the island. */
+/** Centre button: a round orb that sits mostly inside the island. */
+const ORB = 54;
+/** How far the orb rises above the island's top edge. */
+const LIFT = 10;
+
+/**
+ * Floating "island" tab bar: a detached glass pill; the active tab's icon sits
+ * in a soft sky pill, and a round 3D-dumbbell workout orb rises slightly
+ * from the centre.
+ */
+export function CustomBottomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
 
-  const handleTabPress = (
-    route: (typeof state.routes)[number],
-    isFocused: boolean,
-  ) => {
+  const visibleRoutes = state.routes.filter((route) => {
+    const { options } = descriptors[route.key];
+    return !(
+      (options.tabBarItemStyle as any)?.display === "none" ||
+      (options as any).href === null
+    );
+  });
+  const activeKey = state.routes[state.index]?.key;
+
+  const handleTabPress = (route: (typeof state.routes)[number], isFocused: boolean) => {
     const event = navigation.emit({
       type: "tabPress",
       target: route.key,
       canPreventDefault: true,
     });
-
     if (!isFocused && !event.defaultPrevented) {
       if (Platform.OS !== "web") {
-        try {
-          Haptics.impactAsync(
-            route.name === "action"
-              ? Haptics.ImpactFeedbackStyle.Medium
-              : Haptics.ImpactFeedbackStyle.Light
-          );
-        } catch {
-          // ignore
-        }
+        Haptics.impactAsync(
+          route.name === "action"
+            ? Haptics.ImpactFeedbackStyle.Medium
+            : Haptics.ImpactFeedbackStyle.Light,
+        ).catch(() => {});
       }
       navigation.navigate(route.name);
     }
   };
 
   // Hide tab bar if active screen requests tabBarStyle: { display: "none" }
-  const currentRoute = state.routes[state.index];
-  const currentDescriptor = descriptors[currentRoute?.key];
+  const currentDescriptor = descriptors[state.routes[state.index]?.key];
   const tabBarStyle = currentDescriptor?.options?.tabBarStyle as any;
-  if (tabBarStyle?.display === "none") {
-    return null;
-  }
+  if (tabBarStyle?.display === "none") return null;
 
-  // Safe bottom padding for navigation gesture pill
-  const bottomInset =
-    Platform.OS === "web" ? 12 : Math.max(insets.bottom + 4, 16);
+  const bottomGap = Platform.OS === "web" ? 12 : Math.max(insets.bottom, 10) + 6;
 
   return (
-    <View
-      pointerEvents="box-none"
-      style={[styles.rootWrapper, { paddingBottom: bottomInset }]}
-    >
-      {/* Background Tab Bar Surface */}
-      <View style={styles.barSurface} pointerEvents="none">
-        <LinearGradient
-          colors={["#11172A", "#0B0E1B", "#060810"]}
-          locations={[0, 0.45, 1]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={styles.barSurfaceGradient}
-        />
-        {/* Subtle Specular Ambient Top Beam */}
-        <LinearGradient
-          colors={["rgba(56, 189, 248, 0.12)", "transparent"]}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 0.6 }}
-          style={styles.barTopAmbientLight}
-        />
-      </View>
+    <View pointerEvents="box-none" style={[styles.root, { paddingBottom: bottomGap }]}>
+      {/* Fade so content dissolves under the floating island */}
+      <LinearGradient
+        colors={["rgba(6,8,16,0)", "rgba(6,8,16,0.85)"]}
+        style={[styles.underFade, { height: BAR_HEIGHT + bottomGap + 24 }]}
+        pointerEvents="none"
+      />
 
-      <View style={styles.tabsRow}>
-        {state.routes.map((route, index) => {
-          const { options } = descriptors[route.key];
-          if (
-            (options.tabBarItemStyle as any)?.display === "none" ||
-            (options as any).href === null
-          ) {
-            return null;
-          }
+      <View style={styles.island}>
+        {/* Glass surface */}
+        <View style={styles.surface} pointerEvents="none">
+          <LinearGradient
+            colors={["#162236", "#0C1322", "#090D18"]}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <LinearGradient
+            colors={["rgba(255,255,255,0.10)", "rgba(255,255,255,0)"]}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 0.5 }}
+            style={styles.surfaceSheen}
+          />
+        </View>
 
-          const isFocused = state.index === index;
-          const isCenterAction = route.name === "action";
+        <View style={styles.row}>
+          {visibleRoutes.map((route) => {
+            const { options } = descriptors[route.key];
+            const isFocused = route.key === activeKey;
 
-          // 1. Center Action: Reploot Workout Launcher
-          if (isCenterAction) {
-            return (
-              <View key={route.key} style={styles.centerButtonOuterContainer}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Start Workout"
-                  onPress={() => handleTabPress(route, isFocused)}
-                  style={styles.centerButtonPressable}
-                >
-                  {({ pressed }) => (
-                    <View
-                      style={[
-                        styles.centerButtonInner,
-                        pressed && styles.centerButtonPressed,
-                      ]}
-                    >
-                      {/* Outer Cyber Glow Ambient */}
-                      <View style={styles.centerOuterAura} />
-
-                      {/* Concentric Bezel Ring with metallic highlight */}
-                      <View
-                        style={[
-                          styles.centerBezelRing,
-                          isFocused && styles.centerBezelRingActive,
-                        ]}
-                      >
-                        {/* Multi-Stop Linear Gradient Power Capsule */}
-                        <LinearGradient
-                          colors={["#4F46E5", "#0284C7", "#0EA5E9", "#2DD4BF"]}
-                          locations={[0, 0.35, 0.7, 1]}
-                          start={{ x: 0.1, y: 0.05 }}
-                          end={{ x: 0.9, y: 0.95 }}
-                          style={styles.centerGradientCircle}
-                        >
-                          <CenterDumbbellIcon />
-                        </LinearGradient>
-                      </View>
-                    </View>
-                  )}
-                </Pressable>
-              </View>
-            );
-          }
-
-          // 2. Standard Tab Items: Home, Nutrition, Progress, Profile
-          const activeColor = "#38BDF8";
-          const inactiveColor = "#64748B";
-          const tintColor = isFocused ? activeColor : inactiveColor;
-
-          const renderIcon = () => {
-            switch (route.name) {
-              case "home":
-                return <HomeTabIcon color={tintColor} isFocused={isFocused} />;
-              case "nutrition":
-                return (
-                  <NutritionTabIcon color={tintColor} isFocused={isFocused} />
-                );
-              case "progress":
-                return (
-                  <ProgressTabIcon color={tintColor} isFocused={isFocused} />
-                );
-              case "profile":
-                return (
-                  <ProfileTabIcon color={tintColor} isFocused={isFocused} />
-                );
-              default:
-                return <HomeTabIcon color={tintColor} isFocused={isFocused} />;
-            }
-          };
-
-          const rawLabel =
-            options.tabBarLabel !== undefined
-              ? options.tabBarLabel
-              : options.title !== undefined
-                ? options.title
-                : route.name.charAt(0).toUpperCase() + route.name.slice(1);
-
-          return (
-            <Pressable
-              key={route.key}
-              accessibilityRole="button"
-              accessibilityState={isFocused ? { selected: true } : {}}
-              accessibilityLabel={String(rawLabel)}
-              onPress={() => handleTabPress(route, isFocused)}
-              style={styles.tabPressable}
-            >
-              {({ pressed }) => (
-                <View
-                  style={[
-                    styles.tabItem,
-                    pressed && styles.tabItemPressed,
-                  ]}
-                >
-                  <View style={styles.iconContainer}>
-                    {renderIcon()}
-                  </View>
-
-                  <Text
-                    style={[
-                      styles.tabLabel,
-                      { color: tintColor },
-                      isFocused && styles.activeTabLabel,
-                    ]}
-                    numberOfLines={1}
+            if (route.name === "action") {
+              return (
+                <View key={route.key} style={styles.centerSlot}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Start workout"
+                    accessibilityState={isFocused ? { selected: true } : {}}
+                    onPress={() => handleTabPress(route, isFocused)}
+                    hitSlop={6}
+                    style={styles.centerPressable}
                   >
-                    {String(rawLabel).toUpperCase()}
-                  </Text>
+                    {({ pressed }) => (
+                      <View style={[styles.orbShadow, pressed && styles.centerPressed]}>
+                        {/* Gradient ring */}
+                        <View style={[styles.orbRing, isFocused && styles.orbRingActive]}>
+                          {/* Dark glass core */}
+                          <LinearGradient
+                            colors={["#1E2F4D", "#0D1526", "#070B14"]}
+                            start={{ x: 0.3, y: 0 }}
+                            end={{ x: 0.7, y: 1 }}
+                            style={styles.orbCore}
+                          >
+                            <LinearGradient
+                              colors={["rgba(186,230,253,0.28)", "rgba(186,230,253,0)"]}
+                              start={{ x: 0.5, y: 0 }}
+                              end={{ x: 0.5, y: 0.55 }}
+                              style={styles.centerSheen}
+                            />
+                            <CenterDumbbellIcon />
+                          </LinearGradient>
+                        </View>
+                      </View>
+                    )}
+                  </Pressable>
                 </View>
-              )}
-            </Pressable>
-          );
-        })}
+              );
+            }
+
+            const tintColor = isFocused ? ACCENT : INACTIVE;
+            const rawLabel =
+              options.tabBarLabel !== undefined
+                ? options.tabBarLabel
+                : options.title !== undefined
+                  ? options.title
+                  : route.name.charAt(0).toUpperCase() + route.name.slice(1);
+
+            const icon =
+              route.name === "nutrition" ? (
+                <NutritionTabIcon color={tintColor} isFocused={isFocused} />
+              ) : route.name === "progress" ? (
+                <ProgressTabIcon color={tintColor} isFocused={isFocused} />
+              ) : route.name === "profile" ? (
+                <ProfileTabIcon color={tintColor} isFocused={isFocused} />
+              ) : (
+                <HomeTabIcon color={tintColor} isFocused={isFocused} />
+              );
+
+            return (
+              <Pressable
+                key={route.key}
+                accessibilityRole="button"
+                accessibilityState={isFocused ? { selected: true } : {}}
+                accessibilityLabel={String(rawLabel)}
+                onPress={() => handleTabPress(route, isFocused)}
+                style={styles.tab}
+              >
+                {({ pressed }) => (
+                  <View style={[styles.tabInner, pressed && styles.tabPressed]}>
+                    {icon}
+                    <Text
+                      style={[styles.label, isFocused && styles.labelActive]}
+                      numberOfLines={1}
+                    >
+                      {String(rawLabel)}
+                    </Text>
+                  </View>
+                )}
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
     </View>
   );
@@ -404,77 +377,67 @@ function ProfileTabIcon({
 // ==========================================
 
 const styles = StyleSheet.create({
-  rootWrapper: {
+  root: {
     position: "absolute",
-    bottom: 0,
     left: 0,
     right: 0,
-    width: "100%",
+    bottom: 0,
+    paddingHorizontal: SIDE_GAP,
     zIndex: 100,
   },
-  barSurface: {
+  underFade: {
     position: "absolute",
-    top: 14,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "#080B14",
-    borderTopLeftRadius: 26,
-    borderTopRightRadius: 26,
-    borderTopWidth: 1.2,
-    borderLeftWidth: 0.5,
-    borderRightWidth: 0.5,
-    borderColor: "rgba(56, 189, 248, 0.18)",
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: -8 },
-    shadowOpacity: 0.7,
-    shadowRadius: 20,
-    elevation: 20,
+  },
+  island: {
+    height: BAR_HEIGHT,
+    borderRadius: BAR_HEIGHT / 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.5,
+        shadowRadius: 18,
+      },
+      android: { elevation: 16 },
+      default: { boxShadow: "0 12px 30px rgba(0,0,0,0.55)" } as any,
+    }),
+  },
+  surface: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: BAR_HEIGHT / 2,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(125,211,252,0.18)",
   },
-  barSurfaceGradient: {
+  surfaceSheen: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
+    height: "50%",
   },
-  barTopAmbientLight: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 30,
-  },
-  tabsRow: {
+  row: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 0,
-    height: 60,
-    marginTop: 14,
   },
-  tabPressable: {
+  tab: {
     flex: 1,
-    height: 60,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  tabItem: {
-    width: "100%",
     height: "100%",
+  },
+  // Icon + label as one block, centred horizontally and vertically in the bar.
+  tabInner: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 4,
   },
-  tabItemPressed: {
-    opacity: 0.75,
-  },
-  iconContainer: {
-    width: 28,
-    height: 26,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 4,
+  tabPressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.94 }],
   },
   iconWrapper: {
     width: 22,
@@ -482,83 +445,73 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  tabLabel: {
-    fontSize: 10,
-    lineHeight: 12,
+  label: {
+    ...typography.navLabel,
+    color: INACTIVE,
     textAlign: "center",
-    alignSelf: "center",
-    fontWeight: "700",
-    letterSpacing: 0.5,
     includeFontPadding: false,
+    textAlignVertical: "center",
   },
-  activeTabLabel: {
-    fontWeight: "800",
-    color: "#38BDF8",
+  labelActive: {
+    color: ACCENT,
   },
-  centerButtonOuterContainer: {
+
+  // Centre workout button
+  centerSlot: {
     flex: 1,
-    height: 60,
+    height: "100%",
     alignItems: "center",
     justifyContent: "center",
   },
-  centerButtonPressable: {
-    top: -18,
-    width: 66,
-    height: 66,
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 50,
-  },
-  centerButtonInner: {
-    width: 66,
-    height: 66,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  centerButtonPressed: {
-    transform: [{ scale: 0.94 }],
-    opacity: 0.92,
-  },
-  centerOuterAura: {
+  centerPressable: {
     position: "absolute",
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    backgroundColor: "rgba(2, 132, 199, 0.22)",
-    shadowColor: "#0284C7",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.6,
-    shadowRadius: 16,
+    top: (BAR_HEIGHT - ORB) / 2 - LIFT,
+    width: ORB,
+    height: ORB,
+    zIndex: 10,
   },
-  centerBezelRing: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: "#070A12",
-    borderWidth: 3.5,
-    borderColor: "rgba(56, 189, 248, 0.35)",
+  orbShadow: {
+    width: ORB,
+    height: ORB,
+    borderRadius: ORB / 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: ACCENT,
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.45,
+        shadowRadius: 10,
+      },
+      android: { elevation: 8 },
+      default: { boxShadow: "0 5px 16px rgba(56,189,248,0.4)" } as any,
+    }),
+  },
+  // Single clean sky ring (the multi-colour gradient ring read muddy).
+  orbRing: {
+    flex: 1,
+    borderRadius: ORB / 2,
+    borderWidth: 2,
+    borderColor: "rgba(56,189,248,0.6)",
+    overflow: "hidden",
+  },
+  orbRingActive: {
+    borderColor: "#7DD3FC",
+  },
+  orbCore: {
+    flex: 1,
+    borderRadius: ORB / 2,
+    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#0284C7",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
-    elevation: 16,
   },
-  centerBezelRingActive: {
-    borderColor: "#38BDF8",
-    shadowColor: "#38BDF8",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.85,
-    shadowRadius: 18,
-    elevation: 20,
+  centerPressed: {
+    transform: [{ scale: 0.93 }],
   },
-  centerGradientCircle: {
-    width: 51,
-    height: 51,
-    borderRadius: 25.5,
-    alignItems: "center",
-    justifyContent: "center",
+  centerSheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
   },
   centerDumbbellContainer: {
     width: 40,
@@ -567,7 +520,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   dumbbell3dImage: {
-    width: 38,
-    height: 38,
+    width: 40,
+    height: 40,
   },
 });
