@@ -30,6 +30,7 @@ import {
   ShareCardTheme,
   WorkoutShareCard,
 } from "./WorkoutShareCard";
+import { loadShareModules } from "../utils/shareNative";
 // Type-only: erased at build time, so the native module still loads lazily.
 import type { Social as RNSocial } from "react-native-share";
 import {
@@ -281,23 +282,14 @@ export const WorkoutSummaryScreen: React.FC<WorkoutSummaryScreenProps> = ({
         return;
       }
 
-      // Native modules are loaded on demand: a build without them falls back
-      // to a plain text share instead of crashing the screen.
-      let captureRef: typeof import("react-native-view-shot").captureRef;
-      let Sharing: typeof import("expo-sharing") | null = null;
-      let RNShare: typeof import("react-native-share") | null = null;
-      try {
-        captureRef = require("react-native-view-shot").captureRef;
-      } catch {
+      // Only loads libraries whose native code is in this build; an older
+      // build shares text instead of showing red errors.
+      const { captureRef, Sharing, RNShare } = loadShareModules();
+      if (!captureRef) {
+        setShareNotice("Image sharing turns on after the next app build — shared as text.");
         await Share.share({ message: shareText });
         return;
       }
-      try {
-        Sharing = require("expo-sharing");
-      } catch {}
-      try {
-        RNShare = require("react-native-share");
-      } catch {}
 
       const captured = await captureRef(shareCardRef, {
         format: "png",
