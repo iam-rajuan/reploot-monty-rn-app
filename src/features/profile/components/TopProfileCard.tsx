@@ -1,34 +1,26 @@
 import { useAchievements, useLeaderboard, useXPProgress } from "@/hooks/queries/useProgress";
 import { useProgressionSnapshot } from "@/features/progression";
-import { ProgressBar } from "@/shared/components/ui/ProgressBar";
 import { useAppSelector } from "@/store/hooks";
+import { badgeIconFor } from "@/shared/constants/badgeIcons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import {
-  Award,
-  ChevronRight,
-  Crown,
-  Flame,
-  Medal,
-  Trophy,
-  Zap,
-} from "lucide-react-native";
+import { Award, ChevronRight, Flame, Medal, Zap } from "lucide-react-native";
 import React, { useMemo } from "react";
-import { Platform, Pressable, StyleSheet, useWindowDimensions, View } from "react-native";
+import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Text } from "@/shared/components/typography";
+import { typography } from "@/theme/typography";
 
-const BADGE_EMOJI: Record<string, string> = {
-  medal: "🏅",
-  lightning: "⚡",
-  drop: "💧",
-  flame: "🔥",
-  arm: "💪",
-  salad: "🥗",
-  ribbon: "🎖️",
-  trophy: "🏆",
-};
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.06)",
+  "rgba(255,255,255,0.02)",
+] as const;
 
 const defaultAvatar = require("../../../../assets/avatar/sample-athlete-profile.png");
 
@@ -36,8 +28,6 @@ const format = (value: number) => new Intl.NumberFormat().format(value);
 
 export const TopProfileCard = () => {
   const router = useRouter();
-  const { width } = useWindowDimensions();
-  const isCompact = width <= 430;
   const user = useAppSelector((state) => state.auth.user);
   const { data: xp } = useXPProgress();
   const progression = useProgressionSnapshot();
@@ -57,7 +47,7 @@ export const TopProfileCard = () => {
   );
   const previewBadges = earnedBadges.slice(0, 5);
   const additionalBadges = Math.max(0, earnedBadges.length - previewBadges.length);
-  const xpRatio = xp?.nextLevelXP ? xp.currentXP / xp.nextLevelXP : 0;
+  const xpRatio = xp?.nextLevelXP ? Math.min(1, xp.currentXP / xp.nextLevelXP) : 0;
 
   const navigate = (path: "/profile/edit-profile" | "/achievements") => {
     if (Platform.OS !== "web") {
@@ -66,154 +56,384 @@ export const TopProfileCard = () => {
     router.push(path);
   };
 
+  const stats = [
+    { key: "level", value: xp?.currentLevel ?? "—", label: "LEVEL" },
+    { key: "rank", value: userRank ? `#${userRank.rank}` : "—", label: "GLOBAL RANK" },
+    { key: "badges", value: earnedBadges.length, label: "BADGES" },
+  ];
+
   return (
-    <View style={[styles.card, isCompact && styles.cardCompact]}>
+    <View style={styles.card}>
       <LinearGradient
-        colors={["rgba(56,189,248,0.12)", "rgba(139,92,246,0.07)", "rgba(255,255,255,0.02)"]}
+        colors={SURFACE_WASH}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
+        pointerEvents="none"
       />
 
+      {/* Identity */}
       <View style={styles.identityRow}>
-        <View style={[styles.avatarFrame, isCompact && styles.avatarFrameCompact]}>
-          <Image
-            source={user?.avatarUrl ? { uri: user.avatarUrl } : defaultAvatar}
-            style={styles.avatar}
-            contentFit="cover"
+        <View style={styles.avatarRing}>
+          <LinearGradient
+            colors={["#7DD3FC", "#38BDF8", "#6366F1"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
           />
+          <View style={styles.avatarInner}>
+            <Image
+              source={user?.avatarUrl ? { uri: user.avatarUrl } : defaultAvatar}
+              style={styles.avatar}
+              contentFit="cover"
+            />
+          </View>
         </View>
+
         <View style={styles.identity}>
-          <Text style={[styles.name, isCompact && styles.nameCompact]} numberOfLines={1}>
+          <Text style={styles.kicker}>ATHLETE PROFILE</Text>
+          <Text style={styles.name} numberOfLines={1}>
             {user?.fullName || "Athlete"}
           </Text>
-          <Text style={styles.status} numberOfLines={1}>ATHLETE PROFILE</Text>
-          <View style={[styles.identityMeta, isCompact && styles.identityMetaCompact]}>
-            <View style={[styles.tierChip, isCompact && styles.metaChipCompact, { backgroundColor: `${progression.tier.color}18`, borderColor: `${progression.tier.color}45` }]}>
-              <Medal size={isCompact ? 10 : 13} color={progression.tier.color} />
-              <Text style={[styles.tierText, isCompact && styles.metaTextCompact, { color: progression.tier.color }]}>{progression.tier.displayName}</Text>
+          <View style={styles.chipsRow}>
+            <View style={styles.chip}>
+              <Medal size={11} color={ACCENT_SOFT} strokeWidth={2.4} />
+              <Text style={styles.chipText} numberOfLines={1}>
+                {progression.tier.displayName}
+              </Text>
             </View>
-            <View style={[styles.streakChip, isCompact && styles.metaChipCompact]}>
-              <Flame size={isCompact ? 10 : 13} color="#FFB68C" fill="#FFB68C" />
-              <Text style={[styles.streakText, isCompact && styles.metaTextCompact]} numberOfLines={1}>{xp?.dayStreak ?? "—"} DAY STREAK</Text>
+            <View style={styles.chip}>
+              <Flame size={11} color={ACCENT_SOFT} strokeWidth={2.4} />
+              <Text style={styles.chipText} numberOfLines={1}>
+                {xp?.dayStreak ?? "—"} DAY STREAK
+              </Text>
             </View>
           </View>
         </View>
       </View>
 
-      <View style={[styles.statsRow, isCompact && styles.statsRowCompact]}>
-        <View style={styles.stat}>
-          <Text style={[styles.statValue, isCompact && styles.statValueCompact]}>{xp?.currentLevel ?? "—"}</Text>
-          <Text style={styles.statLabel}>LEVEL</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.stat}>
-          <Text style={[styles.statValue, isCompact && styles.statValueCompact]}>{userRank ? "#" + userRank.rank : "—"}</Text>
-          <Text style={styles.statLabel}>GLOBAL RANK</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.stat}>
-          <Text style={[styles.statValue, isCompact && styles.statValueCompact]}>{earnedBadges.length}</Text>
-          <Text style={styles.statLabel}>BADGES</Text>
-        </View>
+      {/* Stats */}
+      <View style={styles.statsRow}>
+        {stats.map((stat) => (
+          <View key={stat.key} style={styles.statTile}>
+            <Text style={styles.statValue}>{stat.value}</Text>
+            <Text style={styles.statLabel} numberOfLines={1}>
+              {stat.label}
+            </Text>
+          </View>
+        ))}
       </View>
 
-      <View style={[styles.xpSection, isCompact && styles.sectionCompact]}>
+      {/* XP */}
+      <View style={styles.xpSection}>
         <View style={styles.xpHeading}>
-          <View style={styles.xpLabelRow}><Zap size={14} color="#38BDF8" /><Text style={styles.xpLabel}>WORKOUT XP</Text></View>
-          <Text style={styles.xpValue}>{xp ? format(xp.currentXP) + " / " + format(xp.nextLevelXP) + " XP" : "Loading…"}</Text>
+          <View style={styles.inlineLabel}>
+            <Zap size={13} color={ACCENT} strokeWidth={2.6} />
+            <Text style={styles.sectionLabel}>WORKOUT XP</Text>
+          </View>
+          <Text style={styles.xpValue}>
+            {xp ? (
+              <>
+                {format(xp.currentXP)}
+                <Text style={styles.xpTotal}> / {format(xp.nextLevelXP)}</Text>
+              </>
+            ) : (
+              "…"
+            )}
+          </Text>
         </View>
-        <ProgressBar progress={xpRatio} height={8} />
+        <View style={styles.track}>
+          <LinearGradient
+            colors={["#6366F1", "#4F9DFB", "#38BDF8"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.trackFill, { width: `${Math.max(3, xpRatio * 100)}%` }]}
+          />
+        </View>
       </View>
 
-      <View style={[styles.achievementsSection, isCompact && styles.sectionCompact]}>
-        <View style={styles.achievementsHeader}>
-          <View style={styles.achievementsTitleRow}><Award size={15} color="#C5C0FF" /><Text style={styles.achievementsTitle}>ACHIEVEMENT COLLECTION</Text></View>
-          <Text style={styles.badgeCount}>{earnedBadges.length} UNLOCKED</Text>
+      {/* Badges */}
+      <View style={styles.badgesSection}>
+        <View style={styles.xpHeading}>
+          <View style={styles.inlineLabel}>
+            <Award size={13} color={ACCENT} strokeWidth={2.6} />
+            <Text style={styles.sectionLabel}>ACHIEVEMENTS</Text>
+          </View>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => navigate("/achievements")}
+            style={styles.linkChip}
+            hitSlop={6}
+            accessibilityRole="button"
+            accessibilityLabel="View all achievements"
+          >
+            <Text style={styles.linkChipText}>VIEW ALL</Text>
+            <ChevronRight size={12} color={ACCENT_SOFT} strokeWidth={2.6} />
+          </TouchableOpacity>
         </View>
+
         {previewBadges.length ? (
-          <View style={[styles.badgesRow, isCompact && styles.badgesRowCompact]}>
+          <View style={styles.badgesRow}>
             {previewBadges.map((badge) => (
-              <Pressable
+              <TouchableOpacity
                 key={badge.id}
+                activeOpacity={0.75}
                 accessibilityRole="button"
-                accessibilityLabel={"View " + badge.title + " achievement"}
-                style={[styles.badge, isCompact && styles.badgeCompact]}
+                accessibilityLabel={`View ${badge.title} achievement`}
+                style={styles.badge}
                 onPress={() => navigate("/achievements")}
               >
-                <Text style={[styles.badgeEmoji, isCompact && styles.badgeEmojiCompact]}>{BADGE_EMOJI[badge.iconType ?? badge.iconName] ?? "🏅"}</Text>
-              </Pressable>
+                <Image
+                  source={badgeIconFor(badge.iconType ?? badge.iconName)}
+                  style={styles.badgeIcon}
+                  contentFit="contain"
+                />
+              </TouchableOpacity>
             ))}
-            {additionalBadges > 0 ? <View style={[styles.moreBadge, isCompact && styles.badgeCompact]}><Text style={styles.moreBadgeText}>+{additionalBadges}</Text></View> : null}
+            {additionalBadges > 0 ? (
+              <View style={[styles.badge, styles.moreBadge]}>
+                <Text style={styles.moreBadgeText}>+{additionalBadges}</Text>
+              </View>
+            ) : null}
           </View>
         ) : (
           <Text style={styles.emptyBadges}>Complete your first workout to earn a badge.</Text>
         )}
-        <Pressable style={styles.viewAchievements} onPress={() => navigate("/achievements")}>
-          <Text style={styles.viewAchievementsText}>VIEW ALL ACHIEVEMENTS</Text>
-          <ChevronRight size={15} color="#C5C0FF" />
-        </Pressable>
       </View>
 
-      <Pressable style={styles.editButton} onPress={() => navigate("/profile/edit-profile")}>
-        <LinearGradient colors={["#0284C7", "#0EA5E9", "#38BDF8"]} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.editGradient}>
-          <Text style={styles.editText}>EDIT PROFILE</Text>
-          <ChevronRight size={18} color="#FFFFFF" />
-        </LinearGradient>
-      </Pressable>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        style={styles.primaryBtn}
+        onPress={() => navigate("/profile/edit-profile")}
+        accessibilityRole="button"
+        accessibilityLabel="Edit profile"
+      >
+        <LinearGradient
+          colors={BUTTON_GRADIENT}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <LinearGradient
+          colors={SHEEN}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={styles.primarySheen}
+          pointerEvents="none"
+        />
+        <Text style={styles.primaryBtnText}>EDIT PROFILE</Text>
+        <View style={styles.primaryTrail}>
+          <ChevronRight size={14} color="#FFFFFF" strokeWidth={2.6} />
+        </View>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  card: { overflow: "hidden", borderRadius: 24, borderWidth: 1, borderColor: "rgba(56,189,248,0.18)", backgroundColor: "#111A25", padding: 20, marginBottom: 20 },
-  cardCompact: { padding: 14, borderRadius: 20 },
-  identityRow: { flexDirection: "row", alignItems: "center" },
-  avatarFrame: { width: 78, height: 78, marginRight: 16, borderRadius: 24, alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "#0D141E", borderWidth: 1, borderColor: "rgba(34,211,238,0.55)", shadowColor: "#22D3EE", shadowOpacity: 0.16, shadowRadius: 10, elevation: 3 },
-  avatarFrameCompact: { width: 62, height: 62, marginRight: 10, borderRadius: 19 },
-  avatar: { width: "100%", height: "100%" },
-  identity: { flex: 1, minWidth: 0 },
-  name: { color: "#FFFFFF", fontSize: 20, lineHeight: 24, fontWeight: "800", letterSpacing: 0.3 },
-  nameCompact: { fontSize: 18, lineHeight: 22 },
-  status: { color: "#94A3B8", fontSize: 10, lineHeight: 14, fontWeight: "700", letterSpacing: 0.8, marginTop: 2 },
-  identityMeta: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 8 },
-  identityMetaCompact: { flexWrap: "nowrap", gap: 4, marginTop: 6 },
-  tierChip: { minHeight: 25, flexDirection: "row", alignItems: "center", gap: 4, borderRadius: 99, paddingHorizontal: 8, backgroundColor: "rgba(197,192,255,0.14)", borderWidth: 1, borderColor: "rgba(197,192,255,0.26)" },
-  tierText: { color: "#C5C0FF", fontSize: 9, fontWeight: "700", letterSpacing: 0.6, textTransform: "uppercase" },
-  streakChip: { minHeight: 25, flexDirection: "row", alignItems: "center", gap: 4, borderRadius: 99, paddingHorizontal: 8, backgroundColor: "rgba(255,182,140,0.12)", borderWidth: 1, borderColor: "rgba(255,182,140,0.24)" },
-  streakText: { color: "#FFB68C", fontSize: 9, fontWeight: "700", letterSpacing: 0.4 },
-  metaChipCompact: { minHeight: 21, gap: 2, paddingHorizontal: 5 },
-  metaTextCompact: { fontSize: 9, letterSpacing: 0.15 },
-  statsRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 24, paddingVertical: 14, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(255,255,255,0.08)" },
-  statsRowCompact: { marginTop: 18, paddingVertical: 11 },
-  stat: { flex: 1, alignItems: "center", minWidth: 0 },
-  statDivider: { width: 1, height: 30, backgroundColor: "rgba(255,255,255,0.10)" },
-  statValue: { color: "#FFFFFF", fontSize: 22, lineHeight: 25, fontWeight: "800" },
-  statValueCompact: { fontSize: 20, lineHeight: 22 },
-  statLabel: { color: "#94A3B8", fontSize: 9, lineHeight: 12, fontWeight: "700", letterSpacing: 0.6, marginTop: 3, textAlign: "center" },
-  xpSection: { marginTop: 20 },
-  sectionCompact: { marginTop: 17 },
-  xpHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 9 },
-  xpLabelRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  xpLabel: { color: "#38BDF8", fontSize: 10, fontWeight: "700", letterSpacing: 0.9 },
-  xpValue: { flexShrink: 1, color: "#C5C0FF", fontSize: 11, fontWeight: "700", textAlign: "right" },
-  achievementsSection: { marginTop: 22 },
-  achievementsHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
-  achievementsTitleRow: { flexDirection: "row", alignItems: "center", gap: 6, flex: 1 },
-  achievementsTitle: { color: "#FFFFFF", fontSize: 11, fontWeight: "700", letterSpacing: 0.6, flexShrink: 1 },
-  badgeCount: { color: "#C5C0FF", fontSize: 9, fontWeight: "700", letterSpacing: 0.5 },
-  badgesRow: { flexDirection: "row", alignItems: "center", gap: 9, marginTop: 13 },
-  badgesRowCompact: { gap: 6, marginTop: 11 },
-  badge: { width: 38, height: 38, borderRadius: 19, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(197,192,255,0.12)", borderWidth: 1, borderColor: "rgba(197,192,255,0.24)" },
-  badgeCompact: { width: 34, height: 34, borderRadius: 17 },
-  badgeEmoji: { fontSize: 20 },
-  badgeEmojiCompact: { fontSize: 16 },
-  moreBadge: { width: 38, height: 38, borderRadius: 19, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(56,189,248,0.12)", borderWidth: 1, borderColor: "rgba(56,189,248,0.24)" },
-  moreBadgeText: { color: "#38BDF8", fontSize: 11, fontWeight: "700" },
-  emptyBadges: { color: "#94A3B8", fontSize: 12, lineHeight: 17, marginTop: 10 },
-  viewAchievements: { minHeight: 40, alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 3, marginTop: 9 },
-  viewAchievementsText: { color: "#C5C0FF", fontSize: 10, fontWeight: "700", letterSpacing: 0.8 },
-  editButton: { height: 52, overflow: "hidden", borderRadius: 16, marginTop: 8 },
-  editGradient: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 },
-  editText: { color: "#FFFFFF", fontSize: 12, fontWeight: "700", letterSpacing: 1.1 },
+  card: {
+    overflow: "hidden",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.18)",
+    backgroundColor: "#111A25",
+    padding: 16,
+    gap: 16,
+    marginBottom: 14,
+  },
+  identityRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  avatarRing: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    padding: 2.5,
+    overflow: "hidden",
+  },
+  avatarInner: {
+    flex: 1,
+    borderRadius: 34,
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "#111A25",
+    backgroundColor: "#0D141E",
+  },
+  avatar: {
+    width: "100%",
+    height: "100%",
+  },
+  identity: {
+    flex: 1,
+    minWidth: 0,
+    gap: 2,
+  },
+  kicker: {
+    ...typography.overline,
+    color: ACCENT_SOFT,
+  },
+  name: {
+    ...typography.metric,
+    color: "#F8FAFC",
+  },
+  chipsRow: {
+    flexDirection: "row",
+    gap: 6,
+    marginTop: 4,
+  },
+  chip: {
+    flexShrink: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
+  },
+  chipText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+  },
+  statsRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  statTile: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 12,
+    borderRadius: 16,
+    backgroundColor: "rgba(6,8,16,0.45)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.12)",
+  },
+  statValue: {
+    ...typography.metric,
+    color: "#F8FAFC",
+  },
+  statLabel: {
+    ...typography.microTag,
+    color: "#7C8BA1",
+    letterSpacing: 0.6,
+  },
+  xpSection: {
+    gap: 8,
+  },
+  xpHeading: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  inlineLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  sectionLabel: {
+    ...typography.overline,
+    color: "#CBD5E1",
+  },
+  xpValue: {
+    ...typography.badge,
+    color: "#F8FAFC",
+    fontVariant: ["tabular-nums"],
+  },
+  xpTotal: {
+    ...typography.badge,
+    color: "#7C8BA1",
+  },
+  track: {
+    height: 8,
+    borderRadius: 999,
+    overflow: "hidden",
+    backgroundColor: "rgba(148,163,184,0.12)",
+  },
+  trackFill: {
+    height: "100%",
+    borderRadius: 999,
+  },
+  badgesSection: {
+    gap: 10,
+  },
+  linkChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
+  },
+  linkChipText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+  },
+  badgesRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  badge: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1.5,
+    borderColor: "rgba(56,189,248,0.35)",
+  },
+  badgeIcon: {
+    width: 26,
+    height: 26,
+  },
+  moreBadge: {
+    backgroundColor: "rgba(6,8,16,0.45)",
+    borderColor: "rgba(148,163,184,0.2)",
+  },
+  moreBadgeText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+  },
+  emptyBadges: {
+    ...typography.bodySmall,
+    color: "#94A3B8",
+  },
+  primaryBtn: {
+    height: 50,
+    borderRadius: 16,
+    overflow: "hidden",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+  },
+  primarySheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
+  },
+  primaryBtnText: {
+    ...typography.button,
+    letterSpacing: 1,
+    color: "#FFFFFF",
+  },
+  primaryTrail: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
+  },
 });

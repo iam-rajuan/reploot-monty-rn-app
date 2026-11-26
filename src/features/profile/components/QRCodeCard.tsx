@@ -1,107 +1,65 @@
+import { ShareImageSheet } from "@/features/workouts/components/ShareImageSheet";
+import { useProgressionSnapshot } from "@/features/progression";
+import { useXPProgress } from "@/hooks/queries/useProgress";
+import { BrandLogo } from "@/shared/components/branding";
+import { Text } from "@/shared/components/typography";
+import { useAppSelector } from "@/store/hooks";
+import { typography } from "@/theme/typography";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { QrCode, Share2, Sparkles } from "lucide-react-native";
-import QRCodeStyled from "react-native-qrcode-styled";
+import { Share2 } from "lucide-react-native";
 import React, { useState } from "react";
-import {
-  Platform,
-  Share,
-  StyleSheet,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from "react-native";
-import { Text } from "@/shared/components/typography";
+import { Platform, StyleSheet, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { AthletePassShareCard } from "./AthletePassShareCard";
+import { AthleteQRCode } from "./AthleteQRCode";
 
-// Cyan diagonal gradient. Every stop is bright enough to keep strong contrast
-// against the dark #070B14 plate, so the code stays easy to scan.
-const QR_GRADIENT = {
-  type: "linear" as const,
-  options: {
-    colors: ["#67E8F9", "#22D3EE", "#38BDF8"],
-    locations: [0, 0.5, 1],
-    start: [0, 0] as [number, number],
-    end: [1, 1] as [number, number],
-  },
-};
-
-const CustomEyesQRCode = ({ value, size }: { value: string; size: number }) => {
-  return (
-    <QRCodeStyled
-      data={value}
-      size={size - 40}
-      padding={20}
-      style={styles.qrCode}
-      // "L" fits this link in a 29×29 grid instead of 33×33 ("M"), so there are
-      // fewer, larger dots and larger corner boxes. On-screen codes with no logo
-      // overlay do not need more error correction.
-      errorCorrectionLevel="L"
-      pieceBorderRadius="50%"
-      gradient={QR_GRADIENT}
-      outerEyesOptions={{
-        topLeft: {
-          borderRadius: ["40%", "40%", 0, "40%"],
-        },
-        topRight: {
-          borderRadius: ["40%", "40%", "40%"],
-        },
-        bottomLeft: {
-          borderRadius: ["40%", 0, "40%", "40%"],
-        },
-      }}
-      innerEyesOptions={{
-        borderRadius: "50%",
-        // Full-size inner eye squares make the corner boxes bolder and easier to find.
-        scale: 1,
-      }}
-    />
-  );
-};
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.06)",
+  "rgba(255,255,255,0.02)",
+] as const;
 
 export const QRCodeCard = () => {
-  const [copied, setCopied] = useState(false);
   const { width } = useWindowDimensions();
-  const qrSize = width <= 430 ? 200 : 220;
+  const qrSize = width <= 430 ? 196 : 216;
+  const user = useAppSelector((state) => state.auth.user);
+  const { data: xp } = useXPProgress();
+  const progression = useProgressionSnapshot();
+  const [shareOpen, setShareOpen] = useState(false);
+
+  const name = user?.fullName || "Athlete";
   const athleteId = "KX-8821";
   const athleteUrl = `https://reploot.app/athlete/alex-rivers?id=${athleteId}`;
+  const dateLabel = new Date()
+    .toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    .toUpperCase();
 
-  const handleShare = async () => {
+  const handleShare = () => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     }
-
-    try {
-      await Share.share({
-        title: "REPLOOT Athlete Pass",
-        message: `REPLOOT Athlete Pass: Alex Rivers [ID: ${athleteId}]\nScan or visit: ${athleteUrl}`,
-      });
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    } catch {
-      // ignore
-    }
+    setShareOpen(true);
   };
 
   return (
     <View style={styles.card}>
       <LinearGradient
-        colors={[
-          "rgba(56,189,248,0.12)",
-          "rgba(139,92,246,0.07)",
-          "rgba(255,255,255,0.02)",
-        ]}
+        colors={SURFACE_WASH}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         pointerEvents="none"
         style={StyleSheet.absoluteFill}
       />
-      {/* Header */}
+
       <View style={styles.cardHeader}>
-        <View style={styles.headerTitleRow}>
-          <View style={styles.iconBadge}>
-            <QrCode size={15} color="#38BDF8" />
-          </View>
-          <Text style={styles.cardTitle}>ATHLETE PASS QR</Text>
+        <View style={styles.headerLeft}>
+          <BrandLogo size="sm" />
+          <View style={styles.headerDivider} />
+          <Text style={styles.cardTitle}>ATHLETE PASS</Text>
         </View>
         <View style={styles.statusBadge}>
           <View style={styles.statusDot} />
@@ -109,48 +67,62 @@ export const QRCodeCard = () => {
         </View>
       </View>
 
-      {/* Cyber Scannable QR HUD Frame */}
       <View style={styles.qrContainer}>
-        {/* Outer Cyber Glow Border with Corner Accents */}
-        <View style={styles.qrFrameOuter}>
-          <View style={styles.qrPlate}>
-            <CustomEyesQRCode value={athleteUrl} size={qrSize} />
-          </View>
+        <View style={styles.qrPlate}>
+          <AthleteQRCode value={athleteUrl} size={qrSize} />
         </View>
-
-        {/* Telemetry Label */}
         <View style={styles.passDetailsRow}>
-          <Text style={styles.passIdText}>ID: #{athleteId}</Text>
-          <Text style={styles.passDivider}>•</Text>
-          <Text style={styles.passScanNotice}>SCAN TO CONNECT</Text>
+          <Text style={styles.passIdText}>#{athleteId}</Text>
+          <View style={styles.passDot} />
+          <Text style={styles.passScanNotice}>Scan to connect</Text>
         </View>
       </View>
 
-      {/* Share / Action Button */}
       <TouchableOpacity
         onPress={handleShare}
-        activeOpacity={0.8}
-        style={styles.buttonWrapper}
+        activeOpacity={0.85}
+        style={styles.primaryBtn}
+        accessibilityRole="button"
+        accessibilityLabel="Share athlete pass"
       >
         <LinearGradient
-          colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-          style={styles.btnGradient}
+          colors={BUTTON_GRADIENT}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-        >
-          {copied ? (
-            <View style={styles.btnContentRow}>
-              <Sparkles size={16} color="#FFFFFF" />
-              <Text style={styles.btnText}>PASS LINK SHARED</Text>
-            </View>
-          ) : (
-            <View style={styles.btnContentRow}>
-              <Share2 size={16} color="#FFFFFF" />
-              <Text style={styles.btnText}>SHARE ATHLETE PASS QR</Text>
-            </View>
-          )}
-        </LinearGradient>
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <LinearGradient
+          colors={SHEEN}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={styles.primarySheen}
+          pointerEvents="none"
+        />
+        <View>
+          <Share2 size={15} color="#FFFFFF" strokeWidth={2.4} />
+        </View>
+        <Text style={styles.primaryBtnText}>SHARE ATHLETE PASS</Text>
       </TouchableOpacity>
+
+      <ShareImageSheet
+        visible={shareOpen}
+        onClose={() => setShareOpen(false)}
+        title="Your athlete pass"
+        shareText={`Train with me on REPLOOT — ${name} · #${athleteId}\n${athleteUrl}`}
+        filename="reploot-athlete-pass"
+        renderCard={(ref, theme) => (
+          <AthletePassShareCard
+            ref={ref}
+            theme={theme}
+            dateLabel={dateLabel}
+            name={name}
+            athleteId={athleteId}
+            url={athleteUrl}
+            level={xp?.currentLevel}
+            tier={progression.tier.displayName}
+          />
+        )}
+      />
     </View>
   );
 };
@@ -160,131 +132,101 @@ const styles = StyleSheet.create({
     backgroundColor: "#111A25",
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.18)",
-    padding: 20,
-    marginBottom: 20,
+    borderColor: "rgba(56,189,248,0.18)",
+    padding: 16,
+    gap: 16,
+    marginBottom: 14,
     overflow: "hidden",
   },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 18,
   },
-  headerTitleRow: {
+  headerLeft: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 10,
   },
-  iconBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 36,
-    backgroundColor: "rgba(56, 189, 248, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
+  headerDivider: {
+    width: 1,
+    height: 16,
+    backgroundColor: "rgba(148,163,184,0.3)",
   },
   cardTitle: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 1,
+    ...typography.overline,
+    color: "#CBD5E1",
   },
   statusBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(45, 212, 191, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.3)",
-    paddingHorizontal: 8,
+    gap: 5,
+    paddingHorizontal: 9,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
   },
   statusDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#2DD4BF",
-    marginRight: 5,
+    backgroundColor: ACCENT,
   },
   statusText: {
-    color: "#2DD4BF",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+    ...typography.badge,
+    color: ACCENT_SOFT,
   },
   qrContainer: {
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 20,
-  },
-  qrFrameOuter: {
-    position: "relative",
-    padding: 0,
-    backgroundColor: "transparent",
+    gap: 12,
   },
   qrPlate: {
-    position: "relative",
-    borderRadius: 20,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.22)",
+    borderColor: "rgba(56,189,248,0.3)",
     overflow: "hidden",
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: "#070B14",
-  },
-  qrCode: {
-    backgroundColor: "#070B14",
-    borderRadius: 20,
-    overflow: "hidden",
   },
   passDetailsRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 12,
+    gap: 8,
   },
   passIdText: {
-    color: "#38BDF8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+    ...typography.badge,
+    color: ACCENT_SOFT,
   },
-  passDivider: {
-    color: "rgba(255, 255, 255, 0.3)",
-    marginHorizontal: 8,
+  passDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: "rgba(148,163,184,0.5)",
   },
   passScanNotice: {
+    ...typography.caption,
     color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "600",
-    letterSpacing: 0.5,
   },
-  buttonWrapper: {
-    width: "100%",
+  primaryBtn: {
+    height: 50,
     borderRadius: 16,
     overflow: "hidden",
-  },
-  buttonPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.985 }],
-  },
-  btnGradient: {
-    paddingVertical: 13,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  btnContentRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
   },
-  btnText: {
+  primarySheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
+  },
+  primaryBtnText: {
+    ...typography.button,
+    letterSpacing: 1,
     color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 1.2,
   },
 });

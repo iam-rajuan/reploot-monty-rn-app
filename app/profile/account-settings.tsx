@@ -1,14 +1,12 @@
 import { CustomHeader } from "@/shared/components/navigation/CustomHeader";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Check } from "lucide-react-native";
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import { Text } from "@/shared/components/typography";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Line as SvgLine } from "react-native-svg";
 import { BottomActions } from "./_components/BottomActions";
 import { CredentialsCard } from "./_components/CredentialsCard";
 import { LinksCard } from "./_components/LinksCard";
@@ -29,7 +27,7 @@ export default function AccountSettingsRoute() {
   };
 
   const handlePasswordUpdated = () => {
-    setToastMessage("SECURITY CREDENTIALS UPDATED");
+    setToastMessage("Password updated");
     setTimeout(() => {
       setToastMessage(null);
     }, 2500);
@@ -59,35 +57,30 @@ export default function AccountSettingsRoute() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title Section with Masked Gradient Title & Description */}
         <View style={styles.titleSection}>
-          <View style={styles.maskedTitleWrapper}>
-            <View style={styles.maskedTitleView}>
-              <View style={styles.maskWrapper}>
-                <Text
-                  style={[styles.mainTitle, { color: "#F6F8FF" }]}
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                >
-                  ACCOUNT SETTINGS
-                </Text>
-              </View>
-            </View>
-          </View>
+          <Text style={styles.categoryBadge}>PROFILE</Text>
+          <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
+            ACCOUNT SETTINGS
+          </Text>
         </View>
 
+        <Text style={styles.sectionTitle}>SIGN-IN</Text>
         <CredentialsCard onPasswordUpdated={handlePasswordUpdated} />
+
+        <Text style={styles.sectionTitle}>LEGAL & INFO</Text>
         <LinksCard />
+
         <BottomActions />
       </KeyboardAwareScrollView>
 
-      {/* Floating Cyber HUD Toast */}
-      {toastMessage && (
-        <View style={styles.savedToast}>
-          <Check size={16} color="#00f2fe" style={{ marginRight: 8 }} />
-          <Text style={styles.savedToastText}>{toastMessage}</Text>
+      {toastMessage ? (
+        <View style={[styles.toast, { bottom: Math.max(insets.bottom + 16, 28) }]}>
+          <View style={styles.toastIcon}>
+            <Check size={12} color="#FFFFFF" strokeWidth={3.2} />
+          </View>
+          <Text style={styles.toastText}>{toastMessage}</Text>
         </View>
-      )}
+      ) : null}
     </View>
   );
 }
@@ -95,7 +88,7 @@ export default function AccountSettingsRoute() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#090A10",
+    backgroundColor: "#060810",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -103,60 +96,62 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     marginTop: 4,
-    marginBottom: 20,
+    marginBottom: 18,
+    gap: 4,
   },
-  maskedTitleWrapper: {
-    height: 48,
-    width: "100%",
-  },
-  maskedTitleView: {
-    flex: 1,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-  },
-  gradient: {
-    flex: 1,
+  categoryBadge: {
+    ...typography.overline,
+    fontSize: 11,
+    lineHeight: 16,
+    color: "#7DD3FC",
   },
   mainTitle: {
     ...typography.pageTitle,
-    color: "#FFFFFF",
+    color: "#F6F8FF",
   },
-  subtitle: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "600",
-    marginTop: 4,
+  sectionTitle: {
+    ...typography.overline,
+    color: "#7C8BA1",
+    marginBottom: 10,
+    marginLeft: 4,
   },
-  savedToast: {
+  toast: {
     position: "absolute",
-    bottom: 30,
     left: 20,
     right: 20,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(7, 10, 17, 0.95)",
-    borderWidth: 1.5,
-    borderColor: "#00f2fe",
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    zIndex: 9999,
-    elevation: 12,
-    shadowColor: "#00f2fe",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
+    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    backgroundColor: "#111A25",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.35)",
+    zIndex: 50,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.4,
+        shadowRadius: 14,
+      },
+      android: { elevation: 8 },
+      default: {},
+    }),
   },
-  savedToastText: {
-    color: "#00f2fe",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.6,
+  toastIcon: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#0EA5E9",
+  },
+  toastText: {
+    ...typography.subtitle,
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#E2E8F0",
   },
 });

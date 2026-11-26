@@ -2,13 +2,36 @@ import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { ChevronRight, FileText, Info, Shield } from "lucide-react-native";
 import React from "react";
-import {
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Text } from "@/shared/components/typography";
+import { typography } from "@/theme/typography";
+
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+
+const LINKS = [
+  {
+    key: "privacy",
+    title: "Privacy policy",
+    subtitle: "How we handle your data",
+    Icon: Shield,
+    route: "/profile/privacy-policy",
+  },
+  {
+    key: "terms",
+    title: "Terms of service",
+    subtitle: "Your agreement with REPLOOT",
+    Icon: FileText,
+    route: "/profile/terms",
+  },
+  {
+    key: "about",
+    title: "About REPLOOT",
+    subtitle: "Team, version and release notes",
+    Icon: Info,
+    route: "/profile/about",
+  },
+] as const;
 
 export function LinksCard() {
   const router = useRouter();
@@ -22,131 +45,74 @@ export function LinksCard() {
 
   return (
     <View style={styles.card}>
-      {/* Privacy Policy */}
-      <TouchableOpacity
-        style={styles.linkRow}
-        activeOpacity={0.75}
-        onPress={() => handlePress("/profile/privacy-policy")}
-      >
-        <View style={styles.linkLeft}>
-          <View style={styles.iconBadge}>
-            <Shield size={16} color="#38BDF8" />
+      {LINKS.map(({ key, title, subtitle, Icon, route }, i) => (
+        <TouchableOpacity
+          key={key}
+          style={[styles.row, i > 0 && styles.rowDivider]}
+          activeOpacity={0.7}
+          onPress={() => handlePress(route)}
+          accessibilityRole="button"
+          accessibilityLabel={title}
+        >
+          <View style={styles.iconChip}>
+            <Icon size={16} color={ACCENT} strokeWidth={2.2} />
           </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.linkTitle}>PRIVACY PROTOCOL</Text>
-            <Text style={styles.linkSubtitle}>
-              Data telemetry & encryption policies
+          <View style={styles.copy}>
+            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.subtitle} numberOfLines={1}>
+              {subtitle}
             </Text>
           </View>
-        </View>
-        <View style={styles.chevronWrapper}>
-          <ChevronRight size={16} color="#38BDF8" />
-        </View>
-      </TouchableOpacity>
-
-      <View style={styles.divider} />
-
-      {/* Terms & Conditions */}
-      <TouchableOpacity
-        style={styles.linkRow}
-        activeOpacity={0.75}
-        onPress={() => handlePress("/profile/terms")}
-      >
-        <View style={styles.linkLeft}>
-          <View style={styles.iconBadge}>
-            <FileText size={16} color="#38BDF8" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.linkTitle}>TERMS OF SERVICE</Text>
-            <Text style={styles.linkSubtitle}>Athletic platform agreement</Text>
-          </View>
-        </View>
-        <View style={styles.chevronWrapper}>
-          <ChevronRight size={16} color="#38BDF8" />
-        </View>
-      </TouchableOpacity>
-
-      <View style={styles.divider} />
-
-      {/* About */}
-      <TouchableOpacity
-        style={styles.linkRow}
-        activeOpacity={0.75}
-        onPress={() => handlePress("/profile/about")}
-      >
-        <View style={styles.linkLeft}>
-          <View style={styles.iconBadge}>
-            <Info size={16} color="#38BDF8" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.linkTitle}>ABOUT REPLOOT</Text>
-            <Text style={styles.linkSubtitle}>
-              Architecture, team & release logs
-            </Text>
-          </View>
-        </View>
-        <View style={styles.chevronWrapper}>
-          <ChevronRight size={16} color="#38BDF8" />
-        </View>
-      </TouchableOpacity>
+          <ChevronRight size={16} color={ACCENT_SOFT} strokeWidth={2.4} />
+        </TouchableOpacity>
+      ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
-    borderRadius: 20,
+    backgroundColor: "#111A25",
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 18,
-    marginBottom: 20,
+    borderColor: "rgba(56,189,248,0.18)",
+    paddingHorizontal: 14,
+    marginBottom: 22,
   },
-  divider: {
-    height: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    marginVertical: 14,
-  },
-  linkRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  linkLeft: {
+  row: {
     flexDirection: "row",
     alignItems: "center",
-    flex: 1,
+    gap: 12,
+    paddingVertical: 14,
   },
-  iconBadge: {
+  rowDivider: {
+    borderTopWidth: 1,
+    borderTopColor: "rgba(148,163,184,0.10)",
+  },
+  iconChip: {
     width: 36,
     height: 36,
-    borderRadius: 10,
-    backgroundColor: "rgba(56, 189, 248, 0.1)",
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.25)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 14,
+    borderColor: "rgba(56,189,248,0.22)",
   },
-  linkTitle: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 0.8,
-    marginBottom: 2,
+  copy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 1,
   },
-  linkSubtitle: {
-    color: "#64748B",
-    fontSize: 11,
+  title: {
+    ...typography.cardTitle,
+    fontSize: 14,
+    lineHeight: 18,
+    color: "#F8FAFC",
   },
-  chevronWrapper: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 8,
+  subtitle: {
+    ...typography.caption,
+    color: "#7C8BA1",
   },
 });
 

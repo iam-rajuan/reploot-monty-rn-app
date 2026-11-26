@@ -1,129 +1,130 @@
+import { useAppDispatch } from "@/store/hooks";
+import { signOut } from "@/store/slices/authSlice";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
-import {
-  Alert,
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { useRouter } from "expo-router";
+import { LogOut, Trash2 } from "lucide-react-native";
+import React, { useState } from "react";
+import { Alert, Platform, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Text } from "@/shared/components/typography";
-import { Trash2 } from "lucide-react-native";
-import React from "react";
+import { typography } from "@/theme/typography";
 
 export function BottomActions() {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const doLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      await dispatch(signOut()).unwrap();
+      router.replace("/(auth)/sign-in");
+    } catch {
+      setIsLoggingOut(false);
+    }
+  };
+
   const handleLogout = () => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     }
-    Alert.alert(
-      "CONFIRM LOGOUT",
-      "Are you sure you want to terminate your current session?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Log Out", style: "destructive", onPress: () => {} },
-      ],
-    );
+    if (Platform.OS === "web") {
+      doLogout();
+      return;
+    }
+    Alert.alert("Log out?", "You can sign back in any time.", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Log out", style: "destructive", onPress: doLogout },
+    ]);
   };
 
   const handleDeleteAccount = () => {
     if (Platform.OS !== "web") {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(
-        () => {},
-      );
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
     }
     Alert.alert(
-      "DELETE ACCOUNT",
-      "This action will permanently delete all telemetry, streak logs, and workout records. This cannot be undone.",
+      "Delete account?",
+      "This permanently deletes your workouts, streaks and progress. It can't be undone.",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Delete Permanently", style: "destructive", onPress: () => {} },
+        { text: "Delete permanently", style: "destructive", onPress: () => {} },
       ],
     );
   };
 
   return (
-    <View style={styles.bottomActions}>
-      {/* Logout Button */}
+    <View style={styles.container}>
       <TouchableOpacity
-        style={styles.logoutBtn}
-        activeOpacity={0.85}
+        style={[styles.logoutBtn, isLoggingOut && styles.disabled]}
+        activeOpacity={0.75}
         onPress={handleLogout}
+        disabled={isLoggingOut}
+        accessibilityRole="button"
+        accessibilityLabel="Log out"
       >
-        <LinearGradient
-          colors={["#0284C7", "#0EA5E9", "#38BDF8"]}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={styles.logoutGradient}
-        >
-          <Text style={styles.logoutText}>TERMINATE SESSION (LOG OUT)</Text>
-        </LinearGradient>
+        <LogOut size={16} color="#FB7185" strokeWidth={2.4} />
+        <Text style={styles.logoutText}>{isLoggingOut ? "LOGGING OUT..." : "LOG OUT"}</Text>
       </TouchableOpacity>
 
-      {/* Delete Account Button */}
       <TouchableOpacity
-        style={styles.deleteAccountBtn}
-        activeOpacity={0.8}
+        style={styles.deleteBtn}
+        activeOpacity={0.7}
         onPress={handleDeleteAccount}
+        accessibilityRole="button"
+        accessibilityLabel="Delete account"
       >
-        <Trash2 size={15} color="#EF4444" style={{ marginRight: 8 }} />
-        <Text style={styles.deleteAccountText}>DELETE ATHLETE ACCOUNT</Text>
+        <Trash2 size={14} color="#94A3B8" strokeWidth={2.2} />
+        <Text style={styles.deleteText}>Delete account</Text>
       </TouchableOpacity>
 
-      <Text style={styles.footerVersion}>
-        REPLOOT ENGINE V1.0.0 • SECURE PROTOCOL
-      </Text>
+      <Text style={styles.footerVersion}>REPLOOT · v1.0.0</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  bottomActions: {
-    marginTop: 10,
-    width: "100%",
-    alignItems: "center",
+  container: {
+    gap: 10,
+    alignItems: "stretch",
   },
   logoutBtn: {
-    width: "100%",
+    height: 50,
     borderRadius: 16,
-    overflow: "hidden",
-    marginBottom: 20,
-  },
-  logoutGradient: {
-    height: 52,
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  logoutText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-  deleteAccountBtn: {
+    borderWidth: 1,
+    borderColor: "rgba(251,113,133,0.28)",
+    backgroundColor: "rgba(251,113,133,0.07)",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    width: "100%",
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: "rgba(239, 68, 68, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(239, 68, 68, 0.25)",
-    marginBottom: 28,
+    gap: 8,
   },
-  deleteAccountText: {
-    color: "#EF4444",
-    fontSize: 11,
-    fontWeight: "700",
+  logoutText: {
+    ...typography.buttonSmall,
     letterSpacing: 1,
+    color: "#FB7185",
+  },
+  disabled: {
+    opacity: 0.6,
+  },
+  deleteBtn: {
+    height: 44,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+  deleteText: {
+    ...typography.subtitle,
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#94A3B8",
+    textDecorationLine: "underline",
   },
   footerVersion: {
+    ...typography.caption,
     color: "#475569",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.2,
+    textAlign: "center",
+    marginTop: 6,
   },
 });
 

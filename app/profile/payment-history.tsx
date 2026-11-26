@@ -3,9 +3,17 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Check, CreditCard, Download, Smartphone } from "lucide-react-native";
+import {
+  CalendarClock,
+  Check,
+  CreditCard,
+  Download,
+  Receipt,
+  Smartphone,
+} from "lucide-react-native";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Platform,
   ScrollView,
   StyleSheet,
@@ -14,7 +22,6 @@ import {
 } from "react-native";
 import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Line as SvgLine } from "react-native-svg";
 import { typography } from "@/theme/typography";
 import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
 
@@ -28,6 +35,28 @@ interface Transaction {
   isApplePay: boolean;
   status: "COMPLETED" | "PENDING";
 }
+
+const ACCENT = "#38BDF8";
+const ACCENT_SOFT = "#7DD3FC";
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.06)",
+  "rgba(255,255,255,0.02)",
+] as const;
+
+/** "REPLOOT PREMIUM MONTHLY" -> "Premium monthly" (brand name is implied). */
+const displayTitle = (title: string) => {
+  const t = title.replace(/^REPLOOT\s+/i, "").toLowerCase();
+  return t.charAt(0).toUpperCase() + t.slice(1);
+};
+/** "APPLE PAY" -> "Apple Pay", "MASTERCARD ****9281" -> "Card •••• 9281". */
+const displayMethod = (method: string) => {
+  const last4 = method.match(/(\d{4})\s*$/)?.[1];
+  if (last4) return `Card •••• ${last4}`;
+  return method.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+};
+const shortDate = (date: string) => date.replace(/,\s*\d{4}$/, "");
+const toNumber = (price: string) => parseFloat(price.replace(/[^0-9.]/g, "")) || 0;
 
 const TRANSACTIONS: Transaction[] = [
   {
@@ -78,6 +107,8 @@ export default function PaymentHistoryRoute() {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const totalPaid = TRANSACTIONS.reduce((sum, tx) => sum + toNumber(tx.price), 0);
+
   const handleBack = () => {
     if (router.canGoBack()) {
       router.back();
@@ -97,7 +128,8 @@ export default function PaymentHistoryRoute() {
     setDownloadingId(id);
     setTimeout(() => {
       setDownloadingId(null);
-      setToastMessage(`INVOICE ${id.toUpperCase()} SAVED TO ARCHIVE`);
+      const tx = TRANSACTIONS.find((item) => item.id === id);
+      setToastMessage(`Invoice ${tx?.invoiceId ?? ""} saved`);
       setTimeout(() => {
         setToastMessage(null);
       }, 2500);
@@ -127,90 +159,111 @@ export default function PaymentHistoryRoute() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title Section with Masked Gradient Title & Description */}
         <View style={styles.titleSection}>
-          <View style={styles.maskedTitleWrapper}>
-            <View style={styles.maskedTitleView}>
-              <View style={styles.maskWrapper}>
-                <Text
-                  style={[styles.mainTitle, { color: "#F6F8FF" }]}
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                >
-                  PAYMENT HISTORY
-                </Text>
-              </View>
+          <Text style={styles.categoryBadge}>BILLING</Text>
+          <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
+            PAYMENT HISTORY
+          </Text>
+        </View>
+
+        {/* Summary */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={SURFACE_WASH}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <View style={styles.summaryTop}>
+            <View>
+              <Text style={styles.kicker}>TOTAL PAID · 2026</Text>
+              <Text style={styles.totalValue}>${totalPaid.toFixed(2)}</Text>
             </View>
+            <View style={styles.countPill}>
+              <Receipt size={11} color={ACCENT_SOFT} strokeWidth={2.4} />
+              <Text style={styles.countPillText}>{TRANSACTIONS.length} PAYMENTS</Text>
+            </View>
+          </View>
+          <View style={styles.nextCharge}>
+            <View style={styles.iconChip}>
+              <CalendarClock size={14} color={ACCENT} strokeWidth={2.4} />
+            </View>
+            <View style={styles.nextCopy}>
+              <Text style={styles.nextLabel}>Next charge</Text>
+              <Text style={styles.nextValue}>Aug 20, 2026 · Premium monthly</Text>
+            </View>
+            <Text style={styles.nextPrice}>$9.99</Text>
           </View>
         </View>
 
-        {/* Section Header */}
-        {/* <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>INVOICE & BILLING HISTORY</Text>
-          <View style={styles.sectionLine} />
-        </View> */}
+        <Text style={styles.sectionTitle}>RECENT PAYMENTS</Text>
 
-        {/* Transaction History List */}
-        <View style={styles.transactionList}>
-          {TRANSACTIONS.map((tx) => (
-            <View key={tx.id} style={styles.transactionCard}>
-              <View style={styles.txTopRow}>
+        <View style={styles.listCard}>
+          {TRANSACTIONS.map((tx, i) => {
+            const saving = downloadingId === tx.id;
+            return (
+              <View key={tx.id} style={[styles.txRow, i > 0 && styles.txDivider]}>
+                <View style={styles.methodIcon}>
+                  {tx.isApplePay ? (
+                    <Smartphone size={16} color={ACCENT} strokeWidth={2.2} />
+                  ) : (
+                    <CreditCard size={16} color={ACCENT} strokeWidth={2.2} />
+                  )}
+                </View>
+
                 <View style={styles.txInfo}>
-                  <Text style={styles.txTitle}>{tx.title}</Text>
-                  <Text style={styles.txMeta}>
-                    {tx.date} • {tx.invoiceId}
+                  <Text style={styles.txTitle} numberOfLines={2}>
+                    {displayTitle(tx.title)}
+                  </Text>
+                  <Text style={styles.txMeta} numberOfLines={1}>
+                    {shortDate(tx.date)} · {displayMethod(tx.method)}
                   </Text>
                 </View>
-                <Text style={styles.txPrice}>{tx.price}</Text>
-              </View>
 
-              <View style={styles.txBottomRow}>
-                <View style={styles.txMethodBadge}>
-                  {tx.isApplePay ? (
-                    <Smartphone size={12} color="#94A3B8" />
-                  ) : (
-                    <CreditCard size={12} color="#94A3B8" />
-                  )}
-                  <Text style={styles.txMethodText}>{tx.method}</Text>
-                </View>
-
-                <View style={styles.txActionsRight}>
-                  <View style={styles.statusPill}>
-                    <Text style={styles.statusText}>{tx.status}</Text>
-                  </View>
-
-                  <TouchableOpacity
-                    activeOpacity={0.7}
-                    style={styles.invoiceBtn}
-                    onPress={() => handleDownloadInvoice(tx.id)}
-                  >
-                    <Download
-                      size={13}
-                      color={downloadingId === tx.id ? "#2DD4BF" : "#38BDF8"}
-                    />
-                    <Text
-                      style={[
-                        styles.invoiceBtnText,
-                        downloadingId === tx.id && { color: "#2DD4BF" },
-                      ]}
-                    >
-                      {downloadingId === tx.id ? "SAVED" : "PDF"}
+                <View style={styles.txRight}>
+                  <Text style={styles.txPrice}>{tx.price}</Text>
+                  <View style={styles.paidRow}>
+                    <Check size={10} color={ACCENT_SOFT} strokeWidth={3.2} />
+                    <Text style={styles.paidText}>
+                      {tx.status === "COMPLETED" ? "Paid" : "Pending"}
                     </Text>
-                  </TouchableOpacity>
+                  </View>
                 </View>
+
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={[styles.invoiceBtn, saving && styles.invoiceBtnBusy]}
+                  onPress={() => handleDownloadInvoice(tx.id)}
+                  disabled={saving}
+                  hitSlop={6}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Download invoice ${tx.invoiceId}`}
+                >
+                  {saving ? (
+                    <ActivityIndicator size="small" color={ACCENT_SOFT} />
+                  ) : (
+                    <Download size={14} color={ACCENT_SOFT} strokeWidth={2.4} />
+                  )}
+                </TouchableOpacity>
               </View>
-            </View>
-          ))}
+            );
+          })}
         </View>
+
+        <Text style={styles.footnote}>
+          Invoices are saved as PDF. Billing questions? Contact support from Account settings.
+        </Text>
       </ScrollView>
 
-      {/* Floating Cyber HUD Toast */}
-      {toastMessage && (
-        <View style={styles.savedToast}>
-          <Check size={16} color="#00f2fe" style={{ marginRight: 8 }} />
-          <Text style={styles.savedToastText}>{toastMessage}</Text>
+      {toastMessage ? (
+        <View style={[styles.toast, { bottom: Math.max(insets.bottom + 16, 28) }]}>
+          <View style={styles.toastIcon}>
+            <Check size={12} color="#FFFFFF" strokeWidth={3.2} />
+          </View>
+          <Text style={styles.toastText}>{toastMessage}</Text>
         </View>
-      )}
+      ) : null}
     </View>
   );
 }
@@ -218,7 +271,7 @@ export default function PaymentHistoryRoute() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#090A10",
+    backgroundColor: "#060810",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -226,165 +279,222 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     marginTop: 4,
-    marginBottom: 20,
+    marginBottom: 18,
+    gap: 4,
   },
-  maskedTitleWrapper: {
-    height: 48,
-    width: "100%",
-  },
-  maskedTitleView: {
-    flex: 1,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-  },
-  gradient: {
-    flex: 1,
+  categoryBadge: {
+    ...typography.overline,
+    fontSize: 11,
+    lineHeight: 16,
+    color: ACCENT_SOFT,
   },
   mainTitle: {
     ...typography.pageTitle,
-    color: "#FFFFFF",
+    color: "#F6F8FF",
   },
-  subtitle: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "600",
-    marginTop: 4,
+  card: {
+    backgroundColor: "#111A25",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.18)",
+    padding: 16,
+    gap: 16,
+    marginBottom: 22,
+    overflow: "hidden",
   },
-  sectionHeader: {
+  summaryTop: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+  },
+  kicker: {
+    ...typography.overline,
+    color: ACCENT_SOFT,
+  },
+  totalValue: {
+    ...typography.metricLarge,
+    color: "#F8FAFC",
+  },
+  countPill: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 4,
-    marginBottom: 16,
+    gap: 5,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.25)",
+  },
+  countPillText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
+  },
+  nextCharge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    padding: 12,
+    borderRadius: 16,
+    backgroundColor: "rgba(6,8,16,0.45)",
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.12)",
+  },
+  iconChip: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
+  },
+  nextCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  nextLabel: {
+    ...typography.caption,
+    color: "#7C8BA1",
+  },
+  nextValue: {
+    ...typography.subtitle,
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#E2E8F0",
+  },
+  nextPrice: {
+    ...typography.cardTitle,
+    fontSize: 14,
+    lineHeight: 18,
+    color: ACCENT_SOFT,
   },
   sectionTitle: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.2,
+    ...typography.overline,
+    color: "#7C8BA1",
+    marginBottom: 10,
+    marginLeft: 4,
   },
-  sectionLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    marginLeft: 12,
-  },
-  transactionList: {
-    gap: 12,
-    marginBottom: 24,
-  },
-  transactionCard: {
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
-    borderRadius: 16,
+  listCard: {
+    backgroundColor: "#111A25",
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 16,
-  },
-  txTopRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+    borderColor: "rgba(56,189,248,0.18)",
+    paddingHorizontal: 14,
     marginBottom: 14,
+  },
+  txRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 14,
+  },
+  txDivider: {
+    borderTopWidth: 1,
+    borderTopColor: "rgba(148,163,184,0.10)",
+  },
+  methodIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.22)",
   },
   txInfo: {
     flex: 1,
-    marginRight: 12,
+    minWidth: 0,
+    gap: 2,
   },
   txTitle: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 0.5,
-    marginBottom: 4,
+    ...typography.cardTitle,
+    fontSize: 14,
+    lineHeight: 18,
+    color: "#F8FAFC",
   },
   txMeta: {
-    color: "#64748B",
-    fontSize: 11,
+    ...typography.caption,
+    color: "#7C8BA1",
+  },
+  txRight: {
+    alignItems: "flex-end",
+    gap: 2,
   },
   txPrice: {
-    color: "#38BDF8",
-    fontSize: 16,
-    fontWeight: "800",
+    ...typography.cardTitle,
+    fontSize: 14,
+    lineHeight: 18,
+    color: "#F8FAFC",
+    fontVariant: ["tabular-nums"],
   },
-  txBottomRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  txMethodBadge: {
+  paidRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 3,
   },
-  txMethodText: {
-    color: "#94A3B8",
-    fontSize: 11,
-    fontWeight: "600",
-  },
-  txActionsRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  statusPill: {
-    backgroundColor: "rgba(45, 212, 191, 0.12)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.25)",
-  },
-  statusText: {
-    color: "#2DD4BF",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+  paidText: {
+    ...typography.caption,
+    color: ACCENT_SOFT,
   },
   invoiceBtn: {
-    flexDirection: "row",
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: "center",
-    backgroundColor: "rgba(56, 189, 248, 0.1)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.08)",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.25)",
-    gap: 4,
+    borderColor: "rgba(56,189,248,0.3)",
   },
-  invoiceBtnText: {
-    color: "#38BDF8",
-    fontSize: 9,
-    fontWeight: "700",
+  invoiceBtnBusy: {
+    opacity: 0.7,
   },
-  savedToast: {
+  footnote: {
+    ...typography.caption,
+    color: "#64748B",
+    textAlign: "center",
+    paddingHorizontal: 12,
+  },
+  toast: {
     position: "absolute",
-    bottom: 30,
     left: 20,
     right: 20,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(7, 10, 17, 0.95)",
-    borderWidth: 1.5,
-    borderColor: "#00f2fe",
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    zIndex: 9999,
-    elevation: 12,
-    shadowColor: "#00f2fe",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
+    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    backgroundColor: "#111A25",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.35)",
+    zIndex: 50,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.4,
+        shadowRadius: 14,
+      },
+      android: { elevation: 8 },
+      default: {},
+    }),
   },
-  savedToastText: {
-    color: "#00f2fe",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.6,
+  toastIcon: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#0EA5E9",
+  },
+  toastText: {
+    ...typography.subtitle,
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#E2E8F0",
   },
 });

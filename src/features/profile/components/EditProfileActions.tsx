@@ -1,107 +1,114 @@
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
+import { Check } from "lucide-react-native";
 import React from "react";
-import {
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Text } from "@/shared/components/typography";
+import { typography } from "@/theme/typography";
+
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
 
 interface EditProfileActionsProps {
   onSave?: () => void;
-  onDelete?: () => void;
+  onCancel?: () => void;
 }
 
-export const EditProfileActions = ({
-  onSave,
-  onDelete,
-}: EditProfileActionsProps) => {
+/** Save is the one primary action; account deletion lives in Account settings. */
+export const EditProfileActions = ({ onSave, onCancel }: EditProfileActionsProps) => {
   const handleSave = () => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     }
-    if (onSave) {
-      onSave();
-    }
-  };
-
-  const handleDelete = () => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
-    }
-    if (onDelete) {
-      onDelete();
-    }
+    onSave?.();
   };
 
   return (
-    <View style={styles.actionsContainer}>
+    <View style={styles.container}>
       <TouchableOpacity
-        style={styles.saveBtn}
-        activeOpacity={0.8}
+        style={styles.primaryBtn}
+        activeOpacity={0.85}
         onPress={handleSave}
+        accessibilityRole="button"
+        accessibilityLabel="Save changes"
       >
         <LinearGradient
-          colors={["#08A8DB", "#25D7E8"]}
-          style={styles.saveBtnGradient}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-        >
-          <Text style={styles.saveBtnText}>SAVE CHANGES</Text>
-        </LinearGradient>
+          colors={BUTTON_GRADIENT}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <LinearGradient
+          colors={SHEEN}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={styles.primarySheen}
+          pointerEvents="none"
+        />
+        <View>
+          <Check size={16} color="#FFFFFF" strokeWidth={2.8} />
+        </View>
+        <Text style={styles.primaryBtnText}>SAVE CHANGES</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.deleteBtn}
-        activeOpacity={0.8}
-        onPress={handleDelete}
-      >
-        <Text style={styles.deleteBtnText}>DELETE ACCOUNT</Text>
-      </TouchableOpacity>
+      {onCancel ? (
+        <TouchableOpacity
+          style={styles.ghostBtn}
+          activeOpacity={0.7}
+          onPress={onCancel}
+          accessibilityRole="button"
+        >
+          <Text style={styles.ghostBtnText}>CANCEL</Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  actionsContainer: {
-    marginTop: 2,
+  container: {
+    gap: 4,
     marginBottom: 20,
   },
-  saveBtn: {
-    borderRadius: 14,
+  primaryBtn: {
+    height: 52,
+    borderRadius: 16,
     overflow: "hidden",
-    marginBottom: 12,
-  },
-  btnPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.985 }],
-  },
-  saveBtnGradient: {
-    height: 50,
-    justifyContent: "center",
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#38BDF8",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 14,
+      },
+      web: { boxShadow: "0 8px 22px rgba(56,189,248,0.28)" } as any,
+      default: {},
+    }),
   },
-  saveBtnText: {
+  primarySheen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
+  },
+  primaryBtnText: {
+    ...typography.button,
+    letterSpacing: 1,
     color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 1.2,
   },
-  deleteBtn: {
-    height: 48,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(239, 68, 68, 0.35)",
-    backgroundColor: "rgba(239, 68, 68, 0.04)",
-    justifyContent: "center",
+  ghostBtn: {
+    height: 44,
     alignItems: "center",
+    justifyContent: "center",
   },
-  deleteBtnText: {
-    color: "#F87171",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 1.2,
+  ghostBtnText: {
+    ...typography.buttonSmall,
+    letterSpacing: 1,
+    color: "#94A3B8",
   },
 });

@@ -7,7 +7,7 @@ import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Check } from "lucide-react-native";
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import { Text } from "@/shared/components/typography";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -28,7 +28,7 @@ export default function EditProfileRoute() {
   };
 
   const handleSave = () => {
-    setToastMessage("ATHLETE PROFILE SYNCHRONIZED");
+    setToastMessage("Profile saved");
     setTimeout(() => {
       setToastMessage(null);
     }, 2500);
@@ -55,29 +55,33 @@ export default function EditProfileRoute() {
         bottomOffset={16}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: Math.max(insets.bottom + 80, 100) },
+          { paddingBottom: Math.max(insets.bottom + 24, 40) },
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
       >
         <View style={styles.titleSection}>
-          <Text style={styles.eyebrow}>ATHLETE PROFILE</Text>
-          <Text style={styles.mainTitle}>EDIT PROFILE</Text>
+          <Text style={styles.eyebrow}>PROFILE</Text>
+          <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
+            EDIT PROFILE
+          </Text>
         </View>
 
         <EditProfileBanner />
         <EditProfileForm />
         <EditProfileSecurityBox />
-        <EditProfileActions onSave={handleSave} />
+        <EditProfileActions onSave={handleSave} onCancel={handleBack} />
       </KeyboardAwareScrollView>
 
-      {toastMessage && (
-        <View style={styles.savedToast}>
-          <Check size={16} color="#25D7E8" style={{ marginRight: 8 }} />
-          <Text style={styles.savedToastText}>{toastMessage}</Text>
+      {toastMessage ? (
+        <View style={[styles.toast, { bottom: Math.max(insets.bottom + 16, 28) }]}>
+          <View style={styles.toastIcon}>
+            <Check size={12} color="#FFFFFF" strokeWidth={3.2} />
+          </View>
+          <Text style={styles.toastText}>{toastMessage}</Text>
         </View>
-      )}
+      ) : null}
     </View>
   );
 }
@@ -85,57 +89,68 @@ export default function EditProfileRoute() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#070A11",
+    backgroundColor: "#060810",
   },
   keyboardView: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingTop: 4,
     flexGrow: 1,
   },
   titleSection: {
-    marginTop: 2,
+    marginTop: 4,
     marginBottom: 18,
+    gap: 4,
   },
   eyebrow: {
-    color: "#94A3B8",
-    fontSize: 12,
-    lineHeight: 17,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    marginBottom: 3,
+    ...typography.overline,
+    fontSize: 11,
+    lineHeight: 16,
+    color: "#7DD3FC",
   },
   mainTitle: {
     ...typography.pageTitle,
     color: "#F6F8FF",
   },
-  savedToast: {
+  toast: {
     position: "absolute",
-    bottom: 30,
     left: 20,
     right: 20,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#101A29",
+    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    backgroundColor: "#111A25",
     borderWidth: 1,
-    borderColor: "rgba(37, 215, 232, 0.32)",
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    zIndex: 9999,
-    elevation: 12,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
+    borderColor: "rgba(56,189,248,0.35)",
+    zIndex: 50,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.4,
+        shadowRadius: 14,
+      },
+      android: { elevation: 8 },
+      default: {},
+    }),
   },
-  savedToastText: {
-    color: "#8CECF4",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.6,
+  toastIcon: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#0EA5E9",
+  },
+  toastText: {
+    ...typography.subtitle,
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#E2E8F0",
   },
 });

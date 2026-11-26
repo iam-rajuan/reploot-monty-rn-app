@@ -3,7 +3,7 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Check, Sparkles, Zap } from "lucide-react-native";
+import { Check, Sparkles } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   Platform,
@@ -14,9 +14,17 @@ import {
 } from "react-native";
 import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Line as SvgLine } from "react-native-svg";
 import { typography } from "@/theme/typography";
 import { ScreenBackground } from "@/shared/components/layout/ScreenBackground";
+
+const ACCENT_SOFT = "#7DD3FC";
+const BUTTON_GRADIENT = ["#38BDF8", "#0EA5E9", "#0284C7"] as const;
+const SHEEN = ["rgba(255,255,255,0.22)", "rgba(255,255,255,0)"] as const;
+const SURFACE_WASH = [
+  "rgba(56,189,248,0.12)",
+  "rgba(139,92,246,0.06)",
+  "rgba(255,255,255,0.02)",
+] as const;
 
 export default function ManagePlanRoute() {
   const router = useRouter();
@@ -48,12 +56,8 @@ export default function ManagePlanRoute() {
     }
     setSelectedPlan(planId);
     const planName =
-      planId === "elite"
-        ? "APEX ATHLETE"
-        : planId === "free"
-          ? "ROOKIE FREE"
-          : "REPLOOT PRO";
-    setToastMessage(`TIER SYNCHRONIZED: ${planName}`);
+      planId === "elite" ? "Apex Athlete" : planId === "free" ? "Rookie" : "REPLOOT Pro";
+    setToastMessage(`You're now on ${planName}`);
     setTimeout(() => {
       setToastMessage(null);
     }, 2500);
@@ -62,56 +66,50 @@ export default function ManagePlanRoute() {
   const plans = [
     {
       id: "free",
-      name: "ROOKIE",
-      badge: null,
+      name: "Rookie",
+      tag: null as string | null,
       price: "$0",
       period: "forever",
-      description: "Fundamental telemetry & standard workout logging",
+      description: "The essentials to start training.",
       features: [
-        "Standard Workout Logging",
-        "Global Community Rankings",
-        "Daily Mission Tracker",
-        "Basic Profile Telemetry",
+        "Workout logging",
+        "Daily missions",
+        "Global rankings",
+        "Basic progress stats",
       ],
-      isCurrent: false,
-      cta: "DOWNGRADE TO FREE",
     },
     {
       id: "pro",
-      name: "REPLOOT PRO",
-      badge: "ACTIVE PLAN",
+      name: "REPLOOT Pro",
+      tag: "MOST POPULAR",
       price: billingCycle === "monthly" ? "$9.99" : "$7.49",
-      period: billingCycle === "monthly" ? "/month" : "/mo (billed $89/yr)",
-      description: "Full Reploot AI intelligence & real-time HUD analysis",
+      period: billingCycle === "monthly" ? "/month" : "/mo · $89 billed yearly",
+      description: "Smart coaching and real-time form tracking.",
       features: [
-        "Unlimited Reploot AI Coaching",
-        "Real-Time Biometric HUD Tracking",
-        "Form Correction & Video Telemetry",
-        "Priority Global Arena Battles",
-        "Unlimited Routine Cloud Backups",
+        "Unlimited coaching",
+        "Real-time form tracking",
+        "Form correction with video",
+        "Priority leaderboard events",
+        "Cloud backup for routines",
       ],
-      isCurrent: true,
-      cta: "CURRENT ACTIVE PLAN",
     },
     {
       id: "elite",
-      name: "APEX ATHLETE",
-      badge: "ELITE PERFORMANCE",
+      name: "Apex Athlete",
+      tag: "ELITE",
       price: billingCycle === "monthly" ? "$19.99" : "$14.99",
-      period: billingCycle === "monthly" ? "/month" : "/mo (billed $179/yr)",
-      description:
-        "Pro human coaching integration & customized hypertrophy engine",
+      period: billingCycle === "monthly" ? "/month" : "/mo · $179 billed yearly",
+      description: "Everything in Pro, plus a personal human coach.",
       features: [
-        "Everything in Reploot Pro",
-        "1-on-1 Dedicated Human Coach Support",
-        "Custom Macro & Nutrition Engine",
-        "Verified Apex Gold Profile Emblem",
-        "Early Beta Access to Reploot Hardware",
+        "Everything in Pro",
+        "1-on-1 human coach",
+        "Custom macro & nutrition plan",
+        "Verified Apex profile badge",
+        "Early access to new features",
       ],
-      isCurrent: false,
-      cta: "UPGRADE TO APEX",
     },
   ];
+  const planRank: Record<string, number> = { free: 0, pro: 1, elite: 2 };
 
   return (
     <View style={styles.container}>
@@ -132,154 +130,89 @@ export default function ManagePlanRoute() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: Math.max(insets.bottom + 40, 60) },
+          { paddingBottom: Math.max(insets.bottom + 28, 40) },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title Section with Masked Gradient Title & Description */}
         <View style={styles.titleSection}>
-          <View style={styles.maskedTitleWrapper}>
-            <View style={styles.maskedTitleView}>
-              <View style={styles.maskWrapper}>
-                <Text
-                  style={[styles.mainTitle, { color: "#F6F8FF" }]}
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                >
-                  MEMBERSHIP PLANS
+          <Text style={styles.categoryBadge}>MEMBERSHIP</Text>
+          <Text style={styles.mainTitle} numberOfLines={1} adjustsFontSizeToFit>
+            MANAGE PLAN
+          </Text>
+        </View>
+
+        <View style={styles.segment}>
+          {(["monthly", "annual"] as const).map((cycle) => {
+            const active = billingCycle === cycle;
+            return (
+              <TouchableOpacity
+                key={cycle}
+                activeOpacity={0.8}
+                style={[styles.segmentItem, active && styles.segmentItemActive]}
+                onPress={() => handleCycleChange(cycle)}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: active }}
+              >
+                <Text style={[styles.segmentText, active && styles.segmentTextActive]}>
+                  {cycle.toUpperCase()}
                 </Text>
-              </View>
-            </View>
-          </View>
+                {cycle === "annual" ? (
+                  <View style={styles.saveBadge}>
+                    <Text style={styles.saveBadgeText}>−25%</Text>
+                  </View>
+                ) : null}
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
-        {/* Billing Cycle Switcher */}
-        <View style={styles.cycleContainer}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={[
-              styles.cycleTab,
-              billingCycle === "monthly" && styles.cycleTabActive,
-            ]}
-            onPress={() => handleCycleChange("monthly")}
-          >
-            <Text
-              style={[
-                styles.cycleText,
-                billingCycle === "monthly" && styles.cycleTextActive,
-              ]}
-            >
-              MONTHLY
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={[
-              styles.cycleTab,
-              billingCycle === "annual" && styles.cycleTabActive,
-            ]}
-            onPress={() => handleCycleChange("annual")}
-          >
-            <Text
-              style={[
-                styles.cycleText,
-                billingCycle === "annual" && styles.cycleTextActive,
-              ]}
-            >
-              ANNUAL
-            </Text>
-            <View style={styles.discountBadge}>
-              <Text style={styles.discountText}>SAVE 25%</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {/* Plans List */}
         <View style={styles.plansList}>
           {plans.map((plan) => {
-            const isHighlight = plan.id === "pro";
-            const isApex = plan.id === "elite";
-            const isSelected = selectedPlan === plan.id;
-
+            const isCurrent = selectedPlan === plan.id;
+            const isUpgrade = planRank[plan.id] > planRank[selectedPlan];
             return (
-              <View
-                key={plan.id}
-                style={[
-                  styles.planCard,
-                  isHighlight && styles.planCardHighlight,
-                  isApex && styles.planCardApex,
-                  isSelected && styles.planCardSelected,
-                ]}
-              >
-                {/* Header row with Badge */}
+              <View key={plan.id} style={[styles.planCard, isCurrent && styles.planCardCurrent]}>
+                {isCurrent ? (
+                  <LinearGradient
+                    colors={SURFACE_WASH}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={StyleSheet.absoluteFill}
+                    pointerEvents="none"
+                  />
+                ) : null}
+
                 <View style={styles.planHeaderRow}>
                   <Text style={styles.planName}>{plan.name}</Text>
-                  {plan.badge && (
-                    <View
-                      style={[
-                        styles.badgePill,
-                        isHighlight && styles.badgePillCyan,
-                        isApex && styles.badgePillGold,
-                      ]}
-                    >
-                      {isHighlight ? (
-                        <Sparkles
-                          size={11}
-                          color="#38BDF8"
-                          style={{ marginRight: 4 }}
-                        />
-                      ) : (
-                        <Zap
-                          size={11}
-                          color="#FFB68C"
-                          style={{ marginRight: 4 }}
-                        />
-                      )}
-                      <Text
-                        style={[
-                          styles.badgeText,
-                          isHighlight && { color: "#38BDF8" },
-                          isApex && { color: "#FFB68C" },
-                        ]}
-                      >
-                        {plan.badge}
-                      </Text>
+                  {isCurrent ? (
+                    <View style={[styles.pill, styles.pillCurrent]}>
+                      <Check size={10} color="#FFFFFF" strokeWidth={3.2} />
+                      <Text style={[styles.pillText, styles.pillTextCurrent]}>CURRENT</Text>
                     </View>
-                  )}
+                  ) : plan.tag ? (
+                    <View style={styles.pill}>
+                      <Sparkles size={10} color={ACCENT_SOFT} strokeWidth={2.4} />
+                      <Text style={styles.pillText}>{plan.tag}</Text>
+                    </View>
+                  ) : null}
                 </View>
 
-                {/* Price block */}
                 <View style={styles.priceRow}>
                   <Text style={styles.priceText}>{plan.price}</Text>
                   <Text style={styles.periodText}>{plan.period}</Text>
                 </View>
-
                 <Text style={styles.descriptionText}>{plan.description}</Text>
 
-                {/* Divider */}
                 <View style={styles.cardDivider} />
 
-                {/* Features Checklist */}
                 <View style={styles.featuresList}>
-                  {plan.features.map((feature, idx) => (
-                    <View key={idx} style={styles.featureItem}>
-                      <View
-                        style={[
-                          styles.checkCircle,
-                          isHighlight && styles.checkCircleCyan,
-                          isApex && styles.checkCircleGold,
-                        ]}
-                      >
+                  {plan.features.map((feature) => (
+                    <View key={feature} style={styles.featureItem}>
+                      <View style={[styles.checkCircle, isCurrent && styles.checkCircleOn]}>
                         <Check
-                          size={11}
-                          color={
-                            isApex
-                              ? "#FFB68C"
-                              : isHighlight
-                                ? "#38BDF8"
-                                : "#94A3B8"
-                          }
+                          size={10}
+                          color={isCurrent ? "#FFFFFF" : ACCENT_SOFT}
+                          strokeWidth={3.2}
                         />
                       </View>
                       <Text style={styles.featureLabel}>{feature}</Text>
@@ -287,44 +220,62 @@ export default function ManagePlanRoute() {
                   ))}
                 </View>
 
-                {/* Call to action button */}
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  style={styles.ctaBtn}
-                  onPress={() => handleSelectPlan(plan.id)}
-                >
-                  {plan.isCurrent ? (
-                    <View style={styles.currentPlanBtn}>
-                      <Text style={styles.currentPlanBtnText}>{plan.cta}</Text>
-                    </View>
-                  ) : (
+                {isCurrent ? (
+                  <View style={styles.currentBtn}>
+                    <Text style={styles.currentBtnText}>YOUR CURRENT PLAN</Text>
+                  </View>
+                ) : isUpgrade ? (
+                  <TouchableOpacity
+                    activeOpacity={0.85}
+                    style={styles.primaryBtn}
+                    onPress={() => handleSelectPlan(plan.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Upgrade to ${plan.name}`}
+                  >
                     <LinearGradient
-                      colors={
-                        isApex
-                          ? ["#D97706", "#EA580C", "#F97316"]
-                          : ["#0284C7", "#0EA5E9", "#38BDF8"]
-                      }
-                      start={{ x: 0, y: 0.5 }}
-                      end={{ x: 1, y: 0.5 }}
-                      style={styles.ctaGradient}
-                    >
-                      <Text style={styles.ctaBtnText}>{plan.cta}</Text>
-                    </LinearGradient>
-                  )}
-                </TouchableOpacity>
+                      colors={BUTTON_GRADIENT}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={StyleSheet.absoluteFill}
+                    />
+                    <LinearGradient
+                      colors={SHEEN}
+                      start={{ x: 0.5, y: 0 }}
+                      end={{ x: 0.5, y: 1 }}
+                      style={styles.primarySheen}
+                      pointerEvents="none"
+                    />
+                    <Text style={styles.primaryBtnText}>UPGRADE TO {plan.name.toUpperCase()}</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    activeOpacity={0.75}
+                    style={styles.secondaryBtn}
+                    onPress={() => handleSelectPlan(plan.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Switch to ${plan.name}`}
+                  >
+                    <Text style={styles.secondaryBtnText}>SWITCH TO {plan.name.toUpperCase()}</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             );
           })}
         </View>
+
+        <Text style={styles.footnote}>
+          Cancel anytime. Changes apply from your next billing date.
+        </Text>
       </ScrollView>
 
-      {/* Floating Cyber HUD Toast */}
-      {toastMessage && (
-        <View style={styles.savedToast}>
-          <Check size={16} color="#00f2fe" style={{ marginRight: 8 }} />
-          <Text style={styles.savedToastText}>{toastMessage}</Text>
+      {toastMessage ? (
+        <View style={[styles.toast, { bottom: Math.max(insets.bottom + 16, 28) }]}>
+          <View style={styles.toastIcon}>
+            <Check size={12} color="#FFFFFF" strokeWidth={3.2} />
+          </View>
+          <Text style={styles.toastText}>{toastMessage}</Text>
         </View>
-      )}
+      ) : null}
     </View>
   );
 }
@@ -332,7 +283,7 @@ export default function ManagePlanRoute() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#090A10",
+    backgroundColor: "#060810",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -340,165 +291,140 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     marginTop: 4,
-    marginBottom: 20,
+    marginBottom: 16,
+    gap: 4,
   },
-  maskedTitleWrapper: {
-    height: 48,
-    width: "100%",
-  },
-  maskedTitleView: {
-    flex: 1,
-    width: "100%",
-  },
-  maskWrapper: {
-    backgroundColor: "transparent",
-    flex: 1,
-    justifyContent: "center",
-  },
-  gradient: {
-    flex: 1,
+  categoryBadge: {
+    ...typography.overline,
+    fontSize: 11,
+    lineHeight: 16,
+    color: ACCENT_SOFT,
   },
   mainTitle: {
     ...typography.pageTitle,
-    color: "#FFFFFF",
+    color: "#F6F8FF",
   },
-  subtitle: {
-    color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "600",
-    marginTop: 4,
-  },
-  cycleContainer: {
+  segment: {
     flexDirection: "row",
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
-    borderRadius: 16,
+    gap: 4,
     padding: 4,
+    borderRadius: 16,
+    marginBottom: 16,
+    backgroundColor: "rgba(17,26,37,0.8)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    marginBottom: 20,
+    borderColor: "rgba(56,189,248,0.14)",
   },
-  cycleTab: {
+  segmentItem: {
     flex: 1,
+    height: 38,
+    borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 10,
-    borderRadius: 12,
     gap: 6,
   },
-  cycleTabActive: {
-    backgroundColor: "rgba(56, 189, 248, 0.15)",
+  segmentItemActive: {
+    backgroundColor: "rgba(56,189,248,0.16)",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.35)",
+    borderColor: "rgba(56,189,248,0.4)",
   },
-  cycleText: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1,
+  segmentText: {
+    ...typography.badge,
+    color: "#7C8BA1",
   },
-  cycleTextActive: {
+  segmentTextActive: {
+    color: ACCENT_SOFT,
+  },
+  saveBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 999,
+    backgroundColor: "#0EA5E9",
+  },
+  saveBadgeText: {
+    ...typography.badge,
+    letterSpacing: 0.3,
     color: "#FFFFFF",
   },
-  discountBadge: {
-    backgroundColor: "rgba(45, 212, 191, 0.2)",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "rgba(45, 212, 191, 0.35)",
-  },
-  discountText: {
-    color: "#2DD4BF",
-    fontSize: 9,
-    fontWeight: "700",
-  },
   plansList: {
-    gap: 16,
-    marginBottom: 24,
+    gap: 12,
+    marginBottom: 16,
   },
   planCard: {
-    backgroundColor: "rgba(15, 23, 42, 0.65)",
-    borderRadius: 20,
+    backgroundColor: "#111A25",
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 20,
+    borderColor: "rgba(148,163,184,0.14)",
+    padding: 18,
+    overflow: "hidden",
   },
-  planCardHighlight: {
-    borderColor: "rgba(56, 189, 248, 0.4)",
-    backgroundColor: "rgba(15, 23, 42, 0.8)",
-  },
-  planCardApex: {
-    borderColor: "rgba(255, 182, 140, 0.35)",
-  },
-  planCardSelected: {
-    borderWidth: 1.5,
+  planCardCurrent: {
+    borderColor: "rgba(56,189,248,0.55)",
   },
   planHeaderRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    justifyContent: "space-between",
+    gap: 8,
+    marginBottom: 8,
   },
   planName: {
-    color: "#FFFFFF",
-    fontSize: 20,
-    fontWeight: "800",
-    letterSpacing: 0.8,
+    ...typography.cardTitle,
+    fontSize: 18,
+    lineHeight: 22,
+    color: "#F8FAFC",
+    flexShrink: 1,
   },
-  badgePill: {
+  pill: {
+    flexShrink: 0,
     flexDirection: "row",
     alignItems: "center",
+    gap: 4,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 6,
+    borderRadius: 999,
+    backgroundColor: "rgba(56,189,248,0.10)",
     borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
   },
-  badgePillCyan: {
-    backgroundColor: "rgba(56, 189, 248, 0.12)",
-    borderColor: "rgba(56, 189, 248, 0.3)",
+  pillCurrent: {
+    backgroundColor: "#0EA5E9",
+    borderColor: "#0EA5E9",
   },
-  badgePillGold: {
-    backgroundColor: "rgba(255, 182, 140, 0.12)",
-    borderColor: "rgba(255, 182, 140, 0.3)",
+  pillText: {
+    ...typography.badge,
+    color: ACCENT_SOFT,
   },
-  badgeText: {
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.8,
+  pillTextCurrent: {
+    color: "#FFFFFF",
   },
   priceRow: {
     flexDirection: "row",
     alignItems: "baseline",
+    flexWrap: "wrap",
     gap: 6,
-    marginBottom: 6,
   },
   priceText: {
-    color: "#FFFFFF",
-    fontSize: 32,
-    fontWeight: "800",
-    letterSpacing: 0.5,
+    ...typography.metricLarge,
+    color: "#F8FAFC",
   },
   periodText: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontWeight: "600",
+    ...typography.caption,
+    color: "#7C8BA1",
   },
   descriptionText: {
+    ...typography.bodySmall,
     color: "#94A3B8",
-    fontSize: 12,
-    lineHeight: 16,
-    marginBottom: 16,
+    marginTop: 4,
   },
   cardDivider: {
     height: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    marginBottom: 16,
+    backgroundColor: "rgba(148,163,184,0.10)",
+    marginVertical: 14,
   },
   featuresList: {
     gap: 10,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   featureItem: {
     flexDirection: "row",
@@ -506,84 +432,114 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   checkCircle: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    justifyContent: "center",
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.10)",
   },
-  checkCircleCyan: {
-    backgroundColor: "rgba(56, 189, 248, 0.12)",
-  },
-  checkCircleGold: {
-    backgroundColor: "rgba(255, 182, 140, 0.12)",
+  checkCircleOn: {
+    backgroundColor: "#0EA5E9",
   },
   featureLabel: {
-    color: "#CBD5E1",
-    fontSize: 12,
-    fontWeight: "600",
+    ...typography.subtitle,
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#E2E8F0",
     flex: 1,
   },
-  ctaBtn: {
-    borderRadius: 14,
-    overflow: "hidden",
-  },
-  btnPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.99 }],
-  },
-  ctaGradient: {
-    paddingVertical: 13,
+  currentBtn: {
+    height: 48,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
-  },
-  ctaBtnText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-  },
-  currentPlanBtn: {
-    paddingVertical: 13,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(56, 189, 248, 0.12)",
+    backgroundColor: "rgba(56,189,248,0.06)",
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    borderRadius: 14,
+    borderColor: "rgba(56,189,248,0.25)",
   },
-  currentPlanBtnText: {
-    color: "#38BDF8",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1.2,
+  currentBtnText: {
+    ...typography.buttonSmall,
+    letterSpacing: 1,
+    color: "#7C8BA1",
   },
-  savedToast: {
+  primaryBtn: {
+    height: 50,
+    borderRadius: 16,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  primarySheen: {
     position: "absolute",
-    bottom: 30,
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "55%",
+  },
+  primaryBtnText: {
+    ...typography.button,
+    letterSpacing: 1,
+    color: "#FFFFFF",
+  },
+  secondaryBtn: {
+    height: 48,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(56,189,248,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.3)",
+  },
+  secondaryBtnText: {
+    ...typography.button,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 1,
+    color: ACCENT_SOFT,
+  },
+  footnote: {
+    ...typography.caption,
+    color: "#64748B",
+    textAlign: "center",
+  },
+  toast: {
+    position: "absolute",
     left: 20,
     right: 20,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(7, 10, 17, 0.95)",
-    borderWidth: 1.5,
-    borderColor: "#00f2fe",
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    zIndex: 9999,
-    elevation: 12,
-    shadowColor: "#00f2fe",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
+    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    backgroundColor: "#111A25",
+    borderWidth: 1,
+    borderColor: "rgba(56,189,248,0.35)",
+    zIndex: 50,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.4,
+        shadowRadius: 14,
+      },
+      android: { elevation: 8 },
+      default: {},
+    }),
   },
-  savedToastText: {
-    color: "#00f2fe",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.6,
+  toastIcon: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#0EA5E9",
+  },
+  toastText: {
+    ...typography.subtitle,
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#E2E8F0",
   },
 });
