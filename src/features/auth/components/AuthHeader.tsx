@@ -1,4 +1,5 @@
 import * as Haptics from "expo-haptics";
+import { BrandLogo } from "@/shared/components/branding";
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import {
@@ -8,7 +9,6 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { Image } from "expo-image";
 
 export interface AuthHeaderProps {
   onBack?: () => void;
@@ -59,11 +59,7 @@ export function AuthHeader({
         <View style={styles.placeholder} />
       )}
 
-      <Image
-        source={require("../../../../assets/logo.png")}
-        style={styles.logoImage}
-        contentFit="contain"
-      />
+      <BrandLogo size="lg" />
     </View>
   );
 }
@@ -92,9 +88,5 @@ const styles = StyleSheet.create({
   placeholder: {
     width: 44,
     height: 44,
-  },
-  logoImage: {
-    width: 140,
-    height: 32,
   },
 });

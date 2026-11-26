@@ -1,5 +1,5 @@
 import * as Haptics from "expo-haptics";
-import { Image } from "expo-image";
+import { BrandLogo } from "@/shared/components/branding";
 import { Pressable, StyleSheet, View } from "react-native";
 import { Text } from "@/shared/components/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -32,11 +32,7 @@ export const OnboardingHeader: React.FC<OnboardingHeaderProps> = ({
       pointerEvents="box-none"
     >
       <Pressable onPress={onLogoPress} hitSlop={12}>
-        <Image
-          source={require("../../../../assets/logo.png")}
-          style={styles.logoImage}
-          contentFit="contain"
-        />
+        <BrandLogo size="md" />
       </Pressable>
       {showSkip ? (
         <Pressable
@@ -65,10 +61,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 24,
     paddingBottom: 12,
-  },
-  logoImage: {
-    width: 120,
-    height: 24, // roughly matches previous text size
   },
   skipButton: {
     paddingVertical: 6,

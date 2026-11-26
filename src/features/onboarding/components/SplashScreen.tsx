@@ -1,4 +1,4 @@
-import { Image } from "expo-image";
+import { BrandLogo } from "@/shared/components/branding";
 import { useEffect, useRef } from "react";
 import {
   Animated,
@@ -67,11 +67,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
       >
         {/* Brand Title Centered */}
         <View style={styles.centerContainer}>
-          <Image
-            source={require("../../../../assets/logo.png")}
-            style={styles.logoImage}
-            contentFit="contain"
-          />
+          <BrandLogo size="display" />
         </View>
 
         {/* Bottom Tagline with tracking */}
@@ -102,10 +98,6 @@ const styles = StyleSheet.create({
   centerContainer: {
     justifyContent: "center",
     alignItems: "center",
-  },
-  logoImage: {
-    width: 280,
-    height: 70,
   },
   bottomContainer: {
     position: "absolute",
